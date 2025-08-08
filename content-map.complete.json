@@ -1,0 +1,32 @@
+{
+  "hero": {
+    "heading": "쇼츠 크리에이터를 위한 모든 것",
+    "subheading": "강의, 전자책, 커뮤니티가 한 곳에",
+    "description": "YouTube Shorts 크리에이터를 위한 교육 플랫폼",
+    "cta": {
+      "primary": {
+        "text": "커뮤니티 참여하기",
+        "href": "/community"
+      },
+      "secondary": {
+        "text": "자료실 둘러보기",
+        "href": "/resources"
+      }
+    }
+  },
+  "navigation": {
+    "links": [
+      { "text": "툴박스", "href": "/tools" },
+      { "text": "자료실", "href": "/resources" },
+      { "text": "커뮤니티", "href": "/community" }
+    ]
+  },
+  "footer": {
+    "copyright": "© 2025 쇼츠 스튜디오. All rights reserved.",
+    "links": [
+      { "text": "개인정보처리방침", "href": "/privacy" },
+      { "text": "이용약관", "href": "/terms" },
+      { "text": "문의하기", "href": "/contact" }
+    ]
+  }
+}
