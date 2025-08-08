@@ -31,11 +31,38 @@
       "logo": "쇼츠 스튜디오",
       "tagline": "YouTube Shorts 크리에이터를 위한 모든 것",
       "copyright": "© 2025 쇼츠 스튜디오. All rights reserved.",
+      "address": "서울특별시 강남구",
       "social": {
         "youtube": "https://youtube.com",
         "instagram": "https://instagram.com",
         "facebook": "https://facebook.com"
       },
+      "sections": [
+        {
+          "title": "서비스",
+          "links": [
+            { "text": "자막 생성기", "href": "/tools" },
+            { "text": "강의", "href": "/courses" },
+            { "text": "전자책", "href": "/resources" }
+          ]
+        },
+        {
+          "title": "커뮤니티",
+          "links": [
+            { "text": "오픈채팅방", "href": "/community" },
+            { "text": "FAQ", "href": "/faq" },
+            { "text": "공지사항", "href": "/announcements" }
+          ]
+        },
+        {
+          "title": "회사",
+          "links": [
+            { "text": "소개", "href": "/about" },
+            { "text": "문의하기", "href": "/contact" },
+            { "text": "채용", "href": "/careers" }
+          ]
+        }
+      ],
       "links": [
         { "text": "개인정보처리방침", "href": "/privacy" },
         { "text": "이용약관", "href": "/terms" },
