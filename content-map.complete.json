@@ -1,0 +1,343 @@
+{
+  "timestamp": "2025-08-07T10:00:00.000Z",
+  "language": "ko-KR",
+  "sites": {
+    "naver_cafe": {
+      "title": "디지털노마드 하이클래스 - 디하클 (1%의 마케터공간)",
+      "description": "YouTube Shorts 크리에이터를 위한 최고의 커뮤니티",
+      "memberCount": "15,000+",
+      "categories": [
+        "전체글보기",
+        "인기글",
+        "카페지식활동",
+        "✅ 출석 체크하기",
+        "🏅 개근상",
+        "📍 디하클 이용 가이드",
+        "📡 회원 대상 전체 공지",
+        "디하클 이벤트 공지",
+        "디하클 카카오톡 채널톡",
+        "💙 디하클 & 운영진 소개",
+        "👑 명예의 전당",
+        "수강생 인터뷰",
+        "📍 디하클 특강(VOD)",
+        "📍 유튜브 강의 로드맵",
+        "💬 강의 문의하기"
+      ]
+    },
+    "liveklass": {
+      "title": "디하클 라이브클래스",
+      "description": "실시간 온라인 강의 플랫폼",
+      "courses": [
+        {
+          "title": "유튜브 쇼츠 마스터 클래스",
+          "price": "현재 무료",
+          "description": "쇼츠 제작부터 수익화까지 A to Z"
+        },
+        {
+          "title": "AI 도구 활용 특강",
+          "price": "현재 무료",
+          "description": "ChatGPT, Midjourney를 활용한 콘텐츠 제작"
+        }
+      ]
+    }
+  },
+  "extracted": {
+    "hero": {
+      "title": "쇼츠 제작의 모든 과정,\nAI로 스마트하게",
+      "subtitle": "YouTube Shorts 크리에이터를 위한 AI 도구와 교육 플랫폼",
+      "cta": {
+        "primary": "툴박스 무료로 사용하기",
+        "secondary": "커뮤니티 둘러보기"
+      },
+      "badge": "베타 서비스 운영 중",
+      "stats": {
+        "users": "15,000+",
+        "videosProcessed": "50,000+",
+        "avgTimeSaved": "85%",
+        "satisfaction": "4.9"
+      }
+    },
+    "socialProof": {
+      "title": "디하클 공식 카페 회원 15,000명이 함께합니다",
+      "description": "국내 최대 쇼츠 크리에이터 커뮤니티",
+      "logos": [
+        "Naver Cafe",
+        "YouTube Official",
+        "Creator Awards"
+      ]
+    },
+    "features": [
+      {
+        "id": "subtitle-generator",
+        "title": "AI 자막 생성기",
+        "subtitle": "귀찮은 자막 작업, 3초컷",
+        "description": "OpenAI Whisper 기술을 활용한 정확한 한국어 자막 생성. 무음 구간 자동 제거로 완벽한 타이밍 동기화.",
+        "icon": "sparkles",
+        "image": "/images/subtitle-generator-mockup.png",
+        "benefits": [
+          "99% 정확도의 음성 인식",
+          "자동 타이밍 동기화",
+          "무음 구간 스마트 제거",
+          "SRT 파일 즉시 다운로드"
+        ],
+        "stats": {
+          "accuracy": "99%",
+          "timeReduced": "90%",
+          "languages": "10+"
+        }
+      },
+      {
+        "id": "monetization-guide",
+        "title": "수익화 가이드북",
+        "subtitle": "성공한 크리에이터들의 노하우만 압축",
+        "description": "월 천만원 달성한 크리에이터들의 실전 전략을 담은 디지털 가이드북",
+        "icon": "currency",
+        "image": "/images/guidebook-mockup.png",
+        "benefits": [
+          "실전 수익화 전략",
+          "플랫폼별 최적화 가이드",
+          "광고 수익 극대화 방법",
+          "스폰서십 협상 팁"
+        ],
+        "stats": {
+          "pages": "150+",
+          "strategies": "50+",
+          "caseStudies": "20+"
+        }
+      },
+      {
+        "id": "community",
+        "title": "커뮤니티 & 네트워킹",
+        "subtitle": "함께 성장하는 크리에이터 네트워크",
+        "description": "초보부터 프로까지, 레벨별 맞춤 커뮤니티에서 정보를 공유하고 함께 성장하세요",
+        "icon": "users",
+        "image": "/images/community-mockup.png",
+        "benefits": [
+          "24시간 오픈 채팅방",
+          "주간 트렌드 리포트",
+          "콜라보 기회 매칭",
+          "멘토링 프로그램"
+        ],
+        "stats": {
+          "activeMembers": "5,000+",
+          "dailyPosts": "200+",
+          "weeklyEvents": "10+"
+        }
+      }
+    ],
+    "testimonials": [
+      {
+        "id": "testimonial-1",
+        "content": "자막 작업 시간이 10분의 1로 줄었어요. 덕분에 콘텐츠 제작에만 집중할 수 있게 되었습니다.",
+        "author": "김현우",
+        "role": "구독자 15만 크리에이터",
+        "avatar": "/images/avatar-1.jpg",
+        "rating": 5
+      },
+      {
+        "id": "testimonial-2",
+        "content": "수익화 가이드북 덕분에 첫 달부터 수익이 3배 늘었습니다. 진짜 실전 팁들이 가득해요!",
+        "author": "이수민",
+        "role": "쇼츠 전문 크리에이터",
+        "avatar": "/images/avatar-2.jpg",
+        "rating": 5
+      },
+      {
+        "id": "testimonial-3",
+        "content": "커뮤니티에서 얻은 정보들이 정말 도움이 많이 됐어요. 혼자였다면 못했을 성장입니다.",
+        "author": "박지서",
+        "role": "신규 크리에이터",
+        "avatar": "/images/avatar-3.jpg",
+        "rating": 5
+      }
+    ],
+    "courses": [
+      {
+        "id": "course-1",
+        "title": "유튜브 쇼츠 마스터 클래스",
+        "subtitle": "기초부터 수익화까지 완벽 마스터",
+        "price": "현재 무료",
+        "originalPrice": "₩299,000",
+        "duration": "8주 과정",
+        "students": "3,000+",
+        "modules": [
+          "쇼츠 알고리즘 이해하기",
+          "바이럴 콘텐츠 기획법",
+          "편집 스킬 마스터",
+          "수익화 전략"
+        ]
+      },
+      {
+        "id": "course-2",
+        "title": "AI 도구 활용 특강",
+        "subtitle": "ChatGPT, Midjourney 등 AI 도구 200% 활용",
+        "price": "현재 무료",
+        "originalPrice": "₩199,000",
+        "duration": "4주 과정",
+        "students": "2,000+",
+        "modules": [
+          "ChatGPT로 스크립트 작성",
+          "Midjourney로 썸네일 제작",
+          "AI 음성 생성 활용",
+          "자동화 워크플로우"
+        ]
+      }
+    ],
+    "pricing": {
+      "title": "모든 기능은 현재 무료로 제공됩니다",
+      "subtitle": "베타 서비스 기간 동안 모든 프리미엄 기능을 무료로 체험하세요",
+      "features": [
+        "AI 자막 생성 (하루 10개)",
+        "수익화 가이드북 다운로드",
+        "커뮤니티 전체 액세스",
+        "온라인 강의 수강권",
+        "1:1 멘토링 (월 1회)",
+        "트렌드 리포트 구독"
+      ],
+      "cta": "지금 시작하기",
+      "note": "정식 출시 후에도 베타 사용자에게는 특별 할인 제공"
+    },
+    "community": {
+      "title": "함께 성장하는 크리에이터 커뮤니티",
+      "subtitle": "혼자가 아닌 함께, 더 빠르고 확실한 성장",
+      "cards": [
+        {
+          "title": "오픈 채팅방",
+          "description": "실시간으로 정보를 공유하고 질문하세요",
+          "icon": "chat",
+          "link": "#",
+          "members": "2,000+"
+        },
+        {
+          "title": "FAQ & 가이드",
+          "description": "자주 묻는 질문과 상세한 가이드 문서",
+          "icon": "book",
+          "link": "#",
+          "articles": "500+"
+        },
+        {
+          "title": "쇼츠 제작 꿀팁",
+          "description": "검증된 노하우와 최신 트렌드 정보",
+          "icon": "lightbulb",
+          "link": "#",
+          "tips": "1,000+"
+        }
+      ]
+    },
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "자막 생성기는 정말 무료인가요?",
+        "answer": "네, 베타 기간 동안 모든 기능을 무료로 제공합니다. 하루 10개 영상까지 무료로 처리 가능합니다."
+      },
+      {
+        "id": "faq-2",
+        "question": "어떤 파일 형식을 지원하나요?",
+        "answer": "MP3, M4A, WAV, MP4 등 대부분의 오디오/비디오 형식을 지원합니다. 최대 500MB까지 업로드 가능합니다."
+      },
+      {
+        "id": "faq-3",
+        "question": "생성된 자막의 정확도는 어느 정도인가요?",
+        "answer": "OpenAI Whisper 모델을 사용하여 한국어 기준 95-99%의 정확도를 보장합니다. 전문 용어나 신조어도 높은 인식률을 보입니다."
+      },
+      {
+        "id": "faq-4",
+        "question": "커뮤니티는 어떻게 참여하나요?",
+        "answer": "카카오 로그인 후 자동으로 커뮤니티 접근 권한이 부여됩니다. 네이버 카페와 카카오톡 오픈채팅을 모두 이용할 수 있습니다."
+      },
+      {
+        "id": "faq-5",
+        "question": "수익화 가이드북은 어떤 내용을 담고 있나요?",
+        "answer": "YouTube Shorts 알고리즘 분석, 수익화 조건 달성 방법, 광고 수익 최적화, 스폰서십 유치 전략 등 실전 노하우를 담았습니다."
+      },
+      {
+        "id": "faq-6",
+        "question": "온라인 강의는 언제 들을 수 있나요?",
+        "answer": "회원 가입 즉시 모든 강의를 수강할 수 있습니다. 녹화된 강의는 언제든 반복 시청이 가능하며, 실시간 강의는 매주 진행됩니다."
+      }
+    ],
+    "cta": {
+      "title": "지금 바로 디하클과 함께\n당신의 채널을 성장시키세요",
+      "subtitle": "15,000명의 크리에이터가 선택한 이유가 있습니다",
+      "primaryButton": "무료로 시작하기",
+      "secondaryButton": "더 알아보기",
+      "features": [
+        "신용카드 불필요",
+        "언제든 해지 가능",
+        "베타 기간 100% 무료"
+      ]
+    },
+    "footer": {
+      "logo": "디하클",
+      "tagline": "YouTube Shorts 크리에이터의 성공 파트너",
+      "sections": [
+        {
+          "title": "제품",
+          "links": [
+            { "text": "AI 자막 생성기", "url": "/tools" },
+            { "text": "수익화 가이드북", "url": "/resources" },
+            { "text": "온라인 강의", "url": "/courses" },
+            { "text": "가격 정책", "url": "/pricing" }
+          ]
+        },
+        {
+          "title": "커뮤니티",
+          "links": [
+            { "text": "네이버 카페", "url": "https://cafe.naver.com/dinohighclass" },
+            { "text": "카카오톡 채널", "url": "#" },
+            { "text": "FAQ", "url": "/faq" },
+            { "text": "공지사항", "url": "/notice" }
+          ]
+        },
+        {
+          "title": "회사",
+          "links": [
+            { "text": "디하클 소개", "url": "/about" },
+            { "text": "이용약관", "url": "/terms" },
+            { "text": "개인정보처리방침", "url": "/privacy" },
+            { "text": "문의하기", "url": "/contact" }
+          ]
+        },
+        {
+          "title": "리소스",
+          "links": [
+            { "text": "블로그", "url": "/blog" },
+            { "text": "쇼츠 제작 가이드", "url": "/guides" },
+            { "text": "성공 사례", "url": "/case-studies" },
+            { "text": "파트너십", "url": "/partnership" }
+          ]
+        }
+      ],
+      "social": {
+        "youtube": "https://youtube.com/@dhacle",
+        "instagram": "https://instagram.com/dhacle",
+        "facebook": "https://facebook.com/dhacle"
+      },
+      "copyright": "© 2024 Dhacle (디하클). All rights reserved.",
+      "address": "서울특별시 강남구 테헤란로 123"
+    },
+    "navigation": {
+      "logo": "디하클",
+      "mainMenu": [
+        { "text": "툴박스", "url": "/tools", "icon": "tools" },
+        { "text": "자료실", "url": "/resources", "icon": "folder" },
+        { "text": "커뮤니티", "url": "/community", "icon": "users" }
+      ],
+      "userMenu": {
+        "login": "카카오 로그인",
+        "profile": "마이페이지",
+        "logout": "로그아웃"
+      },
+      "mobileMenu": {
+        "hamburger": true,
+        "bottomNav": false
+      }
+    },
+    "metadata": {
+      "title": "디하클 - YouTube Shorts 크리에이터를 위한 AI 플랫폼",
+      "description": "AI 자막 생성, 수익화 가이드, 크리에이터 커뮤니티. 15,000명이 선택한 쇼츠 제작 플랫폼",
+      "keywords": "유튜브 쇼츠, YouTube Shorts, AI 자막, 자막 생성기, 크리에이터, 수익화, 디하클, dhacle",
+      "ogImage": "/images/og-image.jpg"
+    }
+  }
+}
