@@ -32,12 +32,11 @@ export default function Home() {
       {/* Navigation using Design System */}
       <StripeNavigation 
         logo="쇼츠 스튜디오"
-        links={[
-          { href: '#', label: '툴박스' },
-          { href: '#', label: '자료실' },
-          { href: '#', label: '커뮤니티' }
+        items={[
+          { name: '툴박스', href: '/tools' },
+          { name: '자료실', href: '/resources' },
+          { name: '커뮤니티', href: '/community' }
         ]}
-        ctaText="무료로 시작하기"
       />
 
       {/* Mobile Menu */}
