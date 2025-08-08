@@ -28,8 +28,10 @@ function verifySearchBar() {
     
     // Check for token imports - component uses inline styles with Tailwind
     // In this implementation, we're using Tailwind classes which reference tokens via config
-    checks.token_imports_valid = content.includes("border-[rgb(99,91,255)]") || 
-                                 content.includes('from "@/hooks/useAutocomplete"');
+    checks.token_imports_valid = content.includes("from '@/lib/theme/theme'") || 
+                                 content.includes('from "@/lib/theme/theme"') ||
+                                 content.includes("from '@/styles/tokens'") ||
+                                 content.includes('from "../styles/tokens"');
     
     // Check for hardcoded colors (hex codes or rgb values)
     const hardcodedMatches = content.match(/#[0-9A-Fa-f]{3,6}(?![0-9A-Za-z])|rgb\([^)]+\)/g);

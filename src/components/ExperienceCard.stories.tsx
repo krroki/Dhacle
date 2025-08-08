@@ -16,7 +16,7 @@ const meta = {
       control: { type: 'number' },
     },
     tags: {
-      control: { type: 'array' },
+      control: { type: 'object' },
     },
   },
 } satisfies Meta<typeof ExperienceCard>;
@@ -91,7 +91,8 @@ export const NoTags: Story = {
 
 // Grid layout example
 export const GridLayout: Story = {
-  render: () => (
+  args: Default.args,
+  render: (args) => (
     <div style={{ 
       display: 'grid', 
       gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -99,22 +100,22 @@ export const GridLayout: Story = {
       padding: '24px'
     }}>
       <ExperienceCard 
-        {...Default.args} 
+        {...args} 
         id="1" 
       />
       <ExperienceCard 
-        {...Default.args} 
+        {...args} 
         id="2" 
         title="부산 감천문화마을 & 해동용궁사 투어" 
       />
       <ExperienceCard 
-        {...Default.args} 
+        {...args} 
         id="3" 
         title="DMZ 투어 - 제3땅굴, 도라산역" 
         rating={5} 
       />
       <ExperienceCard 
-        {...Default.args} 
+        {...args} 
         id="4" 
         title="경복궁 & 북촌한옥마을 도보 투어" 
         badge="인기" 

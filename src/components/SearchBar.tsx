@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import { useAutocomplete, AutocompleteOption } from '@/hooks/useAutocomplete';
+import { colors } from '@/lib/theme/theme';
 
 // Types
 export interface SearchBarProps {
@@ -16,13 +17,13 @@ export interface SearchBarProps {
 
 // Categories data with Stripe-inspired colors from tokens
 const CATEGORIES = [
-  { id: 'all', name: '전체', color: 'rgb(107, 114, 128)' }, // neutral-500
-  { id: 'course', name: '강의', color: 'rgb(99, 91, 255)' }, // primary
-  { id: 'template', name: '템플릿', color: '#0073E6' }, // brand blue
-  { id: 'sound', name: '효과음', color: 'rgb(0, 210, 191)' }, // secondary
-  { id: 'subtitle', name: '자막 도구', color: '#F5A623' }, // brand orange
-  { id: 'analytics', name: '분석 도구', color: '#E91E63' }, // brand pink
-  { id: 'community', name: '커뮤니티', color: '#4F46E5' }, // brand indigo
+  { id: 'all', name: '전체', color: colors.neutral.gray['500'] },
+  { id: 'course', name: '강의', color: colors.primary.blue.default },
+  { id: 'template', name: '템플릿', color: colors.primary.lightBlue },
+  { id: 'sound', name: '효과음', color: colors.primary.blue.hover },
+  { id: 'subtitle', name: '자막 도구', color: colors.neutral.gray['600'] },
+  { id: 'analytics', name: '분석 도구', color: colors.primary.blue.active },
+  { id: 'community', name: '커뮤니티', color: colors.primary.darkBlue },
 ];
 
 // Main component
@@ -146,10 +147,23 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           border-2 transition-all duration-200 ease-in-out
           rounded-full px-5 h-12
           ${isFocused 
-            ? 'border-[rgb(99,91,255)] shadow-md' 
-            : 'border-gray-200 shadow-sm hover:border-[rgb(99,91,255)] hover:shadow-md'
+            ? 'shadow-md' 
+            : 'border-gray-200 shadow-sm hover:shadow-md'
           }
         `}
+        style={{
+          borderColor: isFocused ? colors.primary.blue.default : undefined
+        }}
+        onMouseEnter={(e) => {
+          if (!isFocused) {
+            e.currentTarget.style.borderColor = colors.primary.blue.default;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isFocused) {
+            e.currentTarget.style.borderColor = '';
+          }
+        }}
       >
         <FiSearch className="text-gray-400 text-xl mr-3 flex-shrink-0" />
         <input
@@ -209,7 +223,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               }}
               onMouseLeave={(e) => {
                 if (selectedCategory !== category.id) {
-                  e.currentTarget.style.borderColor = 'rgb(229, 231, 235)';
+                  e.currentTarget.style.borderColor = colors.neutral.gray['200'];
                 }
               }}
             >
