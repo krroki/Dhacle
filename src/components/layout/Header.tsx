@@ -50,11 +50,11 @@ export function Header() {
       });
       
       if (error) {
-        console.error('Login error:', error);
+        // Login error handled by Supabase
         alert('로그인 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
       }
     } catch (error) {
-      console.error('Unexpected error during login:', error);
+      // Error handled silently
     }
   };
 

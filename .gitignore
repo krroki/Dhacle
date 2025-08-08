@@ -39,3 +39,27 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test and evidence files
+/tests
+/test-results
+/evidence
+*.spec.ts
+*.spec.tsx
+*.test.ts
+*.test.tsx
+test-*.js
+task*.json
+task*.md
+capture-*.js
+
+# media files
+*.webm
+*.mp3
+evidence-*
+
+# scraping and temp
+/scripts/scrape-*
+/scripts/test-*
+content-map*.json
+INNOVATION_ROADMAP.md
