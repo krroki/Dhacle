@@ -56,7 +56,8 @@
       "Bash(set VERCEL_TOKEN=74ojrVZJEToUpWfmYjSF0Ith)",
       "Bash(set VERCEL_PROJECT_NAME=dhacle-frontend)",
       "Bash(mkdir:*)",
-      "mcp__fetcher-mcp__fetch_url"
+      "mcp__fetcher-mcp__fetch_url",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }
