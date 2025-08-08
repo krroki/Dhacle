@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 function verifyTokenSystem() {
   const checks = {
@@ -43,6 +44,23 @@ function verifyTokenSystem() {
     });
 
     checks.validation_passed = hasAllTokens;
+  }
+
+  // Check if files are committed to git
+  try {
+    const gitStatus = execSync('git status --porcelain', { encoding: 'utf8' });
+    const uncommittedFiles = gitStatus
+      .split('\n')
+      .filter(line => line.includes('theme.tripadvisor.json') || line.includes('theme.deep.backup'));
+    
+    // Also check if there's a commit with the expected message
+    const gitLog = execSync('git log --oneline -10', { encoding: 'utf8' });
+    const hasBackupCommit = gitLog.includes('backup:') || gitLog.includes('theme.deep.json');
+    const hasFeatureCommit = gitLog.includes('feat:') && gitLog.includes('TripAdvisor');
+    
+    checks.git_committed = uncommittedFiles.length === 0 && (hasBackupCommit || hasFeatureCommit);
+  } catch (e) {
+    checks.git_committed = false;
   }
 
   // Write result
