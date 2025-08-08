@@ -28,6 +28,8 @@
       }
     },
     "footer": {
+      "logo": "쇼츠 스튜디오",
+      "tagline": "YouTube Shorts 크리에이터를 위한 모든 것",
       "copyright": "© 2025 쇼츠 스튜디오. All rights reserved.",
       "links": [
         { "text": "개인정보처리방침", "href": "/privacy" },
