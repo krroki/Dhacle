@@ -1,0 +1,112 @@
+{
+  "task_number": "3.1",
+  "task_name": "Feature Integration - Core Functionality UI/UX Review and Integration",
+  "status": "completed",
+  "completion_date": "2025-08-08",
+  "checklist": {
+    "auth_state_integration_completed": "success",
+    "ui_state_management_improved": "success",
+    "reusable_alert_component_created": "success",
+    "evidence_video_generated": "partial"
+  },
+  "components_created": {
+    "Alert": {
+      "path": "src/components/ui/Alert.tsx",
+      "description": "Reusable alert component with variants (success, warning, destructive, info)",
+      "props": {
+        "variant": "Type of alert (success, warning, destructive, info, default)",
+        "title": "Optional title for the alert",
+        "description": "Optional description text",
+        "icon": "Whether to show icon (default: true)",
+        "onClose": "Optional close handler",
+        "size": "Size variant (sm, default, lg)",
+        "className": "Additional CSS classes"
+      },
+      "usage_example": "<Alert variant=\"warning\" title=\"주의\" description=\"로그인이 필요합니다\" />"
+    },
+    "Toast": {
+      "path": "src/components/ui/Toast.tsx",
+      "description": "Toast notification system with context provider",
+      "features": [
+        "Auto-dismiss after duration",
+        "Multiple toast support",
+        "Convenience methods (success, error, warning, info)",
+        "Animated entry/exit"
+      ],
+      "usage_example": "const toast = useToastActions(); toast.success('성공!');"
+    }
+  },
+  "state_management_enhancements": {
+    "detailed_states": [
+      "idle",
+      "checking_auth",
+      "file_selected",
+      "validating_file",
+      "uploading",
+      "upload_failed",
+      "processing",
+      "processing_failed",
+      "completed",
+      "download_ready",
+      "auth_required"
+    ],
+    "status_messages": "Predefined messages for each state with appropriate Alert variants",
+    "error_handling": "Custom error messages with dismissible alerts",
+    "auth_integration": "Seamless auth state checking with redirect to login"
+  },
+  "ui_improvements": {
+    "non_logged_in_experience": {
+      "visual_indicator": "Lock icon with clear message",
+      "action_button": "로그인 페이지로 이동 button",
+      "disabled_features": "Upload area hidden when not authenticated"
+    },
+    "file_validation": {
+      "size_check": "50MB limit with clear error message",
+      "type_check": "Extended audio/video format support",
+      "real_time_feedback": "Immediate validation on file selection"
+    },
+    "progress_indicators": {
+      "upload_progress": "Visual progress bar with percentage",
+      "processing_state": "Loading animation with estimated time",
+      "status_alerts": "Color-coded alerts for each state"
+    }
+  },
+  "code_changes": {
+    "transcribe_page": {
+      "before": "Simple status states without auth check",
+      "after": "11 detailed states with auth integration",
+      "improvements": [
+        "Auth state checking on mount",
+        "Real-time auth state updates",
+        "Detailed error messages",
+        "File size validation",
+        "Extended format support",
+        "Status-based UI rendering"
+      ]
+    }
+  },
+  "evidence_files": [
+    "evidence/evidence-3.1-1-auth-required.png",
+    "evidence/evidence-3.1-2-homepage.png",
+    "evidence/evidence-3.1-3-kakao-oauth.png",
+    "evidence/evidence-3.1-4-error-state.png",
+    "evidence/evidence-3.1-5-processing.png",
+    "evidence/evidence-3.1-6-final-state.png"
+  ],
+  "user_flow_scenarios": [
+    "1. Non-logged in user attempts to use feature → Auth required message",
+    "2. User clicks login redirect → Navigates to homepage",
+    "3. User logs in with Kakao → Returns to transcribe page",
+    "4. User uploads invalid file → Error alert displayed",
+    "5. User uploads valid file → Success flow with progress indicators"
+  ],
+  "alert_component_guide": {
+    "installation": "Import from '@/components/ui/Alert'",
+    "basic_usage": "<Alert variant=\"success\" description=\"Success message\" />",
+    "with_title": "<Alert variant=\"warning\" title=\"Warning\" description=\"Warning message\" />",
+    "with_close": "<Alert variant=\"destructive\" description=\"Error\" onClose={() => {}} />",
+    "custom_styling": "<Alert className=\"custom-class\" variant=\"info\" />",
+    "available_variants": ["default", "success", "warning", "destructive", "info"],
+    "available_sizes": ["sm", "default", "lg"]
+  }
+}

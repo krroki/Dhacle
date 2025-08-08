@@ -1,0 +1,76 @@
+{
+  "task_number": "2.1",
+  "task_name": "AI Subtitle Generator Implementation (Frontend & Supabase Integration)",
+  "status": "completed",
+  "completion_date": "2025-08-08",
+  "checklist": {
+    "file_upload_ui_created": "success",
+    "storage_upload_logic_implemented": "success",
+    "edge_function_created_and_deployed": "success",
+    "result_handling_logic_implemented": "success",
+    "evidence_video_generated": "success"
+  },
+  "implementation_details": {
+    "frontend_page": "/tools/transcribe",
+    "edge_function": "supabase/functions/transcribe",
+    "storage_buckets": ["uploads", "results"],
+    "ai_service": "OpenAI Whisper API",
+    "supported_formats": ["audio/mpeg", "audio/mp3", "audio/wav", "audio/m4a", "video/mp4", "video/avi", "video/mov"],
+    "output_format": "SRT (SubRip Subtitle)"
+  },
+  "features_implemented": {
+    "drag_and_drop": "Full drag-and-drop support with visual feedback",
+    "file_validation": "Audio/video file type checking",
+    "upload_progress": "Visual progress bar with percentage",
+    "processing_status": "Real-time status updates (uploading, processing, completed)",
+    "error_handling": "User-friendly error messages in Korean",
+    "authentication_check": "Login requirement with redirect",
+    "download_capability": "Signed URL generation for secure downloads"
+  },
+  "edge_function_features": {
+    "cors_handling": "Full CORS support for browser requests",
+    "file_processing": "Download from uploads bucket, process, upload to results",
+    "openai_integration": "Whisper API call with Korean language setting",
+    "signed_urls": "1-hour expiry for secure file access",
+    "error_recovery": "Comprehensive error handling with detailed messages"
+  },
+  "files_created": [
+    "src/app/tools/page.tsx (updated)",
+    "src/app/tools/transcribe/page.tsx",
+    "supabase/functions/transcribe/index.ts"
+  ],
+  "evidence_files": [
+    "evidence/evidence-2.1-transcription-flow.webm",
+    "evidence/evidence-2.1-1-tools-page.png",
+    "evidence/evidence-2.1-2-transcribe-page.png"
+  ],
+  "required_setup": {
+    "supabase_buckets": [
+      "Create 'uploads' bucket (private)",
+      "Create 'results' bucket (private)"
+    ],
+    "supabase_secrets": [
+      "Add OPENAI_API_KEY to Edge Function secrets"
+    ],
+    "openai_setup": [
+      "Get API key from platform.openai.com",
+      "Ensure Whisper API access is enabled"
+    ]
+  },
+  "deployment_commands": [
+    "npx supabase functions deploy transcribe --no-verify-jwt"
+  ],
+  "testing_notes": {
+    "login_required": "User must be authenticated to use the tool",
+    "file_size_limits": "Depends on Supabase Storage plan",
+    "processing_time": "1-3 minutes for typical audio files",
+    "api_costs": "OpenAI charges per minute of audio processed"
+  },
+  "next_steps": [
+    "Add real-time progress updates using Supabase Realtime",
+    "Implement batch processing for multiple files",
+    "Add support for video thumbnail extraction",
+    "Create usage analytics dashboard",
+    "Add subtitle editing interface"
+  ]
+}

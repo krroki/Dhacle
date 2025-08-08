@@ -1,0 +1,244 @@
+{
+  "colors": {
+    "primary": {
+      "blue": {
+        "default": "#635BFF",
+        "hover": "#7A73FF",
+        "active": "#4F46E5"
+      },
+      "darkBlue": "#0A2540",
+      "lightBlue": "#00D4FF"
+    },
+    "neutral": {
+      "white": "#FFFFFF",
+      "offWhite": "#F6F9FC",
+      "gray": {
+        "50": "#F7FAFC",
+        "100": "#F7FAFC",
+        "200": "#E3E8EE",
+        "300": "#CDD5DF",
+        "400": "#8898AA",
+        "500": "#6B7C93",
+        "600": "#525F7F",
+        "700": "#425466",
+        "800": "#32325D",
+        "900": "#1A1F36"
+      }
+    },
+    "text": {
+      "primary": {
+        "default": "#425466",
+        "dark": "#0A2540",
+        "light": "#6B7C93"
+      },
+      "inverse": "#FFFFFF"
+    },
+    "button": {
+      "primary": {
+        "background": {
+          "default": "rgba(255, 255, 255, 0.9)",
+          "hover": "#FFFFFF"
+        },
+        "text": {
+          "default": "#0A2540",
+          "hover": "#0A2540"
+        }
+      },
+      "secondary": {
+        "background": {
+          "default": "transparent",
+          "hover": "rgba(255, 255, 255, 0.1)"
+        },
+        "text": {
+          "default": "#FFFFFF",
+          "hover": "#FFFFFF"
+        }
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "base": "sohne-var, \"Helvetica Neue\", Arial, sans-serif",
+      "mono": "SFMono-Regular, Consolas, \"Liberation Mono\", Menlo, monospace"
+    },
+    "fontSize": {
+      "xs": "12px",
+      "sm": "14px",
+      "base": "16px",
+      "md": "18px",
+      "lg": "20px",
+      "xl": "24px",
+      "2xl": "28px",
+      "3xl": "36px",
+      "4xl": "48px",
+      "5xl": "64px"
+    },
+    "fontWeight": {
+      "light": 300,
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeight": {
+      "tight": "1.2",
+      "normal": "1.5",
+      "relaxed": "1.75",
+      "loose": "2"
+    },
+    "letterSpacing": {
+      "tight": "-0.01em",
+      "normal": "0",
+      "wide": "0.2px",
+      "wider": "0.05em"
+    }
+  },
+  "spacing": {
+    "0": "0",
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px",
+    "20": "80px",
+    "24": "96px",
+    "32": "128px",
+    "px": "1px"
+  },
+  "effects": {
+    "shadows": {
+      "dropdown": "0 50px 100px -20px rgba(50,50,93,.25), 0 30px 60px -30px rgba(0,0,0,.3)",
+      "card": {
+        "default": "0 2px 4px rgba(0,0,0,0.07)",
+        "hover": "0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)"
+      },
+      "button": {
+        "default": "0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08)",
+        "hover": "0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)"
+      },
+      "large": "0 30px 60px -12px rgba(50,50,93,.25), 0 18px 36px -18px rgba(0,0,0,.3)"
+    },
+    "transitions": {
+      "duration": {
+        "instant": "0ms",
+        "fast": "150ms",
+        "default": "200ms",
+        "slow": "300ms",
+        "slower": "500ms"
+      },
+      "timing": {
+        "linear": "linear",
+        "ease": "ease",
+        "easeIn": "ease-in",
+        "easeOut": "ease-out",
+        "easeInOut": "cubic-bezier(0.215, 0.61, 0.355, 1)",
+        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+      }
+    },
+    "transforms": {
+      "scale": {
+        "default": "scale(1)",
+        "hover": "scale(1.02)",
+        "active": "scale(0.98)"
+      },
+      "translateY": {
+        "default": "translateY(0)",
+        "hover": "translateY(-2px)"
+      }
+    },
+    "opacity": {
+      "0": "0",
+      "10": "0.1",
+      "30": "0.3",
+      "50": "0.5",
+      "60": "0.6",
+      "70": "0.7",
+      "80": "0.8",
+      "90": "0.9",
+      "100": "1"
+    }
+  },
+  "borderRadius": {
+    "none": "0",
+    "sm": "4px",
+    "default": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px",
+    "full": "9999px"
+  },
+  "navigation": {
+    "link": {
+      "default": {
+        "color": "rgb(255, 255, 255)",
+        "opacity": "1",
+        "transition": "color 0.15s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.15s cubic-bezier(0.215, 0.61, 0.355, 1)"
+      },
+      "hover": {
+        "color": "rgb(255, 255, 255)",
+        "opacity": "0.6"
+      }
+    },
+    "dropdown": {
+      "background": "#FFFFFF",
+      "borderRadius": "12px",
+      "boxShadow": "0 50px 100px -20px rgba(50,50,93,.25), 0 30px 60px -30px rgba(0,0,0,.3)",
+      "padding": "24px"
+    }
+  },
+  "buttons": {
+    "primary": {
+      "default": {
+        "backgroundColor": "rgba(255, 255, 255, 0.9)",
+        "color": "#0A2540",
+        "padding": "3px 12px 6px 16px",
+        "borderRadius": "16.5px",
+        "fontSize": "15px",
+        "fontWeight": "425",
+        "transition": "background-color 0.15s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.15s cubic-bezier(0.215, 0.61, 0.355, 1)",
+        "boxShadow": "none"
+      },
+      "hover": {
+        "backgroundColor": "#FFFFFF",
+        "transform": "translateY(-1px)",
+        "boxShadow": "0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)"
+      }
+    },
+    "secondary": {
+      "default": {
+        "backgroundColor": "transparent",
+        "color": "#FFFFFF",
+        "border": "1px solid rgba(255, 255, 255, 0.2)",
+        "padding": "8px 16px",
+        "borderRadius": "8px"
+      },
+      "hover": {
+        "backgroundColor": "rgba(255, 255, 255, 0.1)",
+        "borderColor": "rgba(255, 255, 255, 0.3)"
+      }
+    }
+  },
+  "cards": {
+    "default": {
+      "backgroundColor": "#FFFFFF",
+      "borderRadius": "12px",
+      "padding": "24px",
+      "boxShadow": "0 2px 4px rgba(0,0,0,0.07)",
+      "transition": "all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1)"
+    },
+    "hover": {
+      "transform": "translateY(-4px)",
+      "boxShadow": "0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)"
+    }
+  },
+  "gradients": {
+    "hero": "linear-gradient(180deg, #F6F9FC 0%, #FFFFFF 100%)",
+    "primary": "linear-gradient(135deg, #667EEA 0%, #764BA2 100%)",
+    "stripe": "linear-gradient(-45deg, #FFC593 0%, #BC7198 45%, #5A77FF 100%)"
+  }
+}
