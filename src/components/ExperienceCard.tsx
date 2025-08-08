@@ -30,16 +30,16 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   return (
     <div className="flex items-center gap-1">
       {[...Array(fullStars)].map((_, i) => (
-        <span key={`full-${i}`} className="text-green-500">★</span>
+        <span key={`full-${i}`} style={{ color: colors.semantic.success }}>★</span>
       ))}
       {hasHalfStar && (
         <span key="half" className="relative">
-          <span className="text-gray-300">★</span>
-          <span className="absolute inset-0 overflow-hidden w-1/2 text-green-500">★</span>
+          <span style={{ color: colors.neutral[300] }}>★</span>
+          <span className="absolute inset-0 overflow-hidden w-1/2" style={{ color: colors.semantic.success }}>★</span>
         </span>
       )}
       {[...Array(emptyStars)].map((_, i) => (
-        <span key={`empty-${i}`} className="text-gray-300">★</span>
+        <span key={`empty-${i}`} style={{ color: colors.neutral[300] }}>★</span>
       ))}
     </div>
   );
@@ -156,7 +156,7 @@ export const ExperienceCard = memo<ExperienceCardProps>(({
           onClick={handleSaveClick}
           aria-label={saved ? '저장됨' : '저장'}
           type="button"
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white border-0 flex items-center justify-center cursor-pointer transition-all z-10"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full border-0 flex items-center justify-center cursor-pointer transition-all z-10"
           style={{
             backgroundColor: colors.neutral[0],
             boxShadow: effects.shadows.sm,
