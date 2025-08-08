@@ -31,7 +31,6 @@ export default function Home() {
     <div style={{ minHeight: '100vh', backgroundColor: theme.theme.colors.neutral.white }}>
       {/* Navigation using Design System */}
       <StripeNavigation 
-        isScrolled={isScrolled}
         logo="쇼츠 스튜디오"
         links={[
           { href: '#', label: '툴박스' },
