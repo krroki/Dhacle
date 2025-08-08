@@ -73,7 +73,7 @@ export default function TranscribePage() {
     initializeAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setUser(session?.user ?? null);
       if (!session?.user && status !== 'auth_required') {
         setStatus('auth_required');
