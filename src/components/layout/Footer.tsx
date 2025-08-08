@@ -40,7 +40,7 @@ export function Footer() {
               <ul className="space-y-2">
                 {section.links.map((link, lidx) => (
                   <li key={lidx}>
-                    <Link href={link.url} className="text-sm text-primary/60 hover:text-primary transition-colors">
+                    <Link href={link.href} className="text-sm text-primary/60 hover:text-primary transition-colors">
                       {link.text}
                     </Link>
                   </li>
