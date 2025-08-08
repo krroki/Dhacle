@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key"
+  },
+  "_comment": "⚠️ SECURITY WARNING: SUPABASE_SERVICE_ROLE_KEY is a highly privileged secret that must ONLY be used in server-side code (Edge/Serverless functions). Ensure this key is set as 'Encrypted' in Vercel project settings and NEVER reference it in client-side code. Verify no client code references process.env.SUPABASE_SERVICE_ROLE_KEY."
+}
