@@ -57,29 +57,29 @@ export function HeroSection() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <StripeButton variant="gradient" size="lg" className="min-w-[200px]">
-              {content.extracted.hero.cta.primary}
+              {content.extracted.hero.cta.primary.text}
             </StripeButton>
             <StripeButton variant="secondary" size="lg" className="min-w-[200px]">
-              {content.extracted.hero.cta.secondary}
+              {content.extracted.hero.cta.secondary.text}
             </StripeButton>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats.users}</div>
+              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.users || '15,000+'}</div>
               <div className="text-sm text-primary/60">활성 사용자</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats.videosProcessed}</div>
+              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.videosProcessed || '100,000+'}</div>
               <div className="text-sm text-primary/60">처리된 영상</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats.avgTimeSaved}</div>
+              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.avgTimeSaved || '90%'}</div>
               <div className="text-sm text-primary/60">시간 절감</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats.satisfaction}</div>
+              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.satisfaction || '98%'}</div>
               <div className="text-sm text-primary/60">만족도</div>
             </div>
           </div>
