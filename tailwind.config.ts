@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss';
-import stripeTheme from './theme.deep.json';
 
 const config: Config = {
   content: [
@@ -10,106 +9,67 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary brand colors from Stripe
-        'stripe-blue': stripeTheme.colors.primary.blue.default,
-        'stripe-blue-hover': stripeTheme.colors.primary.blue.hover,
-        'stripe-blue-active': stripeTheme.colors.primary.blue.active,
-        'stripe-darkBlue': stripeTheme.colors.primary.darkBlue,
-        'stripe-lightBlue': stripeTheme.colors.primary.lightBlue,
+        // Backgrounds
+        background: '#111827', // Dark charcoal
+        'bg-secondary': '#1E293B', // Deep blue
         
-        // Neutral palette
-        white: stripeTheme.colors.neutral.white,
-        offWhite: stripeTheme.colors.neutral.offWhite,
-        gray: stripeTheme.colors.neutral.gray,
+        // Text
+        primary: '#E2E8F0', // Off-white
+        secondary: '#94A3B8', // Muted gray
         
-        // Text colors
-        'text-primary': stripeTheme.colors.text.primary.default,
-        'text-primary-dark': stripeTheme.colors.text.primary.dark,
-        'text-primary-light': stripeTheme.colors.text.primary.light,
-        'text-inverse': stripeTheme.colors.text.inverse,
-        
-        // Button colors
-        button: {
-          primary: {
-            bg: {
-              DEFAULT: stripeTheme.colors.button.primary.background.default,
-              hover: stripeTheme.colors.button.primary.background.hover,
-            },
-            text: {
-              DEFAULT: stripeTheme.colors.button.primary.text.default,
-              hover: stripeTheme.colors.button.primary.text.hover,
-            },
-          },
-          secondary: {
-            bg: {
-              DEFAULT: stripeTheme.colors.button.secondary.background.default,
-              hover: stripeTheme.colors.button.secondary.background.hover,
-            },
-            text: {
-              DEFAULT: stripeTheme.colors.button.secondary.text.default,
-              hover: stripeTheme.colors.button.secondary.text.hover,
-            },
-          },
+        // Accent Colors
+        accent: {
+          DEFAULT: '#EC4899', // Magenta (CTA buttons)
+          hover: '#DB2777', // Darker magenta for hover
         },
-      },
-      fontFamily: {
-        sans: stripeTheme.typography.fontFamily.base.split(',').map(f => f.trim()),
-        mono: stripeTheme.typography.fontFamily.mono.split(',').map(f => f.trim()),
-      },
-      fontSize: stripeTheme.typography.fontSize,
-      fontWeight: stripeTheme.typography.fontWeight,
-      lineHeight: stripeTheme.typography.lineHeight,
-      letterSpacing: stripeTheme.typography.letterSpacing,
-      spacing: stripeTheme.spacing,
-      borderRadius: stripeTheme.borderRadius,
-      boxShadow: {
-        ...stripeTheme.effects.shadows,
-        'card-default': stripeTheme.effects.shadows.card.default,
-        'card-hover': stripeTheme.effects.shadows.card.hover,
-        'button-default': stripeTheme.effects.shadows.button.default,
-        'button-hover': stripeTheme.effects.shadows.button.hover,
+        green: '#34D399', // Green for active states
+        
+        // UI Elements
+        border: 'rgba(255, 255, 255, 0.1)',
+        'card-bg': 'rgba(255, 255, 255, 0.05)',
       },
       backgroundImage: {
-        'gradient-hero': stripeTheme.gradients.hero,
-        'gradient-primary': stripeTheme.gradients.primary,
-        'gradient-stripe': stripeTheme.gradients.stripe,
+        'gradient-hero': 'linear-gradient(90deg, #4F46E5 0%, #EC4899 100%)',
+        'gradient-radial': 'radial-gradient(circle at top left, rgba(79, 70, 229, 0.2), transparent 40%)',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, #4F46E5 0deg, #EC4899 120deg, #34D399 240deg, #4F46E5 360deg)',
       },
-      transitionDuration: stripeTheme.effects.transitions.duration,
-      transitionTimingFunction: stripeTheme.effects.transitions.timing,
-      opacity: stripeTheme.effects.opacity,
       animation: {
+        'blob': 'blob 7s infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.5s ease-out',
-        'scale-hover': 'scaleHover 0.2s ease-in-out',
         'float': 'float 6s ease-in-out infinite',
       },
       keyframes: {
+        blob: {
+          '0%': {
+            transform: 'translate(0px, 0px) scale(1)',
+          },
+          '33%': {
+            transform: 'translate(30px, -50px) scale(1.1)',
+          },
+          '66%': {
+            transform: 'translate(-20px, 20px) scale(0.9)',
+          },
+          '100%': {
+            transform: 'translate(0px, 0px) scale(1)',
+          },
+        },
         fadeIn: {
           '0%': {
             opacity: '0',
-            transform: 'translateY(10px)',
           },
           '100%': {
             opacity: '1',
-            transform: 'translateY(0)',
           },
         },
         slideUp: {
           '0%': {
-            transform: 'translateY(20px)',
+            transform: 'translateY(100px)',
             opacity: '0',
           },
           '100%': {
             transform: 'translateY(0)',
             opacity: '1',
-          },
-        },
-        scaleHover: {
-          '0%': {
-            transform: stripeTheme.effects.transforms.scale.default,
-          },
-          '100%': {
-            transform: stripeTheme.effects.transforms.scale.hover,
           },
         },
         float: {
@@ -120,6 +80,9 @@ const config: Config = {
             transform: 'translateY(-20px)',
           },
         },
+      },
+      fontFamily: {
+        sans: ['General Sans', 'SUIT', 'Pretendard', 'system-ui', 'sans-serif'],
       },
     },
   },

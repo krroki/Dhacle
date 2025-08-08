@@ -1,114 +1,36 @@
-# Dhacle Frontend - 쇼츠 스튜디오
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-AI Creator Hub for YouTube Shorts creators with Stripe-inspired design system.
+## Getting Started
 
-## 🎯 Task R-1.2 Completion Status
+First, run the development server:
 
-✅ **COMPLETED** - Style Guide with Stripe Design Tokens
-
-### What was accomplished:
-1. ✅ Updated `tailwind.config.ts` to reference `theme.deep.json` tokens
-2. ✅ Created `/style-guide` page component with full design system visualization
-3. ✅ Implemented all design sections (colors, typography, spacing, buttons, cards, shadows, gradients)
-4. ✅ Added interactive hover effects matching Stripe.com patterns
-5. ✅ Successfully built for production
-
-## 🚀 Quick Start
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Set up environment variables in `.env.local`:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-```
-
-3. Run development server:
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-4. Build for production:
-```bash
-npm run build
-```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📄 Key Pages
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- **`/`** - Homepage with hero, features, testimonials
-- **`/style-guide`** - 🆕 Complete Stripe design system showcase
-- **`/tools`** - Creator tools hub
-- **`/tools/transcribe`** - AI subtitle generator
-- **`/supabase-test`** - Database connection test
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## 🎨 Design System (theme.deep.json)
+## Learn More
 
-The design system is extracted from Stripe.com and includes:
+To learn more about Next.js, take a look at the following resources:
 
-### Colors
-- Primary blues with hover/active states
-- Neutral gray scale (50-900)
-- Text colors (primary, inverse)
-- Button color schemes
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Typography
-- Font families (sohne-var, monospace)
-- Font sizes (xs to 5xl)
-- Font weights (300-700)
-- Line heights and letter spacing
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### Effects
-- Shadows (dropdown, card, button, large)
-- Transitions with easing functions
-- Transform effects (scale, translateY)
-- Opacity levels
+## Deploy on Vercel
 
-### Components
-- Interactive buttons with hover states
-- Cards with elevation on hover
-- Gradients (hero, primary, stripe)
-- Border radius system
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## 🏗️ Project Structure
-
-```
-src/
-├── app/              # Next.js app router pages
-│   ├── style-guide/  # 🆕 Design system showcase
-│   ├── tools/        # Creator tools
-│   └── auth/         # Authentication routes
-├── components/       # React components
-│   ├── ui/          # Base UI components
-│   ├── sections/    # Page sections
-│   └── layout/      # Layout components
-├── lib/             # Utilities and configurations
-│   └── supabase/    # Supabase client setup
-└── theme.deep.json  # 🆕 Stripe design tokens
-```
-
-## 🚢 Deployment
-
-Ready for Vercel deployment:
-
-1. Push to GitHub
-2. Import project on Vercel
-3. Add environment variables
-4. Deploy
-
-The `vercel.json` configuration is included for seamless deployment.
-
-## 📊 Build Status
-
-```
-Route (app)                    Size     First Load JS
-├ ○ /                         2.86 kB   103 kB
-├ ○ /style-guide             2.6 kB    102 kB  ✨
-├ ○ /tools                   162 B     103 kB
-└ ○ /tools/transcribe       12.8 kB   155 kB
-```
-
-Build completed successfully with only ESLint warnings.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

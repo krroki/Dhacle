@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "쇼츠 스튜디오 - AI 크리에이터 허브",
@@ -18,13 +17,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="antialiased">
-        <ThemeProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
-        </ThemeProvider>
+        <Header />
+        <main className="pt-16">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
