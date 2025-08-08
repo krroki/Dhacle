@@ -354,7 +354,7 @@ export default function Home() {
                   
                   <div style={{ marginBottom: theme.theme.spacing[6] }}>
                     <StripeTypography variant="body" color="primary">
-                      "{testimonial.content}"
+                      &ldquo;{testimonial.content}&rdquo;
                     </StripeTypography>
                   </div>
                   
