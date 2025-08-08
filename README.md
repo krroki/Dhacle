@@ -24,8 +24,15 @@ npm install
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ```
+
+⚠️ **IMPORTANT SECURITY NOTE**: 
+The `SUPABASE_SERVICE_ROLE_KEY` is a highly privileged server-only secret that must NEVER be exposed to the client or included in frontend environment files. This key should only be stored in:
+- Server-side environment variables (e.g., Vercel environment variables set as "Encrypted")
+- Serverless/Edge function configurations
+- Backend API services
+
+Never include this key in `.env.local` or any file that could be exposed to the browser.
 
 3. Run development server:
 ```bash

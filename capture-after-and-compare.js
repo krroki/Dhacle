@@ -6,6 +6,13 @@ const fs = require('fs');
 async function captureAfterAndCompare() {
   console.log('📸 Capturing improved UI state (after)...');
   
+  // Ensure evidence directory exists
+  const evidenceDir = path.join(__dirname, 'evidence');
+  if (!fs.existsSync(evidenceDir)) {
+    fs.mkdirSync(evidenceDir, { recursive: true });
+    console.log('✅ Created evidence directory');
+  }
+  
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1920, height: 1080 }
@@ -127,7 +134,7 @@ async function captureAfterAndCompare() {
         console.log('✅ Comparison image created successfully!');
       }
     } catch (sharpError) {
-      console.log('⚠️ Sharp not available, installing...');
+      console.log('⚠️ Sharp not available, skipping image processing.');
       // If sharp is not available, just note that we have before and after screenshots
       console.log('Before: evidence-3.0-before.png');
       console.log('After: evidence-3.0-after.png');

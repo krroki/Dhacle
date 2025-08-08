@@ -111,7 +111,7 @@ export default async function SupabaseTestPage() {
                 </div>
               </div>
               
-              {data[0].message && (
+              {data && data[0] && data[0].message && (
                 <div className="bg-green-950/30 rounded p-4">
                   <p className="text-lg">
                     <span className="text-green-300">Message from Database:</span>{' '}
@@ -136,10 +136,10 @@ export default async function SupabaseTestPage() {
         {(!data || data.length === 0) && !error && (
           <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-yellow-400 mb-4">
-              ⏳ Loading...
+              ℹ️ No Data Found
             </h2>
             <p className="text-yellow-300">
-              Attempting to connect to Supabase...
+              The test_connection table is empty. Add some test data to verify the connection.
             </p>
           </div>
         )}
@@ -159,7 +159,7 @@ export default async function SupabaseTestPage() {
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-400">✓</span>
-              <span className="text-primary/80">Central client created (lib/supabase/client.ts)</span>
+              <span className="text-primary/80">Central client created (lib/supabase/server-client.ts)</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-400">✓</span>
