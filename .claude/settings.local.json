@@ -57,6 +57,11 @@
       "Bash(set VERCEL_PROJECT_NAME=dhacle-frontend)",
       "Bash(mkdir:*)",
       "mcp__fetcher-mcp__fetch_url",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run type-check:*)",
       "Bash(npx tsc:*)"
     ],
     "deny": []

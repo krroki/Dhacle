@@ -82,11 +82,12 @@ export type ColorPath = keyof ColorToken | `${keyof ColorToken}.${string}`;
 
 export const getColor = (path: ColorPath): string => {
   const keys = path.split('.');
-  let value: any = colors;
+  let value: unknown = colors;
   
   for (const key of keys) {
-    value = value[key];
-    if (value === undefined) {
+    if (typeof value === 'object' && value !== null && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else {
       console.warn(`Color token not found: ${path}`);
       return '#000000';
     }

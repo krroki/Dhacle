@@ -43,13 +43,14 @@ export type Theme = typeof theme;
  * Utility function to get nested theme values
  * @example getThemeValue('colors.primary.main') => '#635BFF'
  */
-export const getThemeValue = (path: string): any => {
+export const getThemeValue = (path: string): unknown => {
   const keys = path.split('.');
-  let value: any = theme;
+  let value: unknown = theme;
   
   for (const key of keys) {
-    value = value?.[key];
-    if (value === undefined) {
+    if (typeof value === 'object' && value !== null && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else {
       console.warn(`Theme token not found: ${path}`);
       return undefined;
     }
@@ -71,9 +72,9 @@ export const generateCSSVariables = (): string => {
       Object.entries(values).forEach(([key, value]) => {
         if (typeof value === 'string') {
           cssVars.push(`--color-${category}-${key}: ${value};`);
-        } else if (typeof value === 'object') {
+        } else if (typeof value === 'object' && value !== null) {
           // Handle nested color objects
-          Object.entries(value as any).forEach(([subKey, subValue]) => {
+          Object.entries(value as Record<string, unknown>).forEach(([subKey, subValue]) => {
             cssVars.push(`--color-${category}-${key}-${subKey}: ${subValue};`);
           });
         }
