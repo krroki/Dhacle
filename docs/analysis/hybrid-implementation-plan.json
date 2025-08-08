@@ -1,0 +1,369 @@
+{
+  "projectName": "쇼츠 스튜디오 - TripAdvisor Structure with Stripe Design",
+  "version": "1.0.0",
+  "createdAt": "2025-01-08",
+  "overview": {
+    "structure": "TripAdvisor Korea의 여행 중심 구조",
+    "design": "Stripe의 모던하고 세련된 디자인 시스템",
+    "purpose": "YouTube Shorts 크리에이터를 위한 교육 및 리소스 플랫폼"
+  },
+  
+  "architecture": {
+    "pages": [
+      {
+        "path": "/",
+        "name": "홈페이지",
+        "structure": "TripAdvisor",
+        "design": "Stripe",
+        "sections": [
+          {
+            "type": "hero",
+            "content": {
+              "headline": "쇼츠 크리에이터를 위한 모든 것",
+              "subheadline": "10억 뷰 달성한 크리에이터들의 노하우가 모인 곳",
+              "searchBar": {
+                "placeholder": "강의, 템플릿, 효과음 검색...",
+                "style": "TripAdvisor pill-shaped with Stripe colors"
+              }
+            },
+            "design": {
+              "background": "Stripe gradient mesh",
+              "typography": "Stripe (Sohne-var)",
+              "animation": "Stripe scroll-triggered fade-in"
+            }
+          },
+          {
+            "type": "search-categories",
+            "title": "무엇을 찾으시나요?",
+            "categories": [
+              { "name": "강의", "icon": "education", "color": "stripe-purple" },
+              { "name": "템플릿", "icon": "template", "color": "stripe-blue" },
+              { "name": "효과음", "icon": "audio", "color": "stripe-green" },
+              { "name": "자막 도구", "icon": "subtitle", "color": "stripe-orange" },
+              { "name": "분석 도구", "icon": "analytics", "color": "stripe-pink" },
+              { "name": "커뮤니티", "icon": "community", "color": "stripe-indigo" }
+            ],
+            "layout": "TripAdvisor 6-grid",
+            "cards": "Stripe elevated with hover animation"
+          },
+          {
+            "type": "featured-content",
+            "title": "이번 주 인기 강의",
+            "layout": "TripAdvisor carousel",
+            "cards": {
+              "style": "Stripe glass morphism",
+              "content": ["thumbnail", "title", "instructor", "rating", "price"],
+              "hover": "Stripe lift effect with shadow"
+            }
+          },
+          {
+            "type": "reviews",
+            "title": "크리에이터 성공 후기",
+            "layout": "TripAdvisor review cards",
+            "design": "Stripe testimonial style"
+          }
+        ]
+      },
+      {
+        "path": "/courses",
+        "name": "강의",
+        "sections": [
+          {
+            "type": "filter-search",
+            "filters": ["카테고리", "레벨", "가격", "평점", "언어"],
+            "style": "TripAdvisor sidebar filters with Stripe UI"
+          },
+          {
+            "type": "course-grid",
+            "layout": "TripAdvisor result grid",
+            "cards": "Stripe course cards"
+          }
+        ]
+      },
+      {
+        "path": "/tools",
+        "name": "도구",
+        "sections": [
+          {
+            "type": "subtitle-generator",
+            "title": "AI 자막 생성기",
+            "design": "Stripe tool interface"
+          },
+          {
+            "type": "analytics-dashboard",
+            "title": "채널 분석 도구",
+            "design": "Stripe dashboard style"
+          }
+        ]
+      },
+      {
+        "path": "/community",
+        "name": "커뮤니티",
+        "sections": [
+          {
+            "type": "forum",
+            "categories": ["질문답변", "노하우 공유", "협업 제안"],
+            "style": "TripAdvisor forum with Stripe modern UI"
+          }
+        ]
+      }
+    ]
+  },
+  
+  "designTokens": {
+    "colors": {
+      "primary": {
+        "main": "#635BFF",
+        "light": "#9966FF",
+        "dark": "#0A2540",
+        "contrast": "#FFFFFF"
+      },
+      "secondary": {
+        "main": "#00D924",
+        "light": "#15BE53",
+        "dark": "#0A2540"
+      },
+      "neutral": {
+        "0": "#FFFFFF",
+        "50": "#F6F9FC",
+        "100": "#E7ECF1",
+        "200": "#ADBDCC",
+        "300": "#727F96",
+        "400": "#62708D",
+        "500": "#425466",
+        "600": "#3F4B66",
+        "700": "#2E3A55",
+        "800": "#0B2540",
+        "900": "#0A2540"
+      },
+      "semantic": {
+        "success": "#00D924",
+        "warning": "#F5A623",
+        "error": "#ED5E5E",
+        "info": "#0073E6"
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "heading": "'Sohne-var', 'Pretendard', -apple-system, sans-serif",
+        "body": "'Sohne-var', 'Pretendard', -apple-system, sans-serif",
+        "mono": "'SF Mono', 'D2Coding', monospace"
+      },
+      "scale": {
+        "hero": "clamp(48px, 8vw, 94px)",
+        "h1": "clamp(32px, 5vw, 56px)",
+        "h2": "clamp(24px, 4vw, 32px)",
+        "h3": "20px",
+        "h4": "18px",
+        "body": "16px",
+        "small": "14px",
+        "xs": "12px"
+      }
+    },
+    "spacing": {
+      "unit": 8,
+      "scale": [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96]
+    },
+    "borderRadius": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "12px",
+      "xl": "16px",
+      "pill": "9999px",
+      "searchBar": "28px"
+    },
+    "shadows": {
+      "sm": "0 2px 4px rgba(0,0,0,0.08)",
+      "md": "0 4px 8px rgba(0,0,0,0.12)",
+      "lg": "0 8px 24px rgba(0,0,0,0.16)",
+      "xl": "0 24px 48px rgba(0,0,0,0.24)",
+      "stripe": "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px"
+    },
+    "animation": {
+      "duration": {
+        "instant": "100ms",
+        "fast": "200ms",
+        "normal": "300ms",
+        "slow": "500ms"
+      },
+      "easing": {
+        "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+      }
+    }
+  },
+  
+  "components": {
+    "navigation": {
+      "structure": "TripAdvisor sticky header",
+      "design": "Stripe glassmorphism",
+      "items": [
+        { "label": "홈", "path": "/" },
+        { "label": "강의", "path": "/courses" },
+        { "label": "템플릿", "path": "/templates" },
+        { "label": "도구", "path": "/tools" },
+        { "label": "커뮤니티", "path": "/community" }
+      ],
+      "rightSection": {
+        "search": false,
+        "auth": "카카오 로그인",
+        "userMenu": true
+      }
+    },
+    
+    "searchBar": {
+      "style": "TripAdvisor pill-shaped",
+      "design": "Stripe colors and shadows",
+      "features": {
+        "icon": true,
+        "placeholder": "dynamic",
+        "suggestions": true,
+        "categories": true,
+        "voice": false
+      }
+    },
+    
+    "cards": {
+      "course": {
+        "layout": "TripAdvisor",
+        "design": "Stripe elevated",
+        "content": {
+          "image": { "ratio": "16:9", "overlay": true },
+          "badge": { "position": "top-left", "style": "stripe-gradient" },
+          "title": { "lines": 2, "weight": "medium" },
+          "subtitle": { "lines": 1, "color": "neutral.400" },
+          "rating": { "style": "stars", "showCount": true },
+          "price": { "position": "bottom", "highlight": true },
+          "instructor": { "avatar": true, "name": true }
+        }
+      },
+      
+      "template": {
+        "layout": "grid",
+        "design": "Stripe hover-lift",
+        "preview": { "type": "video", "autoplay": true }
+      },
+      
+      "review": {
+        "layout": "TripAdvisor review",
+        "design": "Stripe testimonial",
+        "content": {
+          "avatar": true,
+          "name": true,
+          "channel": true,
+          "rating": true,
+          "date": true,
+          "text": { "expandable": true }
+        }
+      }
+    },
+    
+    "buttons": {
+      "primary": {
+        "design": "Stripe solid",
+        "color": "primary.main",
+        "hover": "darken",
+        "active": "scale(0.98)",
+        "disabled": "opacity(0.5)"
+      },
+      "secondary": {
+        "design": "Stripe outlined",
+        "border": "1px solid",
+        "hover": "background fade"
+      },
+      "ghost": {
+        "design": "Stripe text",
+        "hover": "underline"
+      },
+      "cta": {
+        "design": "Stripe gradient",
+        "size": "large",
+        "animation": "pulse"
+      }
+    },
+    
+    "forms": {
+      "input": {
+        "design": "Stripe minimal",
+        "border": "1px solid neutral.200",
+        "focus": "primary.main border",
+        "error": "error color",
+        "helper": "below field"
+      },
+      "select": {
+        "design": "Stripe dropdown",
+        "arrow": "custom svg"
+      },
+      "checkbox": {
+        "design": "Stripe custom",
+        "checked": "primary.main"
+      }
+    }
+  },
+  
+  "implementation": {
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Foundation",
+        "duration": "2 days",
+        "tasks": [
+          "Design token system 구축 (Stripe 기반)",
+          "Component library 설정 (TripAdvisor 구조)",
+          "Typography 시스템 구현",
+          "Color 시스템 구현",
+          "Layout grid 시스템"
+        ]
+      },
+      {
+        "phase": 2,
+        "name": "Core Components",
+        "duration": "3 days",
+        "tasks": [
+          "Navigation 컴포넌트 (TripAdvisor structure + Stripe design)",
+          "Search Bar 컴포넌트 (Pill-shaped with Stripe styling)",
+          "Card 컴포넌트 시스템 (Course, Template, Review)",
+          "Button 시스템 (Primary, Secondary, Ghost, CTA)",
+          "Form 컴포넌트 (Input, Select, Checkbox)"
+        ]
+      },
+      {
+        "phase": 3,
+        "name": "Page Implementation",
+        "duration": "4 days",
+        "tasks": [
+          "홈페이지 (Hero, Categories, Featured)",
+          "강의 페이지 (Filter, Grid, Pagination)",
+          "도구 페이지 (Subtitle Generator, Analytics)",
+          "커뮤니티 페이지 (Forum, Posts)",
+          "인증 플로우 (Kakao OAuth)"
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Features & Polish",
+        "duration": "2 days",
+        "tasks": [
+          "검색 자동완성 기능",
+          "필터링 시스템",
+          "애니메이션 및 트랜지션",
+          "반응형 디자인 최적화",
+          "성능 최적화"
+        ]
+      },
+      {
+        "phase": 5,
+        "name": "Testing & Deployment",
+        "duration": "1 day",
+        "tasks": [
+          "E2E 테스트",
+          "성능 테스트",
+          "접근성 테스트",
+          "배포 준비",
+          "문서화"
+        ]
+      }
+    ]
+  }
+}
