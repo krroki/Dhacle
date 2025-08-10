@@ -75,7 +75,7 @@ export function CategoryGrid() {
               transition={{ delay: index * 0.05 }}
               whileHover={{ 
                 scale: 1.05,
-                transition: { duration: 0.2 }
+                transition: { duration: 0.3 }
               }}
               style={{
                 display: 'flex',
@@ -88,16 +88,19 @@ export function CategoryGrid() {
                 border: `1px solid ${theme.colors.neutral.gray['200']}`,
                 textDecoration: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                willChange: 'transform, box-shadow'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.15)';
                 e.currentTarget.style.borderColor = category.color;
+                e.currentTarget.style.transform = 'translateY(-2px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
                 e.currentTarget.style.borderColor = theme.colors.neutral.gray['200'];
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               {/* Icon Container */}

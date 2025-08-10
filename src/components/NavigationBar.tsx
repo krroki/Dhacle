@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { css } from 'styled-components';
-import { FiMenu, FiX, FiSearch } from 'react-icons/fi';
+import { FiMenu, FiX, FiSearch, FiChevronDown } from 'react-icons/fi';
 import { colors } from '../styles/tokens/colors';
 import { effects } from '../styles/tokens/effects';
 import { typography } from '../styles/tokens/typography';
@@ -15,10 +15,23 @@ export interface NavigationBarProps {
   userName?: string;
 }
 
+// Course dropdown items
+const COURSE_ITEMS = [
+  { id: 'course1', label: '[데헷이] 초효율쇼츠', path: '/courses/super-shorts' },
+  { id: 'course2', label: '[빠대] 탑클래스 쿠팡', path: '/courses/top-coupang' },
+  { id: 'course3', label: '[테일러] 월억 쇼츠', path: '/courses/monthly-billion' },
+  { id: 'course4', label: '[룰루랄라릴리] 쇼츠투벤츠', path: '/courses/shorts-to-benz' },
+  { id: 'course5', label: '[유쾌한케로로] AI뮤직자동화', path: '/courses/ai-music' },
+  { id: 'course6', label: '[한다해] 이지롱폼', path: '/courses/easy-longform' },
+  { id: 'course7', label: '[꿍디순디] 셀럽팬튜브', path: '/courses/celeb-fantube' },
+  { id: 'course8', label: '[레민] 쇼츠쇼핑', path: '/courses/shorts-shopping' },
+  { id: 'course9', label: '[그라운드] 실버버튼 챌린지', path: '/courses/silver-button' },
+];
+
 // Navigation items
 const NAV_ITEMS = [
   { id: 'home', label: '홈', path: '/' },
-  { id: 'courses', label: '강의', path: '/courses' },
+  { id: 'courses', label: '강의', path: '/courses', hasDropdown: true },
   { id: 'templates', label: '템플릿', path: '/templates' },
   { id: 'tools', label: '도구', path: '/tools' },
   { id: 'community', label: '커뮤니티', path: '/community' },
@@ -92,9 +105,11 @@ const NavList = styled.ul`
   flex-shrink: 0;
 `;
 
-const NavItem = styled.li``;
+const NavItem = styled.li`
+  position: relative;
+`;
 
-const NavLink = styled.a<{ $isActive?: boolean }>`
+const NavLink = styled.a<{ $isActive?: boolean; $hasDropdown?: boolean }>`
   font-size: 16px;
   font-weight: ${props => props.$isActive ? '700' : '500'};
   color: ${props => props.$isActive ? colors.neutral[900] : colors.neutral[600]};
@@ -104,6 +119,10 @@ const NavLink = styled.a<{ $isActive?: boolean }>`
   transition: all ${effects.animation.duration.fast} ${effects.animation.easing.smooth};
   position: relative;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
   
   &:hover {
     color: ${colors.neutral[900]};
@@ -114,6 +133,50 @@ const NavLink = styled.a<{ $isActive?: boolean }>`
     color: ${colors.neutral[900]};
     font-weight: 700;
   `}
+  
+  svg {
+    transition: transform ${effects.animation.duration.fast};
+  }
+  
+  &:hover svg {
+    transform: ${props => props.$hasDropdown ? 'rotate(180deg)' : 'none'};
+  }
+`;
+
+const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: ${colors.neutral[0]};
+  border: 1px solid ${colors.neutral[200]};
+  border-radius: ${effects.borderRadius.lg};
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  min-width: 280px;
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+  transform: translateY(${props => props.$isOpen ? '0' : '-10px'});
+  transition: all ${effects.animation.duration.normal} ${effects.animation.easing.smooth};
+  z-index: 1000;
+`;
+
+const DropdownItem = styled.a`
+  display: block;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: ${typography.fontWeight.regular};
+  color: ${colors.neutral[700]};
+  text-decoration: none;
+  border-radius: ${effects.borderRadius.md};
+  transition: all ${effects.animation.duration.fast};
+  white-space: nowrap;
+  
+  &:hover {
+    background: ${colors.neutral[50]};
+    color: ${colors.neutral[900]};
+    transform: translateX(4px);
+  }
 `;
 
 const AuthSection = styled.div`
@@ -124,11 +187,11 @@ const AuthSection = styled.div`
 
 const SearchBox = styled.div`
   position: relative;
-  width: 320px;
+  width: 400px;
   flex-shrink: 0;
   
   @media (max-width: 1024px) {
-    width: 240px;
+    width: 300px;
   }
   
   @media (max-width: 768px) {
@@ -139,7 +202,7 @@ const SearchBox = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   height: 40px;
-  padding: 0 40px 0 16px;
+  padding: 0 16px 0 44px;
   border: 1px solid ${colors.neutral[200]};
   border-radius: ${effects.borderRadius.pill};
   font-size: 14px;
@@ -148,9 +211,9 @@ const SearchInput = styled.input`
   
   &:focus {
     outline: none;
-    border-color: ${colors.primary.main};
+    border-color: #3B82F6;
     background: ${colors.neutral[0]};
-    box-shadow: 0 0 0 3px ${colors.primary.light}20;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
   
   &::placeholder {
@@ -160,19 +223,21 @@ const SearchInput = styled.input`
 
 const SearchIcon = styled.div`
   position: absolute;
-  right: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: ${colors.neutral[400]};
   pointer-events: none;
+  display: flex;
+  align-items: center;
 `;
 
 const KakaoLoginButton = styled.button`
   background: #FEE500; /* Kakao brand yellow */
   color: #000000;
   border: none;
-  border-radius: ${effects.borderRadius.pill};
-  padding: 10px 20px;
+  border-radius: 8px;
+  padding: 10px 24px;
   font-size: 14px;
   font-weight: ${typography.fontWeight.semibold};
   cursor: pointer;
@@ -183,7 +248,7 @@ const KakaoLoginButton = styled.button`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:hover {
-    background: #FDD835;
+    background: #E5CC00;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -338,6 +403,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   userName = ''
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
   const { isScrolled } = useScrollPosition({ threshold: 50, throttleMs: 100 });
 
   // Close mobile menu on resize
@@ -364,6 +431,18 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       document.body.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -406,27 +485,49 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           <DesktopNav>
             <NavList>
               {NAV_ITEMS.map(item => (
-                <NavItem key={item.id}>
+                <NavItem 
+                  key={item.id}
+                  ref={item.hasDropdown ? dropdownRef : undefined}
+                  onMouseEnter={() => item.hasDropdown && setDropdownOpen(true)}
+                  onMouseLeave={() => item.hasDropdown && setDropdownOpen(false)}
+                >
                   <NavLink 
                     href={item.path}
                     $isActive={currentPath === item.path}
+                    $hasDropdown={item.hasDropdown}
                     aria-current={currentPath === item.path ? 'page' : undefined}
+                    onClick={(e) => {
+                      if (item.hasDropdown) {
+                        e.preventDefault();
+                        setDropdownOpen(!dropdownOpen);
+                      }
+                    }}
                   >
                     {item.label}
+                    {item.hasDropdown && <FiChevronDown size={16} />}
                   </NavLink>
+                  {item.hasDropdown && (
+                    <DropdownMenu $isOpen={dropdownOpen}>
+                      {COURSE_ITEMS.map(course => (
+                        <DropdownItem key={course.id} href={course.path}>
+                          {course.label}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  )}
                 </NavItem>
               ))}
             </NavList>
 
             <SearchBox>
+              <SearchIcon>
+                <FiSearch size={20} />
+              </SearchIcon>
               <SearchInput 
                 type="search" 
-                placeholder="무엇을 배우고 싶으신가요?"
+                placeholder="어떤 강의를 찾으시나요?"
                 aria-label="강의 검색"
               />
-              <SearchIcon>
-                <FiSearch size={18} />
-              </SearchIcon>
             </SearchBox>
 
             <AuthSection>
