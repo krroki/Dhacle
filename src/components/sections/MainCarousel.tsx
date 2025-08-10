@@ -167,7 +167,7 @@ const IndicatorWrapper = styled.div`
   position: absolute;
   bottom: 20px;
   left: 50%;
-  transform: translateX(calc(-50% - 280px)); /* 중앙 캐러셀 기준 왼쪽 */
+  transform: translateX(calc(-50% - 480px)); /* 캐러셀 내부 왼쪽 */
   display: flex;
   align-items: center;
   z-index: 10;
@@ -177,7 +177,7 @@ const ControlsWrapper = styled.div`
   position: absolute;
   bottom: 20px;
   left: 50%;
-  transform: translateX(calc(-50% + 280px)); /* 중앙 캐러셀 기준 오른쪽 */
+  transform: translateX(calc(-50% + 480px)); /* 캐러셀 내부 오른쪽 */
   display: flex;
   align-items: center;
   gap: 8px;
@@ -246,7 +246,7 @@ const ProgressBar = styled.div<{ $progress: number }>`
   height: 100%;
   background: #ffffff;
   width: ${props => props.$progress}%;
-  transition: width 100ms linear;
+  transition: ${props => props.$progress === 0 ? 'none' : 'width 100ms linear'};
   border-radius: 1px;
 `;
 
@@ -354,14 +354,17 @@ export function MainCarousel() {
       clearInterval(progressIntervalRef.current);
     }
 
+    // 슬라이드가 변경될 때마다 progress를 0으로 리셋
+    setProgress(0);
+    
     if (isPlaying) {
-      setProgress(0);
       progressIntervalRef.current = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 100) {
-            return 0;
+          const next = prev + (100 / (SLIDE_DURATION / 100));
+          if (next >= 100) {
+            return 100; // 100에서 멈춤
           }
-          return prev + (100 / (SLIDE_DURATION / 100));
+          return next;
         });
       }, 100);
     }
