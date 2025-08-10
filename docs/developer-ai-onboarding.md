@@ -27,13 +27,7 @@ Read docs/Visual-Verification-Protocol.md # 5. UI 검증
 # 이 파일(developer-ai-onboarding.md)도 확인
 ```
 
-### Step 3: 개발 환경 확인
-```bash
-# 타입 체크 테스트
-npx tsc --noEmit
-```
-
-### Step 4: 온보딩 완료
+### Step 3: 온보딩 완료
 온보딩 문서 학습이 완료되면 작업 준비 완료
 
 ## 다음 세션에서 작업 지시를 받고난 후 작업 수행 프로세스
@@ -59,9 +53,7 @@ Read [수정할 파일 경로]
 - Context 활용 (이미 읽은 문서 참조)
 
 ### 5. 검증 (작업 유형별 필수)
-```bash
-# 공통: 타입 체크
-npx tsc --noEmit
+
 
 # UI 작업: Visual Verification Protocol 적용
 - Playwright MCP로 브라우저 확인:
@@ -73,7 +65,7 @@ npx tsc --noEmit
 # DB 작업: 스키마 검증
 - npx supabase db push  # 마이그레이션 적용
 - npx supabase gen types typescript --local > src/types/database.types.ts
-- npx tsc --noEmit  # 타입 체크
+
 
 # API 작업: 엔드포인트 검증
 - curl 또는 브라우저에서 직접 호출

@@ -188,7 +188,7 @@ PM AI 온보딩 완료
 #### 즉시 실행 스크립트 (온보딩 시작 전)
 ```bash
 # Context Zero - 프로젝트 상태 즉시 파악
-cd C:\My_Claude_Project\9.Dhacle
+cd C:\My_Claude_Project\9.Dhacle아
 pwd
 git status --short  # ⚠️ 사용자 확인 후 실행
 npx tsc --noEmit 2>&1 | head -20  # 타입 에러 확인

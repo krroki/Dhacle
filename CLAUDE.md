@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔴 테스트 계정 정보 (MUST USE FOR TESTING)
+
+**카카오 로그인 테스트 계정**:
+```
+ID: glemfkcl@naver.com
+PW: dhfl9909
+```
+⚠️ **중요**: 인증 화면이 나타나면 사용자가 직접 인증하므로 잠시 대기 필요
+
 ## 🔴 최우선 원칙 업데이트 (2025-01-09)
 
 ### 기존: Context 없는 AI 가정 (비효율적)

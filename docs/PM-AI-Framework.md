@@ -1345,17 +1345,7 @@ mv docs/tasks/active/TASK-NEW.md docs/tasks/completed/
 ### Context Zero 필수 요소
 새 세션의 Developer AI가 Context 없이도 작업을 시작할 수 있도록:
 
-#### 1. 즉시 실행 스크립트 (모든 작업 지시서 최상단)
-```bash
-# Context Zero - 새 세션 시작 시 즉시 실행
-cd C:\My_Claude_Project\9.Dhacle
-pwd
-git status --short  # ⚠️ 사용자 확인 후 실행
-npx tsc --noEmit 2>&1 | head -20
-npm list --depth=0 2>/dev/null | grep -E "(next|react|typescript|supabase)"
-```
-
-#### 2. 프로젝트 기본 정보 명시
+#### 1. 프로젝트 기본 정보 명시
 ```markdown
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터 교육 플랫폼
@@ -1364,7 +1354,7 @@ npm list --depth=0 2>/dev/null | grep -E "(next|react|typescript|supabase)"
 - **프로젝트 위치**: C:\My_Claude_Project\9.Dhacle
 ```
 
-#### 3. 실패 시나리오 대응
+#### 2. 실패 시나리오 대응
 ```bash
 # 타입 에러 시
 npx tsc --noEmit  # 전체 타입 체크
@@ -1387,7 +1377,7 @@ cat .env.local | grep SUPABASE  # 환경 변수 확인
 npx supabase status  # 연결 상태 확인
 ```
 
-#### 4. JSON 완료 보고 형식
+#### 3. JSON 완료 보고 형식
 ```json
 {
   "task_id": "TASK-[번호]",

@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient as createSupabaseBrowserClientSSR } from '@supabase/ssr'
 import { Database } from '@/types/database'
 
 // Create a Supabase client for browser/client-side usage
@@ -27,11 +27,14 @@ export function createSupabaseBrowserClient() {
         update: () => ({ data: null, error: null }),
         delete: () => ({ data: null, error: null }),
       }),
-    } as unknown as ReturnType<typeof createBrowserClient<Database>>;
+    } as unknown as ReturnType<typeof createSupabaseBrowserClientSSR<Database>>;
   }
   
-  return createBrowserClient<Database>(
+  return createSupabaseBrowserClientSSR<Database>(
     supabaseUrl,
     supabaseAnonKey
   )
 }
+
+// Export with alias for backward compatibility
+export const createBrowserClient = createSupabaseBrowserClient

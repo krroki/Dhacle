@@ -11,8 +11,8 @@ import { effects } from '@/styles/tokens/effects';
 // Styled Components
 const CarouselSection = styled.section`
   width: 100%;
-  padding: 20px 0 0 0; /* 상단 여백 20px 추가 */
-  background: ${colors.neutral[0]}; /* 디자인 시스템 토큰 사용 */
+  padding: 40px 0;
+  background: ${colors.neutral[0]};
 `;
 
 const CarouselContainer = styled.div`

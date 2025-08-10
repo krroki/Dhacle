@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import type { Database } from '@/types/database.types'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies()
     
     // Create a Supabase client with the cookie-based storage
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -44,11 +45,28 @@ export async function GET(request: NextRequest) {
 
     try {
       // Exchange code for session
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      const { error, data } = await supabase.auth.exchangeCodeForSession(code)
       
       if (error) {
         console.error('Error exchanging code for session:', error)
         return NextResponse.redirect(`${requestUrl.origin}/auth/error`)
+      }
+
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Check if user profile exists in public.users table
+        const { data: userProfile, error: profileError } = await supabase
+          .from('users')
+          .select('username, full_name')
+          .eq('id', user.id)
+          .single()
+
+        // If profile doesn't exist or is incomplete, redirect to onboarding
+        if (profileError || !userProfile?.username || !userProfile?.full_name) {
+          return NextResponse.redirect(`${requestUrl.origin}/onboarding`)
+        }
       }
     } catch (error) {
       console.error('Error during authentication:', error)

@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { css } from 'styled-components';
-import { FiMenu, FiX, FiSearch, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiX, FiSearch, FiChevronDown, FiUser, FiBook, FiDollarSign, FiSettings, FiLogOut } from 'react-icons/fi';
 import { colors } from '../styles/tokens/colors';
 import { effects } from '../styles/tokens/effects';
 import { typography } from '../styles/tokens/typography';
 import { useScrollPosition } from '../hooks/useScrollPosition';
+import { useRouter } from 'next/navigation';
 // import { PillButton } from './PillButton'; // Kept for future use
 
 // Types
 export interface NavigationBarProps {
   currentPath?: string;
   onLogin?: () => void;
+  onLogout?: () => void;
   isLoggedIn?: boolean;
   userName?: string;
+  userAvatar?: string;
 }
 
 // Course dropdown items
@@ -28,9 +31,16 @@ const COURSE_ITEMS = [
   { id: 'course9', label: '[그라운드] 실버버튼 챌린지', path: '/courses/silver-button' },
 ];
 
-// Navigation items
+// Profile dropdown items
+const PROFILE_ITEMS = [
+  { id: 'mypage', label: '마이페이지', path: '/mypage', icon: FiUser },
+  { id: 'my-courses', label: '내 강의', path: '/mypage#courses', icon: FiBook },
+  { id: 'revenue', label: '수익 인증', path: '/mypage#revenue', icon: FiDollarSign },
+  { id: 'settings', label: '설정', path: '/mypage#settings', icon: FiSettings },
+];
+
+// Navigation items - 홈 메뉴 제거 (로고가 홈 역할)
 const NAV_ITEMS = [
-  { id: 'home', label: '홈', path: '/' },
   { id: 'courses', label: '강의', path: '/courses', hasDropdown: true },
   { id: 'templates', label: '템플릿', path: '/templates' },
   { id: 'tools', label: '도구', path: '/tools' },
@@ -59,17 +69,14 @@ const NavContainer = styled.nav<{ $isScrolled: boolean }>`
 const NavWrapper = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px; /* Standard padding for clean alignment */
+  padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px; /* Fixed height for consistent alignment */
+  height: 80px;
 `;
 
 const Logo = styled.a`
-  font-size: 22px;
-  font-weight: ${typography.fontWeight.bold};
-  color: ${colors.neutral[900]};
   text-decoration: none;
   transition: all ${effects.animation.duration.fast};
   display: flex;
@@ -77,9 +84,23 @@ const Logo = styled.a`
   flex-shrink: 0; /* Prevent logo from shrinking */
   
   &:hover {
-    color: ${colors.primary.main};
-    transform: scale(1.02);
+    transform: scale(1.05);
   }
+`;
+
+const LogoText = styled.span`
+  font-family: '777Chyaochyureu', serif;
+  font-size: 36px;
+  font-weight: normal;
+  background: linear-gradient(90deg, #2bc3cb 0%, #635bff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  letter-spacing: 0;
+  display: inline-block;
+  padding: 0;
+  margin: 0;
 `;
 
 const DesktopNav = styled.div`
@@ -233,8 +254,8 @@ const SearchIcon = styled.div`
 `;
 
 const KakaoLoginButton = styled.button`
-  background: #FEE500; /* Kakao brand yellow */
-  color: #000000;
+  background: #635BFF; /* Primary purple color */
+  color: #FFFFFF;
   border: none;
   border-radius: 8px;
   padding: 10px 24px;
@@ -248,9 +269,9 @@ const KakaoLoginButton = styled.button`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:hover {
-    background: #E5CC00;
+    background: #7A73FF; /* Lighter purple on hover */
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
   }
   
   &:active {
@@ -264,6 +285,7 @@ const KakaoLoginButton = styled.button`
 `;
 
 const UserMenu = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -278,9 +300,73 @@ const UserMenu = styled.div`
   }
 `;
 
+const UserAvatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #635BFF, #00D4FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+`;
+
 const UserName = styled.span`
   font-size: ${typography.fontSize.body};
   color: ${colors.neutral[800]};
+  font-weight: ${typography.fontWeight.medium};
+`;
+
+const ProfileDropdown = styled(DropdownMenu)`
+  right: 0;
+  left: auto;
+  min-width: 220px;
+`;
+
+const ProfileDropdownItem = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: ${typography.fontWeight.regular};
+  color: ${colors.neutral[700]};
+  text-decoration: none;
+  border-radius: ${effects.borderRadius.md};
+  transition: all ${effects.animation.duration.fast};
+  
+  svg {
+    width: 18px;
+    height: 18px;
+    color: ${colors.neutral[500]};
+  }
+  
+  &:hover {
+    background: ${colors.neutral[50]};
+    color: ${colors.neutral[900]};
+    
+    svg {
+      color: ${colors.neutral[700]};
+    }
+  }
+  
+  &.logout {
+    color: ${colors.neutral[600]};
+    border-top: 1px solid ${colors.neutral[200]};
+    margin-top: 8px;
+    padding-top: 16px;
+    
+    &:hover {
+      color: #FF5630;
+      background: rgba(255, 86, 48, 0.08);
+      
+      svg {
+        color: #FF5630;
+      }
+    }
+  }
 `;
 
 const MobileMenuButton = styled.button`
@@ -399,12 +485,17 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
 export const NavigationBar: React.FC<NavigationBarProps> = ({
   currentPath = '/',
   onLogin,
+  onLogout,
   isLoggedIn = false,
-  userName = ''
+  userName = '',
+  userAvatar = ''
 }) => {
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLLIElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
   const { isScrolled } = useScrollPosition({ threshold: 50, throttleMs: 100 });
 
   // Close mobile menu on resize
@@ -438,6 +529,9 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
       }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -452,12 +546,71 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     setIsMobileMenuOpen(false);
   };
 
+  const handleProfileClick = () => {
+    setProfileDropdownOpen(prev => !prev);
+  };
+
+  const handleLogout = () => {
+    setProfileDropdownOpen(false);
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   const renderAuthSection = () => {
     if (isLoggedIn && userName) {
       return (
-        <UserMenu>
-          <UserName>{userName}</UserName>
-        </UserMenu>
+        <div ref={profileDropdownRef} style={{ position: 'relative' }}>
+          <UserMenu onClick={handleProfileClick}>
+            <UserAvatar>
+              {userAvatar ? (
+                <img src={userAvatar} alt={userName} style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+              ) : (
+                userName.charAt(0).toUpperCase()
+              )}
+            </UserAvatar>
+            <UserName>{userName}</UserName>
+            <FiChevronDown size={16} style={{ 
+              transition: 'transform 0.3s',
+              transform: profileDropdownOpen ? 'rotate(180deg)' : 'rotate(0)'
+            }} />
+          </UserMenu>
+          
+          <ProfileDropdown $isOpen={profileDropdownOpen}>
+            {PROFILE_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <ProfileDropdownItem
+                  key={item.id}
+                  href={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setProfileDropdownOpen(false);
+                    router.push(item.path);
+                  }}
+                >
+                  <Icon />
+                  <span>{item.label}</span>
+                </ProfileDropdownItem>
+              );
+            })}
+            <ProfileDropdownItem
+              as="button"
+              className="logout"
+              onClick={handleLogout}
+              style={{ 
+                width: '100%', 
+                textAlign: 'left',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <FiLogOut />
+              <span>로그아웃</span>
+            </ProfileDropdownItem>
+          </ProfileDropdown>
+        </div>
       );
     }
 
@@ -479,7 +632,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       <NavContainer $isScrolled={isScrolled} role="navigation" aria-label="메인 네비게이션">
         <NavWrapper>
           <Logo href="/" aria-label="디하클 홈">
-            디하클
+            <LogoText>Dhacle</LogoText>
           </Logo>
 
           <DesktopNav>

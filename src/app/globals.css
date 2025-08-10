@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 차오츄르체 - 777Chyaochyureu */
+@font-face {
+  font-family: '777Chyaochyureu';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_nine_@1.1/777Chyaochyureu.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Stripe Design System CSS Variables */
 :root {
   /* Primary Colors */

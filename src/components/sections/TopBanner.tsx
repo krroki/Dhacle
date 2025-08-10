@@ -33,7 +33,7 @@ export function TopBanner() {
   return (
     <div 
       style={{
-        backgroundColor: '#FFD700', // FastCampus yellow
+        backgroundColor: '#635BFF', // Primary purple color
         padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
         position: 'relative',
         display: 'flex',
@@ -46,10 +46,10 @@ export function TopBanner() {
       <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', paddingRight: theme.spacing[8] }}>
         <StripeTypography 
           variant="body" 
-          color="dark"
+          color="inverse"
           className="font-medium"
         >
-          🎯 8월 12일까지만 앱콜 | 지금 구매하면 특가 할인 혜택받을 수 있는 1+1 쿠폰 증정!
+          🏆 실버버튼 챌린지 5기 할인 혜택 관련 공지 📢
         </StripeTypography>
       </div>
       
@@ -70,7 +70,7 @@ export function TopBanner() {
         }}
         aria-label="배너 닫기"
       >
-        <X size={20} style={{ color: theme.colors.text.primary.dark }} />
+        <X size={20} style={{ color: '#FFFFFF' }} />
       </button>
     </div>
   );

@@ -56,7 +56,7 @@ export function CategoryGrid() {
 
   return (
     <div style={{ 
-      padding: `${theme.spacing[12]} ${theme.spacing[4]}`,
+      padding: `${theme.spacing[10]} ${theme.spacing[6]}`,
       backgroundColor: theme.colors.neutral.white
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
