@@ -15,6 +15,35 @@
 3. 결과 확인 후 다음 단계 진행
 4. 오류 발생시 "이전 작업을 되돌려주세요" 요청
 
+## 🚨 빌드 실패 방지 체크리스트 (코드 작성 전 필독!)
+
+### 반드시 피해야 할 코드 패턴
+```typescript
+// ❌ 이런 코드는 Vercel 빌드 실패!
+1. any 타입: const data: any = {}
+2. 미사용 변수: const [data, setData] = useState() // data 미사용
+3. 미사용 import: import { useEffect } from 'react' // 사용 안함
+4. img 태그: <img src="/photo.jpg" />
+5. Storybook import: import { Meta } from '@storybook/react'
+6. catch error 미사용: } catch (error) { console.log('fail') }
+
+// ✅ 올바른 코드 패턴
+1. 정확한 타입: const data: UserData = {}
+2. 미사용 표시: const [, setData] = useState()
+3. 필요한 것만: import { useState } from 'react'
+4. Next Image: <Image src="/photo.jpg" alt="" width={100} height={100} />
+5. Storybook 제거: 별도 폴더 또는 삭제
+6. error 제거: } catch { console.log('fail') }
+```
+
+### 코드 작성 후 필수 실행
+```bash
+# 반드시 이 순서대로!
+1. npx tsc --noEmit  # TypeScript 에러 체크
+2. npm run lint      # ESLint 에러 체크
+3. npm run build     # 빌드 테스트 (가장 중요!)
+```
+
 ---
 
 ## 📋 전체 개발 로드맵

@@ -32,17 +32,17 @@ export async function createSupabaseServerClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
-          } catch (error) {
+          } catch {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
           }
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string) {
           try {
             // Properly delete the cookie instead of just clearing its value
             cookieStore.delete(name)
-          } catch (error) {
+          } catch {
             // The `remove` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -82,7 +82,7 @@ export async function createSupabaseRouteHandlerClient() {
         set(name: string, value: string, options: CookieOptions) {
           cookieStore.set({ name, value, ...options })
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string) {
           cookieStore.delete(name)
         },
       },

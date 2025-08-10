@@ -29,7 +29,7 @@ export function Header() {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: any, session: any) => {
+      (_event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
       }
@@ -53,7 +53,7 @@ export function Header() {
         // Login error handled by Supabase
         alert('로그인 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
       }
-    } catch (error) {
+    } catch {
       // Error handled silently
     }
   };

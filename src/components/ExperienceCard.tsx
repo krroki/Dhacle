@@ -1,4 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
+import Image from 'next/image';
 import { colors } from '@/styles/tokens/colors';
 import { effects } from '@/styles/tokens/effects';
 import { typography } from '@/styles/tokens/typography';
@@ -110,21 +111,17 @@ export const ExperienceCard = memo<ExperienceCardProps>(({
     >
       {/* Image Container */}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16 / 9', backgroundColor: colors.neutral[100] }}>
-        <img
+        <Image
           src={imageError ? '/images/placeholder.svg' : image}
           alt={imageAlt}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading={loading}
           onError={handleImageError}
-          className="w-full h-full object-cover transition-transform"
+          className="object-cover transition-transform hover:scale-105"
           style={{
             transitionDuration: effects.animation.duration.slow,
             transitionTimingFunction: effects.animation.easing.smooth,
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLImageElement).style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLImageElement).style.transform = 'scale(1)';
           }}
         />
         

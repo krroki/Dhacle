@@ -73,7 +73,7 @@ export default function TranscribePage() {
     initializeAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (!session?.user && status !== 'auth_required') {
         setStatus('auth_required');
@@ -83,7 +83,7 @@ export default function TranscribePage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase.auth, status]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();

@@ -27,7 +27,7 @@ export function createSupabaseBrowserClient() {
         update: () => ({ data: null, error: null }),
         delete: () => ({ data: null, error: null }),
       }),
-    } as any;
+    } as unknown as ReturnType<typeof createBrowserClient<Database>>;
   }
   
   return createBrowserClient<Database>(

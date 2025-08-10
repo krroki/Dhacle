@@ -552,6 +552,113 @@ git force push
 # "사용자님, git push를 실행해도 될까요?"
 ```
 
+## 🚨 코드 작성 시 필수 체크리스트 (Vercel 빌드 실패 방지)
+
+### ❌ 절대 하지 말아야 할 것들 (빌드 실패 원인)
+1. **`any` 타입 사용 금지**
+   ```typescript
+   // ❌ 잘못됨 - 빌드 실패
+   const data: any = {};
+   
+   // ✅ 올바름
+   const data: Record<string, unknown> = {};
+   // 또는 정확한 타입 정의
+   interface DataType { ... }
+   const data: DataType = {};
+   ```
+
+2. **Storybook import 금지**
+   ```typescript
+   // ❌ 잘못됨 - 빌드 실패
+   import { Meta } from '@storybook/react';
+   
+   // ✅ Storybook 파일은 별도 관리 또는 제거
+   ```
+
+3. **미사용 변수/import 금지**
+   ```typescript
+   // ❌ 잘못됨
+   import { useState, useEffect } from 'react'; // useEffect 미사용
+   const [data, setData] = useState(); // data 미사용
+   
+   // ✅ 올바름
+   import { useState } from 'react';
+   const [, setData] = useState(); // 미사용 표시
+   ```
+
+4. **catch 블록 error 변수**
+   ```typescript
+   // ❌ 잘못됨
+   } catch (error) { // error 미사용
+     console.log('Error occurred');
+   }
+   
+   // ✅ 올바름
+   } catch { // error 변수 제거
+     console.log('Error occurred');
+   }
+   // 또는
+   } catch (error) {
+     console.error('Error:', error); // error 사용
+   }
+   ```
+
+5. **React unescaped entities**
+   ```typescript
+   // ❌ 잘못됨
+   <p>Don't use quotes like "this"</p>
+   
+   // ✅ 올바름
+   <p>Don&apos;t use quotes like &quot;this&quot;</p>
+   // 또는
+   <p>{`Don't use quotes like "this"`}</p>
+   ```
+
+6. **img 태그 대신 Next.js Image 사용**
+   ```typescript
+   // ❌ 잘못됨
+   <img src="/image.jpg" alt="..." />
+   
+   // ✅ 올바름
+   import Image from 'next/image';
+   <Image src="/image.jpg" alt="..." width={100} height={100} />
+   ```
+
+### ✅ 코드 작성 전 필수 확인 사항
+
+1. **빌드 테스트 먼저 실행**
+   ```bash
+   npm run build  # 배포 전 반드시 실행
+   ```
+
+2. **타입 체크**
+   ```bash
+   npx tsc --noEmit  # TypeScript 에러 확인
+   ```
+
+3. **ESLint 체크**
+   ```bash
+   npm run lint  # ESLint 에러/경고 확인
+   ```
+
+### 📝 개발 시 권장 사항
+
+1. **타입 정의 우선**
+   - 모든 함수 파라미터와 리턴 타입 명시
+   - interface/type 사전 정의
+   - any 대신 unknown 사용 후 타입 가드
+
+2. **import 정리**
+   - VS Code의 "Organize Imports" 기능 활용
+   - 미사용 import 자동 제거
+
+3. **빌드 전 체크리스트**
+   - [ ] `npm run build` 성공 확인
+   - [ ] TypeScript 에러 0개
+   - [ ] ESLint 에러 0개
+   - [ ] 콘솔 에러 없음
+   - [ ] 모든 이미지 Next/Image 사용
+
 ## Important Notes
 
 1. **Korean Context**: This project is primarily for Korean users. Ensure proper Korean language support and cultural considerations.

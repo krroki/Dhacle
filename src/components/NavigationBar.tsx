@@ -5,7 +5,7 @@ import { colors } from '../styles/tokens/colors';
 import { effects } from '../styles/tokens/effects';
 import { typography } from '../styles/tokens/typography';
 import { useScrollPosition } from '../hooks/useScrollPosition';
-import { PillButton } from './PillButton';
+// import { PillButton } from './PillButton'; // Kept for future use
 
 // Types
 export interface NavigationBarProps {

@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Calendar, BookOpen } from 'lucide-react';
+import Image from 'next/image';
+import { Calendar, BookOpen } from 'lucide-react';
 import { StripeTypography, StripeCard } from '@/components/design-system';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
@@ -149,16 +150,18 @@ export function RevenueSlider() {
                   >
                     <div style={{ display: 'flex', gap: theme.spacing[4] }}>
                       {/* Avatar */}
-                      <img
-                        src={item.avatar}
-                        alt={item.name}
-                        style={{
-                          width: '60px',
-                          height: '60px',
-                          borderRadius: '50%',
-                          objectFit: 'cover'
-                        }}
-                      />
+                      <div style={{ position: 'relative', width: '60px', height: '60px' }}>
+                        <Image
+                          src={item.avatar}
+                          alt={item.name}
+                          fill
+                          sizes="60px"
+                          style={{
+                            borderRadius: '50%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </div>
                       
                       {/* Content */}
                       <div style={{ flex: 1 }}>

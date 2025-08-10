@@ -196,7 +196,7 @@ export const MorphingGradient: React.FC<MorphingGradientProps> = ({ className })
       setGradientIndex((prev) => (prev + 1) % gradients.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [gradients.length]);
 
   return (
     <motion.div
