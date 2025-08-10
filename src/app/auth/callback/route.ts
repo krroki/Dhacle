@@ -20,10 +20,25 @@ export async function GET(request: NextRequest) {
   if (code) {
     const cookieStore = await cookies()
     
+    // Get environment variables with fallback for Vercel
+    let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    // Fix for Vercel having placeholder values
+    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+      supabaseUrl = 'https://golbwnsytwbyoneucunx.supabase.co'
+      console.log('[Auth Callback] Using fallback Supabase URL')
+    }
+    
+    if (!supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+      supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvbGJ3bnN5dHdieW9uZXVjdW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1NzI1MTYsImV4cCI6MjA3MDE0ODUxNn0.8EaDU4a1-FuCeWuRtK0fzxrRDuMvNwoB0a0qALDm6iM'
+      console.log('[Auth Callback] Using fallback Supabase Anon Key')
+    }
+    
     // Create a Supabase client with the cookie-based storage
     const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           get(name: string) {
@@ -52,7 +67,11 @@ export async function GET(request: NextRequest) {
     )
 
     try {
-      console.log('[Auth Callback] Attempting to exchange code for session')
+      console.log('[Auth Callback] Attempting to exchange code for session', {
+        supabaseUrl: supabaseUrl.substring(0, 30) + '...',
+        hasAnonKey: !!supabaseAnonKey,
+        code: code.substring(0, 10) + '...'
+      })
       
       // Exchange code for session
       const { error, data } = await supabase.auth.exchangeCodeForSession(code)
@@ -95,10 +114,27 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.error('Error during authentication:', error)
+      console.error('[Auth Callback] Caught error during authentication:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        supabaseUrl: supabaseUrl?.substring(0, 30) + '...'
+      })
+      
       const errorUrl = new URL('/auth/error', requestUrl.origin)
       errorUrl.searchParams.set('error', 'server_error')
-      errorUrl.searchParams.set('error_description', error instanceof Error ? error.message : 'An unexpected error occurred during authentication')
+      
+      // Provide more specific error message for fetch failures
+      let errorDescription = 'An unexpected error occurred during authentication'
+      if (error instanceof Error) {
+        if (error.message.includes('fetch failed')) {
+          errorDescription = 'Connection to authentication server failed. This may be due to network issues or configuration problems.'
+        } else {
+          errorDescription = error.message
+        }
+      }
+      
+      errorUrl.searchParams.set('error_description', errorDescription)
       return NextResponse.redirect(errorUrl.toString())
     }
   }
