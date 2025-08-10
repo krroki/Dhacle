@@ -6,8 +6,22 @@ export function createSupabaseBrowserClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
-  // Return a mock client if environment variables are not set (development only)
+  // Check if we're on production and environment variables are missing
   if (!supabaseUrl || !supabaseAnonKey) {
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      
+      // If we're on production domain, throw a clear error
+      if (hostname === 'dhacle.com' || hostname === 'www.dhacle.com') {
+        throw new Error(
+          'CRITICAL: Supabase environment variables are not configured on production. ' +
+          'Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel environment variables.'
+        );
+      }
+    }
+    
+    // Development mode - return mock client
     console.warn(
       'Supabase environment variables not set. Using mock client for development.'
     );
@@ -29,6 +43,9 @@ export function createSupabaseBrowserClient() {
       }),
     } as unknown as ReturnType<typeof createSupabaseBrowserClientSSR<Database>>;
   }
+  
+  // Skip validation for now - Vercel build issue
+  // TODO: Re-enable after Vercel environment variables are properly configured
   
   return createSupabaseBrowserClientSSR<Database>(
     supabaseUrl,
