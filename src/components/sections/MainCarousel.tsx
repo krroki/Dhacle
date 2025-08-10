@@ -11,50 +11,49 @@ import { effects } from '@/styles/tokens/effects';
 // Styled Components
 const CarouselSection = styled.section`
   width: 100%;
-  padding: 60px 0;
+  padding: 0;
   background: ${colors.neutral[0]}; /* 디자인 시스템 토큰 사용 */
 `;
 
 const CarouselContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
 `;
 
 const SlideViewport = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 2.5; /* 패스트캠퍼스 실제 비율 */
+  height: 423.42px; /* 패스트캠퍼스와 동일한 높이 */
   overflow: hidden;
   
   @media (max-width: 768px) {
-    aspect-ratio: 1.8;
+    height: 280px;
   }
 `;
 
 const SlideTrack = styled.div<{ $translateX: number }>`
   display: flex;
   height: 100%;
-  transform: translateX(${props => props.$translateX}%);
+  transform: translateX(${props => props.$translateX}px);
   transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const SlideItem = styled.div<{ $isActive: boolean }>`
-  flex: 0 0 70%; /* 패스트캠퍼스와 동일한 너비 */
+  flex: 0 0 1147.5px; /* 패스트캠퍼스와 동일한 너비 */
   height: 100%;
-  margin: 0 8px; /* 16px 간격 */
+  margin: 0 12px; /* 간격 */
   position: relative;
   cursor: pointer;
   border-radius: 20px;
   overflow: hidden;
-  opacity: ${props => props.$isActive ? 1 : 0.4};
-  transform: scale(${props => props.$isActive ? 1 : 0.92});
+  opacity: 1; /* 투명도 제거 - 모든 슬라이드 100% 불투명 */
+  transform: scale(${props => props.$isActive ? 1 : 0.95});
   transition: all 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
   &:hover {
-    transform: scale(${props => props.$isActive ? 1 : 0.94});
+    transform: scale(${props => props.$isActive ? 1.02 : 0.97});
   }
   
   /* 하단 그라데이션 오버레이 */
@@ -70,11 +69,11 @@ const SlideItem = styled.div<{ $isActive: boolean }>`
   }
   
   @media (max-width: 1024px) {
-    flex: 0 0 75%;
+    flex: 0 0 85%;
   }
   
   @media (max-width: 768px) {
-    flex: 0 0 85%;
+    flex: 0 0 90%;
     margin: 0 5px;
   }
 `;
@@ -240,22 +239,20 @@ export function MainCarousel() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const SLIDE_DURATION = 7000; // 7초
 
-  // Create extended slides array for infinite loop
-  // [8, 1, 2, 3, 4, 5, 6, 7, 8, 1]
-  const extendedSlides = [
-    carouselSlides[carouselSlides.length - 1], // Last slide (8)
-    ...carouselSlides, // All slides (1-8)
-    carouselSlides[0] // First slide (1)
-  ];
+  // 일반 캐러셀 - 무한 루프 제거
+  const slides = carouselSlides;
 
-  // 슬라이드 위치 계산 (중앙 정렬을 위해)
+  // 슬라이드 위치 계산
   const calculateTranslateX = () => {
-    // 슬라이드 너비가 70%이므로, 중앙 정렬을 위한 계산
-    const slideWidth = 70;
-    const gap = 1.6; // gap between slides in percentage (16px / 1000px * 100)
-    const centerOffset = (100 - slideWidth) / 2;
-    // Add 1 to currentSlide because first item is the duplicate of slide 8
-    return -((currentSlide + 1) * (slideWidth + gap)) + centerOffset;
+    const slideWidth = 1147.5; // px
+    const gap = 24; // px (margin 12px * 2)
+    const totalWidth = slideWidth + gap;
+    
+    // viewport의 중앙에 현재 슬라이드를 위치시키기 위한 계산
+    const viewportWidth = window.innerWidth || 1920;
+    const centerOffset = (viewportWidth - slideWidth) / 2;
+    
+    return -(currentSlide * totalWidth) + centerOffset;
   };
 
   // 타이머 리셋 함수
@@ -341,30 +338,14 @@ export function MainCarousel() {
       <CarouselContainer>
         <SlideViewport>
           <SlideTrack $translateX={calculateTranslateX()}>
-            {extendedSlides.map((slide, index) => {
-              // Determine if this slide is active
-              // Index 0 is duplicate of slide 8, index 9 is duplicate of slide 1
-              let isActive = false;
-              if (index === 0) {
-                // This is the duplicate of slide 8, active when currentSlide is 7
-                isActive = currentSlide === 7;
-              } else if (index === 9) {
-                // This is the duplicate of slide 1, active when currentSlide is 0
-                isActive = currentSlide === 0;
-              } else {
-                // Regular slides (1-8), index 1-8 corresponds to currentSlide 0-7
-                isActive = index - 1 === currentSlide;
-              }
+            {slides.map((slide, index) => {
+              const isActive = index === currentSlide;
               
               return (
               <SlideItem
-                key={`${slide.id}-${index}`}
+                key={slide.id}
                 $isActive={isActive}
-                onClick={() => {
-                  // Adjust click handler for extended array
-                  const actualIndex = index === 0 ? 7 : (index === 9 ? 0 : index - 1);
-                  handleSlideClick(slide, actualIndex);
-                }}
+                onClick={() => handleSlideClick(slide, index)}
               >
                 {slide.type === 'youtube' ? (
                   <>
