@@ -94,10 +94,8 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-white/10">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-primary hover:text-accent transition-colors">
-          {content.extracted.navigation.logo}
-        </Link>
+        {/* Logo removed as requested */}
+        <div className="w-20"></div>
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
@@ -135,28 +133,7 @@ export function Header() {
                 {content.extracted.navigation.userMenu.logout || '로그아웃'}
               </Button>
             </div>
-          ) : (
-            <Button 
-              onClick={handleKakaoLogin}
-              className="font-semibold"
-              style={{
-                backgroundColor: '#FFEB3B',
-                color: '#1A1A1A'
-              }}
-            >
-              <svg 
-                className="w-5 h-5 mr-2" 
-                viewBox="0 0 18 18" 
-                fill="none"
-              >
-                <path 
-                  d="M9 1C4.58 1 1 3.94 1 7.55c0 2.31 1.46 4.34 3.67 5.51l-.8 2.89c-.04.15.02.31.14.4.08.05.17.08.26.08.06 0 .11-.01.17-.03l3.36-1.78c.4.05.8.08 1.2.08 4.42 0 8-2.94 8-6.55C17 3.94 13.42 1 9 1z" 
-                  fill="currentColor"
-                />
-              </svg>
-              {content.extracted.navigation.userMenu.login}
-            </Button>
-          )}
+          ) : null}
         </div>
 
         {/* Mobile Menu Button (optional - not implemented yet) */}

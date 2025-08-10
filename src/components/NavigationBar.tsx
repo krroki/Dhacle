@@ -25,7 +25,7 @@ const NAV_ITEMS = [
 ];
 
 // Styled components
-const NavContainer = styled.nav<{ isScrolled: boolean }>`
+const NavContainer = styled.nav<{ $isScrolled: boolean }>`
   position: sticky;
   top: 0;
   left: 0;
@@ -35,10 +35,10 @@ const NavContainer = styled.nav<{ isScrolled: boolean }>`
   
   /* FastCampus style - always white background */
   background: rgb(255, 255, 255);
-  border-bottom: ${props => props.isScrolled 
+  border-bottom: ${props => props.$isScrolled 
     ? `1px solid ${colors.neutral[200]}` 
     : `1px solid ${colors.neutral[100]}`};
-  box-shadow: ${props => props.isScrolled 
+  box-shadow: ${props => props.$isScrolled 
     ? '0 2px 8px rgba(0, 0, 0, 0.08)' 
     : 'none'};
 `;
@@ -46,22 +46,22 @@ const NavContainer = styled.nav<{ isScrolled: boolean }>`
 const NavWrapper = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px 12px 24px; /* FastCampus exact padding */
+  padding: 16px 24px; /* Standard padding for clean alignment */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 89px; /* Total height 117px - padding */
+  height: 72px; /* Fixed height for consistent alignment */
 `;
 
 const Logo = styled.a`
-  font-size: 24px; /* Increased for better presence */
+  font-size: 22px;
   font-weight: ${typography.fontWeight.bold};
   color: ${colors.neutral[900]};
   text-decoration: none;
   transition: all ${effects.animation.duration.fast};
   display: flex;
   align-items: center;
-  height: 32px; /* Better vertical alignment */
+  flex-shrink: 0; /* Prevent logo from shrinking */
   
   &:hover {
     color: ${colors.primary.main};
@@ -72,7 +72,10 @@ const Logo = styled.a`
 const DesktopNav = styled.div`
   display: none;
   align-items: center;
+  flex: 1;
+  justify-content: flex-end; /* Align everything to the right */
   gap: 32px;
+  margin-left: 32px; /* Space between logo and nav */
   
   @media (min-width: 768px) {
     display: flex;
@@ -82,44 +85,34 @@ const DesktopNav = styled.div`
 const NavList = styled.ul`
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px; /* Smaller gap for tighter menu */
   list-style: none;
   margin: 0;
   padding: 0;
+  flex-shrink: 0;
 `;
 
 const NavItem = styled.li``;
 
-const NavLink = styled.a<{ isActive?: boolean }>`
-  font-size: 18px; /* FastCampus style - closer to 20px */
-  font-weight: ${props => props.isActive ? '700' : '600'}; /* Bolder like FastCampus */
-  color: ${props => props.isActive ? colors.neutral[900] : colors.neutral[700]};
+const NavLink = styled.a<{ $isActive?: boolean }>`
+  font-size: 16px;
+  font-weight: ${props => props.$isActive ? '700' : '500'};
+  color: ${props => props.$isActive ? colors.neutral[900] : colors.neutral[600]};
   text-decoration: none;
-  padding: 10px 16px;
-  border-radius: ${effects.borderRadius.lg};
+  padding: 8px 12px;
+  border-radius: ${effects.borderRadius.md};
   transition: all ${effects.animation.duration.fast} ${effects.animation.easing.smooth};
   position: relative;
+  white-space: nowrap;
   
   &:hover {
     color: ${colors.neutral[900]};
     background: ${colors.neutral[50]};
-    transform: translateY(-2px);
   }
   
-  ${props => props.isActive && css`
-    color: ${colors.primary.main};
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40%;
-      height: 3px;
-      border-radius: 2px;
-      background: ${colors.primary.main};
-    }
+  ${props => props.$isActive && css`
+    color: ${colors.neutral[900]};
+    font-weight: 700;
   `}
 `;
 
@@ -131,9 +124,14 @@ const AuthSection = styled.div`
 
 const SearchBox = styled.div`
   position: relative;
-  width: 280px;
+  width: 320px;
+  flex-shrink: 0;
   
   @media (max-width: 1024px) {
+    width: 240px;
+  }
+  
+  @media (max-width: 768px) {
     display: none;
   }
 `;
@@ -170,27 +168,33 @@ const SearchIcon = styled.div`
 `;
 
 const KakaoLoginButton = styled.button`
-  background: linear-gradient(135deg, ${colors.primary.main}, ${colors.primary.dark});
-  color: ${colors.neutral[0]};
+  background: #FEE500; /* Kakao brand yellow */
+  color: #000000;
   border: none;
   border-radius: ${effects.borderRadius.pill};
-  padding: 12px 24px;
-  font-size: 15px;
+  padding: 10px 20px;
+  font-size: 14px;
   font-weight: ${typography.fontWeight.semibold};
   cursor: pointer;
   transition: all ${effects.animation.duration.fast} ${effects.animation.easing.smooth};
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:hover {
-    transform: translateY(-2px);
+    background: #FDD835;
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
   
   &:active {
     transform: translateY(0);
+  }
+  
+  svg {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -234,7 +238,7 @@ const MobileMenuButton = styled.button`
   }
 `;
 
-const MobileMenu = styled.div<{ isOpen: boolean }>`
+const MobileMenu = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   right: 0;
@@ -242,7 +246,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
   width: 280px;
   background: ${colors.neutral[0]};
   box-shadow: ${effects.shadows.xl};
-  transform: translateX(${props => props.isOpen ? '0' : '100%'});
+  transform: translateX(${props => props.$isOpen ? '0' : '100%'});
   transition: transform ${effects.animation.duration.normal} ${effects.animation.easing.smooth};
   z-index: 1001;
   padding: 24px;
@@ -287,12 +291,12 @@ const MobileNavList = styled.ul`
 
 const MobileNavItem = styled.li``;
 
-const MobileNavLink = styled.a<{ isActive?: boolean }>`
+const MobileNavLink = styled.a<{ $isActive?: boolean }>`
   display: block;
   padding: 12px 16px;
   font-size: ${typography.fontSize.body};
-  font-weight: ${props => props.isActive ? typography.fontWeight.medium : typography.fontWeight.regular};
-  color: ${props => props.isActive ? colors.primary.main : colors.neutral[700]};
+  font-weight: ${props => props.$isActive ? typography.fontWeight.medium : typography.fontWeight.regular};
+  color: ${props => props.$isActive ? colors.primary.main : colors.neutral[700]};
   text-decoration: none;
   border-radius: ${effects.borderRadius.md};
   transition: all ${effects.animation.duration.fast};
@@ -302,7 +306,7 @@ const MobileNavLink = styled.a<{ isActive?: boolean }>`
     color: ${colors.primary.main};
   }
   
-  ${props => props.isActive && css`
+  ${props => props.$isActive && css`
     background: ${colors.primary.light}20;
   `}
 `;
@@ -313,15 +317,15 @@ const MobileAuthSection = styled.div`
   border-top: 1px solid ${colors.neutral[200]};
 `;
 
-const Overlay = styled.div<{ isOpen: boolean }>`
+const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  opacity: ${props => props.isOpen ? 1 : 0};
-  visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
   transition: all ${effects.animation.duration.normal};
   z-index: 1000;
 `;
@@ -379,15 +383,21 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     }
 
     return (
-      <KakaoLoginButton onClick={onLogin} aria-label="카카오 로그인">
-        <span>카카오 로그인</span>
+      <KakaoLoginButton onClick={onLogin} aria-label="카카오로 로그인">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path 
+            d="M9 1C4.58 1 1 3.94 1 7.55c0 2.31 1.46 4.34 3.67 5.51l-.8 2.89c-.04.15.02.31.14.4.08.05.17.08.26.08.06 0 .11-.01.17-.03l3.36-1.78c.4.05.8.08 1.2.08 4.42 0 8-2.94 8-6.55C17 3.94 13.42 1 9 1z" 
+            fill="currentColor"
+          />
+        </svg>
+        <span>카카오로 로그인</span>
       </KakaoLoginButton>
     );
   };
 
   return (
     <>
-      <NavContainer isScrolled={isScrolled} role="navigation" aria-label="메인 네비게이션">
+      <NavContainer $isScrolled={isScrolled} role="navigation" aria-label="메인 네비게이션">
         <NavWrapper>
           <Logo href="/" aria-label="디하클 홈">
             디하클
@@ -399,7 +409,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 <NavItem key={item.id}>
                   <NavLink 
                     href={item.path}
-                    isActive={currentPath === item.path}
+                    $isActive={currentPath === item.path}
                     aria-current={currentPath === item.path ? 'page' : undefined}
                   >
                     {item.label}
@@ -435,11 +445,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         </NavWrapper>
       </NavContainer>
 
-      <Overlay isOpen={isMobileMenuOpen} onClick={handleMobileMenuClose} />
+      <Overlay $isOpen={isMobileMenuOpen} onClick={handleMobileMenuClose} />
       
       <MobileMenu 
         id="mobile-menu"
-        isOpen={isMobileMenuOpen}
+        $isOpen={isMobileMenuOpen}
         role="dialog"
         aria-label="모바일 메뉴"
         aria-modal="true"
@@ -459,7 +469,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             <MobileNavItem key={item.id}>
               <MobileNavLink
                 href={item.path}
-                isActive={currentPath === item.path}
+                $isActive={currentPath === item.path}
                 onClick={handleMobileMenuClose}
                 aria-current={currentPath === item.path ? 'page' : undefined}
               >

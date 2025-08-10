@@ -1,282 +1,446 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { StripeButton, StripeTypography } from '@/components/design-system';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { carouselSlides, getSlideImage } from '@/data/carousel-content';
-import { useRouter } from 'next/navigation';
+import { carouselSlides, getSlideImage } from '@/data/carousel-data';
+import styled from 'styled-components';
+import { colors } from '@/styles/tokens/colors';
+import { effects } from '@/styles/tokens/effects';
+
+// Styled Components
+const CarouselSection = styled.section`
+  width: 100%;
+  padding: 60px 0;
+  background: ${colors.neutral[0]}; /* 디자인 시스템 토큰 사용 */
+`;
+
+const CarouselContainer = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  overflow: hidden;
+`;
+
+const SlideViewport = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.5; /* 패스트캠퍼스 실제 비율 */
+  overflow: hidden;
+  
+  @media (max-width: 768px) {
+    aspect-ratio: 1.8;
+  }
+`;
+
+const SlideTrack = styled.div<{ $translateX: number }>`
+  display: flex;
+  height: 100%;
+  transform: translateX(${props => props.$translateX}%);
+  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const SlideItem = styled.div<{ $isActive: boolean }>`
+  flex: 0 0 70%; /* 패스트캠퍼스와 동일한 너비 */
+  height: 100%;
+  margin: 0 8px; /* 16px 간격 */
+  position: relative;
+  cursor: pointer;
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: ${props => props.$isActive ? 1 : 0.4};
+  transform: scale(${props => props.$isActive ? 1 : 0.92});
+  transition: all 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  &:hover {
+    transform: scale(${props => props.$isActive ? 1 : 0.94});
+  }
+  
+  /* 하단 그라데이션 오버레이 */
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    pointer-events: none;
+  }
+  
+  @media (max-width: 1024px) {
+    flex: 0 0 75%;
+  }
+  
+  @media (max-width: 768px) {
+    flex: 0 0 85%;
+    margin: 0 5px;
+  }
+`;
+
+const SlideImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const YouTubeThumbnail = styled.div<{ $bgImage: string }>`
+  width: 100%;
+  height: 100%;
+  background-image: url(${props => props.$bgImage});
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  
+  /* 고품질 이미지 렌더링 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+`;
+
+const PlayIcon = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${effects.animation.duration.normal};
+  pointer-events: none;
+  
+  svg {
+    width: 32px;
+    height: 32px;
+    color: ${colors.neutral[0]};
+    margin-left: 4px;
+  }
+`;
+
+const NavButton = styled.button<{ $position: 'left' | 'right' }>`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${props => props.$position === 'left' ? 'left: 40px;' : 'right: 40px;'}
+  z-index: 10;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${effects.animation.duration.normal};
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-50%) scale(1.05);
+  }
+  
+  svg {
+    width: 28px;
+    height: 28px;
+    color: ${colors.neutral[0]};
+  }
+  
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    ${props => props.$position === 'left' ? 'left: 16px;' : 'right: 16px;'}
+    
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+`;
+
+const IndicatorWrapper = styled.div`
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 30px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const PageIndicator = styled.span`
+  color: ${colors.neutral[0]};
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+`;
+
+const DotContainer = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+`;
+
+const Dot = styled.button<{ $isActive: boolean }>`
+  width: ${props => props.$isActive ? '32px' : '8px'};
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+  background: ${props => props.$isActive ? colors.neutral[0] : 'rgba(255, 255, 255, 0.3)'};
+  cursor: pointer;
+  transition: all ${effects.animation.duration.normal};
+  padding: 0;
+  
+  &:hover {
+    background: ${props => props.$isActive ? colors.neutral[0] : 'rgba(255, 255, 255, 0.5)'};
+  }
+`;
+
+const ControlButton = styled.button`
+  margin-left: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${effects.animation.duration.fast};
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    color: ${colors.neutral[0]};
+  }
+`;
 
 export function MainCarousel() {
   const { theme } = useTheme();
-  const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const SLIDE_DURATION = 7000; // 7초
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-  }, []);
+  // Create extended slides array for infinite loop
+  // [8, 1, 2, 3, 4, 5, 6, 7, 8, 1]
+  const extendedSlides = [
+    carouselSlides[carouselSlides.length - 1], // Last slide (8)
+    ...carouselSlides, // All slides (1-8)
+    carouselSlides[0] // First slide (1)
+  ];
 
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
-  }, []);
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
+  // 슬라이드 위치 계산 (중앙 정렬을 위해)
+  const calculateTranslateX = () => {
+    // 슬라이드 너비가 70%이므로, 중앙 정렬을 위한 계산
+    const slideWidth = 70;
+    const gap = 1.6; // gap between slides in percentage (16px / 1000px * 100)
+    const centerOffset = (100 - slideWidth) / 2;
+    // Add 1 to currentSlide because first item is the duplicate of slide 8
+    return -((currentSlide + 1) * (slideWidth + gap)) + centerOffset;
   };
 
-  useEffect(() => {
-    if (!isPlaying) return;
+  // 타이머 리셋 함수
+  const resetTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     
-    const interval = setInterval(nextSlide, 5000);
-    return () => clearInterval(interval);
-  }, [isPlaying, nextSlide]);
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        setCurrentSlide(prev => (prev + 1) % carouselSlides.length);
+      }, SLIDE_DURATION);
+    }
+  }, [isPlaying]);
 
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+  // 다음 슬라이드
+  const nextSlide = useCallback(() => {
+    setCurrentSlide(prev => {
+      // When reaching the last slide (7), go to 0 (which shows slide 1)
+      if (prev >= carouselSlides.length - 1) {
+        return 0;
+      }
+      return prev + 1;
+    });
+    resetTimer(); // 타이머 리셋
+  }, [resetTimer]);
+
+  // 이전 슬라이드
+  const prevSlide = useCallback(() => {
+    setCurrentSlide(prev => {
+      // When at first slide (0), go to last slide (7)
+      if (prev <= 0) {
+        return carouselSlides.length - 1;
+      }
+      return prev - 1;
+    });
+    resetTimer(); // 타이머 리셋
+  }, [resetTimer]);
+
+  // 특정 슬라이드로 이동
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+    resetTimer(); // 타이머 리셋
+  }, [resetTimer]);
+
+  // 자동 재생 토글
+  const togglePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev);
+  }, []);
+
+  // 자동 재생 효과
+  useEffect(() => {
+    resetTimer();
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [resetTimer]);
+
+  // 슬라이드 클릭 핸들러
+  const handleSlideClick = (slide: typeof carouselSlides[0], index: number) => {
+    if (index === currentSlide) {
+      // 현재 활성 슬라이드를 클릭한 경우에만 링크로 이동
+      const targetLink = slide.type === 'youtube' ? slide.source : slide.link;
+      
+      if (!targetLink) return;
+      
+      if (targetLink.startsWith('http')) {
+        window.open(targetLink, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = targetLink;
+      }
+    } else {
+      // 비활성 슬라이드를 클릭하면 해당 슬라이드로 이동
+      goToSlide(index);
+    }
   };
 
   return (
-    <div 
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '500px',
-        overflow: 'hidden',
-        backgroundColor: theme.colors.neutral.gray['100']
-      }}
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            cursor: 'pointer'
-          }}
-          onClick={(e) => {
-            // Don't navigate if clicking on controls
-            const target = e.target as HTMLElement;
-            if (target.closest('button')) return;
-            
-            const link = carouselSlides[currentSlide].link;
-            if (link.startsWith('http')) {
-              window.open(link, '_blank', 'noopener,noreferrer');
-            } else {
-              router.push(link);
-            }
-          }}
-        >
-          {/* Background Image */}
-          <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backgroundImage: `url(${getSlideImage(carouselSlides[currentSlide])})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'brightness(0.7)'
-            }}
-          />
+    <CarouselSection>
+      <CarouselContainer>
+        <SlideViewport>
+          <SlideTrack $translateX={calculateTranslateX()}>
+            {extendedSlides.map((slide, index) => {
+              // Determine if this slide is active
+              // Index 0 is duplicate of slide 8, index 9 is duplicate of slide 1
+              let isActive = false;
+              if (index === 0) {
+                // This is the duplicate of slide 8, active when currentSlide is 7
+                isActive = currentSlide === 7;
+              } else if (index === 9) {
+                // This is the duplicate of slide 1, active when currentSlide is 0
+                isActive = currentSlide === 0;
+              } else {
+                // Regular slides (1-8), index 1-8 corresponds to currentSlide 0-7
+                isActive = index - 1 === currentSlide;
+              }
+              
+              return (
+              <SlideItem
+                key={`${slide.id}-${index}`}
+                $isActive={isActive}
+                onClick={() => {
+                  // Adjust click handler for extended array
+                  const actualIndex = index === 0 ? 7 : (index === 9 ? 0 : index - 1);
+                  handleSlideClick(slide, actualIndex);
+                }}
+              >
+                {slide.type === 'youtube' ? (
+                  <>
+                    <YouTubeThumbnail $bgImage={getSlideImage(slide)} />
+                    {isActive && (
+                      <PlayIcon>
+                        <Play fill="white" />
+                      </PlayIcon>
+                    )}
+                  </>
+                ) : (
+                  <SlideImage 
+                    src={getSlideImage(slide)} 
+                    alt={`Slide ${slide.id}`}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/placeholder.jpg';
+                    }}
+                  />
+                )}
+              </SlideItem>
+              );
+            })}
+          </SlideTrack>
           
-          {/* Content Overlay */}
-          <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%)',
-              transition: 'background 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 100%)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%)';
-            }}
+          {/* Navigation Buttons */}
+          <NavButton 
+            $position="left" 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              prevSlide(); 
+            }} 
+            aria-label="이전 슬라이드"
           >
-            <div style={{ 
-              textAlign: 'center', 
-              maxWidth: '800px',
-              padding: theme.spacing[8]
-            }}>
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <StripeTypography 
-                  variant="h1" 
-                  color="inverse"
-                  className="mb-4"
-                  style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
-                >
-                  {carouselSlides[currentSlide].title}
-                </StripeTypography>
-              </motion.div>
-              
-              {carouselSlides[currentSlide].subtitle && (
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <StripeTypography 
-                    variant="h3" 
-                    color="inverse"
-                    className="mb-8"
-                    style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
-                  >
-                    {carouselSlides[currentSlide].subtitle}
-                  </StripeTypography>
-                </motion.div>
-              )}
-              
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <StripeButton 
-                  variant="primary" 
-                  size="lg"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const link = carouselSlides[currentSlide].link;
-                    if (link.startsWith('http')) {
-                      window.open(link, '_blank', 'noopener,noreferrer');
-                    } else {
-                      router.push(link);
-                    }
+            <ChevronLeft />
+          </NavButton>
+          <NavButton 
+            $position="right" 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              nextSlide(); 
+            }} 
+            aria-label="다음 슬라이드"
+          >
+            <ChevronRight />
+          </NavButton>
+          
+          {/* Indicators */}
+          <IndicatorWrapper>
+            <PageIndicator>
+              {String(currentSlide + 1).padStart(2, '0')} / {String(carouselSlides.length).padStart(2, '0')}
+            </PageIndicator>
+            <DotContainer>
+              {carouselSlides.map((_, index) => (
+                <Dot
+                  key={index}
+                  $isActive={index === currentSlide}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    goToSlide(index); 
                   }}
-                >
-                  {carouselSlides[currentSlide].buttonText || '자세히 보기'}
-                </StripeButton>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Controls */}
-      <button
-        onClick={prevSlide}
-        style={{
-          position: 'absolute',
-          left: theme.spacing[4],
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          border: 'none',
-          borderRadius: '50%',
-          width: '48px',
-          height: '48px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          transition: 'all 0.3s ease'
-        }}
-        aria-label="이전 슬라이드"
-      >
-        <ChevronLeft size={24} />
-      </button>
-
-      <button
-        onClick={nextSlide}
-        style={{
-          position: 'absolute',
-          right: theme.spacing[4],
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          border: 'none',
-          borderRadius: '50%',
-          width: '48px',
-          height: '48px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          transition: 'all 0.3s ease'
-        }}
-        aria-label="다음 슬라이드"
-      >
-        <ChevronRight size={24} />
-      </button>
-
-      {/* Play/Pause Button */}
-      <button
-        onClick={togglePlayPause}
-        style={{
-          position: 'absolute',
-          bottom: theme.spacing[4],
-          left: theme.spacing[4],
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          border: 'none',
-          borderRadius: '50%',
-          width: '40px',
-          height: '40px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-        }}
-        aria-label={isPlaying ? '일시정지' : '재생'}
-      >
-        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-      </button>
-
-      {/* Indicators */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: theme.spacing[4],
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: theme.spacing[2],
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-          borderRadius: '20px'
-        }}
-      >
-        <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>
-          {String(currentSlide + 1).padStart(2, '0')} / {String(carouselSlides.length).padStart(2, '0')}
-        </span>
-        <div style={{ display: 'flex', gap: theme.spacing[1] }}>
-          {carouselSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              style={{
-                width: index === currentSlide ? '24px' : '8px',
-                height: '8px',
-                borderRadius: '4px',
-                border: 'none',
-                backgroundColor: index === currentSlide ? 'white' : 'rgba(255,255,255,0.4)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
+                  aria-label={`슬라이드 ${index + 1}`}
+                />
+              ))}
+            </DotContainer>
+            <ControlButton 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                togglePlayPause(); 
               }}
-              aria-label={`슬라이드 ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+              aria-label={isPlaying ? '일시정지' : '재생'}
+            >
+              {isPlaying ? <Pause /> : <Play />}
+            </ControlButton>
+          </IndicatorWrapper>
+        </SlideViewport>
+      </CarouselContainer>
+    </CarouselSection>
   );
 }
