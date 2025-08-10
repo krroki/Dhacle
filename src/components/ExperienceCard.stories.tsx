@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ExperienceCard } from './ExperienceCard';
+import ExperienceCard from './ExperienceCard';
 
 const meta = {
   title: 'Components/ExperienceCard',
@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     id: '1',
-    image: '/images/experiences/seoul-tour.jpg',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
     imageAlt: '서울 야경 투어',
     title: '서울 야경 투어 - N서울타워와 한강 크루즈',
     rating: 4.5,

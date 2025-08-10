@@ -1,91 +1,201 @@
 'use client';
 
-import {
-  StripeButton,
-  StripeTypography,
-  StripeGradient,
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { 
+  StripeButton, 
+  StripeTypography, 
+  StripeGradient 
 } from '@/components/design-system';
-import { useEffect, useState } from 'react';
-import content from '../../../content-map.complete.json';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 export function HeroSection() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const { theme } = useTheme();
+  const [studentCount, setStudentCount] = useState(10200);
+  const [totalRevenue, setTotalRevenue] = useState(42.0);
 
+  // Animate counters on mount
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
+    // Animate student count
+    const studentInterval = setInterval(() => {
+      setStudentCount(prev => {
+        if (prev >= 10342) {
+          clearInterval(studentInterval);
+          return 10342;
+        }
+        return prev + Math.floor(Math.random() * 10) + 1;
       });
-    };
+    }, 50);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    // Animate revenue
+    const revenueInterval = setInterval(() => {
+      setTotalRevenue(prev => {
+        if (prev >= 42.3) {
+          clearInterval(revenueInterval);
+          return 42.3;
+        }
+        return Math.min(prev + 0.1, 42.3);
+      });
+    }, 100);
+
+    return () => {
+      clearInterval(studentInterval);
+      clearInterval(revenueInterval);
+    };
   }, []);
+
+  const scrollToNext = () => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: 'smooth'
+    });
+  };
 
   return (
     <StripeGradient 
-      variant="primary" 
+      variant="hero" 
       animated 
-      intensity="medium"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
+      {/* Background overlay for better text readability */}
+      <div 
+        className="absolute inset-0 z-0" 
+        style={{ 
+          background: `linear-gradient(180deg, 
+            ${theme.colors.neutral.white}00 0%, 
+            ${theme.colors.neutral.white}40 50%, 
+            ${theme.colors.neutral.white}80 100%)`
+        }} 
+      />
 
-      {/* Content */}
-      <div className="container mx-auto px-4 z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-sm text-primary/80">{content.extracted.hero.badge}</span>
-          </div>
-
-          {/* Headline */}
-          <StripeTypography variant="h1" color="dark" className="mb-6">
-            {content.extracted.hero.title.split('\n')[0]}
+      {/* Main content container */}
+      <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {/* Main title with animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <StripeTypography 
+            variant="h1" 
+            color="primary"
+            className="mb-6 font-bold"
+          >
+            유튜브로 월 1000만원,
             <br />
-            <span className="bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">
-              {content.extracted.hero.title.split('\n')[1]}
-            </span>
+            우리가 증명합니다
           </StripeTypography>
+        </motion.div>
 
-          {/* Subheadline */}
-          <StripeTypography variant="body" color="light" className="mb-8 max-w-2xl mx-auto text-xl">
-            {content.extracted.hero.subtitle}
-          </StripeTypography>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <StripeButton variant="gradient" size="lg" className="min-w-[200px]">
-              {content.extracted.hero.cta.primary.text}
-            </StripeButton>
-            <StripeButton variant="secondary" size="lg" className="min-w-[200px]">
-              {content.extracted.hero.cta.secondary.text}
-            </StripeButton>
+        {/* Statistics section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-8"
+        >
+          {/* Student count */}
+          <div className="text-center">
+            <StripeTypography variant="caption" color="muted" className="mb-2">
+              현재 수강생
+            </StripeTypography>
+            <div className="flex items-baseline gap-1">
+              <StripeTypography variant="h3" color="primary" className="font-bold">
+                {studentCount.toLocaleString('ko-KR')}
+              </StripeTypography>
+              <StripeTypography variant="body" color="muted">
+                명
+              </StripeTypography>
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.users || '15,000+'}</div>
-              <div className="text-sm text-primary/60">활성 사용자</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.videosProcessed || '100,000+'}</div>
-              <div className="text-sm text-primary/60">처리된 영상</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.avgTimeSaved || '90%'}</div>
-              <div className="text-sm text-primary/60">시간 절감</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{content.extracted.hero.stats?.satisfaction || '98%'}</div>
-              <div className="text-sm text-primary/60">만족도</div>
+          {/* Divider */}
+          <div 
+            className="hidden sm:block w-px h-12" 
+            style={{ backgroundColor: theme.colors.neutral.gray['200'] }}
+          />
+
+          {/* Total revenue */}
+          <div className="text-center">
+            <StripeTypography variant="caption" color="muted" className="mb-2">
+              총 수익
+            </StripeTypography>
+            <div className="flex items-baseline gap-1">
+              <StripeTypography variant="h3" color="primary" className="font-bold">
+                ₩{totalRevenue.toFixed(1)}
+              </StripeTypography>
+              <StripeTypography variant="body" color="muted">
+                억
+              </StripeTypography>
             </div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+        >
+          <StripeButton 
+            variant="primary" 
+            size="lg"
+            onClick={() => console.log('무료 체험 시작하기 클릭')}
+          >
+            무료 체험 시작하기
+          </StripeButton>
+          <StripeButton 
+            variant="secondary" 
+            size="lg"
+            onClick={() => console.log('성공 사례 보기 클릭')}
+          >
+            성공 사례 보기
+          </StripeButton>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
+          onClick={scrollToNext}
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+          >
+            <ChevronDown 
+              size={32} 
+              style={{ color: theme.colors.text.primary.light }}
+            />
+          </motion.div>
+        </motion.div>
       </div>
 
+      {/* Decorative elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top-left gradient orb */}
+        <div 
+          className="absolute -top-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-20"
+          style={{ 
+            background: `radial-gradient(circle, ${theme.colors.primary.blue.default}, transparent)` 
+          }}
+        />
+        {/* Bottom-right gradient orb */}
+        <div 
+          className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20"
+          style={{ 
+            background: `radial-gradient(circle, ${theme.colors.primary.lightBlue}, transparent)` 
+          }}
+        />
+      </div>
     </StripeGradient>
   );
 }

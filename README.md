@@ -1,4 +1,4 @@
-# Dhacle Frontend - 쇼츠 스튜디오
+# Dhacle Frontend - 디하클
 
 AI Creator Hub for YouTube Shorts creators with Stripe-inspired design system.
 

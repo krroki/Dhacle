@@ -18,14 +18,14 @@ interface StripeNavigationProps {
 }
 
 const defaultItems: NavigationItem[] = [
-  { name: '툴박스', href: '#tools' },
-  { name: '자료실', href: '#resources' },
-  { name: '커뮤니티', href: '#community' },
-  { name: '가격', href: '#pricing' },
+  { name: '강의', href: '/courses' },
+  { name: '도구', href: '/tools' },
+  { name: '커뮤니티', href: '/community' },
+  { name: '랭킹', href: '/ranking' },
 ];
 
 const StripeNavigation: React.FC<StripeNavigationProps> = ({
-  logo = '쇼츠 스튜디오',
+  logo = '디하클',
   items = defaultItems,
   className,
 }) => {

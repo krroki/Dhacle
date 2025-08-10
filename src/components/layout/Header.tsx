@@ -138,7 +138,11 @@ export function Header() {
           ) : (
             <Button 
               onClick={handleKakaoLogin}
-              className="bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] font-semibold"
+              className="font-semibold"
+              style={{
+                backgroundColor: '#FFEB3B',
+                color: '#1A1A1A'
+              }}
             >
               <svg 
                 className="w-5 h-5 mr-2" 

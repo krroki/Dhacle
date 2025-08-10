@@ -12,6 +12,7 @@ interface StripeTypographyProps {
   children: React.ReactNode;
   className?: string;
   as?: keyof React.JSX.IntrinsicElements;
+  style?: React.CSSProperties;
 }
 
 export function StripeTypography({ 
@@ -19,7 +20,8 @@ export function StripeTypography({
   color = 'primary',
   children,
   className = '',
-  as
+  as,
+  style: customStyle
 }: StripeTypographyProps) {
   const { theme } = useTheme();
   
@@ -90,6 +92,7 @@ export function StripeTypography({
       ? theme.typography.fontFamily.mono 
       : theme.typography.fontFamily.base,
     margin: 0,
+    ...customStyle, // Apply custom styles last to allow overrides
   };
   
   return (

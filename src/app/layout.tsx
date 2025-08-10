@@ -5,9 +5,9 @@ import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "쇼츠 스튜디오 - AI 크리에이터 허브",
-  description: "YouTube Shorts 크리에이터를 위한 AI 기반 올인원 플랫폼. 자막 생성부터 수익화 전략까지.",
-  keywords: "YouTube Shorts, 쇼츠, AI 자막, 크리에이터, 수익화",
+  title: "디하클 - 유튜브 수익화 교육 플랫폼",
+  description: "유튜브로 월 1000만원 달성! 매주 2개의 신규 강의, 10,000명의 수강생과 함께하는 성장 플랫폼",
+  keywords: "디하클, YouTube, 유튜브, 수익화, 크리에이터, 교육, 강의, TTS",
 };
 
 export default function RootLayout({

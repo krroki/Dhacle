@@ -349,8 +349,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     <>
       <NavContainer isScrolled={isScrolled} role="navigation" aria-label="메인 네비게이션">
         <NavWrapper>
-          <Logo href="/" aria-label="쇼츠 스튜디오 홈">
-            쇼츠 스튜디오
+          <Logo href="/" aria-label="디하클 홈">
+            디하클
           </Logo>
 
           <DesktopNav>

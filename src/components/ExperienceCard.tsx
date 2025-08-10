@@ -89,27 +89,29 @@ export const ExperienceCard = memo<ExperienceCardProps>(({
       className="relative flex flex-col overflow-hidden cursor-pointer transition-all group"
       aria-label={title}
       style={{
-        borderRadius: effects.borderRadius.lg,
-        backgroundColor: colors.neutral[0],
-        transitionDuration: effects.animation.duration.normal,
-        transitionTimingFunction: effects.animation.easing.smooth,
+        borderRadius: effects.borderRadius?.lg || '12px',
+        backgroundColor: colors.neutral?.[0] || '#ffffff',
+        border: `1px solid ${colors.neutral?.[200] || '#e5e7eb'}`,
+        boxShadow: effects.shadows?.md || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        transitionDuration: effects.animation?.duration?.normal || '200ms',
+        transitionTimingFunction: effects.animation?.easing?.smooth || 'cubic-bezier(0.4, 0, 0.2, 1)',
         willChange: 'transform',
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget;
         el.style.transform = 'scale(1.02)';
-        el.style.boxShadow = effects.shadows.hover;
+        el.style.boxShadow = effects.shadows?.hover || '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget;
         el.style.transform = 'scale(1)';
-        el.style.boxShadow = '';
+        el.style.boxShadow = effects.shadows?.md || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
       }}
     >
       {/* Image Container */}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16 / 9', backgroundColor: colors.neutral[100] }}>
         <img
-          src={imageError ? '/images/placeholder.jpg' : image}
+          src={imageError ? '/images/placeholder.svg' : image}
           alt={imageAlt}
           loading={loading}
           onError={handleImageError}
