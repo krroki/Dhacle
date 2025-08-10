@@ -23,10 +23,12 @@
    - ✅ TypeScript 컴파일: 주요 코드 에러 0개 (테스트 파일 제외)
    - ✅ TASK-2025-007: 모든 'as any' 제거 완료 (2025-01-10)
 
-2. **데이터베이스 스키마 문제** (진행 예정)
-   - ⚠️ 비즈니스 로직 트리거 누락 (수익인증 검증)
-   - ⚠️ 랭킹 집계 함수 불완전
-   - 📍 **다음 작업**: 별도 작업 지시서 작성 필요
+~~2. **회원가입 시스템 미작동**~~ ✅ 해결됨 (2025-01-10 PM AI 구현)
+   - ✅ SQL 트리거 수정 및 통합 완료 (`ALL_MIGRATIONS_COMBINED.sql`)
+   - ✅ API 엔드포인트 구현 완료 (`/api/user/profile`, `/api/user/check-username`)
+   - ✅ 온보딩 페이지 구현 완료 (`/onboarding/page.tsx`)
+   - ✅ 마이페이지 구현 완료 (`/mypage/page.tsx`)
+   - ⚠️ **필수**: Supabase Dashboard에서 SQL 실행 필요
 
 ### ✅ 완료된 작업
 1. **Supabase 인증 시스템**
@@ -83,22 +85,15 @@
   - ✅ OAuth Callback URL 설정 완료
   - 📝 설정 문서: `/docs/KAKAO-LOGIN-CONFIG.md`
 
-### 🚨 긴급 작업 필요 (2025-01-10) - TASK-2025-015 부분 구현
-- **TASK-2025-015**: 회원가입 시스템 **파일만 생성됨, 실제 작동 안 함**
-  - ✅ 파일 생성됨: `/onboarding/page.tsx`, `/mypage/page.tsx`, `/middleware.ts`
-  - ✅ SQL 작성됨: `002_auth_triggers.sql`, `003_rls_policies.sql`
-  - ❌ **Supabase Dashboard에 SQL 적용 안 됨**
-  - ❌ **API 엔드포인트 미구현**: `/api/user/profile`, `/api/user/check-username`
-  - ❌ **실제 DB 저장 안 됨**: trigger 작동 안 함
-  - ⚠️ **카카오 로그인은 되지만 회원가입 플로우 작동 안 함**
 
 ### ⏳ 진행 예정 작업
-- 회원가입 시스템 (TASK-2025-015) - **최우선**
 - 강의 시스템 구축 (Phase 3)
 - 강의 목록 및 상세 페이지
 - 수익인증 시스템 고도화
 - 랭킹 시스템
 - 도구 페이지 (TTS 커터 등)
+- 비즈니스 로직 트리거 (수익인증 검증)
+- 랭킹 집계 함수 구현
 
 ---
 

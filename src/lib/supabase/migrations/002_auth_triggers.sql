@@ -29,7 +29,8 @@ BEGIN
         REPLACE(
           COALESCE(
             NEW.raw_user_meta_data->>'name',
-            SPLIT_PART(NEW.email, '@', 1)
+            NEW.raw_user_meta_data->>'nickname',
+            split_part(NEW.email, '@', 1)
           ),
           ' ', '_'
         ),
