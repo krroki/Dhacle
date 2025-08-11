@@ -81,7 +81,10 @@ export async function GET(request: NextRequest) {
           error,
           code: error.code,
           message: error.message,
-          status: error.status
+          status: error.status,
+          name: error.name,
+          cause: error.cause,
+          fullError: JSON.stringify(error, null, 2)
         })
         const errorUrl = new URL('/auth/error', requestUrl.origin)
         errorUrl.searchParams.set('error', error.code || 'unknown_error')
