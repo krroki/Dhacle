@@ -5,13 +5,13 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { SimpleCourse, getMockSimpleCourse } from '@/types/simple-course.types';
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import { useAuth } from '@/lib/auth/AuthProvider';
+// import { useAuth } from '@/lib/auth/AuthProvider';
 import SimpleCourseDetail from '@/components/courses/SimpleCourseDetail';
 
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params?.id as string;
-  const { user } = useAuth();
+  // const { user } = useAuth();
   
   const [course, setCourse] = useState<SimpleCourse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,8 +36,8 @@ export default function CourseDetailPage() {
         .single();
       
       if (courseError || !courseData) {
-        // Supabase 테이블이 없을 때 Mock 데이터 사용 (개발 중)
-        console.log('Using mock data for course:', courseId);
+        console.error('Course fetch error:', courseError);
+        // Use mock data on error
         setCourse(getMockSimpleCourse(courseId));
       } else {
         // 데이터베이스에서 가져온 데이터를 SimpleCourse 타입으로 변환

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "디하클 - 유튜브 수익화 교육 플랫폼",
@@ -19,11 +20,13 @@ export default function RootLayout({
     <html lang="ko">
       <body className="antialiased">
         <ThemeProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
+          <AuthProvider>
+            <Header />
+            <main>
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

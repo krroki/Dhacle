@@ -124,7 +124,57 @@
     - 이어보기 기능
   - ✅ AuthProvider 구현 (`src/lib/auth/AuthProvider.tsx`)
 
+### 🔄 강의 상세 페이지 전면 재설계 (2025-01-11)
+
+#### 초기 구현 (FastCampus/인프런 스타일) - 문제 발생
+- **FastCampus/인프런 스타일로 완전 재구현** (초기 시도)
+  - ✅ DB 스키마 확장 (`src/lib/supabase/migrations/006_course_detail_enhancement.sql`)
+    - content_blocks (JSONB) - 유연한 콘텐츠 관리
+    - ~~rating, student_count - 평점 및 수강생 정보~~ (제거됨)
+    - original_price, discount_rate - 할인 정보
+    - category, level - 카테고리 및 난이도
+  - ✅ 콘텐츠 블록 시스템 구현 (`src/types/course-detail.types.ts`)
+    - 9가지 블록 타입: heading, text, image, video, grid, divider, accordion, button, html
+    - JSON 기반 유연한 콘텐츠 구조
+  - ⚠️ **문제점**: 복잡한 Hero 섹션, 불필요한 평점/리뷰, 과도한 정보
+
+#### 최종 구현 (SimpleCourse - 심플한 구매 중심 페이지) ✅
+- **SimpleCourse 타입 시스템** (`src/types/simple-course.types.ts`)
+  - ✅ 평점/수강생 수 필드 완전 제거
+  - ✅ 심플한 구매 중심 인터페이스
+  - ✅ ContentBlock 시스템 유지 (유연한 콘텐츠)
+  - ✅ Mock 데이터 생성 함수 포함
+
+- **새로운 컴포넌트 구조** (Simple 접두사)
+  - `SimpleCourseDetail` - 메인 레이아웃 (2-컬럼)
+  - `SimplePurchaseCard` - Sticky 구매 카드
+  - `SimpleContentRenderer` - 콘텐츠 블록 렌더링
+  - `SimpleCourseTabs` - 3개 탭만 (강의소개, 커리큘럼, FAQ)
+
+- **UI/UX 특징**
+  - ✅ Hero 섹션 제거 - 바로 콘텐츠로 시작
+  - ✅ 평점/리뷰/수강생 수 완전 제거
+  - ✅ Desktop: 65% 콘텐츠 + 35% Sticky 카드
+  - ✅ Mobile: 하단 고정 구매 버튼
+  - ✅ 긴 형태의 콘텐츠 블록 (이미지, GIF, 비디오 포함)
+
+### 🚨 해결 필요 문제 (2025-01-11)
+- **로그인 페이지 누락**
+  - ❌ `/login` 페이지 없음 - 404 에러
+  - ❌ 강의 수강 페이지 접근 불가
+  - **해결 방안**: 로그인/회원가입 페이지 구현 필요
+
+- **DB 연결 문제**
+  - ⚠️ Supabase 테이블 실제 생성 필요
+  - ⚠️ Mock 데이터 폴백은 작동하나 실제 DB 연결 안 됨
+  - **해결 방안**: Migration 실행 및 Seed 데이터 입력
+
 ### ⏳ 진행 예정 작업
+#### 긴급 수정 필요
+- [ ] **로그인 페이지 구현** (`/app/login/page.tsx`)
+- [ ] **Supabase 테이블 생성** (migrations 실행)
+- [ ] **주차별 페이지 링크 수정**
+
 #### 강의 시스템 Phase 2 (다음 단계)
 - [ ] Stripe 결제 연동
 - [ ] Q&A 게시판 구현
