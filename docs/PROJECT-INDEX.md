@@ -95,14 +95,54 @@
   - ⚠️ **권장사항**: Vercel Dashboard에서 환경변수를 올바른 값으로 수정 권장
 
 
+### 📋 최근 완료 작업 - 강의 시스템 설계 (2025-01-11)
+- **강의 시스템 전체 설계 완료**
+  - ✅ 기술 명세서 작성 (`docs/design/course-system-specification.md`)
+  - ✅ DB 스키마 설계 - 6개 테이블 + RLS (`docs/design/course-database-schema.sql`)
+  - ✅ UI/UX 와이어프레임 (`docs/design/course-ui-wireframe.md`)
+  - ✅ Stripe 결제 연동 가이드 (`docs/design/stripe-integration-guide.md`)
+  - 📝 **핵심 기능**: 4주/8주 과정, 무료/유료 분리, Q&A 게시판, 뱃지 시스템, DRM 보호
+
+### ✅ 강의 시스템 Phase 1 MVP 구현 완료! (2025-01-11)
+- **Phase 1 MVP 전체 구현 완료**
+  - ✅ DB 스키마 생성 (`src/lib/supabase/migrations/005_course_system.sql`)
+  - ✅ TypeScript 타입 정의 (`src/types/course-system.types.ts`)
+  - ✅ 강의 목록 페이지 구현
+    - `/courses` - 메인 랜딩 페이지
+    - `/courses/free` - 무료 강의 목록
+    - `/courses/premium` - 프리미엄 강의 목록
+  - ✅ 강의 상세 페이지 (`/courses/[id]`)
+  - ✅ 주차별 수강 페이지 (`/courses/[id]/week/[num]`)
+  - ✅ HLS 비디오 플레이어 구현
+    - DRM 보호 (우클릭 방지, 개발자 도구 감지)
+    - 배속 재생 (0.5x ~ 2x)
+    - PIP (Picture-in-Picture) 지원
+    - 전체화면 모드
+  - ✅ 진도 관리 시스템
+    - 10초마다 자동 저장
+    - 90% 시청 시 자동 완료 처리
+    - 이어보기 기능
+  - ✅ AuthProvider 구현 (`src/lib/auth/AuthProvider.tsx`)
+
 ### ⏳ 진행 예정 작업
-- 강의 시스템 구축 (Phase 3)
-- 강의 목록 및 상세 페이지
-- 수익인증 시스템 고도화
-- 랭킹 시스템
-- 도구 페이지 (TTS 커터 등)
-- 비즈니스 로직 트리거 (수익인증 검증)
-- 랭킹 집계 함수 구현
+#### 강의 시스템 Phase 2 (다음 단계)
+- [ ] Stripe 결제 연동
+- [ ] Q&A 게시판 구현
+- [ ] 뱃지 시스템 관리자 페이지
+- [ ] 수료증 발급 기능
+
+#### 강의 시스템 Phase 3 (고도화)
+- [ ] DRM 강화 (HLS 암호화)
+- [ ] 관리자 대시보드
+- [ ] 강의 검색 및 필터링
+- [ ] 내 강의 대시보드
+
+#### 기타 시스템
+- [ ] 수익인증 게시판 구축
+- [ ] 랭킹 시스템
+- [ ] 도구 페이지 (TTS 커터 등)
+- [ ] 비즈니스 로직 트리거 (수익인증 검증)
+- [ ] 랭킹 집계 함수 구현
 
 ---
 
