@@ -272,6 +272,11 @@ This is a community platform for YouTube Shorts creators focused on education an
 
 ## 🚨 CRITICAL: Design System Rules (MUST READ)
 
+**⚠️ 2025-01-12 UPDATE: styled-components 마이그레이션 완료**
+- **이전**: ThemeProvider 기반 (SSR 문제 발생)
+- **현재**: styled-components 기반 (SSR 안전)
+- **중요**: 절대 ThemeProvider를 다시 사용하지 마세요!
+
 **MANDATORY**: ALL styling MUST use theme.deep.json tokens through centralized design system
 
 ### ❌ NEVER DO THIS:
@@ -302,36 +307,44 @@ const theme = useTheme();
 <div style={{ color: theme.colors.text.primary.default }}>
 ```
 
-### Design System Components (Fully Tokenized):
+### Design System Components (styled-components Based):
+
+#### 📦 Location: `src/components/design-system/`
+- **Typography.styled.tsx**: H1-H4, Body, Caption, Code, StripeTypography
+- **Button.styled.tsx**: StripeButton with all variants
+- **Card.styled.tsx**: StripeCard, BorderedCard, ElevatedCard
+- **Input.styled.tsx**: Input, Textarea, Select, Checkbox, Radio
+- **Layout.styled.tsx**: Container, Row, Column, Grid, Spacer
+- **Gradient.styled.tsx**: StripeGradient with animations
+- **common.ts**: Theme tokens, helper functions, mixins
 
 #### Core Components:
 - **StripeButton**: 
   - Variants: primary, secondary, ghost, gradient
   - Sizes: sm, md, lg
   - States: loading, disabled, hover
-  - Features: icons, full width support
+  - SSR-safe with styled-components
   
 - **StripeCard**: 
-  - Variants: default, bordered, elevated, gradient
-  - Elevation levels: none, sm, md, lg, xl
+  - Variants: default, bordered, elevated
+  - Elevation levels: sm, md, lg, xl
   - Padding options: none, sm, md, lg
-  - Gradient types: primary, stripe, hero
+  - No ThemeProvider dependency
   
 - **StripeTypography**:
   - Variants: h1, h2, h3, h4, body, caption, code
   - Colors: primary, dark, light, muted, inverse
-  - Full token integration for fonts, sizes, weights
+  - Direct theme.deep.json token usage
   
 - **StripeGradient**:
-  - Variants: primary, stripe, hero, custom
-  - Directions: 8 directional options
-  - Features: animated mouse tracking, blur effects, overlays
+  - Variants: primary, stripe, hero, subtle
+  - Animated with keyframes
+  - SSR-safe implementation
   
 - **StripeInput & StripeTextarea**:
-  - Variants: default, outlined, filled, ghost
-  - States: error, success, focused, disabled
-  - Sizes: sm, md, lg
-  - Features: labels, hints, icons, validation
+  - Simple styled inputs without complex props
+  - States: hasError, size options
+  - Direct token usage
 
 #### Theme System:
 - **ThemeProvider**: Enhanced context with helper functions
@@ -394,13 +407,15 @@ npx supabase db push    # Push schema changes
 ```
 /src
   /components       # Reusable UI components following Stripe design system
-    /design-system # Centralized Stripe-inspired components (ALL TOKENIZED)
-      StripeButton.tsx      # Button with 4 variants, 3 sizes, loading states
-      StripeCard.tsx        # Card with elevation, gradients, hover effects
-      StripeTypography.tsx  # Typography system (h1-h4, body, caption, code)
-      StripeGradient.tsx    # Dynamic gradient backgrounds with animations
-      StripeInput.tsx       # Input/Textarea with validation states
-      index.ts             # Central export for all design system components
+    /design-system # styled-components based (SSR-safe, NO ThemeProvider)
+      Typography.styled.tsx  # All typography components
+      Button.styled.tsx      # Button components
+      Card.styled.tsx        # Card components
+      Input.styled.tsx       # Form elements
+      Layout.styled.tsx      # Layout utilities
+      Gradient.styled.tsx    # Gradient backgrounds
+      common.ts             # Theme tokens and helpers
+      index.ts              # Central exports
     /ui            # Base components (Button, Card, Input, etc.)
     /sections      # Page sections (Hero, Features, Pricing, etc.)
     /layouts       # Layout components (Header, Footer, etc.)

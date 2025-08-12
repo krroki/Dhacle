@@ -1,12 +1,9 @@
 'use client';
 
-import { StripeButton } from '@/components/design-system/StripeButton';
-import { StripeCard } from '@/components/design-system/StripeCard';
-import { StripeTypography } from '@/components/design-system/StripeTypography';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { StripeButton, StripeCard, StripeTypography } from '@/components/design-system';
+import theme from '../../../theme.deep.json';
 
 export default function StyleGuidePage() {
-  const { theme } = useTheme();
 
   return (
     <div className="min-h-screen bg-white">

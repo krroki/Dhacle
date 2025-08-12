@@ -1,16 +1,27 @@
-// Design System Components - All using theme.deep.json tokens
-export { StripeButton } from './StripeButton';
-export { StripeCard } from './StripeCard';
-export { StripeTypography } from './StripeTypography';
-export { StripeGradient } from './StripeGradient';
-export { StripeInput, StripeTextarea } from './StripeInput';
+/**
+ * Design System v2 - Styled Components Based
+ * 
+ * SSR-safe, performance-optimized design system using styled-components
+ * All components directly use theme.deep.json tokens
+ */
 
-// Innovative Components inspired by Stripe
-export { default as AuroraGradientHero } from './AuroraGradientHero';
-export { default as MagneticHoverCard } from './MagneticHoverCard';
-export { default as LiquidMorphingButton } from './LiquidMorphingButton';
+// Typography
+export * from './Typography.styled';
 
-// Stripe Design System Components
-export { default as StripeNavigation } from './StripeNavigation';
-export * from './StripeLayout';
-export * from './StripeAnimations';
+// Buttons
+export * from './Button.styled';
+
+// Cards
+export * from './Card.styled';
+
+// Layout
+export * from './Layout.styled';
+
+// Form Elements
+export * from './Input.styled';
+
+// Gradient Components
+export * from './Gradient.styled';
+
+// Common styled utilities
+export * from './common';

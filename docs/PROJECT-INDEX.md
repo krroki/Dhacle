@@ -46,7 +46,15 @@
    - ✅ Mock 클라이언트로 개발 환경 지원
    - ⚠️ **필요**: `.env.local` 파일에 환경 변수 설정
 
-2. **UI 컴포넌트**
+2. **디자인 시스템 마이그레이션** ✅ (2025-01-12)
+   - ✅ **styled-components 기반으로 완전 재구현**
+   - ✅ ThemeProvider 의존성 완전 제거 (SSR 문제 해결)
+   - ✅ 모든 컴포넌트가 theme.deep.json 직접 사용
+   - ✅ TypeScript 에러 0개 달성
+   - ✅ 테마 시스템 이중화 문제 완전 해결
+   - 📝 상세 가이드: `docs/DESIGN-SYSTEM-MIGRATION.md`
+
+3. **UI 컴포넌트**
    - ✅ Design System 구축 완료 (Stripe 스타일)
    - ✅ 모든 컴포넌트 토큰 시스템 적용
    - ✅ NavigationBar, PillButton, SearchBar, ExperienceCard 구현

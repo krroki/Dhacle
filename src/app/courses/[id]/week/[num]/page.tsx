@@ -9,6 +9,13 @@ import { StripeTypography, StripeButton, StripeCard } from '@/components/design-
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 import { useAuth } from '@/lib/auth/AuthProvider';
 
+// Type for download materials
+interface DownloadMaterial {
+  name: string;
+  size: string | number;
+  url: string;
+}
+
 export default function CourseWeekPage() {
   const params = useParams();
   const router = useRouter();
@@ -255,14 +262,14 @@ export default function CourseWeekPage() {
             </StripeTypography>
             
             <div className="space-y-3">
-              {week.download_materials.map((material: { name: string; size: string; url: string }, index: number) => (
+              {(week.download_materials as unknown as DownloadMaterial[]).map((material: DownloadMaterial, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">📄</span>
                     <div>
                       <div className="font-medium">{material.name}</div>
                       <div className="text-sm text-gray-500">
-                        {formatFileSize(material.size || 0)}
+                        {formatFileSize(typeof material.size === 'string' ? parseInt(material.size) : material.size || 0)}
                       </div>
                     </div>
                   </div>

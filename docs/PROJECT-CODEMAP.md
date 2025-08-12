@@ -159,20 +159,15 @@ src/
 │       └── test-experience-card/page.tsx
 │
 ├── 🧩 components/ (50+ 컴포넌트)
-│   ├── 🎨 design-system/        # Stripe 디자인 시스템
+│   ├── 🎨 design-system/        # styled-components 기반 (SSR-safe)
 │   │   ├── index.ts            # 통합 export
-│   │   ├── StripeButton.tsx   # 4 variants, 3 sizes
-│   │   ├── StripeCard.tsx     # elevation, gradients
-│   │   ├── StripeTypography.tsx # h1-h4, body, caption
-│   │   ├── StripeGradient.tsx # 동적 그라디언트
-│   │   ├── StripeInput.tsx    # form inputs
-│   │   ├── StripeNavigation.tsx
-│   │   ├── StripeSection.tsx
-│   │   ├── StripeLayout.tsx
-│   │   ├── StripeAnimations.tsx
-│   │   ├── AuroraGradientHero.tsx
-│   │   ├── LiquidMorphingButton.tsx
-│   │   └── MagneticHoverCard.tsx
+│   │   ├── Typography.styled.tsx # H1-H4, Body, Caption, Code
+│   │   ├── Button.styled.tsx  # StripeButton (4 variants)
+│   │   ├── Card.styled.tsx    # StripeCard, ElevatedCard
+│   │   ├── Input.styled.tsx   # Input, Textarea, Select
+│   │   ├── Layout.styled.tsx  # Container, Row, Column, Grid
+│   │   ├── Gradient.styled.tsx # StripeGradient (animated)
+│   │   └── common.ts          # Theme tokens, helpers
 │   │
 │   ├── 📚 courses/              # 강의 컴포넌트
 │   │   ├── CourseCard.tsx     # 강의 카드

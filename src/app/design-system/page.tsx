@@ -18,7 +18,7 @@ export default function DesignSystemShowcase() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Gradient */}
-      <StripeGradient variant="stripe" intensity="light" className="py-20">
+      <StripeGradient variant="stripe" className="py-20">
         <div className="max-w-7xl mx-auto px-8">
           <StripeTypography variant="h1" color="dark" className="text-center mb-4">
             Stripe Design System
@@ -136,7 +136,7 @@ export default function DesignSystemShowcase() {
           </div>
 
           <div className="mt-6">
-            <StripeCard variant="gradient" gradientType="primary" padding="lg">
+            <StripeCard variant="elevated" elevation="lg">
               <StripeTypography variant="h3" color="inverse" className="mb-4">
                 Gradient Card
               </StripeTypography>
@@ -163,37 +163,26 @@ export default function DesignSystemShowcase() {
                 </StripeTypography>
                 
                 <StripeInput
-                  label="Email Address"
                   type="email"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                  fullWidth
                 />
 
                 <StripeInput
-                  label="Password"
                   type="password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  hint="Must be at least 8 characters"
-                  fullWidth
                 />
 
                 <StripeInput
-                  label="Error State"
                   placeholder="Invalid input"
-                  error="This field is required"
-                  fullWidth
+                  hasError
                 />
 
                 <StripeInput
-                  label="Success State"
                   placeholder="Valid input"
-                  success
-                  fullWidth
                 />
               </div>
 
@@ -203,33 +192,21 @@ export default function DesignSystemShowcase() {
                 </StripeTypography>
 
                 <StripeInput
-                  label="Outlined Input"
-                  variant="outlined"
                   placeholder="Outlined style"
-                  fullWidth
                 />
 
                 <StripeInput
-                  label="Filled Input"
-                  variant="filled"
                   placeholder="Filled style"
-                  fullWidth
                 />
 
                 <StripeInput
-                  label="Ghost Input"
-                  variant="ghost"
                   placeholder="Ghost style"
-                  fullWidth
                 />
 
                 <StripeTextarea
-                  label="Message"
                   placeholder="Enter your message here..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  hint="Maximum 500 characters"
-                  fullWidth
                 />
               </div>
             </div>
@@ -267,7 +244,7 @@ export default function DesignSystemShowcase() {
           <StripeTypography variant="h2" color="dark" className="mb-8">
             Complete Example
           </StripeTypography>
-          <StripeGradient variant="hero" intensity="light" className="rounded-2xl p-1">
+          <StripeGradient variant="hero" className="rounded-2xl p-1">
             <StripeCard variant="default" padding="lg" className="bg-white/95 backdrop-blur">
               <div className="text-center space-y-6">
                 <StripeTypography variant="h2" color="dark">

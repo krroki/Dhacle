@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/browser-client'
-import { StripeCard } from '@/components/design-system/StripeCard'
-import { StripeTypography } from '@/components/design-system/StripeTypography'
-import { StripeButton } from '@/components/design-system/StripeButton'
+import { StripeCard, StripeTypography, StripeButton } from '@/components/design-system'
 import type { Database } from '@/types/database.types'
 
 type UserProfile = Database['public']['Tables']['users']['Row']

@@ -120,10 +120,11 @@ Developer AI 온보딩 완료
 
 ### 자주 사용하는 패턴 찾기
 ```bash
-# UI 컴포넌트 패턴
-- Styled Components: src/components/NavigationBar.tsx (완전한 예시)
-- 토큰 사용: src/components/SearchBar.tsx, PillButton.tsx
-- 호버/애니메이션: NavigationBar.tsx의 NavLink 컴포넌트
+# UI 컴포넌트 패턴 (⚠️ 2025-01-12 업데이트)
+- styled-components: src/components/design-system/*.styled.tsx
+- SSR-safe 디자인 시스템: Typography, Button, Card, Input, Layout, Gradient
+- 토큰 직접 사용: theme.deep.json을 common.ts에서 import
+- ❌ ThemeProvider 사용 금지 (SSR 문제)
 
 # API 패턴
 - Route Handler: src/app/api/auth/callback/route.ts
@@ -137,7 +138,7 @@ Developer AI 온보딩 완료
 
 # 상태 관리 패턴
 - React Hooks: src/hooks/useScrollPosition.ts
-- Context: src/lib/theme/ThemeProvider.tsx (있다면)
+- ❌ ThemeProvider 사용 금지 (제거됨)
 ```
 
 ### 패턴 검색 명령어

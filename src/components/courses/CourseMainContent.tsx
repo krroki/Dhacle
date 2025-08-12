@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import styled from 'styled-components';
 import { SimpleCourse, ContentBlock, CurriculumWeek, FAQ } from '@/types/simple-course.types';
 import { StripeTypography } from '@/components/design-system';
 import ContentBlockRenderer from './ContentBlockRenderer';

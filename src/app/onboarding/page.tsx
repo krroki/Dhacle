@@ -3,10 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/browser-client'
-import { StripeButton } from '@/components/design-system/StripeButton'
-import { StripeCard } from '@/components/design-system/StripeCard'
-import { StripeTypography } from '@/components/design-system/StripeTypography'
-import { StripeInput } from '@/components/design-system/StripeInput'
+import { StripeButton, StripeCard, StripeTypography, StripeInput } from '@/components/design-system'
 import type { Database } from '@/types/database.types'
 
 const CATEGORIES = [
@@ -176,15 +173,16 @@ export default function OnboardingPage() {
               </label>
               <StripeInput
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, username: e.target.value })}
                 placeholder="dhacle_creator"
-                hint={
-                  checkingUsername ? '확인 중...' :
-                  usernameAvailable === true ? '✅ 사용 가능한 닉네임입니다' :
-                  usernameAvailable === false ? '❌ 이미 사용중인 닉네임입니다' :
-                  errors.username || '영문, 숫자, 언더스코어(_)만 사용 가능'
-                }
+                hasError={!!errors.username || usernameAvailable === false}
               />
+              <div className="mt-1 text-sm text-gray-500">
+                {checkingUsername ? '확인 중...' :
+                usernameAvailable === true ? '✅ 사용 가능한 닉네임입니다' :
+                usernameAvailable === false ? '❌ 이미 사용중인 닉네임입니다' :
+                errors.username || '영문, 숫자, 언더스코어(_)만 사용 가능'}
+              </div>
             </div>
 
             {/* Full Name */}
@@ -194,10 +192,13 @@ export default function OnboardingPage() {
               </label>
               <StripeInput
                 value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="홍길동"
-                hint={errors.full_name}
+                hasError={!!errors.full_name}
               />
+              {errors.full_name && (
+                <div className="mt-1 text-sm text-red-500">{errors.full_name}</div>
+              )}
             </div>
 
             {/* YouTube Channel (Optional) */}
@@ -207,7 +208,7 @@ export default function OnboardingPage() {
               </label>
               <StripeInput
                 value={formData.channel_name}
-                onChange={(e) => setFormData({ ...formData, channel_name: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, channel_name: e.target.value })}
                 placeholder="디하클 TV"
               />
             </div>
@@ -218,7 +219,7 @@ export default function OnboardingPage() {
               </label>
               <StripeInput
                 value={formData.channel_url}
-                onChange={(e) => setFormData({ ...formData, channel_url: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, channel_url: e.target.value })}
                 placeholder="https://youtube.com/@dhacle"
               />
             </div>
@@ -258,7 +259,7 @@ export default function OnboardingPage() {
                 <input
                   type="checkbox"
                   checked={formData.terms_agreed}
-                  onChange={(e) => setFormData({ ...formData, terms_agreed: e.target.checked })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, terms_agreed: e.target.checked })}
                   className="mt-1 mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded"
                 />
                 <span className="text-sm text-gray-700">
@@ -276,7 +277,7 @@ export default function OnboardingPage() {
                 <input
                   type="checkbox"
                   checked={formData.privacy_agreed}
-                  onChange={(e) => setFormData({ ...formData, privacy_agreed: e.target.checked })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, privacy_agreed: e.target.checked })}
                   className="mt-1 mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded"
                 />
                 <span className="text-sm text-gray-700">

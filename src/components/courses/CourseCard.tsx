@@ -5,14 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Course } from '@/types/course-system.types';
 import { StripeCard } from '@/components/design-system';
-import { useTheme } from '@/lib/theme/ThemeProvider';
 
 interface CourseCardProps {
   course: Course;
 }
 
 export default function CourseCard({ course }: CourseCardProps) {
-  const theme = useTheme();
   
   const formatPrice = (price: number) => {
     if (price === 0) return '무료';
