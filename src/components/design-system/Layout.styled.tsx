@@ -103,3 +103,94 @@ export const Divider = styled.hr`
   border-top: 1px solid ${colors.neutral.gray['200']};
   margin: ${spacing['8']} 0;
 `;
+
+// Row layout (horizontal with alignment)
+export const Row = styled.div<{
+  align?: 'top' | 'middle' | 'bottom' | 'stretch' | 'baseline';
+  justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+  gap?: string;
+  wrap?: boolean;
+}>`
+  display: flex;
+  flex-direction: row;
+  align-items: ${props => {
+    switch (props.align) {
+      case 'top': return 'flex-start';
+      case 'middle': return 'center';
+      case 'bottom': return 'flex-end';
+      case 'stretch': return 'stretch';
+      case 'baseline': return 'baseline';
+      default: return 'flex-start';
+    }
+  }};
+  justify-content: ${props => {
+    switch (props.justify) {
+      case 'start': return 'flex-start';
+      case 'center': return 'center';
+      case 'end': return 'flex-end';
+      case 'between': return 'space-between';
+      case 'around': return 'space-around';
+      case 'evenly': return 'space-evenly';
+      default: return 'flex-start';
+    }
+  }};
+  gap: ${props => props.gap || spacing['4']};
+  flex-wrap: ${props => props.wrap ? 'wrap' : 'nowrap'};
+`;
+
+// Column layout (vertical stacking)
+export const Column = styled.div<{
+  align?: 'left' | 'center' | 'right' | 'stretch';
+  justify?: 'top' | 'center' | 'bottom' | 'between' | 'around';
+  gap?: string;
+}>`
+  display: flex;
+  flex-direction: column;
+  align-items: ${props => {
+    switch (props.align) {
+      case 'left': return 'flex-start';
+      case 'center': return 'center';
+      case 'right': return 'flex-end';
+      case 'stretch': return 'stretch';
+      default: return 'stretch';
+    }
+  }};
+  justify-content: ${props => {
+    switch (props.justify) {
+      case 'top': return 'flex-start';
+      case 'center': return 'center';
+      case 'bottom': return 'flex-end';
+      case 'between': return 'space-between';
+      case 'around': return 'space-around';
+      default: return 'flex-start';
+    }
+  }};
+  gap: ${props => props.gap || spacing['4']};
+`;
+
+// Center content both horizontally and vertically
+export const Center = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+// Hidden on mobile, visible on desktop
+export const DesktopOnly = styled.div`
+  display: none;
+  
+  ${media.lg} {
+    display: block;
+  }
+`;
+
+// Visible on mobile, hidden on desktop
+export const MobileOnly = styled.div`
+  display: block;
+  
+  ${media.lg} {
+    display: none;
+  }
+`;

@@ -165,7 +165,11 @@ export function RevenueSlider() {
                       {/* Content */}
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[2], marginBottom: theme.spacing[2] }}>
-                          <StripeTypography variant="body" color="dark" className="font-semibold">
+                          <StripeTypography 
+                            variant="body" 
+                            color="dark" 
+                            style={{ fontWeight: theme.typography.fontWeight.semibold }}
+                          >
                             {item.name}
                           </StripeTypography>
                           {item.verified && (
