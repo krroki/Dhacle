@@ -12,11 +12,12 @@ export const typography = stripeTheme.typography;
 export const spacing = stripeTheme.spacing;
 export const effects = stripeTheme.effects;
 export const borderRadius = stripeTheme.borderRadius;
+export const shadows = stripeTheme.effects.shadows;
 
 // Helper functions
 export const getColor = (path: string): string => {
   const keys = path.split('.');
-  let value: any = colors;
+  let value: unknown = colors;
   
   for (const key of keys) {
     if (value && typeof value === 'object' && key in value) {

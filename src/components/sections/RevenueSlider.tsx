@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Calendar, BookOpen } from 'lucide-react';
+import { Calendar, BookOpen, CheckCircle } from 'lucide-react';
 import { StripeTypography, StripeCard } from '@/components/design-system';
-import { theme } from '@/components/design-system/common';
+import * as S from './RevenueSlider.styled';
 
 interface RevenueData {
   id: number;
@@ -49,35 +49,35 @@ const revenueData: RevenueData[] = [
     id: 4,
     name: '최지원',
     avatar: 'https://i.pravatar.cc/150?img=4',
-    amount: 4500000,
+    amount: 8900000,
     date: '2025-01-08',
-    course: '릴스 바이럴 마케팅',
+    course: '유튜브 쇼츠 마스터 클래스',
     verified: true
   },
   {
     id: 5,
-    name: '정현우',
+    name: '정하늘',
     avatar: 'https://i.pravatar.cc/150?img=5',
-    amount: 8900000,
+    amount: 15000000,
     date: '2025-01-07',
-    course: '유튜브 쇼츠 마스터 클래스',
+    course: '월 천만원 수익화 전략',
     verified: true
   }
 ];
 
-export function RevenueSlider() {
+export default function RevenueSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % revenueData.length);
-    }, 3000);
+      setCurrentIndex((prev) => (prev + 1) % Math.ceil(revenueData.length / 3));
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);
 
   const formatAmount = (amount: number) => {
-    return `₩${(amount / 10000).toFixed(0)}만원`;
+    return `₩${(amount / 10000).toLocaleString()}만원`;
   };
 
   const formatDate = (dateStr: string) => {
@@ -93,51 +93,39 @@ export function RevenueSlider() {
   };
 
   return (
-    <div style={{
-      padding: `${theme.spacing[10]} ${theme.spacing[6]}`,
-      backgroundColor: theme.colors.neutral.offWhite
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <S.SliderSection>
+      <S.BackgroundDecoration />
+      
+      <S.SliderContainer>
         {/* Section Title */}
-        <div style={{ textAlign: 'center', marginBottom: theme.spacing[12] }}>
-          <motion.div
+        <S.SectionHeader>
+          <S.TitleWrapper
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <StripeTypography variant="h2" color="dark">
               실시간 수익 인증 🔥
             </StripeTypography>
-            <div style={{ marginTop: theme.spacing[2] }}>
+            <S.SubtitleWrapper>
               <StripeTypography variant="body" color="muted">
                 디하클 수강생들의 실제 수익을 확인하세요
               </StripeTypography>
-            </div>
-          </motion.div>
-        </div>
+            </S.SubtitleWrapper>
+          </S.TitleWrapper>
+        </S.SectionHeader>
 
         {/* Revenue Cards Slider */}
-        <div style={{
-          position: 'relative',
-          height: '200px',
-          overflow: 'hidden'
-        }}>
+        <S.SliderWrapper>
           <AnimatePresence mode="wait">
-            <motion.div
+            <S.SlideContainer
               key={currentIndex}
               initial={{ opacity: 0, x: 300 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -300 }}
               transition={{ duration: 0.5 }}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: theme.spacing[4]
-              }}
             >
               {[0, 1, 2].map((offset) => {
-                const index = (currentIndex + offset) % revenueData.length;
+                const index = (currentIndex * 3 + offset) % revenueData.length;
                 const item = revenueData[index];
                 
                 return (
@@ -147,106 +135,79 @@ export function RevenueSlider() {
                     elevation="sm"
                     padding="md"
                   >
-                    <div style={{ display: 'flex', gap: theme.spacing[4] }}>
+                    <S.UserInfo>
                       {/* Avatar */}
-                      <div style={{ position: 'relative', width: '60px', height: '60px' }}>
+                      <S.Avatar>
                         <Image
                           src={item.avatar}
                           alt={item.name}
                           fill
-                          sizes="60px"
-                          style={{
-                            borderRadius: '50%',
-                            objectFit: 'cover'
-                          }}
+                          sizes="48px"
+                          style={{ objectFit: 'cover' }}
                         />
-                      </div>
+                      </S.Avatar>
                       
-                      {/* Content */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[2], marginBottom: theme.spacing[2] }}>
-                          <StripeTypography 
-                            variant="body" 
-                            color="dark" 
-                            style={{ fontWeight: theme.typography.fontWeight.semibold }}
-                          >
-                            {item.name}
-                          </StripeTypography>
+                      {/* User Details */}
+                      <S.UserDetails>
+                        <S.UserName>
+                          {item.name}
                           {item.verified && (
-                            <span style={{
-                              backgroundColor: '#10B981',
-                              color: 'white',
-                              fontSize: '10px',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontWeight: 'bold'
-                            }}>
-                              인증됨
-                            </span>
+                            <S.VerifiedBadge
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: 'spring', stiffness: 500 }}
+                            >
+                              <CheckCircle size={12} />
+                            </S.VerifiedBadge>
                           )}
-                        </div>
+                        </S.UserName>
                         
-                        {/* Amount */}
-                        <div style={{ 
-                          fontSize: '24px', 
-                          fontWeight: 'bold',
-                          color: theme.colors.primary.blue.default,
-                          marginBottom: theme.spacing[2]
-                        }}>
-                          {formatAmount(item.amount)}
-                        </div>
-                        
-                        {/* Details */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[1] }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[1] }}>
-                            <Calendar size={14} style={{ color: theme.colors.text.primary.light }} />
-                            <StripeTypography variant="caption" color="muted">
-                              {formatDate(item.date)}
-                            </StripeTypography>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[1] }}>
-                            <BookOpen size={14} style={{ color: theme.colors.text.primary.light }} />
-                            <StripeTypography variant="caption" color="muted">
-                              {item.course}
-                            </StripeTypography>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                        <S.UserDate>
+                          <Calendar size={14} />
+                          {formatDate(item.date)}
+                        </S.UserDate>
+                      </S.UserDetails>
+                    </S.UserInfo>
+                    
+                    {/* Amount Display */}
+                    <S.AmountDisplay>
+                      <S.AmountLabel>월 수익</S.AmountLabel>
+                      <S.AmountValue
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        {formatAmount(item.amount)}
+                      </S.AmountValue>
+                    </S.AmountDisplay>
+                    
+                    {/* Course Info */}
+                    <S.CourseInfo>
+                      <S.CourseIcon>
+                        <BookOpen size={16} />
+                      </S.CourseIcon>
+                      <S.CourseName>
+                        {item.course}
+                      </S.CourseName>
+                    </S.CourseInfo>
                   </StripeCard>
                 );
               })}
-            </motion.div>
+            </S.SlideContainer>
           </AnimatePresence>
-        </div>
+        </S.SliderWrapper>
 
-        {/* Indicators */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: theme.spacing[2],
-          marginTop: theme.spacing[8]
-        }}>
-          {revenueData.map((_, index) => (
-            <button
+        {/* Progress Dots */}
+        <S.ProgressDots>
+          {Array.from({ length: Math.ceil(revenueData.length / 3) }).map((_, index) => (
+            <S.Dot
               key={index}
+              $active={index === currentIndex}
               onClick={() => setCurrentIndex(index)}
-              style={{
-                width: index === currentIndex ? '24px' : '8px',
-                height: '8px',
-                borderRadius: '4px',
-                border: 'none',
-                backgroundColor: index === currentIndex 
-                  ? theme.colors.primary.blue.default 
-                  : theme.colors.neutral.gray['300'],
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              aria-label={`수익 인증 ${index + 1}`}
             />
           ))}
-        </div>
-      </div>
-    </div>
+        </S.ProgressDots>
+      </S.SliderContainer>
+    </S.SliderSection>
   );
 }

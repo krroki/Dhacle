@@ -4,7 +4,7 @@ import NavigationBar from '@/components/NavigationBar'
 import { TopBanner } from '@/components/sections/TopBanner'
 import { MainCarousel } from '@/components/sections/MainCarousel'
 import { CategoryGrid } from '@/components/sections/CategoryGrid'
-import { RevenueSlider } from '@/components/sections/RevenueSlider'
+import RevenueSlider from '@/components/sections/RevenueSlider'
 import { createBrowserClient } from '@/lib/supabase/browser-client'
 import { useEffect, useState } from 'react'
 
