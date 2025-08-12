@@ -240,11 +240,12 @@ erDiagram
 
 ## 🎨 디자인 시스템 통합
 
-### 공통 컴포넌트
-- **StripeCard**: 모든 카드 UI
-- **StripeButton**: CTA 버튼
-- **StripeTypography**: 텍스트 스타일
+### 공통 컴포넌트 (styled-components 기반)
+- **StripeCard**: 모든 카드 UI (Card.styled.tsx)
+- **StripeButton**: CTA 버튼 (Button.styled.tsx)
+- **StripeTypography**: 텍스트 스타일 (Typography.styled.tsx)
 - **Badge**: 뱃지 표시
+- ⚠️ **주의**: ThemeProvider 사용 금지 (SSR 문제)
 
 ### 색상 팔레트 (theme.deep.json)
 - 배경: `#F7FAFC`

@@ -296,14 +296,13 @@ This is a community platform for YouTube Shorts creators focused on education an
 ```tsx
 // CORRECT - Use design system components
 import { StripeButton, StripeCard, StripeTypography } from '@/components/design-system'
-import { useTheme } from '@/lib/theme/ThemeProvider'
+import theme from 'theme.deep.json'
 
 // Use components
 <StripeButton variant="primary">Click me</StripeButton>
 <StripeTypography variant="h2" color="dark">Title</StripeTypography>
 
 // Access theme tokens when needed
-const theme = useTheme();
 <div style={{ color: theme.colors.text.primary.default }}>
 ```
 
@@ -347,10 +346,10 @@ const theme = useTheme();
   - Direct token usage
 
 #### Theme System:
-- **ThemeProvider**: Enhanced context with helper functions
-  - `useTheme()`: Access theme tokens and helpers
-  - `getToken(path)`: Get nested token values
-  - `getCSSVar(name)`: Get CSS variable values
+- **Token Usage**: Direct import from theme.deep.json
+  - Import theme tokens directly from the JSON file
+  - All components use tokens through styled-components
+  - No ThemeProvider needed (SSR-safe approach)
   
 - **Token Structure** (theme.deep.json):
   - Colors: primary, neutral, text, button tokens

@@ -15,6 +15,7 @@ npm list --depth=0 2>/dev/null | grep -E "(next|react|typescript|supabase)"
 - **목적**: YouTube Shorts 크리에이터 교육 플랫폼
 - **기술 스택**: Next.js 14.2.5, TypeScript 5.x, Supabase, styled-components
 - **디자인 시스템**: theme.deep.json 토큰 시스템 (Stripe 스타일)
+- **⚠️ 중요**: ThemeProvider 사용 금지 - styled-components 기반으로 마이그레이션 완료
 - **프로젝트 위치**: C:\My_Claude_Project\9.Dhacle
 
 ## 📌 메타데이터
@@ -49,7 +50,8 @@ npm list --depth=0 2>/dev/null | grep -E "(next|react|typescript|supabase)"
 **기본 체크리스트 (모든 작업 공통)**
 - [ ] 프로젝트가 무엇인지 이해했는가? (YouTube Shorts 크리에이터 교육 플랫폼)
 - [ ] theme.deep.json 토큰만 사용해야 한다는 규칙 확인했는가?
-- [ ] 디자인 시스템 컴포넌트(StripeButton 등) 사용법 확인했는가?
+- [ ] 디자인 시스템 컴포넌트(StripeButton 등) 사용법 확인했는가? (styled-components 기반)
+- [ ] ThemeProvider 사용 금지 규칙 확인했는가? (SSR 문제)
 
 **작업별 체크리스트 (작업에 맞게 추가)**
 - [ ] [이 작업에서 수정할 파일 위치 아는가?]

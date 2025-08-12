@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { theme } from '@/components/design-system/common';
 import { carouselSlides, getSlideImage } from '@/data/carousel-data';
 import styled from 'styled-components';
-import { colors } from '@/styles/tokens/colors';
-import { effects } from '@/styles/tokens/effects';
 
 // Styled Components
 const CarouselSection = styled.section`
   width: 100%;
   padding: 40px 0;
-  background: ${colors.neutral[0]};
+  background: ${theme.colors.neutral.white};
 `;
 
 const CarouselContainer = styled.div`
@@ -111,13 +109,13 @@ const PlayIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all ${effects.animation.duration.normal};
+  transition: all ${theme.effects.transitions.duration.default};
   pointer-events: none;
   
   svg {
     width: 32px;
     height: 32px;
-    color: ${colors.neutral[0]};
+    color: ${theme.colors.neutral.white};
     margin-left: 4px;
   }
 `;
@@ -138,7 +136,7 @@ const NavButton = styled.button<{ $position: 'left' | 'right' }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all ${effects.animation.duration.normal};
+  transition: all ${theme.effects.transitions.duration.default};
   
   &:hover {
     background: rgba(0, 0, 0, 0.7);
@@ -148,7 +146,7 @@ const NavButton = styled.button<{ $position: 'left' | 'right' }>`
   svg {
     width: 32px;
     height: 32px;
-    color: ${colors.neutral[0]};
+    color: ${theme.colors.neutral.white};
   }
   
   @media (max-width: 768px) {
@@ -214,7 +212,7 @@ const IndicatorButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all ${effects.animation.duration.fast};
+  transition: all ${theme.effects.transitions.duration.fast};
   
   &:hover {
     background: rgba(0, 0, 0, 0.9);
@@ -251,7 +249,6 @@ const ProgressBar = styled.div<{ $progress: number }>`
 `;
 
 export function MainCarousel() {
-  const { theme } = useTheme();
   const [currentSlide, setCurrentSlide] = useState(1); // 복제된 첫 번째 슬라이드부터 시작
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);

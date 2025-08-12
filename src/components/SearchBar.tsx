@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import { useAutocomplete, AutocompleteOption } from '@/hooks/useAutocomplete';
-import { colors } from '@/lib/theme/theme';
+import { theme } from '@/components/design-system/common';
 
 // Types
 export interface SearchBarProps {
@@ -17,13 +17,13 @@ export interface SearchBarProps {
 
 // Categories data with Stripe-inspired colors from tokens
 const CATEGORIES = [
-  { id: 'all', name: '전체', color: colors.neutral.gray['500'] },
-  { id: 'course', name: '강의', color: colors.primary.blue.default },
-  { id: 'template', name: '템플릿', color: colors.primary.lightBlue },
-  { id: 'sound', name: '효과음', color: colors.primary.blue.hover },
-  { id: 'subtitle', name: '자막 도구', color: colors.neutral.gray['600'] },
-  { id: 'analytics', name: '분석 도구', color: colors.primary.blue.active },
-  { id: 'community', name: '커뮤니티', color: colors.primary.darkBlue },
+  { id: 'all', name: '전체', color: theme.colors.neutral.gray['500'] },
+  { id: 'course', name: '강의', color: theme.colors.primary.blue.default },
+  { id: 'template', name: '템플릿', color: theme.colors.primary.lightBlue },
+  { id: 'sound', name: '효과음', color: theme.colors.primary.blue.hover },
+  { id: 'subtitle', name: '자막 도구', color: theme.colors.neutral.gray['600'] },
+  { id: 'analytics', name: '분석 도구', color: theme.colors.primary.blue.active },
+  { id: 'community', name: '커뮤니티', color: theme.colors.primary.darkBlue },
 ];
 
 // Main component
@@ -152,11 +152,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           }
         `}
         style={{
-          borderColor: isFocused ? colors.primary.blue.default : undefined
+          borderColor: isFocused ? theme.colors.primary.blue.default : undefined
         }}
         onMouseEnter={(e) => {
           if (!isFocused) {
-            e.currentTarget.style.borderColor = colors.primary.blue.default;
+            e.currentTarget.style.borderColor = theme.colors.primary.blue.default;
           }
         }}
         onMouseLeave={(e) => {
@@ -223,7 +223,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               }}
               onMouseLeave={(e) => {
                 if (selectedCategory !== category.id) {
-                  e.currentTarget.style.borderColor = colors.neutral.gray['200'];
+                  e.currentTarget.style.borderColor = theme.colors.neutral.gray['200'];
                 }
               }}
             >

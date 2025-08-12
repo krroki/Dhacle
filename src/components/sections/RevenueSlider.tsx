@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Calendar, BookOpen } from 'lucide-react';
 import { StripeTypography, StripeCard } from '@/components/design-system';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { theme } from '@/components/design-system/common';
 
 interface RevenueData {
   id: number;
@@ -66,7 +66,6 @@ const revenueData: RevenueData[] = [
 ];
 
 export function RevenueSlider() {
-  const { theme } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {

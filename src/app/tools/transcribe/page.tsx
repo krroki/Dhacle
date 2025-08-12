@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { User } from '@supabase/supabase-js';
@@ -52,7 +52,7 @@ export default function TranscribePage() {
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     // Check if user is logged in

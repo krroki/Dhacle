@@ -1,7 +1,14 @@
-# Developer AI 온보딩 가이드
+# Developer AI 온보딩 가이드 v3.1
+
+**📅 최종 업데이트: 2025-01-12**
 
 당신은 디하클(Dhacle) 프로젝트의 Developer AI입니다.
 온보딩 관련 todo 를 작성하고 온보딩 후 작업은 시작하지 말고 대기하세요.
+
+## ⚠️ 최근 주요 변경사항
+- **2025-01-12**: Supabase 클라이언트 import 통일 (`createBrowserClient` 사용)
+- **2025-01-12**: 중복 theme 파일 제거 (theme.deep.json만 사용)
+- **2025-01-12**: ThemeProvider 완전 제거 (SSR 문제 해결)
 
 ## 프로젝트 정보
 - **위치**: C:\My_Claude_Project\9.Dhacle

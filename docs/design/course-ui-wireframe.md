@@ -5,7 +5,7 @@
 ### 디자인 시스템
 - **컬러**: theme.deep.json 토큰 활용
 - **타이포그래피**: Sohne (Stripe 폰트)
-- **컴포넌트**: StripeCard, StripeButton 등 기존 디자인 시스템 활용
+- **컴포넌트**: StripeCard, StripeButton 등 styled-components 기반 디자인 시스템 활용
 - **레이아웃**: 12 컬럼 그리드 시스템
 - **여백**: 8px 배수 시스템
 
@@ -56,6 +56,7 @@
 
 #### 1.2 강의 카드 컴포넌트 상세
 ```tsx
+// styled-components 기반 사용 예시
 <StripeCard variant="elevated" className="course-card">
   {/* 썸네일 */}
   <div className="aspect-video relative overflow-hidden">
@@ -81,10 +82,11 @@
       <span className="text-xl font-bold">
         {price === 0 ? '무료' : `₩${price.toLocaleString()}`}
       </span>
-      <StripeButton size="sm">수강하기</StripeButton>
+      <StripeButton variant="primary" size="sm">수강하기</StripeButton>
     </div>
   </div>
 </StripeCard>
+// ⚠️ ThemeProvider 사용 금지 - styled-components로 직접 구현
 ```
 
 ### 2. 강의 상세 페이지

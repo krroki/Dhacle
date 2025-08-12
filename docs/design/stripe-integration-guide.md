@@ -195,6 +195,7 @@ export async function POST(req: NextRequest) {
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+// styled-components 기반 디자인 시스템 사용
 import { StripeButton } from '@/components/design-system';
 
 interface EnrollButtonProps {

@@ -14,8 +14,9 @@ import {
   Briefcase, 
   Grid 
 } from 'lucide-react';
-import { StripeTypography } from '@/components/design-system';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { StripeTypography, Container } from '@/components/design-system';
+import { theme } from '@/components/design-system/common';
+import styled from 'styled-components';
 
 interface Category {
   id: number;
@@ -40,7 +41,6 @@ const categories: Category[] = [
 ];
 
 export function CategoryGrid() {
-  const { theme } = useTheme();
 
   // Media query handling with JavaScript
   const [isMobile, setIsMobile] = React.useState(false);

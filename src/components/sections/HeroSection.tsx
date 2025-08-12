@@ -8,10 +8,9 @@ import {
   StripeTypography, 
   StripeGradient 
 } from '@/components/design-system';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { theme } from '@/components/design-system/common';
 
 export function HeroSection() {
-  const { theme } = useTheme();
   const [studentCount, setStudentCount] = useState(10200);
   const [totalRevenue, setTotalRevenue] = useState(42.0);
 

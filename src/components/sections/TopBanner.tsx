@@ -3,10 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { StripeTypography } from '@/components/design-system';
-import { useTheme } from '@/lib/theme/ThemeProvider';
+import { theme } from '@/components/design-system/common';
 
 export function TopBanner() {
-  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export function TopBanner() {
           color="inverse"
           className="font-medium"
         >
-          🏆 실버버튼 챌린지 5기 할인 혜택 관련 공지 📢
+          ?�� ?�버버튼 챌린지 5�??�인 ?�택 관??공�? ?��
         </StripeTypography>
       </div>
       
@@ -68,7 +67,7 @@ export function TopBanner() {
           alignItems: 'center',
           justifyContent: 'center'
         }}
-        aria-label="배너 닫기"
+        aria-label="배너 ?�기"
       >
         <X size={20} style={{ color: '#FFFFFF' }} />
       </button>

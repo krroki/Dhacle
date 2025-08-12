@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import content from '../../../content-map.complete.json';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import type { User } from '@supabase/supabase-js';
 
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createSupabaseBrowserClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     // Check for initial session

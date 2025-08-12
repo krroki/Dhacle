@@ -1,21 +1,19 @@
 'use client'
 
-import { useTheme } from '@/lib/theme/ThemeProvider'
 import NavigationBar from '@/components/NavigationBar'
 import { TopBanner } from '@/components/sections/TopBanner'
 import { MainCarousel } from '@/components/sections/MainCarousel'
 import { CategoryGrid } from '@/components/sections/CategoryGrid'
 import { RevenueSlider } from '@/components/sections/RevenueSlider'
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client'
+import { createBrowserClient } from '@/lib/supabase/browser-client'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
-  const { theme } = useTheme();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
   
   // Supabase 클라이언트 생성
-  const supabase = createSupabaseBrowserClient();
+  const supabase = createBrowserClient();
   
   // 로그인 상태 확인
   useEffect(() => {

@@ -2,17 +2,10 @@ import { createBrowserClient as createSupabaseBrowserClientSSR } from '@supabase
 import { Database } from '@/types/database'
 
 // Create a Supabase client for browser/client-side usage
-export function createSupabaseBrowserClient() {
-  // Override placeholder values with correct ones
-  let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  
-  // Fix for Vercel having wrong values
-  if (supabaseUrl?.includes('placeholder')) {
-    supabaseUrl = 'https://golbwnsytwbyoneucunx.supabase.co'
-    supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvbGJ3bnN5dHdieW9uZXVjdW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1NzI1MTYsImV4cCI6MjA3MDE0ODUxNn0.8EaDU4a1-FuCeWuRtK0fzxrRDuMvNwoB0a0qALDm6iM'
-    console.warn('Overriding placeholder Supabase values with correct ones')
-  }
+export function createBrowserClient() {
+  // Get environment variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
   // Check if we're on production and environment variables are missing
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -60,6 +53,3 @@ export function createSupabaseBrowserClient() {
     supabaseAnonKey
   )
 }
-
-// Export with alias for backward compatibility
-export const createBrowserClient = createSupabaseBrowserClient
