@@ -1,242 +1,155 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { SimpleCourse } from '@/types/simple-course.types';
 import { StripeButton, StripeCard, StripeTypography } from '@/components/design-system';
-import { EnhancedCourse } from '@/types/course-detail.types';
-import { Check, Clock, Award, Shield, Users, Play, Flame, TrendingUp, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/lib/auth/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 interface CoursePurchaseCardProps {
-  course: EnhancedCourse;
-  isEnrolled?: boolean;
-  onEnroll?: () => void;
-  onPreview?: () => void;
-  className?: string;
+  course: SimpleCourse;
 }
 
-export default function CoursePurchaseCard({
-  course,
-  isEnrolled = false,
-  onEnroll,
-  onPreview,
-  className = ''
-}: CoursePurchaseCardProps) {
-  const hasDiscount = course.discount_rate > 0 && course.original_price;
-  const displayPrice = course.price;
-  const originalPrice = course.original_price || course.price;
-  const [viewingCount, setViewingCount] = useState(48);
-  const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
-  
-  // 실시간 보는 사람 수 시뮬레이션
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setViewingCount(prev => {
-        const change = Math.floor(Math.random() * 5) - 2;
-        const newCount = prev + change;
-        return Math.max(30, Math.min(70, newCount)); // 30-70 사이로 제한
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+export default function CoursePurchaseCard({ course }: CoursePurchaseCardProps) {
+  const { user } = useAuth();
+  const router = useRouter();
 
-  // 카운트다운 타이머
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-  
-  const benefits = [
-    { icon: Check, text: '평생 무제한 수강' },
-    { icon: Award, text: '수료증 발급' },
-    { icon: Shield, text: '100% 환불 보장' },
-    { icon: TrendingUp, text: '업데이트 평생 제공' }
-  ];
+  const handlePurchase = async () => {
+    if (!user) {
+      // 로그인 필요
+      router.push('/auth/login?redirect=/courses/' + course.id);
+      return;
+    }
+
+    // TODO: Stripe 결제 연동
+    console.log('Purchase course:', course.id);
+    alert('결제 기능은 현재 준비 중입니다.');
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ko-KR').format(price);
+  };
 
   return (
-    <>
-      {/* Desktop Sticky Card */}
-      <div 
-        className={`hidden lg:block sticky top-20 ${className}`}
-      >
-        <StripeCard 
-          variant="elevated" 
-          className="p-6 shadow-xl"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%)',
-            border: '2px solid transparent',
-            backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            backgroundOrigin: 'border-box',
-            backgroundClip: 'padding-box, border-box'
-          }}
-        >
-          {/* 긴급성 메시지 - 할인 중일 때만 표시 */}
-          {hasDiscount && (
-            <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg">
-              <div className="flex items-center justify-center gap-2 text-red-600">
-                <Flame size={18} className="animate-pulse" />
-                <span className="text-sm font-bold">
-                  {timeLeft.hours}시간 {timeLeft.minutes}분 {timeLeft.seconds}초 남음!
+    <StripeCard variant="elevated" className="sticky top-24">
+      <div className="p-6 space-y-6">
+        {/* 가격 정보 */}
+        <div>
+          {course.discountRate && course.originalPrice ? (
+            <>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm font-medium px-2 py-1 bg-red-100 text-red-600 rounded">
+                  {course.discountRate}% 할인
                 </span>
               </div>
-            </div>
-          )}
-
-          {/* 미리보기 버튼 */}
-          {course.preview_video_url && (
-            <button
-              onClick={onPreview}
-              className="w-full mb-4 py-3 border-2 border-purple-200 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-50 transition-all duration-200 transform hover:scale-[1.02]"
-            >
-              <Play size={20} className="text-purple-600" />
-              <span className="font-medium text-purple-600">무료 미리보기</span>
-            </button>
-          )}
-
-          {/* 가격 정보 */}
-          <div className="mb-6">
-            {hasDiscount ? (
-              <>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="inline-block px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold rounded-full animate-pulse shadow-lg">
-                    {course.discount_rate}% 할인
-                  </span>
-                </div>
-                <div className="text-gray-400 line-through text-lg mb-1">
-                  ₩{originalPrice.toLocaleString('ko-KR')}
-                </div>
-                <div className="text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  ₩{displayPrice.toLocaleString('ko-KR')}
-                </div>
-              </>
-            ) : (
-              <div className="text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                {course.price === 0 ? '무료' : `₩${displayPrice.toLocaleString('ko-KR')}`}
+              <div className="flex items-baseline gap-3">
+                <StripeTypography variant="h2" className="text-gray-900">
+                  ₩{formatPrice(course.price)}
+                </StripeTypography>
+                <StripeTypography variant="body" className="line-through text-gray-400">
+                  ₩{formatPrice(course.originalPrice)}
+                </StripeTypography>
               </div>
-            )}
-          </div>
-
-          {/* 수강 신청 버튼 */}
-          {isEnrolled ? (
-            <StripeButton variant="secondary" size="lg" fullWidth disabled>
-              <Check size={20} />
-              이미 수강 중
-            </StripeButton>
+            </>
           ) : (
-            <StripeButton 
-              variant="gradient" 
-              size="lg" 
-              fullWidth
-              onClick={onEnroll}
-              className="transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-2xl"
-            >
-              <span className="text-lg font-bold">
-                {course.price === 0 ? '무료로 수강 시작하기' : '지금 수강신청 →'}
-              </span>
-            </StripeButton>
-          )}
-
-          {/* 실시간 보는 사람 */}
-          <div className="flex items-center justify-center gap-2 mt-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-            <div className="flex -space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full border-2 border-white animate-pulse" />
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full border-2 border-white animate-pulse delay-75" />
-              <div className="w-6 h-6 bg-gradient-to-r from-pink-400 to-orange-400 rounded-full border-2 border-white animate-pulse delay-150" />
-            </div>
-            <span className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              현재 {viewingCount}명이 보는 중
-            </span>
-          </div>
-
-          {/* 혜택 리스트 */}
-          <div className="mt-6 pt-6 border-t-2 border-gray-100">
-            <p className="text-sm font-bold text-gray-900 mb-4">이 강의만의 특별 혜택</p>
-            <div className="space-y-3">
-              {benefits.map((benefit, index) => {
-                const Icon = benefit.icon;
-                return (
-                  <div key={index} className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                    <div className="w-7 h-7 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center group-hover:from-purple-200 group-hover:to-pink-200 transition-all">
-                      <Icon size={16} className="text-purple-600" />
-                    </div>
-                    <span className="text-sm text-gray-700 font-medium">{benefit.text}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 추가 정보 - 간소화 */}
-          <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">수강 기간</span>
-              <span className="font-bold text-purple-600">{course.duration_weeks}주 완성 코스</span>
-            </div>
-            {course.max_students && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">남은 자리</span>
-                <div className="flex items-center gap-1">
-                  <AlertCircle size={14} className="text-red-500" />
-                  <span className="font-bold text-red-600">
-                    {Math.max(5, course.max_students - Math.floor(course.max_students * 0.85))}명만 남음!
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 신뢰 보증 */}
-          <div className="mt-6 p-3 bg-gray-50 rounded-lg text-center">
-            <p className="text-xs text-gray-600">
-              디하클이 보증하는 검증된 강의
-            </p>
-            <p className="text-xs font-bold text-gray-800 mt-1">
-              불만족 시 100% 환불
-            </p>
-          </div>
-        </StripeCard>
-      </div>
-
-      {/* Mobile Bottom Fixed Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 p-4 z-50 shadow-2xl">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            {hasDiscount && (
-              <span className="text-sm text-gray-400 line-through">
-                ₩{originalPrice.toLocaleString('ko-KR')}
-              </span>
-            )}
-            <div className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              ₩{displayPrice.toLocaleString('ko-KR')}
-            </div>
-          </div>
-          {hasDiscount && (
-            <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold rounded-full animate-pulse">
-              {course.discount_rate}% 할인
-            </span>
+            <StripeTypography variant="h2" className="text-gray-900">
+              ₩{formatPrice(course.price)}
+            </StripeTypography>
           )}
         </div>
-        <StripeButton 
-          variant="gradient" 
-          size="lg" 
+
+        {/* 구매 버튼 */}
+        <StripeButton
+          variant="primary"
+          size="lg"
           fullWidth
-          onClick={onEnroll}
-          className="shadow-lg"
+          onClick={handlePurchase}
+          className="font-semibold"
         >
-          <span className="font-bold text-base">
-            {course.price === 0 ? '무료로 수강하기' : '지금 바로 수강신청'}
-          </span>
+          {course.price === 0 ? '무료로 시작하기' : '지금 구매하기'}
         </StripeButton>
+
+        {/* 포함 사항 */}
+        <div>
+          <StripeTypography variant="h4" className="mb-4 text-gray-900">
+            포함 사항
+          </StripeTypography>
+          <ul className="space-y-3">
+            {course.includedItems.map((item, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <StripeTypography variant="body" className="text-gray-600">
+                  {item}
+                </StripeTypography>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 수강 기한 */}
+        <div className="pt-4 border-t">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <StripeTypography variant="body" className="text-gray-600">
+              수강 기한: {course.duration}
+            </StripeTypography>
+          </div>
+        </div>
+
+        {/* 추가 정보 */}
+        <div className="space-y-2 pt-4 border-t">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+              <path
+                fillRule="evenodd"
+                d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100-4h-.5a1 1 0 000-2H8a2 2 0 012-2zm-2 6a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5zm2-2v5h8v-5H6z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>수료증 발급 가능</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>무제한 업데이트</span>
+          </div>
+        </div>
+
+        {/* 문의하기 */}
+        <div className="pt-4 border-t">
+          <button className="w-full py-3 text-center text-blue-600 hover:text-blue-700 font-medium transition-colors">
+            궁금한 점이 있으신가요? 문의하기
+          </button>
+        </div>
       </div>
-    </>
+    </StripeCard>
   );
 }

@@ -169,12 +169,23 @@ export default function CourseDetailLayout({
           {/* Right Sidebar - 35% on desktop, hidden on mobile */}
           <div className="hidden lg:block lg:w-[35%]">
             <div className="sticky top-24">
-              <CoursePurchaseCard
+              {/* CoursePurchaseCard는 SimpleCourse 타입을 사용하므로 주석 처리 */}
+              {/* <CoursePurchaseCard
                 course={course}
                 isEnrolled={isEnrolled}
                 onEnroll={handleEnroll}
                 onPreview={handlePreview}
-              />
+              /> */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-xl font-bold mb-4">강의 정보</h3>
+                <p className="text-gray-600">가격: ₩{course.price.toLocaleString()}</p>
+                <button 
+                  onClick={handleEnroll}
+                  className="w-full mt-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  수강 신청하기
+                </button>
+              </div>
             </div>
           </div>
         </div>

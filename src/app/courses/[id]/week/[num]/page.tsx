@@ -255,7 +255,7 @@ export default function CourseWeekPage() {
             </StripeTypography>
             
             <div className="space-y-3">
-              {week.download_materials.map((material: any, index: number) => (
+              {week.download_materials.map((material: { name: string; size: string; url: string }, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">📄</span>

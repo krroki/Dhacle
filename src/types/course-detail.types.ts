@@ -20,7 +20,7 @@ export type ContentBlockType =
 export interface BaseContentBlock {
   id: string;
   type: ContentBlockType;
-  style?: Record<string, any>;
+  style?: Record<string, string | number>;
 }
 
 // 텍스트 블록

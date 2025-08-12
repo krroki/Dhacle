@@ -98,6 +98,19 @@
 ### 📋 최근 완료 작업 - 강의 시스템 설계 (2025-01-11)
 - **강의 시스템 전체 설계 완료**
   - ✅ 기술 명세서 작성 (`docs/design/course-system-specification.md`)
+
+### 🔴 최근 작업 - 강의 상세 페이지 구현 (2025-01-12)
+- **강의 상세 페이지 재구현 완료**
+  - ✅ `/src/app/courses/[id]/page.tsx` - Server Component로 재구현
+  - ✅ `CourseMainContent.tsx` - 좌측 메인 콘텐츠 (65%)
+  - ✅ `CoursePurchaseCard.tsx` - 우측 구매 카드 (35% sticky)
+  - ✅ `ContentBlockRenderer.tsx` - 콘텐츠 블록 렌더링 시스템
+  - ✅ 탭 메뉴 시스템 구현 (강의소개/커리큘럼/FAQ)
+  - ✅ 반응형 레이아웃 (Desktop 2-column, Mobile 1-column)
+  - ✅ 모바일 하단 고정 구매 버튼
+  - ⚠️ **Internal Server Error 발생** - 디버깅 필요
+  - ⚠️ **ESLint 오류** - any 타입 사용으로 인한 빌드 경고
+  - 📝 **CLAUDE.md 업데이트**: any 타입 사용 금지 규칙 추가 (ESLint 에러 방지)
   - ✅ DB 스키마 설계 - 6개 테이블 + RLS (`docs/design/course-database-schema.sql`)
   - ✅ UI/UX 와이어프레임 (`docs/design/course-ui-wireframe.md`)
   - ✅ Stripe 결제 연동 가이드 (`docs/design/stripe-integration-guide.md`)

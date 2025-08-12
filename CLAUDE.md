@@ -564,17 +564,37 @@ git force push
 ## 🚨 코드 작성 시 필수 체크리스트 (Vercel 빌드 실패 방지)
 
 ### ❌ 절대 하지 말아야 할 것들 (빌드 실패 원인)
-1. **`any` 타입 사용 금지**
+1. **`any` 타입 사용 절대 금지 - ESLint 에러 발생**
    ```typescript
-   // ❌ 잘못됨 - 빌드 실패
+   // ❌ 잘못됨 - ESLint 에러 발생
    const data: any = {};
+   const handleClick = (item: any) => {};
+   const items: any[] = [];
    
-   // ✅ 올바름
+   // ✅ 올바름 - 구체적인 타입 사용
    const data: Record<string, unknown> = {};
-   // 또는 정확한 타입 정의
-   interface DataType { ... }
-   const data: DataType = {};
+   const handleClick = (item: { id: string; name: string }) => {};
+   const items: string[] = [];
+   
+   // ✅ 타입을 모를 때는 unknown 사용 후 타입 가드
+   const data: unknown = fetchData();
+   if (typeof data === 'object' && data !== null) {
+     // 타입 체크 후 사용
+   }
+   
+   // ✅ 복잡한 타입은 interface나 type 정의
+   interface CourseItem {
+     id: string;
+     title: string;
+     price: number;
+   }
+   const items: CourseItem[] = [];
    ```
+   
+   **⚠️ 중요**: TypeScript에서 `any` 타입을 사용하면 ESLint가 에러를 발생시킵니다.
+   - 항상 구체적인 타입을 정의하세요
+   - 타입을 모를 때는 `unknown`을 사용하고 타입 가드로 체크하세요
+   - 복잡한 객체는 interface나 type으로 명확히 정의하세요
 
 2. **Storybook import 금지**
    ```typescript
