@@ -5,7 +5,7 @@
 ```
 /sc:implement --seq --validate --evidence --think-hard --delegate files --concurrency 3
 
-## TASK-2025-016: 스타일링 시스템 마이그레이션 (Tailwind → styled-components)
+## TASK-2025-016: 스타일링 시스템 마이그레이션 (Tailwind → styled-components) (phase 1 은 완료된 상태, 검증 필요)
 
 ### 작업 개요
 디하클 프로젝트에서 Tailwind CSS와 styled-components가 혼재된 현재 상태를 

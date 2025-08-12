@@ -8,14 +8,15 @@
 1. ☐ **이 문서** (`PROJECT-INDEX.md`) - 현재 상태와 문서 지도 파악
 2. ☐ **`/CLAUDE.md`** - 프로젝트 규칙과 가이드라인
 3. ☐ **`/docs/PM-AI-Framework.md`** - PM AI 운영 매뉴얼
-4. ☐ **`/docs/site-architecture-plan.md`** - 사이트 구조와 기능 명세
-5. ☐ **`/docs/component-visual-diagram.md`** - UI/UX 상세 스펙
-6. ☐ **`/docs/development-workflow-guide.md`** - 개발 가이드
-7. ☐ **`/docs/Visual-Verification-Protocol.md`** - UI 검증 프로토콜
+4. ☐ **`/docs/DEVELOPMENT-INSTRUCTION-TEMPLATE.md`** ⭐ v5.0 - 템플릿 기반 개발 지시서
+5. ☐ **`/docs/site-architecture-plan.md`** - 사이트 구조와 기능 명세
+6. ☐ **`/docs/component-visual-diagram.md`** - UI/UX 상세 스펙
+7. ☐ **`/docs/development-workflow-guide.md`** - 개발 가이드
+8. ☐ **`/docs/Visual-Verification-Protocol.md`** - UI 검증 프로토콜
 
 ---
 
-## 🚨 현재 구현 상태 (2025-01-12 18:00 업데이트)
+## 🚨 현재 구현 상태 (2025-01-12 23:45 업데이트)
 
 ### ✅ 모든 CRITICAL 문제 해결 완료!
 
@@ -46,17 +47,13 @@
    - ✅ Mock 클라이언트로 개발 환경 지원
    - ⚠️ **필요**: `.env.local` 파일에 환경 변수 설정
 
-2. **디자인 시스템 마이그레이션** 🚀 (2025-01-12 업데이트)
-   - ✅ **Phase 1 완료**: 디자인 시스템 확장
-     - Layout.styled.tsx 확장 (Row, Column, Center 등)
-     - Spacing.styled.tsx 생성 (Spacer, Padding, Margin, Box 등)
-     - Animation.styled.tsx 생성 (10+ 애니메이션, Skeleton, HoverEffect)
-   - ✅ **Phase 2 완료**: 우선순위 컴포넌트 마이그레이션 (5/5)
-     - TopBanner, HeroSection, CategoryGrid, RevenueSlider, MainCarousel
-   - ✅ **성과**: Tailwind 737개 → ~700개 감소, styled-components 120+ 추가
-   - ✅ TypeScript 에러 0개, 빌드 성공, SSR 안전
-   - 📝 상세 보고서: `docs/evidence/styling-migration-complete-2025-01-12.md`
-   - 📝 작업 문서: `docs/tasks/active/TASK-2025-016-styling-migration.md`
+2. **디자인 시스템 전환** 🔄 (2025-01-12 23:45 업데이트)
+   - ⚠️ **방향 전환**: styled-components → Tailwind CSS + shadcn/ui
+   - ✅ **기존 작업**: Phase 2까지 styled-components로 70% 완료
+   - 🔄 **새로운 방향**: 
+     - 컴포넌트는 Tailwind CSS + shadcn/ui로 전환 예정
+     - 페이지는 템플릿 기반 개발로 품질 개선
+   - 📝 문서: `docs/DEVELOPMENT-INSTRUCTION-TEMPLATE.md` v5.0 업데이트 완료
 
 3. **UI 컴포넌트**
    - ✅ Design System 구축 완료 (Stripe 스타일)
@@ -66,6 +63,19 @@
 3. **데이터베이스**
    - ✅ 8개 테이블 스키마 작성 (`src/lib/supabase/migrations/001_initial_schema.sql`)
    - ⚠️ 타입 통합 미완료 - TASK-2025-003 수행 필요
+
+### ✅ 최근 완료 작업 (2025-01-12 23:45)
+- ✅ **개발 템플릿 v5.0 업그레이드**
+  - 템플릿 기반 개발 프로세스 추가
+  - AI가 무료 템플릿 3-5개 자동 검색 및 일치도 평가
+  - 프로젝트 스펙 완전 일치 검증 체크리스트
+  - 실패 사례 & 금지사항 섹션 추가 (하단 배치)
+  - 기술 스택 업데이트: Tailwind CSS + shadcn/ui
+- ✅ **페이지 문제 분석 및 정리**
+  - 테스트 페이지 4개 삭제 완료
+  - className 사용 955개, inline style 58개 발견
+  - 'use client' 남용 9개, 100줄 넘는 페이지 10개 확인
+  - 페이지 리팩토링 계획 수립
 
 ### ✅ 최근 완료 작업 (2025-01-10)
 - ✅ FastCampus 스타일 UI 재설계 완료
@@ -243,9 +253,10 @@
 4. **PM-AI-Quick-Start.md** - 5분 빠른 온보딩 가이드 생성
 
 ### 핵심 변경사항
-- 모든 작업 지시서에 PROJECT-INDEX.md, CLAUDE.md, theme.deep.json 필수 포함
+- 모든 작업 지시서에 PROJECT-INDEX.md, CLAUDE.md 필수 포함
 - 프로젝트 설명과 기술적 제약사항 명시 의무화
 - 수정할 파일 전체 경로 명시 의무화
+- **NEW**: DEVELOPMENT-INSTRUCTION-TEMPLATE.md v5.0 - 템플릿 기반 개발 도입
 
 ## 📚 핵심 문서 위치 및 용도
 
@@ -266,6 +277,11 @@
 - **`/docs/PM-AI-Framework.md`** 
   - 용도: PM AI 운영 매뉴얼
   - 언제 봐야 함: 작업 지시서 작성할 때
+
+- **`/docs/DEVELOPMENT-INSTRUCTION-TEMPLATE.md`** ⭐ v5.0
+  - 용도: 템플릿 기반 개발 지시서 작성
+  - 언제 봐야 함: 새로운 기능/페이지 개발 시작 전
+  - 핵심 기능: AI가 템플릿 자동 검색, 프로젝트 스펙 검증
   
 - **`/docs/Visual-Verification-Protocol.md`** 
   - 용도: UI 검증 프로토콜

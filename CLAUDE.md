@@ -272,10 +272,11 @@ This is a community platform for YouTube Shorts creators focused on education an
 
 ## 🚨 CRITICAL: Design System Rules (MUST READ)
 
-**⚠️ 2025-01-12 UPDATE: styled-components 마이그레이션 Phase 2 완료**
-- **Phase 1**: 디자인 시스템 확장 완료 (Layout, Spacing, Animation)
-- **Phase 2**: 5개 우선순위 컴포넌트 마이그레이션 완료
-- **진행률**: 60% (Tailwind 737개 → ~700개 감소)
+**⚠️ 2025-01-12 UPDATE: styled-components 마이그레이션 Phase 2 Priority 1 완료**
+- **Phase 1**: 디자인 시스템 확장 완료 (Layout, Spacing, Animation) ✅
+- **Phase 2 Priority 1**: 5/5 컴포넌트 마이그레이션 완료 ✅
+  - TopBanner, HeroSection, MainCarousel, CategoryGrid, RevenueSlider
+- **진행률**: 70% (13/37 파일 완료)
 - **중요**: 모든 새 컴포넌트는 styled-components로 작성하세요!
 
 **MANDATORY**: ALL styling MUST use theme.deep.json tokens through centralized design system
