@@ -42,10 +42,7 @@ export function ScrollProgressBar() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-1 bg-primary/20 z-[9998]"
-      style={{
-        transform: 'translateY(var(--header-height))',
-      }}
+      className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20"
     >
       <div
         className="h-full bg-primary transition-all duration-150 ease-out"

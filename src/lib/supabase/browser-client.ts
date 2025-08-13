@@ -3,9 +3,9 @@ import { Database } from '@/types/database'
 
 // Create a Supabase client for browser/client-side usage
 export function createBrowserClient() {
-  // Get environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Get environment variables - Next.js will inline these at build time
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   
   // Check if we're on production and environment variables are missing
   if (!supabaseUrl || !supabaseAnonKey) {

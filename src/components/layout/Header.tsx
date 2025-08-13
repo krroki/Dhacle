@@ -117,13 +117,12 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b transition-all duration-300 z-[1200]',
+        'relative bg-background/95 backdrop-blur-sm border-b transition-all duration-300',
         isScrolled && 'shadow-sm',
         !isHeaderVisible && '-translate-y-full'
       )}
       style={{
         height: isScrolled ? 'var(--header-height-scroll)' : 'var(--header-height)',
-        top: useLayoutStore.getState().isBannerClosed ? 0 : 'var(--top-banner-height)',
       }}
     >
       <div className="container-responsive h-full flex items-center justify-between">

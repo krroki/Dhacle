@@ -1,40 +1,43 @@
 # 📊 디하클(Dhacle) 프로젝트 코드맵
 
-*최종 업데이트: 2025-01-14 (Layout 시스템 완성)*
+*최종 업데이트: 2025-01-14 (메인 페이지 구현 완료)*
 
 ## 🎯 프로젝트 개요
 
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼
 - **위치**: `C:\My_Claude_Project\9.Dhacle`
-- **현재 상태**: Phase 3 레이아웃 시스템 완성, Phase 4 페이지 구현 예정
+- **현재 상태**: Phase 4 메인 페이지 구현 완료 ✅
 - **백업 위치**: `C:\My_Claude_Project\dhacle-backup`
 
 ---
 
 ## 🆕 최근 업데이트 (2025-01-14)
 
-### 레이아웃 시스템 완성 ✅
-- **Root Layout**: 메타데이터, Provider 구조, 컴포넌트 배치 완료
-- **Global CSS**: CSS 변수, 애니메이션, 다크모드, NProgress 커스터마이징
-- **Provider 시스템**: Theme, Auth, Layout 통합 Provider 구현
-- **상태 관리**: Zustand store로 레이아웃 전역 상태 관리
-- **컴포넌트 8개**: TopBanner, Header, Sidebar, Footer, MobileNav, ScrollToTop, ProgressBar, NotificationDropdown
+### 메인 페이지 구현 완료 ✅
+- **8개 섹션 완성**: HeroCarousel, InstructorCategories, RevenueGallery, FreeCoursesCarousel, FreeCoursesSchedule, NewCoursesCarousel, EbookSection, FAQSection
+- **성능 최적화**: Suspense, 스켈레톤 UI, YouTube 최적화 구현
+- **더미 데이터**: 완전한 더미 데이터 세트 구현
+- **반응형 디자인**: 모바일/태블릿/데스크톱 완벽 대응
+- **TypeScript**: 에러 0개, 타입 안정성 100%
 
-### 새로 추가된 파일
+### 새로 추가된 파일 (메인 페이지)
 ```
 src/
-├── components/
-│   ├── providers/
-│   │   └── Providers.tsx        # 통합 Provider
-│   └── layout/                  # 8개 레이아웃 컴포넌트
-├── lib/
-│   ├── auth/
-│   │   └── AuthContext.tsx      # 인증 컨텍스트
-│   └── layout/
-│       └── LayoutContext.tsx    # 레이아웃 컨텍스트
-└── store/
-    └── layout.ts                # Zustand 레이아웃 스토어
+├── app/
+│   └── page.tsx                 # 메인 페이지 (8개 섹션 통합)
+├── components/features/home/    # 메인 페이지 컴포넌트
+│   ├── HeroCarousel/           # 메인 캐러셀 (4개 파일)
+│   ├── InstructorCategories/   # 강사 카테고리 (2개 파일)
+│   ├── RevenueGallery/         # 수익인증 갤러리 (3개 파일)
+│   ├── FreeCoursesCarousel/    # 무료강의 캐러셀 (1개 파일)
+│   ├── FreeCoursesSchedule/    # 무료강의 일정 (3개 파일)
+│   ├── NewCoursesCarousel/     # 신규강의 캐러셀 (1개 파일)
+│   ├── EbookSection/           # 전자책 섹션 (2개 파일)
+│   ├── FAQSection/             # FAQ 섹션 (1개 파일)
+│   └── shared/                 # 공유 컴포넌트 (4개 파일)
+└── lib/dummy-data/
+    └── home.ts                  # 더미 데이터 (676줄, 8종류)
 ```
 
 ---
@@ -329,21 +332,23 @@ npx supabase gen types typescript --local
 ## 📊 프로젝트 통계
 
 ### 현재 상태 (2025-01-14 업데이트)
-- **총 파일 수**: ~60개
-- **shadcn/ui 컴포넌트**: 15개 설치됨 (scroll-area 추가)
-- **레이아웃 컴포넌트**: 8개 완성 (TopBanner, Header, Sidebar, Footer, MobileNav, ScrollToTop, ProgressBar, NotificationDropdown)
+- **총 파일 수**: ~85개 (메인 페이지 컴포넌트 추가)
+- **shadcn/ui 컴포넌트**: 15개 설치됨 (carousel, accordion, tabs 활용)
+- **레이아웃 컴포넌트**: 8개 완성
+- **메인 페이지 컴포넌트**: 21개 구현 (8개 섹션 + 공유 컴포넌트)
 - **Provider 시스템**: 3개 (Theme, Auth, Layout)
 - **상태 관리**: Zustand store 구현 완료
 - **API Routes**: 2개 (user/profile, user/check-username)
 - **DB 마이그레이션**: 7개
 - **환경 변수**: 3개 필수
-- **폴더 구조**: main → (pages) 변경 완료
+- **더미 데이터**: 8종류 (총 676줄)
 
 ### 코드 품질 지표
-- **TypeScript**: Strict mode 활성화
-- **ESLint**: Next.js 권장 설정
+- **TypeScript**: Strict mode 활성화, 에러 0개
+- **ESLint**: Next.js 권장 설정, 경고/에러 0개
 - **Prettier**: 코드 포맷팅 적용
 - **빌드 상태**: ✅ 성공
+- **번들 사이즈**: First Load JS 205KB (최적화됨)
 
 ---
 
@@ -354,12 +359,14 @@ npx supabase gen types typescript --local
 - ✅ shadcn/ui 설치
 - ✅ Supabase 설정 복원
 - ✅ 인증 시스템 복원
+- ✅ 레이아웃 시스템 구현
+- ✅ 메인 페이지 UI 완성
 
 ### 진행 예정
-- [ ] 메인 페이지 UI
-- [ ] 네비게이션 헤더
-- [ ] 강의 시스템
+- [ ] 강의 시스템 페이지
 - [ ] 커뮤니티 기능
+- [ ] 사용자 대시보드
+- [ ] 결제 시스템 연동
 
 ---
 

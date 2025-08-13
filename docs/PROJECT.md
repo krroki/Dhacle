@@ -1,6 +1,6 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-14*
+*최종 업데이트: 2025-01-14 오후*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -27,8 +27,8 @@
 #### Phase 1: 프로젝트 초기화 ✅ 완료
 - ✅ 기존 프로젝트 백업 (45개+ 핵심 파일)
 - ✅ 새 프로젝트 구조 생성 (src 기반)
-- ✅ 필수 패키지 설치 (Next.js 15.1.5, React 19)
-- ✅ shadcn/ui 설치 (14개 컴포넌트)
+- ✅ 필수 패키지 설치 (Next.js 15.4.6, React 19.1.1)
+- ✅ shadcn/ui 설치 (15개 컴포넌트)
 
 #### Phase 2: 핵심 기능 복원 ✅ 완료
 - ✅ Supabase 설정 복원 (7개 마이그레이션 파일)
@@ -39,21 +39,38 @@
 #### Phase 3: UI 재구축 ✅ 완료
 - ✅ Root Layout 설정 (layout.tsx 구현)
 - ✅ 네비게이션 헤더 구현 (Header.tsx)
-- ✅ 메인 페이지 구현 (page.tsx)
-- ✅ 레이아웃 컴포넌트 전체 구현
+- ✅ 레이아웃 컴포넌트 전체 구현 (8개)
   - TopBanner (그라데이션 배경)
   - Header (스크롤 동적 높이)
   - Sidebar (인프런 스타일)
   - Footer (전체 섹션)
   - MobileNav (하단 고정)
-  - ScrollToTop, ProgressBar
+  - ScrollToTop, ProgressBar, NotificationDropdown
 
-#### Phase 4: 기능 구현 🚧 진행 예정
-- [ ] 검색 기능 (Supabase full-text search)
-- [ ] 알림 시스템 (Realtime 구독)
-- [ ] 뉴스레터 구독 (이메일 서비스 연동)
-- [ ] 강의 페이지 구현
-- [ ] 커뮤니티 기능
+#### Phase 4: 메인 페이지 구현 ✅ 완료 (2025-01-14)
+- ✅ **메인 페이지 구현** (page.tsx)
+- ✅ **8개 섹션 완성**
+  - HeroCarousel (자동재생, YouTube 최적화)
+  - InstructorCategories (12명 강사)
+  - RevenueGallery (무한 스크롤 애니메이션)
+  - FreeCoursesCarousel (무료 강의 8개)
+  - FreeCoursesSchedule (캘린더 그리드)
+  - NewCoursesCarousel (신규 강의 4개)
+  - EbookSection (무료/유료 탭)
+  - FAQSection (아코디언)
+- ✅ **성능 최적화**
+  - Suspense & 스켈레톤 UI (7종)
+  - YouTube 썸네일 최적화
+  - 이미지 최적화 (Next/Image)
+- ✅ **더미 데이터 구현** (676줄, 8종류)
+- ✅ **반응형 디자인** (모바일/태블릿/데스크톱)
+
+#### Phase 5: 페이지 구현 🚧 다음 단계
+- [ ] 강의 목록 페이지
+- [ ] 강의 상세 페이지
+- [ ] 커뮤니티 페이지
+- [ ] 사용자 대시보드
+- [ ] 프로필 설정 페이지
 
 ### 📊 기존 문제점 분석 (재구축 이유)
 - **스타일링 혼재**: styled-components + Tailwind + inline styles (955개 className)
@@ -67,7 +84,7 @@
 3. **성능 최적화**: 번들 크기 감소, SSR/SSG 활용
 4. **유지보수성**: 명확한 폴더 구조, 재사용 가능한 컴포넌트
 
-### ⚠️ 알려진 이슈 (2025-01-14 업데이트)
+### ⚠️ 알려진 이슈 (2025-01-14 오후 업데이트)
 
 #### 🔴 보안 취약점 (우선 해결 필요)
 - **문제**: `src/app/auth/callback/route.ts`에 Supabase 자격 증명 하드코딩
@@ -90,7 +107,7 @@
    - `src/app/(pages)/` - 페이지 그룹 (courses, community, tools 포함)
    - `src/app/auth/login/` - 로그인 페이지 구현 예정
    - `src/app/auth/signup/` - 회원가입 페이지 구현 예정
-   - **참고**: Phase 3에서 구현 예정
+   - **참고**: Phase 5에서 구현 예정
 
 #### ✅ 해결된 이슈
 - **폴더 구조**: `src/app/main` → `src/app/(pages)` 변경 완료 (2025-01-13)
@@ -100,6 +117,9 @@
 - **ESLint 설정**: eslint-config-prettier 설치 완료 (2025-01-14)
 - **레이아웃 시스템**: 전체 레이아웃 구현 완료 (2025-01-14)
 - **미사용 import**: 모든 경고 제거 완료 (2025-01-14)
+- **InstructorCategories onClick 에러**: 수정 완료 (2025-01-14)
+- **HeroCarousel import 순서**: 정리 완료 (2025-01-14)
+- **TypeScript 빌드 에러**: 모두 해결 (2025-01-14)
 
 ---
 

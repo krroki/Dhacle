@@ -8,7 +8,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { Footer } from '@/components/layout/Footer'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
-import { ProgressBar, ScrollProgressBar } from '@/components/layout/ProgressBar'
+import { ProgressBar } from '@/components/layout/ProgressBar'
 import { Suspense } from 'react'
 
 const inter = Inter({ 
@@ -89,27 +89,26 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" suppressHydrationWarning className={inter.variable}>
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <body className={`${inter.className} min-h-screen`}>
         <Providers>
           {/* Progress Bar */}
           <Suspense fallback={null}>
             <ProgressBar />
           </Suspense>
-          <ScrollProgressBar />
           
-          {/* Top Banner */}
-          <TopBanner />
+          {/* Fixed Header with TopBanner */}
+          <div className="fixed top-0 left-0 right-0 z-50">
+            <TopBanner />
+            <Header />
+          </div>
           
-          {/* Header */}
-          <Header />
-          
-          {/* Main Layout */}
-          <div className="flex flex-1" style={{ paddingTop: 'calc(var(--header-height) + var(--top-banner-height))' }}>
+          {/* Main Layout with dynamic padding */}
+          <div className="flex min-h-screen transition-all duration-300">
             {/* Sidebar */}
             <Sidebar />
             
             {/* Main Content */}
-            <main className="flex-1 flex flex-col min-h-[calc(100vh-var(--header-height)-var(--top-banner-height))]">
+            <main className="flex-1 flex flex-col max-w-full overflow-x-hidden">
               <div className="flex-1">
                 {children}
               </div>
