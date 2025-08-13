@@ -3,13 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
-import { createBrowserClient } from '@/lib/supabase/browser-client'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@/components/ui'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Check, User, Target, Sparkles, Loader2 } from 'lucide-react'
+import { ArrowRight, Check, Loader2 } from 'lucide-react'
 
 interface OnboardingData {
   username: string
@@ -29,19 +28,19 @@ const INTERESTS = [
 
 const EXPERIENCE_LEVELS = [
   { 
-    value: 'beginner', 
+    value: 'beginner' as const, 
     label: '초급', 
     description: '이제 막 시작했어요',
     icon: '🌱'
   },
   { 
-    value: 'intermediate', 
+    value: 'intermediate' as const, 
     label: '중급', 
     description: '1년 미만 경험이 있어요',
     icon: '🌿'
   },
   { 
-    value: 'advanced', 
+    value: 'advanced' as const, 
     label: '고급', 
     description: '1년 이상 경험이 있어요',
     icon: '🌳'
@@ -51,7 +50,6 @@ const EXPERIENCE_LEVELS = [
 export default function OnboardingPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const supabase = createBrowserClient()
   
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -305,7 +303,7 @@ export default function OnboardingPage() {
                 {EXPERIENCE_LEVELS.map((level) => (
                   <button
                     key={level.value}
-                    onClick={() => setData(prev => ({ ...prev, experienceLevel: level.value as any }))}
+                    onClick={() => setData(prev => ({ ...prev, experienceLevel: level.value }))}
                     className={cn(
                       'w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
                       data.experienceLevel === level.value

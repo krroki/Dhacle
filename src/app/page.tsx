@@ -25,21 +25,6 @@ export default function HomePage() {
         <HeroCarousel />
       </Suspense>
 
-      {/* Instructor Categories Section */}
-      <Suspense 
-        fallback={
-          <div className="py-12 container-responsive">
-            <div className="grid grid-cols-6 gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <InstructorCardSkeleton key={i} />
-              ))}
-            </div>
-          </div>
-        }
-      >
-        <InstructorCategories />
-      </Suspense>
-
       {/* Revenue Gallery Section */}
       <Suspense 
         fallback={
@@ -107,6 +92,21 @@ export default function HomePage() {
         }
       >
         <EbookSection />
+      </Suspense>
+
+      {/* Instructor Categories Section */}
+      <Suspense 
+        fallback={
+          <div className="py-12 container-responsive">
+            <div className="grid grid-cols-6 gap-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <InstructorCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        }
+      >
+        <InstructorCategories />
       </Suspense>
 
       {/* FAQ Section */}
