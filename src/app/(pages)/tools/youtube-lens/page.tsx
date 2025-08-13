@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { toast } from 'sonner';
-import type { YouTubeSearchFilters, YouTubeVideo, YouTubeFavorite, QuotaStatus as QuotaStatusType } from '@/types/youtube';
+import type { YouTubeSearchFilters, FlattenedYouTubeVideo, YouTubeFavorite, QuotaStatus as QuotaStatusType } from '@/types/youtube';
 
 // API 함수들
 const fetchAuthStatus = async () => {
@@ -53,7 +53,7 @@ const fetchFavorites = async () => {
   return response.json();
 };
 
-const addFavorite = async (video: YouTubeVideo) => {
+const addFavorite = async (video: FlattenedYouTubeVideo) => {
   const response = await fetch('/api/youtube/favorites', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -84,7 +84,7 @@ const removeFavorite = async (favoriteId: string) => {
   return response.json();
 };
 
-export default function YouTubeLensPage() {
+function YouTubeLensContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -423,5 +423,20 @@ export default function YouTubeLensPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function YouTubeLensPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>로딩 중...</p>
+        </div>
+      </div>
+    }>
+      <YouTubeLensContent />
+    </Suspense>
   );
 }

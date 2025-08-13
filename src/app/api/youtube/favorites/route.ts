@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorites GET error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       data: favorite
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorites POST error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -194,7 +194,13 @@ export async function PUT(request: NextRequest) {
     }
 
     // 기존 즐겨찾기 확인
-    const videoIds = body.videos.map((v: any) => v.video_id);
+    const videoIds = body.videos.map((v: unknown) => {
+      if (!v || typeof v !== 'object') {
+        throw new Error('Invalid video object');
+      }
+      const video = v as Record<string, unknown>;
+      return String(video.video_id || '');
+    });
     const { data: existing } = await supabase
       .from('youtube_favorites')
       .select('video_id')
@@ -205,16 +211,26 @@ export async function PUT(request: NextRequest) {
     
     // 새로운 항목만 필터링
     const newFavorites = body.videos
-      .filter((v: any) => !existingIds.has(v.video_id))
-      .map((v: any) => ({
-        user_id: user.id,
-        video_id: v.video_id,
-        video_data: v.video_data,
-        tags: v.tags || [],
-        notes: v.notes || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }));
+      .filter((v: unknown) => {
+        if (!v || typeof v !== 'object') return false;
+        const video = v as Record<string, unknown>;
+        return !existingIds.has(String(video.video_id || ''));
+      })
+      .map((v: unknown) => {
+        if (!v || typeof v !== 'object') {
+          throw new Error('Invalid video object');
+        }
+        const video = v as Record<string, unknown>;
+        return {
+          user_id: user.id,
+          video_id: String(video.video_id || ''),
+          video_data: video.video_data,
+          tags: Array.isArray(video.tags) ? video.tags : [],
+          notes: video.notes ? String(video.notes) : null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+      });
 
     if (newFavorites.length === 0) {
       return NextResponse.json({
@@ -247,7 +263,7 @@ export async function PUT(request: NextRequest) {
       data: added
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorites batch PUT error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

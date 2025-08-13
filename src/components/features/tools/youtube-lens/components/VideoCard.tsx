@@ -34,20 +34,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { YouTubeVideo } from '@/types/youtube';
+import type { FlattenedYouTubeVideo } from '@/types/youtube';
 
 interface VideoCardProps {
-  video: YouTubeVideo;
+  video: FlattenedYouTubeVideo;
   viewMode?: 'grid' | 'list' | 'compact';
   isSelected?: boolean;
   isFavorite?: boolean;
   onSelect?: (videoId: string) => void;
-  onToggleFavorite?: (video: YouTubeVideo) => void;
-  onPlay?: (video: YouTubeVideo) => void;
+  onToggleFavorite?: (video: FlattenedYouTubeVideo) => void;
+  onPlay?: (video: FlattenedYouTubeVideo) => void;
   className?: string;
 }
 
-// 시간 포맷팅 함수
+// 시간 포맷팅 함수 (초 단위를 시간 형태로 변환)
 function formatDuration(seconds: number): string {
   if (!seconds) return '0:00';
   

@@ -81,6 +81,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-window": "^1.8.8",
+    "@types/react-window-infinite-loader": "^1.0.9",
     "autoprefixer": "^10",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { 
-  YouTubeVideo, 
+  FlattenedYouTubeVideo, 
   YouTubeSearchFilters, 
   YouTubeFavorite,
   QuotaStatus,
@@ -10,7 +10,7 @@ import type {
 
 interface YouTubeLensState {
   // 비디오 관련
-  videos: YouTubeVideo[];
+  videos: FlattenedYouTubeVideo[];
   selectedVideos: Set<string>;
   favoriteVideos: Map<string, YouTubeFavorite>;
   
@@ -36,15 +36,15 @@ interface YouTubeLensState {
   error: string | null;
   
   // Actions
-  setVideos: (videos: YouTubeVideo[]) => void;
-  appendVideos: (videos: YouTubeVideo[]) => void;
+  setVideos: (videos: FlattenedYouTubeVideo[]) => void;
+  appendVideos: (videos: FlattenedYouTubeVideo[]) => void;
   clearVideos: () => void;
   
   toggleVideoSelection: (videoId: string) => void;
   selectAllVideos: () => void;
   clearSelectedVideos: () => void;
   
-  addFavorite: (video: YouTubeVideo, tags?: string[], notes?: string) => void;
+  addFavorite: (video: FlattenedYouTubeVideo, tags?: string[], notes?: string) => void;
   removeFavorite: (videoId: string) => void;
   updateFavorite: (videoId: string, updates: Partial<YouTubeFavorite>) => void;
   loadFavorites: (favorites: YouTubeFavorite[]) => void;

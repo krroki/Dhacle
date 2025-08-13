@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString()
       });
       
-    } catch (error: any) {
-      supabaseError = error.message;
+    } catch (error: unknown) {
+      supabaseError = error instanceof Error ? error.message : 'Unknown error';
       console.error('Supabase client error:', error);
     }
     
@@ -77,11 +77,11 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString()
     }, { status: 500 });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Health check error:', error);
     return NextResponse.json({
       status: 'error',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }

@@ -7,7 +7,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server-client';
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -22,7 +22,8 @@ export async function PATCH(
       );
     }
 
-    const favoriteId = params.id;
+    const { id } = await params;
+    const favoriteId = id;
     
     // 소유권 확인
     const { data: existing } = await supabase
@@ -43,7 +44,7 @@ export async function PATCH(
     const body = await request.json();
     
     // 업데이트 가능한 필드만 추출
-    const updates: any = {
+    const updates: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
@@ -79,7 +80,7 @@ export async function PATCH(
       data: updated
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorite PATCH error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -94,7 +95,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -109,7 +110,8 @@ export async function DELETE(
       );
     }
 
-    const favoriteId = params.id;
+    const { id } = await params;
+    const favoriteId = id;
     
     // 소유권 확인 및 삭제
     const { data: deleted, error: deleteError } = await supabase
@@ -133,7 +135,7 @@ export async function DELETE(
       data: deleted
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorite DELETE error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -148,7 +150,7 @@ export async function DELETE(
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -163,7 +165,8 @@ export async function GET(
       );
     }
 
-    const favoriteId = params.id;
+    const { id } = await params;
+    const favoriteId = id;
     
     // 즐겨찾기 조회
     const { data: favorite, error: fetchError } = await supabase
@@ -185,7 +188,7 @@ export async function GET(
       data: favorite
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Favorite GET error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

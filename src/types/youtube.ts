@@ -1,6 +1,6 @@
 // YouTube Data API v3 관련 타입 정의
 
-// YouTube 비디오 정보
+// YouTube 비디오 정보 (원본 API 응답 형태)
 export interface YouTubeVideo {
   id: string;
   snippet: {
@@ -41,6 +41,48 @@ export interface YouTubeVideo {
     projection: string;
   };
   status?: {
+    uploadStatus: string;
+    privacyStatus: string;
+    license: string;
+    embeddable: boolean;
+    publicStatsViewable: boolean;
+    madeForKids: boolean;
+  };
+}
+
+// 평면화된 비디오 정보 (UI 컴포넌트에서 사용)
+export interface FlattenedYouTubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  channelId: string;
+  channelTitle: string;
+  publishedAt: string;
+  duration: number; // 초 단위
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  tags: string[];
+  categoryId: string;
+  defaultLanguage: string;
+  defaultAudioLanguage: string;
+  statistics: {
+    viewCount: string;
+    likeCount: string;
+    dislikeCount: string;
+    favoriteCount: string;
+    commentCount: string;
+  };
+  contentDetails: {
+    duration: string;
+    dimension: string;
+    definition: string;
+    caption: string;
+    licensedContent: boolean;
+    projection: string;
+  };
+  status: {
     uploadStatus: string;
     privacyStatus: string;
     license: string;
@@ -122,6 +164,7 @@ export interface YouTubeSearchFilters {
   videoDuration?: 'short' | 'medium' | 'long';
   videoDefinition?: 'any' | 'high' | 'standard';
   videoType?: 'any' | 'episode' | 'movie';
+  videoEmbeddable?: 'any' | 'true';
   maxResults?: number;
   pageToken?: string;
   regionCode?: string;
@@ -134,7 +177,7 @@ export interface YouTubeFavorite {
   id: string;
   user_id: string;
   video_id: string;
-  video_data: YouTubeVideo;
+  video_data: FlattenedYouTubeVideo;
   tags: string[];
   notes?: string;
   created_at: string;
@@ -169,6 +212,8 @@ export interface QuotaStatus {
   resetTime: Date;
   warning: boolean;
   critical: boolean;
+  searchCount?: number;
+  videoCount?: number;
 }
 
 // OAuth 토큰 정보
@@ -195,10 +240,10 @@ export interface UserApiKey {
 
 // 비디오 카드 props
 export interface VideoCardProps {
-  video: YouTubeVideo;
+  video: FlattenedYouTubeVideo;
   isSelected?: boolean;
   onSelect?: (videoId: string) => void;
-  onFavorite?: (video: YouTubeVideo) => void;
+  onFavorite?: (video: FlattenedYouTubeVideo) => void;
   isFavorited?: boolean;
 }
 
@@ -212,14 +257,14 @@ export interface SearchBarProps {
 
 // 비디오 그리드 props
 export interface VideoGridProps {
-  videos: YouTubeVideo[];
+  videos: FlattenedYouTubeVideo[];
   isLoading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => void;
   selectedVideos?: Set<string>;
   onVideoSelect?: (videoId: string) => void;
   favoriteVideos?: Set<string>;
-  onVideoFavorite?: (video: YouTubeVideo) => void;
+  onVideoFavorite?: (video: FlattenedYouTubeVideo) => void;
 }
 
 // API 에러 응답

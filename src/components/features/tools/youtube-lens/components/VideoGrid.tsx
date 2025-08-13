@@ -27,14 +27,14 @@ import {
   Square
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { YouTubeVideo, YouTubeFavorite } from '@/types/youtube';
+import type { FlattenedYouTubeVideo, YouTubeFavorite } from '@/types/youtube';
 
 interface VideoGridProps {
-  videos: YouTubeVideo[];
+  videos: FlattenedYouTubeVideo[];
   isLoading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => Promise<void>;
-  onVideoSelect?: (video: YouTubeVideo) => void;
+  onVideoSelect?: (video: FlattenedYouTubeVideo) => void;
   className?: string;
 }
 
@@ -49,13 +49,13 @@ const GridCell = memo(function GridCell({
   rowIndex: number;
   style: React.CSSProperties;
   data: {
-    videos: YouTubeVideo[];
+    videos: FlattenedYouTubeVideo[];
     columns: number;
     selectedVideos: Set<string>;
     favoriteVideos: Map<string, YouTubeFavorite>;
     onToggleSelect: (videoId: string) => void;
-    onToggleFavorite: (video: YouTubeVideo) => void;
-    onPlay: (video: YouTubeVideo) => void;
+    onToggleFavorite: (video: FlattenedYouTubeVideo) => void;
+    onPlay: (video: FlattenedYouTubeVideo) => void;
   };
 }) {
   const index = rowIndex * data.columns + columnIndex;
@@ -87,12 +87,12 @@ const ListRow = memo(function ListRow({
   index: number;
   style: React.CSSProperties;
   data: {
-    videos: YouTubeVideo[];
+    videos: FlattenedYouTubeVideo[];
     selectedVideos: Set<string>;
     favoriteVideos: Map<string, YouTubeFavorite>;
     onToggleSelect: (videoId: string) => void;
-    onToggleFavorite: (video: YouTubeVideo) => void;
-    onPlay: (video: YouTubeVideo) => void;
+    onToggleFavorite: (video: FlattenedYouTubeVideo) => void;
+    onPlay: (video: FlattenedYouTubeVideo) => void;
   };
 }) {
   const video = data.videos[index];
@@ -201,7 +201,7 @@ export function VideoGrid({
   }, [toggleVideoSelection]);
 
   // 즐겨찾기 토글
-  const handleToggleFavorite = useCallback((video: YouTubeVideo) => {
+  const handleToggleFavorite = useCallback((video: FlattenedYouTubeVideo) => {
     if (favoriteVideos.has(video.id)) {
       removeFavorite(video.id);
     } else {
@@ -210,7 +210,7 @@ export function VideoGrid({
   }, [favoriteVideos, addFavorite, removeFavorite]);
 
   // 비디오 재생
-  const handlePlay = useCallback((video: YouTubeVideo) => {
+  const handlePlay = useCallback((video: FlattenedYouTubeVideo) => {
     onVideoSelect?.(video);
     // YouTube 플레이어 열기 또는 모달 표시
     window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');

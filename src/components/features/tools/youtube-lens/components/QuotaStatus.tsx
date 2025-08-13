@@ -84,7 +84,7 @@ export function QuotaStatus({
     if (!quotaStatus?.resetTime) return;
 
     const updateTime = () => {
-      setTimeRemaining(formatTimeRemaining(quotaStatus.resetTime));
+      setTimeRemaining(formatTimeRemaining(quotaStatus.resetTime.getTime()));
     };
 
     updateTime();

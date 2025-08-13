@@ -2,6 +2,18 @@ import { CryptoUtil } from './crypto';
 import type { OAuthToken } from '@/types/youtube';
 
 /**
+ * YouTube Channel API Response 타입
+ */
+interface YouTubeChannelResponse {
+  items?: Array<{
+    id: string;
+    snippet?: {
+      title?: string;
+    };
+  }>;
+}
+
+/**
  * Google OAuth 2.0 헬퍼 클래스
  */
 export class YouTubeOAuth {
@@ -72,18 +84,18 @@ export class YouTubeOAuth {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json() as { error?: string; error_description?: string; };
         throw new Error(`Token exchange failed: ${error.error_description || error.error}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { access_token: string; refresh_token?: string; expires_in: number; token_type: string; scope?: string; };
       
       return {
         access_token: data.access_token,
         refresh_token: data.refresh_token,
         expires_in: data.expires_in,
         token_type: data.token_type,
-        scope: data.scope,
+        scope: data.scope || '',
         expires_at: Date.now() + (data.expires_in * 1000)
       };
     } catch (error) {
@@ -118,18 +130,18 @@ export class YouTubeOAuth {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json() as { error?: string; error_description?: string; };
         throw new Error(`Token refresh failed: ${error.error_description || error.error}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { access_token: string; expires_in: number; token_type: string; scope?: string; };
       
       return {
         access_token: data.access_token,
         refresh_token: refreshToken, // Refresh token은 재사용
         expires_in: data.expires_in,
         token_type: data.token_type,
-        scope: data.scope,
+        scope: data.scope || '',
         expires_at: Date.now() + (data.expires_in * 1000)
       };
     } catch (error) {
@@ -177,7 +189,12 @@ export class YouTubeOAuth {
   /**
    * 사용자 정보 가져오기
    */
-  static async getUserInfo(accessToken: string): Promise<any> {
+  static async getUserInfo(accessToken: string): Promise<{
+    id: string;
+    email: string;
+    name: string;
+    picture?: string;
+  }> {
     try {
       const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: {
@@ -189,7 +206,12 @@ export class YouTubeOAuth {
         throw new Error('Failed to fetch user info');
       }
 
-      return await response.json();
+      return await response.json() as {
+        id: string;
+        email: string;
+        name: string;
+        picture?: string;
+      };
     } catch (error) {
       console.error('User info fetch error:', error);
       throw error;
@@ -199,7 +221,7 @@ export class YouTubeOAuth {
   /**
    * YouTube 채널 정보 가져오기
    */
-  static async getYouTubeChannel(accessToken: string): Promise<any> {
+  static async getYouTubeChannel(accessToken: string): Promise<YouTubeChannelResponse> {
     try {
       const response = await fetch(
         'https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true',
@@ -214,7 +236,7 @@ export class YouTubeOAuth {
         throw new Error('Failed to fetch YouTube channel');
       }
 
-      return await response.json();
+      return await response.json() as YouTubeChannelResponse;
     } catch (error) {
       console.error('YouTube channel fetch error:', error);
       throw error;
@@ -245,9 +267,9 @@ export class YouTubeOAuth {
     // API 호출
     try {
       return await apiCall(currentToken.access_token);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 401 에러시 토큰 갱신 후 재시도
-      if (error.status === 401 && currentToken.refresh_token) {
+      if (error instanceof Error && 'status' in error && (error as { status: number }).status === 401 && currentToken.refresh_token) {
         try {
           currentToken = await this.refreshAccessToken(currentToken.refresh_token);
           await onTokenRefresh(currentToken);

@@ -113,7 +113,7 @@ export class CryptoUtil {
   /**
    * 시간 제한 토큰 생성
    */
-  static generateTimeLimitedToken(data: any, expiresInMinutes: number = 15): string {
+  static generateTimeLimitedToken(data: unknown, expiresInMinutes: number = 15): string {
     const expiresAt = Date.now() + (expiresInMinutes * 60 * 1000);
     const payload = {
       data,

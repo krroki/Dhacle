@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const profileMap = (profiles || []).reduce((acc, profile) => {
       acc[profile.id] = profile;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, { id: string; username?: string; avatar_url?: string; }>);
 
     // 배열로 변환하고 정렬
     const rankings = Object.values(userRevenues)
@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
       cached: false
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('API error:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다' },
