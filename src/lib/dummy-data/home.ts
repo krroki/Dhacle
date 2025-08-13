@@ -81,7 +81,7 @@ export const dummyHeroSlides: HeroSlide[] = [
     subtitle: 'YouTube Shorts로 시작하는 새로운 커리어',
     mediaUrl: '/images/carousel/carousel-01.jpg',
     ctaText: '무료로 시작하기',
-    ctaLink: '/courses'
+    ctaLink: '/auth/signup'
   },
   {
     id: '2',

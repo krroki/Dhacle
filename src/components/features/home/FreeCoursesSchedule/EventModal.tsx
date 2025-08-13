@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { Calendar, Clock, Users, Video } from 'lucide-react';
 import type { CourseSchedule } from '@/lib/dummy-data/home';
 

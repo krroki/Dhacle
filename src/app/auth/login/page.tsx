@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { KakaoLoginButton } from '@/components/features/auth/KakaoLoginButton'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui'
 import { CheckCircle2, Clock, Trophy, Users } from 'lucide-react'
 
 export const metadata: Metadata = {

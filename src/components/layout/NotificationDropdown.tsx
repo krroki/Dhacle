@@ -8,10 +8,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
+  Button,
+  Badge,
+  ScrollArea
+} from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 export interface Notification {

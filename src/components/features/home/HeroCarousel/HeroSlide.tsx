@@ -1,7 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { YouTubeEmbed } from './YouTubeEmbed';
+import { useAuth } from '@/lib/auth/AuthContext';
 import type { HeroSlide as HeroSlideType } from './types';
 
 interface HeroSlideProps {
@@ -9,6 +12,23 @@ interface HeroSlideProps {
 }
 
 export function HeroSlide({ slide }: HeroSlideProps) {
+  const { user } = useAuth();
+  
+  // 로그인된 사용자는 /courses로, 아니면 원래 링크로
+  const getCtaLink = () => {
+    if (slide.ctaLink === '/auth/signup' && user) {
+      return '/courses';
+    }
+    return slide.ctaLink;
+  };
+  
+  // 로그인된 사용자는 다른 텍스트 표시
+  const getCtaText = () => {
+    if (slide.ctaLink === '/auth/signup' && user) {
+      return '강의 둘러보기';
+    }
+    return slide.ctaText;
+  };
   return (
     <div className="relative w-full h-[500px] md:h-[600px]">
       <div className="absolute inset-0">
@@ -36,7 +56,7 @@ export function HeroSlide({ slide }: HeroSlideProps) {
             {slide.subtitle}
           </p>
           <Button size="lg" className="bg-primary hover:bg-primary/90" asChild>
-            <Link href={slide.ctaLink}>{slide.ctaText}</Link>
+            <Link href={getCtaLink()}>{getCtaText()}</Link>
           </Button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui'
 import { createBrowserClient } from '@/lib/supabase/browser-client'
 import { MessageSquare } from 'lucide-react'
 

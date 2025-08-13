@@ -19,16 +19,16 @@ import {
   Sun,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
+import { 
+  Button, 
+  Input,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
+  Badge
+} from '@/components/ui'
 import { useLayoutStore } from '@/store/layout'
 import { NotificationDropdown } from './NotificationDropdown'
 

@@ -1,7 +1,7 @@
 import { SectionTitle } from '../shared/SectionTitle';
 import { CourseCarousel } from '../shared/CourseCarousel';
 import { dummyFreeCourses } from '@/lib/dummy-data/home';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import Link from 'next/link';
 
 export function FreeCoursesCarousel() {

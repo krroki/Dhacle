@@ -6,7 +6,7 @@ import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLayoutStore } from '@/store/layout'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui'
 
 interface TopBannerProps {
   text?: string

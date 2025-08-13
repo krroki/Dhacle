@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button, Card } from '@/components/ui';
 import { SectionTitle } from '../shared/SectionTitle';
 import { CalendarCell } from './CalendarCell';
 import { EventModal } from './EventModal';

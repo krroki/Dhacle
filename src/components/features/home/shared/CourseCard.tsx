@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Badge, Card, CardContent } from '@/components/ui';
 import { Clock, Users, BarChart3 } from 'lucide-react';
 import type { Course } from '@/lib/dummy-data/home';
 
