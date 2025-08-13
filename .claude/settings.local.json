@@ -10,7 +10,9 @@
       "Bash(npm run dev:*)",
       "mcp__playwright-stealth__playwright_console_logs",
       "Bash(taskkill:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "mcp__context7__resolve-library-id"
     ],
     "deny": [],
     "ask": []
