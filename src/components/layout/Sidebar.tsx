@@ -248,10 +248,10 @@ export function Sidebar() {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className="hidden lg:block fixed left-0 top-0 bottom-0 bg-background border-r overflow-y-auto"
+        className="hidden lg:block fixed left-0 bottom-0 bg-background border-r overflow-y-auto"
         style={{
+          top: 'calc(var(--top-banner-height) + var(--header-height))',
           width: 'var(--sidebar-width)',
-          paddingTop: 'calc(var(--header-height) + var(--top-banner-height) + 1rem)',
         }}
       >
         <div className="p-4">
@@ -275,11 +275,11 @@ export function Sidebar() {
             onClick={() => setSidebarOpen(false)}
           />
           <aside
-            className="lg:hidden fixed left-0 top-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn"
+            className="lg:hidden fixed left-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn"
             style={{
+              top: 'calc(var(--top-banner-height) + var(--header-height))',
               width: '80vw',
               maxWidth: 'var(--sidebar-width)',
-              paddingTop: 'var(--header-height)',
             }}
           >
             <div className="p-4">

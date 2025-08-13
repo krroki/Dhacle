@@ -48,6 +48,22 @@ next-env.d.ts
 *.spec.tsx
 *.test.ts
 *.test.tsx
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.log
 test-*.js
 task*.json
 task*.md

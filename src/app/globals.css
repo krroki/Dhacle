@@ -102,6 +102,34 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevent scroll jump when header hides/shows */
+    scroll-padding-top: var(--header-height);
+  }
+  
+  /* Smooth transitions for sticky header */
+  header {
+    will-change: transform;
+  }
+  
+  /* Mobile scroll optimization */
+  @media (max-width: 768px) {
+    body {
+      scroll-padding-top: calc(var(--top-banner-height) + var(--header-height-scroll));
+    }
+    
+    /* Adjust fixed elements for mobile */
+    .fixed-header-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1200;
+    }
+  }
+  
+  /* Prevent content jump when header hides */
+  .main-content {
+    transition: padding-top 0.3s ease;
   }
   
   /* Custom Scrollbar */

@@ -471,90 +471,90 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   {
     id: '1',
     courseId: '1',
-    courseName: 'Shorts 입문 특강',
-    instructor: '김강사',
-    date: '2025-01-20',
+    courseName: '[데헷이] 초효율쇼츠 - 최소 시간으로 최대 효과 내는 쇼츠 제작법',
+    instructor: '데헷이',
+    date: '2025-08-05',
     time: '19:00',
     isLive: true,
-    registeredCount: 45,
-    maxCapacity: 100
+    registeredCount: 245,
+    maxCapacity: 300
   },
   {
     id: '2',
     courseId: '2',
-    courseName: '알고리즘 완벽 이해',
-    instructor: '박코치',
-    date: '2025-01-22',
+    courseName: '[빠대] 탑클래스 쿠팡 - 쿠팡파트너스 월천만원 돌파 전략',
+    instructor: '빠대',
+    date: '2025-08-12',
     time: '20:00',
     isLive: true,
-    registeredCount: 78,
-    maxCapacity: 100
+    registeredCount: 178,
+    maxCapacity: 250
   },
   {
     id: '3',
     courseId: '3',
-    courseName: '편집 실습 워크샵',
-    instructor: '이멘토',
-    date: '2025-01-25',
-    time: '14:00',
+    courseName: '[테일러] 월억 쇼츠 - 수익화 최적화 실전 노하우',
+    instructor: '테일러',
+    date: '2025-08-13',
+    time: '19:30',
     isLive: true,
-    registeredCount: 32,
-    maxCapacity: 50
+    registeredCount: 132,
+    maxCapacity: 200
   },
   {
     id: '4',
     courseId: '4',
-    courseName: '수익화 전략 세미나',
-    instructor: '강마스터',
-    date: '2025-01-27',
+    courseName: '[룰루랄라릴리] 쇼츠투벤츠 - 쇼츠로 벤츠 타는 수익 전략',
+    instructor: '룰루랄라릴리',
+    date: '2025-08-14',
     time: '19:00',
     isLive: true,
-    registeredCount: 92,
-    maxCapacity: 100
+    registeredCount: 192,
+    maxCapacity: 300
   },
   {
     id: '5',
     courseId: '5',
-    courseName: '트렌드 분석 마스터클래스',
-    instructor: '정크리에이터',
-    date: '2025-01-30',
+    courseName: '[유쾌한케로로] AI뮤직자동화 - AI로 음악 채널 자동화하기',
+    instructor: '유쾌한케로로',
+    date: '2025-08-20',
     time: '18:00',
     isLive: true,
-    registeredCount: 56,
-    maxCapacity: 80
+    registeredCount: 156,
+    maxCapacity: 200
   },
   {
     id: '6',
     courseId: '6',
-    courseName: '브랜딩 워크샵',
-    instructor: '윤샘',
-    date: '2025-02-01',
-    time: '15:00',
+    courseName: '[한다해] 이지롱폼 - 초보도 쉽게 따라하는 롱폼 콘텐츠',
+    instructor: '한다해',
+    date: '2025-08-21',
+    time: '20:00',
     isLive: false,
-    registeredCount: 23,
-    maxCapacity: 40
+    registeredCount: 123,
+    maxCapacity: 150
   },
   {
     id: '7',
     courseId: '7',
-    courseName: '라이브 방송 실습',
-    instructor: '임코치',
-    date: '2025-02-03',
-    time: '20:00',
+    courseName: '[꿍디순디] 셀럽팬튜브 - 팬덤 채널 운영 마스터클래스',
+    instructor: '꿍디순디',
+    date: '2025-08-27',
+    time: '19:30',
     isLive: true,
-    registeredCount: 67,
-    maxCapacity: 100
+    registeredCount: 167,
+    maxCapacity: 200
   },
   {
     id: '8',
     courseId: '8',
-    courseName: 'Q&A 세션: 성공 사례 분석',
-    instructor: '장튜터',
-    date: '2025-02-05',
-    time: '19:30',
+    courseName: '[그라운드] 실버버튼 챌린지 - 10만 구독자 달성 로드맵',
+    instructor: '그라운드',
+    date: '2025-08-28',
+    time: '20:00',
     isLive: true,
-    registeredCount: 89,
-    maxCapacity: 150
+    registeredCount: 189,
+    maxCapacity: 250
   }
 ];
 

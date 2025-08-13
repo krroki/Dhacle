@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient as createSupabaseSSRClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/database'
 
@@ -11,17 +11,18 @@ export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
   
   // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables')
     throw new Error(
       'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
       'Please check your environment configuration.'
     )
   }
 
-  return createServerClient<Database>(
+  return createSupabaseSSRClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
     {
@@ -53,6 +54,9 @@ export async function createSupabaseServerClient() {
   )
 }
 
+// Alias for backward compatibility
+export const createServerClient = createSupabaseServerClient;
+
 /**
  * Create a Supabase client for server-side usage in Route Handlers
  * This version is optimized for API routes where we can modify cookies
@@ -61,17 +65,18 @@ export async function createSupabaseRouteHandlerClient() {
   const cookieStore = await cookies()
   
   // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables')
     throw new Error(
       'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
       'Please check your environment configuration.'
     )
   }
 
-  return createServerClient<Database>(
+  return createSupabaseSSRClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
     {

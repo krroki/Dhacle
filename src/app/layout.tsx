@@ -10,6 +10,7 @@ import { MobileNav } from '@/components/layout/MobileNav'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
 import { ProgressBar } from '@/components/layout/ProgressBar'
 import { Suspense } from 'react'
+import { Toaster } from '@/components/ui/sonner'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -96,14 +97,18 @@ export default function RootLayout({
             <ProgressBar />
           </Suspense>
           
-          {/* Fixed Header with TopBanner */}
-          <div className="fixed top-0 left-0 right-0 z-50">
+          {/* Fixed TopBanner at the very top */}
+          <div className="fixed top-0 left-0 right-0 z-[1300]">
             <TopBanner />
+          </div>
+          
+          {/* Fixed Header below TopBanner */}
+          <div className="fixed left-0 right-0 z-[1200]" style={{ top: 'var(--top-banner-height)' }}>
             <Header />
           </div>
           
-          {/* Main Layout with dynamic padding */}
-          <div className="flex min-h-screen transition-all duration-300">
+          {/* Main Layout with proper padding */}
+          <div className="flex min-h-screen transition-all duration-300" style={{ paddingTop: 'calc(var(--top-banner-height) + var(--header-height))' }}>
             {/* Sidebar */}
             <Sidebar />
             
@@ -123,6 +128,9 @@ export default function RootLayout({
           
           {/* Scroll to Top */}
           <ScrollToTop />
+          
+          {/* Toast Notifications */}
+          <Toaster position="top-right" />
         </Providers>
       </body>
     </html>

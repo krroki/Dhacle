@@ -2,64 +2,51 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui';
-import { YouTubeEmbed } from './YouTubeEmbed';
-import { useAuth } from '@/lib/auth/AuthContext';
-import type { HeroSlide as HeroSlideType } from './types';
+import { getYouTubeThumbnail } from './data';
+import type { CarouselItem } from './data';
 
 interface HeroSlideProps {
-  slide: HeroSlideType;
+  slide: CarouselItem;
 }
 
 export function HeroSlide({ slide }: HeroSlideProps) {
-  const { user } = useAuth();
-  
-  // 로그인된 사용자는 /courses로, 아니면 원래 링크로
-  const getCtaLink = () => {
-    if (slide.ctaLink === '/auth/signup' && user) {
-      return '/courses';
-    }
-    return slide.ctaLink;
-  };
-  
-  // 로그인된 사용자는 다른 텍스트 표시
-  const getCtaText = () => {
-    if (slide.ctaLink === '/auth/signup' && user) {
-      return '강의 둘러보기';
-    }
-    return slide.ctaText;
-  };
   return (
-    <div className="relative w-full h-[500px] md:h-[600px]">
-      <div className="absolute inset-0">
-        {slide.type === 'youtube' ? (
-          <YouTubeEmbed videoId={slide.mediaUrl} title={slide.title} />
-        ) : (
-          <Image
-            src={slide.mediaUrl}
-            alt={slide.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        )}
-      </div>
+    <Link 
+      href={slide.link}
+      className="relative block w-full h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden group"
+      aria-label={slide.alt}
+    >
+      {/* 이미지/YouTube 썸네일 표시 */}
+      <Image
+        src={slide.type === 'youtube' 
+          ? getYouTubeThumbnail(slide.src, 'max') 
+          : slide.src
+        }
+        alt={slide.alt}
+        fill
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
+        priority
+        sizes="100vw"
+      />
       
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+      {/* 그라데이션 오버레이 - 호버 시 약간 밝아짐 */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:from-black/10 transition-all duration-300" />
       
-      <div className="relative h-full container-responsive flex items-center">
-        <div className="max-w-2xl text-white">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            {slide.title}
-          </h1>
-          <p className="text-lg md:text-xl mb-8 text-gray-200">
-            {slide.subtitle}
-          </p>
-          <Button size="lg" className="bg-primary hover:bg-primary/90" asChild>
-            <Link href={getCtaLink()}>{getCtaText()}</Link>
-          </Button>
+      {/* YouTube 아이콘 표시 (YouTube 비디오인 경우) */}
+      {slide.type === 'youtube' && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-20 h-20 bg-red-600/90 rounded-full flex items-center justify-center group-hover:bg-red-600 transition-colors">
+            <svg 
+              className="w-10 h-10 text-white ml-1" 
+              fill="currentColor" 
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </Link>
   );
 }

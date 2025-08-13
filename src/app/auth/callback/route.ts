@@ -112,16 +112,46 @@ export async function GET(request: NextRequest) {
       })
       
       if (user) {
-        // Check if user profile exists in public.users table
+        // Check if user profile exists in public.profiles table
         const { data: userProfile, error: profileError } = await supabase
-          .from('users')
-          .select('username, full_name')
+          .from('profiles')
+          .select('id, random_nickname, naver_cafe_verified')
           .eq('id', user.id)
           .single()
 
-        // If profile doesn't exist or is incomplete, redirect to onboarding
-        if (profileError || !userProfile?.username || !userProfile?.full_name) {
-          return NextResponse.redirect(`${requestUrl.origin}/onboarding`)
+        // If profile doesn't exist, create it with random nickname
+        if (profileError?.code === 'PGRST116' || !userProfile) {
+          console.log('[Auth Callback] Creating new profile for user', user.id)
+          
+          // Call init-profile API to create profile with random nickname
+          const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Cookie': cookieStore.toString()
+            }
+          })
+          
+          if (!initResponse.ok) {
+            console.error('[Auth Callback] Failed to initialize profile')
+          } else {
+            console.log('[Auth Callback] Profile initialized successfully')
+          }
+        } else if (userProfile && !userProfile.random_nickname) {
+          // Profile exists but no random nickname, add one
+          console.log('[Auth Callback] Adding random nickname to existing profile')
+          
+          const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Cookie': cookieStore.toString()
+            }
+          })
+          
+          if (!initResponse.ok) {
+            console.error('[Auth Callback] Failed to add random nickname')
+          }
         }
       }
     } catch (error) {

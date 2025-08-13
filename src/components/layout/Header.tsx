@@ -43,7 +43,7 @@ const navItems: NavItem[] = [
   { label: '무료 강의', href: '/courses/free', badge: 'NEW' },
   { label: '커뮤니티', href: '/community' },
   { label: '도구', href: '/tools', badge: 'HOT' },
-  { label: '수익 인증', href: '/revenue' },
+  { label: '수익 인증', href: '/revenue-proof' },
 ]
 
 export function Header() {
@@ -79,13 +79,20 @@ export function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
       
-      // Add scrolled class
+      // Add scrolled class when scrolled more than 10px
       setIsScrolled(currentScrollY > 10)
       
       // Hide/show header based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down - hide header
         setHeaderVisible(false)
-      } else {
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show header
+        setHeaderVisible(true)
+      }
+      
+      // Always show header when at top
+      if (currentScrollY <= 10) {
         setHeaderVisible(true)
       }
       
@@ -117,12 +124,12 @@ export function Header() {
   return (
     <header
       className={cn(
-        'relative bg-background/95 backdrop-blur-sm border-b transition-all duration-300',
-        isScrolled && 'shadow-sm',
-        !isHeaderVisible && '-translate-y-full'
+        'bg-background/95 backdrop-blur-sm border-b transition-all duration-300',
+        isScrolled && 'shadow-sm'
       )}
       style={{
         height: isScrolled ? 'var(--header-height-scroll)' : 'var(--header-height)',
+        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
       }}
     >
       <div className="container-responsive h-full flex items-center justify-between">
@@ -297,8 +304,8 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[var(--header-height)] bg-background z-[1100]">
-          <nav className="p-4 space-y-2">
+        <div className="lg:hidden absolute left-0 right-0 top-full bg-background border-b shadow-lg z-[1100]">
+          <nav className="p-4 space-y-2 max-h-[calc(100vh-var(--header-height))] overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.href}
