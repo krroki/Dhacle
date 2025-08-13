@@ -2,6 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Navigation Menu 즉각적인 호버 효과 */
+@layer utilities {
+  /* NavigationMenu 드롭다운 즉시 표시 */
+  [data-radix-collection-item] {
+    transition: none !important;
+  }
+  
+  /* 드롭다운 애니메이션 빠르게 */
+  [data-state="open"][data-side] {
+    animation-duration: 150ms !important;
+  }
+  
+  [data-state="closed"][data-side] {
+    animation-duration: 100ms !important;
+  }
+  
+  /* NavigationMenuTrigger 즉각 반응 - 열렸을 때도 보라색 */
+  button[data-state="open"] {
+    color: hsl(245 58% 61%) !important; /* 보라색 */
+  }
+  
+  /* NavigationMenuTrigger 호버 색상 - 프라이머리(보라색) */
+  [data-radix-collection-item] button:hover {
+    color: hsl(245 58% 61%) !important; /* 보라색 */
+  }
+  
+  /* NavigationMenuItem 호버 - 프라이머리(보라색) */  
+  nav li a:hover {
+    color: hsl(245 58% 61%) !important; /* 보라색 */
+  }
+  
+  /* 호버 시 화살표도 보라색으로 */
+  button:hover svg {
+    color: hsl(245 58% 61%) !important;
+  }
+  
+  /* NavigationMenuContent 위치 조정 */
+  [data-radix-popper-content-wrapper] {
+    z-index: 50 !important;
+  }
+  
+  /* 각 드롭다운이 해당 메뉴 아래 정확히 위치 */
+  [data-radix-navigation-menu-viewport] {
+    position: absolute !important;
+    margin-top: 6px !important;
+    transform-origin: var(--radix-navigation-menu-content-transform-origin) !important;
+  }
+  
+  /* NavigationMenu 컨테이너 상대 위치 */
+  [data-radix-navigation-menu-root] {
+    position: relative !important;
+  }
+  
+  /* 드롭다운이 해당 트리거 아래 정렬 */
+  [data-radix-navigation-menu-content] {
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  /* 드롭다운 그림자 효과 */
+  [data-radix-navigation-menu-content] {
+    box-shadow: 0 10px 38px -10px hsla(206, 22%, 7%, 0.35), 0 10px 20px -15px hsla(206, 22%, 7%, 0.2) !important;      
+  }
+  
+  /* 네비게이션 아이템 호버 최적화 */
+  .nav-item-instant {
+    transition: none !important;
+  }
+  
+  .nav-item-instant:hover {
+    color: hsl(245 58% 61%) !important; /* 보라색 */
+  }
+  
+  /* 네비게이션 메뉴 호버 강제 적용 */
+  header nav button:hover,
+  header nav a:hover {
+    color: #635BFF !important; /* 디하클 프라이머리 보라색 */
+  }
+}
+
 @layer base {
   :root {
     /* Brand Colors */
