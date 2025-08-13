@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { HeroCarousel } from '@/components/features/home/HeroCarousel';
 import { InstructorCategories } from '@/components/features/home/InstructorCategories';
-import { RevenueGallery } from '@/components/features/home/RevenueGallery';
+import { RevenueGalleryNew } from '@/components/features/home/RevenueGallery/RevenueGalleryNew';
 import { FreeCoursesCarousel } from '@/components/features/home/FreeCoursesCarousel';
 import { FreeCoursesSchedule } from '@/components/features/home/FreeCoursesSchedule';
 import { NewCoursesCarousel } from '@/components/features/home/NewCoursesCarousel';
@@ -25,7 +25,7 @@ export default function HomePage() {
         <HeroCarousel />
       </Suspense>
 
-      {/* Revenue Gallery Section */}
+      {/* Revenue Gallery Section - 실제 데이터 사용 */}
       <Suspense 
         fallback={
           <div className="py-12 bg-muted/30">
@@ -39,7 +39,7 @@ export default function HomePage() {
           </div>
         }
       >
-        <RevenueGallery />
+        <RevenueGalleryNew />
       </Suspense>
 
       {/* Free Courses Carousel Section */}

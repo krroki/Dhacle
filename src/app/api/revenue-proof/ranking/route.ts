@@ -2,13 +2,12 @@
 // 랭킹 조회 API
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 
 // GET: 랭킹 조회
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { searchParams } = new URL(request.url);
     
     // 기간 파라미터 (daily, weekly, monthly)
@@ -32,47 +31,12 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // 월간 랭킹은 스냅샷 테이블에서 조회 (성능 최적화)
-    if (period === 'monthly') {
-      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      
-      // 이번 달 스냅샷이 있는지 확인
-      const { data: snapshot } = await supabase
-        .from('monthly_rankings')
-        .select(`
-          *,
-          user:profiles!monthly_rankings_user_id_fkey(
-            id,
-            username,
-            avatar_url
-          )
-        `)
-        .eq('month', currentMonth.toISOString().split('T')[0])
-        .order('rank', { ascending: true })
-        .limit(limit);
+    // 월간 랭킹 스냅샷 제거 (테이블이 없음)
 
-      if (snapshot && snapshot.length > 0) {
-        return NextResponse.json({
-          data: snapshot,
-          period,
-          cached: true
-        });
-      }
-    }
-
-    // 실시간 집계 쿼리
+    // 실시간 집계 쿼리 (단순화)
     const { data: proofs, error } = await supabase
       .from('revenue_proofs')
-      .select(`
-        user_id,
-        amount,
-        platform,
-        user:profiles!revenue_proofs_user_id_fkey(
-          id,
-          username,
-          avatar_url
-        )
-      `)
+      .select('user_id, amount, platform')
       .eq('is_hidden', false)
       .gte('created_at', startDate.toISOString());
 
@@ -86,12 +50,11 @@ export async function GET(request: NextRequest) {
 
     // 사용자별 수익 집계
     const userRevenues = (proofs || []).reduce((acc, proof) => {
-      if (!proof.user_id || !proof.user) return acc;
+      if (!proof.user_id) return acc;
       
       if (!acc[proof.user_id]) {
         acc[proof.user_id] = {
           user_id: proof.user_id,
-          user: proof.user,
           total_amount: 0,
           proof_count: 0,
           platforms: new Set()
@@ -105,16 +68,29 @@ export async function GET(request: NextRequest) {
       return acc;
     }, {} as Record<string, {
       user_id: string;
-      user: typeof proofs[0]['user'];
       total_amount: number;
       proof_count: number;
       platforms: Set<string>;
     }>);
 
+    // 사용자 정보 조회 및 정렬
+    const userIds = Object.keys(userRevenues);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, username, avatar_url')
+      .in('id', userIds);
+
+    const profileMap = (profiles || []).reduce((acc, profile) => {
+      acc[profile.id] = profile;
+      return acc;
+    }, {} as Record<string, any>);
+
     // 배열로 변환하고 정렬
     const rankings = Object.values(userRevenues)
       .map((item) => ({
         ...item,
+        username: profileMap[item.user_id]?.username || 'Anonymous',
+        avatar_url: profileMap[item.user_id]?.avatar_url || null,
         platforms: Array.from(item.platforms),
         rank: 0 // 정렬 후 순위 부여
       }))
@@ -125,26 +101,7 @@ export async function GET(request: NextRequest) {
         rank: index + 1
       }));
 
-    // 월간 랭킹인 경우 스냅샷 저장 (비동기)
-    if (period === 'monthly' && rankings.length > 0) {
-      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      
-      // 스냅샷 저장 (에러 무시)
-      for (const ranking of rankings) {
-        const { error: snapshotError } = await supabase
-          .from('monthly_rankings')
-          .upsert({
-            month: currentMonth.toISOString().split('T')[0],
-            user_id: ranking.user_id,
-            total_amount: ranking.total_amount,
-            rank: ranking.rank
-          });
-        
-        if (snapshotError) {
-          console.error('Snapshot save error:', snapshotError);
-        }
-      }
-    }
+    // 스냅샷 저장 제거 (테이블 없음)
 
     // 현재 로그인 사용자의 순위 찾기
     const { data: { session } } = await supabase.auth.getSession();
@@ -170,7 +127,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      data: rankings,
+      rankings: rankings, // 프론트엔드에서 기대하는 형식
       period,
       myRank,
       cached: false

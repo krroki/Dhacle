@@ -2,15 +2,14 @@
 // 수익인증 메인 API Route (목록 조회, 생성)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { createProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
 
 // GET: 수익인증 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { searchParams } = new URL(request.url);
     
     // 쿼리 파라미터 파싱
@@ -20,17 +19,10 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
-    // 기본 쿼리 구성
+    // 기본 쿼리 구성 (단순화)
     let query = supabase
       .from('revenue_proofs')
-      .select(`
-        *,
-        user:profiles!revenue_proofs_user_id_fkey(
-          id,
-          username,
-          avatar_url
-        )
-      `, { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('is_hidden', false)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -63,31 +55,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 각 인증에 대한 좋아요, 댓글 수 조회
-    const proofsWithCounts = await Promise.all(
+    // 사용자 정보를 별도로 조회 (필요한 경우)
+    const proofsWithUser = await Promise.all(
       (data || []).map(async (proof) => {
-        // 좋아요 수 조회
-        const { count: likesCount } = await supabase
-          .from('proof_likes')
-          .select('*', { count: 'exact', head: true })
-          .eq('proof_id', proof.id);
-
-        // 댓글 수 조회
-        const { count: commentsCount } = await supabase
-          .from('proof_comments')
-          .select('*', { count: 'exact', head: true })
-          .eq('proof_id', proof.id);
+        // 사용자 정보 조회 (선택적)
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id, username, avatar_url')
+          .eq('id', proof.user_id)
+          .single();
 
         return {
           ...proof,
-          likes_count: likesCount || 0,
-          comments_count: commentsCount || 0
+          user: profileData || {
+            id: proof.user_id,
+            username: 'Anonymous',
+            avatar_url: null
+          },
+          // 이미 테이블에 있는 count 필드 사용
+          likes_count: proof.likes_count || 0,
+          comments_count: proof.comments_count || 0
         };
       })
     );
 
     return NextResponse.json({
-      data: proofsWithCounts,
+      data: proofsWithUser,
       pagination: {
         page,
         limit,
@@ -108,7 +101,7 @@ export async function GET(request: NextRequest) {
 // POST: 수익인증 생성 (일일 1회 제한)
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();

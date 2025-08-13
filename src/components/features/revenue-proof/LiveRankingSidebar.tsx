@@ -118,8 +118,8 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
             아직 랭킹 데이터가 없습니다.
           </p>
         ) : (
-          rankings.slice(0, 5).map((ranking: Ranking) => (
-          <div key={ranking.id} className="flex items-center gap-3">
+          rankings.slice(0, 5).map((ranking: Ranking, index: number) => (
+          <div key={`ranking-${ranking.user_id || index}`} className="flex items-center gap-3">
             {/* 순위 */}
             <div className="w-8 flex justify-center">
               {getRankIcon(ranking.rank)}
