@@ -1,66 +1,194 @@
-import Link from 'next/link';
-import content from '../../../content-map.complete.json';
+'use client'
+
+import Link from 'next/link'
+import { Youtube, Instagram, MessageCircle, Mail, Phone } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+
+const footerLinks = {
+  service: [
+    { label: '서비스 약관', href: '/terms' },
+    { label: '개인정보 처리방침', href: '/privacy' },
+    { label: '자주 묻는 질문', href: '/faq' },
+    { label: '고객센터', href: '/support' },
+  ],
+  education: [
+    { label: '전체 강의', href: '/courses' },
+    { label: '무료 강의', href: '/courses/free' },
+    { label: '신규 강의', href: '/courses/new' },
+    { label: '로드맵', href: '/roadmap' },
+  ],
+  community: [
+    { label: '공지사항', href: '/community/notice' },
+    { label: 'Q&A', href: '/community/qna' },
+    { label: '작품 공유', href: '/community/showcase' },
+    { label: '스터디 모집', href: '/community/study' },
+  ],
+  company: [
+    { label: '회사 소개', href: '/about' },
+    { label: '채용 정보', href: '/careers' },
+    { label: '제휴 문의', href: '/partnership' },
+    { label: '광고 문의', href: '/advertising' },
+  ],
+}
+
+const socialLinks = [
+  { name: 'YouTube', icon: Youtube, href: 'https://youtube.com', color: 'hover:text-red-600' },
+  { name: 'Instagram', icon: Instagram, href: 'https://instagram.com', color: 'hover:text-pink-600' },
+  { name: '카카오톡 채널', icon: MessageCircle, href: 'https://pf.kakao.com', color: 'hover:text-yellow-600' },
+]
 
 export function Footer() {
-  const { footer } = content.extracted;
-  
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // TODO: 뉴스레터 구독 기능 구현 필요
+    // - Supabase newsletter_subscribers 테이블 생성
+    // - 이메일 유효성 검증 (Zod 스키마)
+    // - 구독 API 엔드포인트 생성 (/api/newsletter/subscribe)
+    // - 이메일 서비스 연동 (SendGrid, AWS SES 등)
+    // - 구독 확인 이메일 발송
+    console.log('뉴스레터 구독 기능 구현 예정')
+  }
+
   return (
-    <footer className="bg-background border-t border-white/10">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <h3 className="text-lg font-bold text-primary mb-4">{footer.logo}</h3>
-            <p className="text-sm text-primary/60 mb-4">
-              {footer.tagline}
-            </p>
-            <div className="flex gap-4">
-              <a href={footer.social.youtube} target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-              </a>
-              <a href={footer.social.instagram} target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
-                </svg>
-              </a>
-              <a href={footer.social.facebook} target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </a>
+    <footer className="bg-muted/50 border-t mt-auto">
+      <div className="container-responsive py-12">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+          {/* Company Info */}
+          <div className="lg:col-span-2">
+            <div className="mb-4">
+              <h3 className="text-2xl font-bold text-primary">디하클</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                YouTube Shorts 크리에이터를 위한 체계적인 교육 플랫폼
+              </p>
+            </div>
+            
+            {/* Newsletter */}
+            <div className="mb-6">
+              <h4 className="text-sm font-semibold mb-2">뉴스레터 구독</h4>
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="이메일을 입력하세요"
+                  className="flex-1"
+                  required
+                />
+                <Button type="submit" size="sm">
+                  구독하기
+                </Button>
+              </form>
+              <p className="mt-2 text-xs text-muted-foreground">
+                최신 강의와 유용한 팁을 이메일로 받아보세요
+              </p>
+            </div>
+
+            {/* Social Links */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">소셜 미디어</h4>
+              <div className="flex gap-3">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon
+                  return (
+                    <Link
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-2 rounded-full bg-background border transition-colors ${social.color}`}
+                      aria-label={social.name}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Footer Sections */}
-          {footer.sections.map((section, idx) => (
-            <div key={idx}>
-              <h4 className="text-sm font-semibold text-primary mb-4">{section.title}</h4>
-              <ul className="space-y-2">
-                {section.links.map((link, lidx) => (
-                  <li key={lidx}>
-                    <Link href={link.href} className="text-sm text-primary/60 hover:text-primary transition-colors">
-                      {link.text}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Footer Links */}
+          <div>
+            <h4 className="text-sm font-semibold mb-3">서비스</h4>
+            <ul className="space-y-2">
+              {footerLinks.service.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-3">교육</h4>
+            <ul className="space-y-2">
+              {footerLinks.education.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-3">커뮤니티</h4>
+            <ul className="space-y-2">
+              {footerLinks.community.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-primary/40">
-              {footer.copyright}
-            </p>
-            <p className="text-sm text-primary/40">
-              {footer.address}
-            </p>
+        <Separator className="my-8" />
+
+        {/* Business Info & Copyright */}
+        <div className="space-y-4 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <span>사업자등록번호: 123-45-67890</span>
+            <span className="hidden sm:inline">|</span>
+            <span>대표: 홍길동</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="flex items-center gap-1">
+              <Mail className="h-3 w-3" />
+              support@dhacle.com
+            </span>
+            <span className="hidden sm:inline">|</span>
+            <span className="flex items-center gap-1">
+              <Phone className="h-3 w-3" />
+              1588-0000
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <p>© 2025 Dhacle. All rights reserved.</p>
+            <div className="flex gap-4">
+              <Link href="/sitemap" className="hover:text-foreground transition-colors">
+                사이트맵
+              </Link>
+              <Link href="/accessibility" className="hover:text-foreground transition-colors">
+                접근성
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     </footer>
-  );
+  )
 }

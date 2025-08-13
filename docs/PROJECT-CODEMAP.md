@@ -1,14 +1,43 @@
-# 📊 디하클(Dhacle) 프로젝트 상세 코드맵
-*최종 업데이트: 2025-01-12*
+# 📊 디하클(Dhacle) 프로젝트 코드맵
+
+*최종 업데이트: 2025-01-14 (Layout 시스템 완성)*
 
 ## 🎯 프로젝트 개요
+
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼
 - **위치**: `C:\My_Claude_Project\9.Dhacle`
-- **진행 상태**: Phase 1 MVP 완료, Phase 2 진행 중
-- **주요 참조 사이트**: 
-  - UI/UX: FastCampus, 인프런
-  - 디자인: Stripe.com
+- **현재 상태**: Phase 3 레이아웃 시스템 완성, Phase 4 페이지 구현 예정
+- **백업 위치**: `C:\My_Claude_Project\dhacle-backup`
+
+---
+
+## 🆕 최근 업데이트 (2025-01-14)
+
+### 레이아웃 시스템 완성 ✅
+- **Root Layout**: 메타데이터, Provider 구조, 컴포넌트 배치 완료
+- **Global CSS**: CSS 변수, 애니메이션, 다크모드, NProgress 커스터마이징
+- **Provider 시스템**: Theme, Auth, Layout 통합 Provider 구현
+- **상태 관리**: Zustand store로 레이아웃 전역 상태 관리
+- **컴포넌트 8개**: TopBanner, Header, Sidebar, Footer, MobileNav, ScrollToTop, ProgressBar, NotificationDropdown
+
+### 새로 추가된 파일
+```
+src/
+├── components/
+│   ├── providers/
+│   │   └── Providers.tsx        # 통합 Provider
+│   └── layout/                  # 8개 레이아웃 컴포넌트
+├── lib/
+│   ├── auth/
+│   │   └── AuthContext.tsx      # 인증 컨텍스트
+│   └── layout/
+│       └── LayoutContext.tsx    # 레이아웃 컨텍스트
+└── store/
+    └── layout.ts                # Zustand 레이아웃 스토어
+```
+
+---
 
 ## 🛠 기술 스택 상세
 
@@ -16,488 +45,338 @@
 ```yaml
 Core:
   - Framework: Next.js 15.4.6 (App Router)
-  - Runtime: React 19.1.0 + React DOM 19.1.0
-  - Language: TypeScript 5.x
+  - Runtime: React 19.1.1
+  - Language: TypeScript 5.x (strict mode)
   
-Styling:
-  - CSS Framework: Tailwind CSS 4
-  - CSS-in-JS: styled-components 6.1.19
-  - Design Tokens: theme.deep.json (Stripe 기반)
-  - Utility: clsx 2.1.1, tailwind-merge 3.3.1
+UI & Styling:
+  - Component Library: shadcn/ui (Radix UI 기반)
+  - CSS Framework: Tailwind CSS 3.4.1
+  - CSS Processing: PostCSS
+  - Animations: Tailwind Animate 1.0.7
+  - Utilities: clsx 2.1.1, tailwind-merge 2.2.0
   
 State & Forms:
-  - Forms: react-hook-form 7.62.0
+  - Form Management: React Hook Form 7.x (설치됨)
+  - Validation: Zod 3.x + @hookform/resolvers (설치됨)
+  - State Management: Zustand 5.0.7 (설치됨)
   - Utilities: class-variance-authority 0.7.1
-  
-Animation & UI:
-  - Animation: framer-motion 12.23.12
-  - Icons: lucide-react 0.537.0, react-icons 5.5.0
-  - Charts: recharts 3.1.2
-  - Date: date-fns 4.1.0
+
+Animations & UX:
+  - Motion: framer-motion 12.23.12
+  - Theme: next-themes 0.4.6  
+  - Progress: nprogress 0.2.0
+  - Observer: react-intersection-observer 9.16.0
+
+Icons & Assets:
+  - Icons: lucide-react 0.469.0
+  - Images: Next/Image optimization
+  - Fonts: Local font loading (Geist)
 ```
 
 ### Backend 스택
 ```yaml
-Database:
-  - Platform: Supabase (PostgreSQL)
-  - Client: @supabase/supabase-js 2.54.0
-  - SSR: @supabase/ssr 0.6.1
-  
-Authentication:
-  - Primary: Kakao OAuth 2.0
-  - Provider: Supabase Auth
-  - Session: JWT + Cookies
+Database & Auth:
+  - Database: Supabase (PostgreSQL)
+  - Authentication: Supabase Auth
+  - OAuth Provider: Kakao OAuth 2.0
+  - Session Management: Supabase SSR 0.5.2
   
 API:
-  - Framework: Next.js API Routes
-  - Edge Functions: Supabase Functions (준비 중)
+  - API Routes: Next.js App Router
+  - Client: @supabase/supabase-js 2.51.0
+  - Type Safety: Generated types from Supabase
+  
+Storage:
+  - File Storage: Supabase Storage
+  - Image Optimization: Next.js Image
 ```
 
-### DevOps & Testing
+### DevOps & Tools
 ```yaml
 Development:
-  - Testing: Jest, @testing-library/react 16.3.0
-  - E2E: Playwright 1.54.2
-  - Component Dev: Storybook 9.1.1
-  - Linting: ESLint 9 + Prettier 3.6.2
+  - Package Manager: npm
+  - Linter: ESLint (Next.js config + eslint-config-prettier)
+  - Formatter: Prettier
+  - Type Checking: TypeScript (strict mode, no errors)
   
 Build & Deploy:
-  - Build: Next.js Build + TypeScript
-  - Deploy: Vercel
-  - Monitoring: @vercel/speed-insights 1.2.0
-  - Image Optimization: sharp 0.34.3
-```
-
-## 📁 상세 프로젝트 구조
-
-### 📝 문서 시스템 (Documentation)
-```
-docs/
-├── 📍 핵심 문서
-│   ├── PROJECT-INDEX.md         # 프로젝트 현황 대시보드
-│   ├── PROJECT-CODEMAP.md       # 이 문서 (상세 코드맵)
-│   ├── CLAUDE.md                # AI 개발 가이드라인
-│   └── theme.deep.json          # 디자인 토큰 (1,500+ 라인)
-│
-├── 🎓 PM AI 시스템
-│   ├── PM-AI-Framework.md       # PM AI 운영 매뉴얼 (1,420줄)
-│   ├── PM-AI-ROLE.md           # 역할 정의
-│   ├── PM-AI-PATTERNS.md       # 패턴 라이브러리
-│   ├── PM-AI-VERIFICATION.md   # 검증 프로토콜
-│   └── PM-AI-MEMORY.md         # 컨텍스트 관리
-│
-├── 🏗️ 아키텍처 문서
-│   ├── site-architecture-plan.md     # 사이트 구조 설계
-│   ├── component-visual-diagram.md   # UI 컴포넌트 다이어그램
-│   ├── development-workflow-guide.md # 개발 워크플로우
-│   └── Visual-Verification-Protocol.md # UI 검증 60항목
-│
-├── 📋 작업 관리 (Tasks)
-│   ├── active/ (6개 진행 중)
-│   │   ├── TASK-2025-008-fix-dom-manipulation.md
-│   │   ├── TASK-2025-009-error-boundary.md
-│   │   ├── TASK-2025-010-extract-common-hooks.md
-│   │   ├── TASK-2025-011-carousel-performance.md
-│   │   ├── TASK-2025-012-accessibility-improvements.md
-│   │   └── TASK-2025-014-magic-mcp-course-redesign.md
-│   ├── completed/ (15개 완료)
-│   └── templates/
-│
-├── 🔧 설정 문서
-│   ├── SUPABASE-KAKAO-SETUP.md      # Supabase & Kakao 설정
-│   ├── VERCEL-ENV-SETUP.md          # Vercel 환경변수 가이드
-│   └── Token-System-Validation-Checklist.md
-│
-└── 📊 분석 & 증거
-    ├── analysis/
-    │   ├── stripe-design-system.json
-    │   └── hybrid-implementation-plan.json
-    └── evidence/
-        ├── screenshots/ (50+ 스크린샷)
-        ├── logs/ (실행 로그)
-        └── verification-reports/
-```
-
-### 🎨 프론트엔드 코드 구조
-```
-src/
-├── 📱 app/ (Next.js App Router - 20+ 페이지)
-│   ├── layout.tsx               # 루트 레이아웃
-│   ├── page.tsx                 # 홈페이지 (FastCampus 스타일)
-│   ├── globals.css              # 전역 스타일
-│   │
-│   ├── 📚 courses/              # 강의 시스템 (Phase 1 완료)
-│   │   ├── page.tsx            # 강의 목록 메인
-│   │   ├── layout.tsx          # 강의 레이아웃
-│   │   ├── free/page.tsx       # 무료 강의
-│   │   ├── premium/page.tsx    # 프리미엄 강의
-│   │   └── [id]/               # 동적 라우팅
-│   │       ├── page.tsx        # 강의 상세 (SimpleCourse)
-│   │       └── week/[num]/page.tsx # 주차별 수강
-│   │
-│   ├── 👤 auth/                 # 인증 관련
-│   │   ├── callback/route.ts   # OAuth 콜백
-│   │   └── error/page.tsx      # 에러 페이지
-│   │
-│   ├── 📊 api/                  # API 엔드포인트
-│   │   ├── user/
-│   │   │   ├── profile/route.ts        # 프로필 API
-│   │   │   └── check-username/route.ts # 중복 체크
-│   │   ├── debug-env/route.ts          # 환경변수 디버그
-│   │   └── test-supabase/route.ts      # DB 테스트
-│   │
-│   ├── 👤 mypage/page.tsx       # 마이페이지
-│   ├── 🎯 onboarding/page.tsx   # 온보딩
-│   ├── 🛠️ tools/                # 도구 페이지
-│   │   └── transcribe/page.tsx # TTS 변환기
-│   ├── 📚 resources/page.tsx    # 자료실
-│   ├── 👥 community/page.tsx    # 커뮤니티
-│   │
-│   └── 🧪 테스트 페이지
-│       ├── design-system/page.tsx
-│       ├── test-searchbar/page.tsx
-│       └── test-experience-card/page.tsx
-│
-├── 🧩 components/ (50+ 컴포넌트)
-│   ├── 🎨 design-system/        # styled-components 기반 (SSR-safe)
-│   │   ├── index.ts            # 통합 export
-│   │   ├── Typography.styled.tsx # H1-H4, Body, Caption, Code
-│   │   ├── Button.styled.tsx  # StripeButton (4 variants)
-│   │   ├── Card.styled.tsx    # StripeCard, ElevatedCard
-│   │   ├── Input.styled.tsx   # Input, Textarea, Select
-│   │   ├── Layout.styled.tsx  # Container, Row, Column, Grid
-│   │   ├── Gradient.styled.tsx # StripeGradient (animated)
-│   │   └── common.ts          # Theme tokens, helpers
-│   │
-│   ├── 📚 courses/              # 강의 컴포넌트
-│   │   ├── CourseCard.tsx     # 강의 카드
-│   │   ├── CourseList.tsx     # 강의 목록
-│   │   ├── VideoPlayer.tsx    # HLS 플레이어
-│   │   ├── SimpleCourseDetail.tsx # 심플 상세
-│   │   ├── SimplePurchaseCard.tsx # 구매 카드
-│   │   ├── SimpleContentRenderer.tsx # 콘텐츠 렌더
-│   │   └── SimpleCourseTabs.tsx # 탭 시스템
-│   │
-│   ├── 📑 sections/             # 페이지 섹션
-│   │   ├── TopBanner.tsx      # 상단 배너
-│   │   ├── MainCarousel.tsx   # 메인 캐러셀
-│   │   ├── CategoryGrid.tsx   # 카테고리 그리드
-│   │   ├── RevenueSlider.tsx  # 수익인증 슬라이더
-│   │   └── HeroSection.tsx    # Hero 섹션
-│   │
-│   ├── 🎯 layout/               # 레이아웃
-│   │   ├── Header.tsx         # 헤더 (Kakao 로그인)
-│   │   └── Footer.tsx         # 푸터
-│   │
-│   ├── 🔧 ui/                   # 기본 UI
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   ├── Alert.tsx
-│   │   └── Toast.tsx
-│   │
-│   └── 기타 컴포넌트
-│       ├── NavigationBar.tsx   # 네비게이션
-│       ├── SearchBar.tsx       # 검색바
-│       ├── PillButton.tsx      # 알약 버튼
-│       └── ExperienceCard.tsx  # 경험 카드
-│
-├── 📚 lib/ (라이브러리 & 유틸리티)
-│   ├── 🗄️ supabase/
-│   │   ├── browser-client.ts   # 브라우저 클라이언트
-│   │   ├── server-client.ts    # 서버 클라이언트
-│   │   ├── client.ts           # 공통 클라이언트
-│   │   └── migrations/         # DB 마이그레이션
-│   │       ├── 001_initial_schema.sql
-│   │       ├── 002_auth_triggers.sql
-│   │       ├── 003_rls_policies.sql
-│   │       ├── 004_kakao_auth_trigger.sql
-│   │       ├── 005_course_system.sql
-│   │       ├── 006_course_detail_enhancement.sql
-│   │       └── ALL_MIGRATIONS_COMBINED.sql
-│   │
-│   ├── 🔐 auth/
-│   │   └── AuthProvider.tsx    # 인증 컨텍스트
-│   │
-│   ├── 🎨 theme/
-│   │   ├── ThemeProvider.tsx   # ⚠️ 제거됨 (styled-components로 마이그레이션)
-│   │   └── theme.ts            # 테마 설정
-│   │
-│   └── utils.ts                # 유틸리티 함수
-│
-├── 📝 types/ (TypeScript 타입 정의)
-│   ├── database.types.ts       # Supabase 생성 타입
-│   ├── database.ts             # 커스텀 DB 타입
-│   ├── course-system.types.ts  # 강의 시스템
-│   ├── course-detail.types.ts  # 강의 상세
-│   └── simple-course.types.ts  # SimpleCourse
-│
-├── 🪝 hooks/ (커스텀 훅)
-│   ├── useAutocomplete.ts      # 자동완성
-│   └── useScrollPosition.ts    # 스크롤 위치
-│
-├── 🎨 styles/
-│   └── tokens/                 # 디자인 토큰
-│       ├── index.ts
-│       ├── colors.ts
-│       ├── typography.ts
-│       ├── spacing.ts
-│       └── effects.ts
-│
-└── 📦 data/
-    └── carousel-data.ts        # 캐러셀 데이터
-```
-
-### 🗄️ 데이터베이스 스키마
-```sql
--- 8개 테이블 구조
-users                 -- 사용자 정보
-profiles             -- 프로필 확장
-courses              -- 강의 정보
-course_enrollments   -- 수강 신청
-course_progress      -- 진도 관리
-course_reviews       -- 강의 리뷰
-course_qna          -- Q&A 게시판
-badges              -- 뱃지 시스템
-
--- RLS 정책 적용
--- 트리거 & 함수 구현
--- Kakao OAuth 연동
-```
-
-### ⚙️ 설정 파일
-```
-루트 디렉토리/
-├── 📦 package.json              # 의존성 관리
-├── 🔧 tsconfig.json            # TypeScript 설정
-├── 🎨 tailwind.config.ts       # Tailwind 설정
-├── ⚡ next.config.ts           # Next.js 설정
-├── 🚀 vercel.json              # Vercel 배포 설정
-├── 🧪 playwright.config.ts     # E2E 테스트 설정
-├── 📝 eslint.config.mjs        # ESLint 설정
-├── 🎭 jest-setup.ts           # Jest 설정
-└── 🔐 .env.local.example       # 환경변수 템플릿
-```
-
-## ✅ 구현 완료 기능
-
-### Phase 1 - MVP (100% 완료)
-1. **인증 시스템** ✅
-   - Kakao OAuth 2.0 완전 구현
-   - Supabase Auth 통합
-   - 세션 관리 및 리프레시
-
-2. **디자인 시스템** ✅
-   - Stripe 스타일 컴포넌트 15개+
-   - theme.deep.json 토큰 시스템
-   - 반응형 디자인 적용
-
-3. **메인 페이지** ✅
-   - FastCampus 스타일 UI
-   - MainCarousel (8개 슬라이드)
-   - CategoryGrid (10개 카테고리)
-   - RevenueSlider (수익인증)
-
-4. **강의 시스템** ✅
-   - 강의 목록 (무료/프리미엄)
-   - 강의 상세 (SimpleCourse)
-   - 주차별 수강 페이지
-   - VideoPlayer (HLS, DRM)
-
-5. **회원 시스템** ✅
-   - 온보딩 프로세스
-   - 마이페이지
-   - 프로필 관리
-
-6. **타입 안정성** ✅
-   - TypeScript 에러 0개
-   - 모든 'any' 타입 제거
-   - Database 타입 통합
-
-## 🔧 진행 중 작업
-
-### Active Tasks (6개)
-```yaml
-TASK-2025-008: DOM 조작 개선
-  - React 18 호환성
-  - useLayoutEffect 활용
+  - Build Tool: Next.js build system
+  - Deployment: Vercel
+  - Environment: Node.js 18+
   
-TASK-2025-009: Error Boundary
-  - 전역 에러 처리
-  - 폴백 UI 구현
-  
-TASK-2025-010: 공통 훅 추출
-  - 코드 재사용성 향상
-  - 커스텀 훅 라이브러리
-  
-TASK-2025-011: 캐러셀 성능
-  - 이미지 최적화
-  - 애니메이션 개선
-  
-TASK-2025-012: 접근성 개선
-  - WCAG 2.1 준수
-  - 키보드 네비게이션
-  
-TASK-2025-014: Magic MCP 재설계
-  - 강의 페이지 v2.0
-  - FastCampus/인프런 스타일
+Quality Assurance:
+  - Type Safety: TypeScript strict mode
+  - Component Testing: (예정)
+  - E2E Testing: (예정)
 ```
-
-## ⚠️ 알려진 이슈
-
-### 긴급 수정 필요
-1. **로그인 페이지 누락**
-   - `/login` 경로 404 에러
-   - 강의 수강 접근 제한
-
-2. **DB 연결 문제**
-   - Mock 데이터 사용 중
-   - 실제 DB migration 필요
-
-3. **Vercel 환경변수**
-   - placeholder 값 교체 필요
-   - SUPABASE_URL, SUPABASE_ANON_KEY
-
-## 🚀 로드맵
-
-### Phase 2 - 핵심 기능 (진행 중)
-- [ ] 로그인 페이지 구현
-- [ ] Stripe 결제 연동
-- [ ] Q&A 게시판
-- [ ] 뱃지 시스템
-
-### Phase 3 - 고도화
-- [ ] 도구 페이지 (TTS 커터)
-- [ ] 수익인증 시스템
-- [ ] 랭킹 시스템
-- [ ] 관리자 대시보드
-
-### Phase 4 - 최적화
-- [ ] DRM 강화 (HLS 암호화)
-- [ ] 성능 최적화
-- [ ] SEO 최적화
-- [ ] PWA 지원
-
-## 📊 프로젝트 메트릭
-
-### 코드 통계
-- **총 파일 수**: 150+ 파일
-- **컴포넌트**: 50+ 개
-- **페이지**: 20+ 개
-- **코드 라인**: ~20,000줄
-- **타입 정의**: 30+ 파일
-
-### 품질 지표
-- **TypeScript Coverage**: 100%
-- **컴파일 에러**: 0개
-- **ESLint 경고**: 최소화
-- **빌드 시간**: ~45초
-- **번들 크기**: 최적화 진행 중
-
-### 성능 목표
-- **LCP**: < 2.5s
-- **FID**: < 100ms
-- **CLS**: < 0.1
-- **TTI**: < 3.5s
-
-## 🔑 주요 명령어
-
-### 개발
-```bash
-# 개발 서버 시작
-npm run dev
-
-# 타입 체크
-npx tsc --noEmit
-
-# 린트 실행
-npm run lint
-
-# 포맷팅
-npm run format
-```
-
-### 빌드 & 배포
-```bash
-# 프로덕션 빌드
-npm run build
-
-# 빌드 후 시작
-npm run start
-
-# Vercel 배포
-vercel --prod
-```
-
-### 테스트
-```bash
-# 단위 테스트
-npm test
-
-# E2E 테스트
-npx playwright test
-
-# Storybook
-npm run storybook
-
-# 토큰 검증
-npm run validate:tokens
-```
-
-### 유틸리티
-```bash
-# 하드코딩 검사
-npm run check:hardcoded
-
-# Supabase 시작
-npx supabase start
-
-# DB 푸시
-npx supabase db push
-```
-
-## 📚 주요 문서 링크
-
-### 필수 읽기
-- [PROJECT-INDEX.md](./PROJECT-INDEX.md) - 프로젝트 현황
-- [CLAUDE.md](../CLAUDE.md) - AI 개발 가이드
-- [PM-AI-Framework.md](./PM-AI-Framework.md) - PM AI 매뉴얼
-
-### 개발 가이드
-- [site-architecture-plan.md](./site-architecture-plan.md) - 사이트 구조
-- [development-workflow-guide.md](./development-workflow-guide.md) - 개발 워크플로우
-- [Visual-Verification-Protocol.md](./Visual-Verification-Protocol.md) - UI 검증
-
-### 설정 가이드
-- [SUPABASE-KAKAO-SETUP.md](./SUPABASE-KAKAO-SETUP.md) - Supabase 설정
-- [VERCEL-ENV-SETUP.md](./VERCEL-ENV-SETUP.md) - Vercel 환경변수
-
-## 🏆 프로젝트 하이라이트
-
-### 기술적 성과
-- ✅ **Zero TypeScript Errors** - 완벽한 타입 안정성
-- ✅ **Stripe Design System** - 프리미엄 디자인 구현
-- ✅ **FastCampus UI** - 검증된 교육 플랫폼 UX
-- ✅ **HLS Video Player** - DRM 보호 비디오 스트리밍
-
-### 비즈니스 가치
-- 📚 **강의 시스템** - 4주/8주 커리큘럼 지원
-- 💳 **결제 준비** - Stripe 연동 준비 완료
-- 📊 **진도 관리** - 자동 저장 및 이어보기
-- 🎯 **수익화** - 무료/프리미엄 이원화
-
-## 📞 연락처 및 지원
-
-### 문서 관리
-- 업데이트 주기: 주 1회
-- 관리자: PM AI
-- 검증: Developer AI
-
-### 이슈 트래킹
-- Active Tasks: `docs/tasks/active/`
-- 버그 리포트: GitHub Issues
-- 기능 요청: PM AI 작업 생성
 
 ---
 
-*이 코드맵은 디하클 프로젝트의 완전한 구조를 담고 있습니다.*
-*정기적으로 업데이트되며, 모든 개발 활동의 참조 문서입니다.*
+## 📁 디렉토리 구조 상세
+
+### `/src` - 소스 코드
+```
+src/
+├── app/                       # Next.js App Router
+│   ├── layout.tsx            # Root Layout (전역 레이아웃) ✅ 구현 완료
+│   ├── page.tsx              # 메인 페이지 ✅ 구현 완료
+│   ├── globals.css           # 전역 스타일 (CSS 변수, 애니메이션, NProgress)
+│   │
+│   ├── (pages)/              # 페이지 그룹
+│   │   ├── courses/          # 강의 관련 페이지
+│   │   ├── community/        # 커뮤니티 페이지
+│   │   └── tools/           # 도구 페이지
+│   │
+│   ├── api/                  # API Routes
+│   │   └── user/            # 사용자 관련 API
+│   │       ├── check-username/  # 사용자명 중복 체크
+│   │       │   └── route.ts
+│   │       └── profile/         # 프로필 관리
+│   │           └── route.ts
+│   │
+│   └── auth/                 # 인증 관련 라우트
+│       ├── callback/         # OAuth 콜백 처리
+│       │   └── route.ts     # Kakao OAuth 콜백 핸들러
+│       ├── error/           # 인증 에러 페이지
+│       │   └── page.tsx     # 에러 표시 UI
+│       ├── login/           # 로그인 페이지 (구현 예정)
+│       └── signup/          # 회원가입 페이지 (구현 예정)
+│
+├── components/               # React 컴포넌트
+│   ├── ui/                  # shadcn/ui 컴포넌트 (15개)
+│   │   ├── alert-dialog.tsx # 알림 다이얼로그
+│   │   ├── badge.tsx        # 뱃지
+│   │   ├── button.tsx       # 버튼
+│   │   ├── card.tsx         # 카드
+│   │   ├── carousel.tsx     # 캐러셀
+│   │   ├── dialog.tsx       # 다이얼로그
+│   │   ├── dropdown-menu.tsx # 드롭다운 메뉴
+│   │   ├── input.tsx        # 입력 필드
+│   │   ├── label.tsx        # 레이블
+│   │   ├── navigation-menu.tsx # 네비게이션 메뉴
+│   │   ├── select.tsx       # 선택 박스
+│   │   ├── separator.tsx    # 구분선
+│   │   ├── tabs.tsx         # 탭
+│   │   ├── textarea.tsx     # 텍스트 영역
+│   │   └── scroll-area.tsx  # 스크롤 영역
+│   │
+│   ├── layout/              # 레이아웃 컴포넌트 ✅ 전체 구현 완료
+│   │   ├── TopBanner.tsx    # 상단 배너 (그라디언트, sessionStorage)
+│   │   ├── Header.tsx       # 헤더 (스크롤 동적 높이, 검색, 테마)
+│   │   ├── Sidebar.tsx      # 사이드바 (인프런 스타일, 아코디언)
+│   │   ├── Footer.tsx       # 푸터 (전체 섹션, 뉴스레터)
+│   │   ├── MobileNav.tsx    # 모바일 하단 네비게이션
+│   │   ├── ScrollToTop.tsx  # 맨 위로 버튼
+│   │   ├── ProgressBar.tsx  # 페이지 전환 & 스크롤 프로그레스
+│   │   └── NotificationDropdown.tsx # 알림 드롭다운
+│   │
+│   ├── providers/           # Provider 컴포넌트 ✅ 구현 완료
+│   │   └── Providers.tsx    # 통합 Provider (Theme, Auth, Layout)
+│   │
+│   └── features/            # 기능별 컴포넌트
+│       ├── auth/           # 인증 관련
+│       ├── course/         # 강의 관련
+│       └── community/      # 커뮤니티 관련
+│
+├── lib/                     # 라이브러리 및 유틸리티
+│   ├── supabase/           # Supabase 설정
+│   │   ├── browser-client.ts  # 브라우저 클라이언트
+│   │   ├── server-client.ts   # 서버 클라이언트
+│   │   ├── client.ts          # 공통 클라이언트
+│   │   └── migrations/        # DB 마이그레이션 (7개)
+│   │       ├── ALL_MIGRATIONS_COMBINED.sql
+│   │       ├── 001_initial_schema.sql
+│   │       ├── 002_initial_triggers.sql
+│   │       ├── 003_revenue_proofs.sql
+│   │       ├── 004_community_links.sql
+│   │       ├── 005_course_system.sql
+│   │       └── 006_course_detail_enhancement.sql
+│   │
+│   ├── auth/               # 인증 관련 ✅ 구현 완료
+│   │   ├── AuthProvider.tsx  # 인증 프로바이더 (Legacy)
+│   │   └── AuthContext.tsx   # 인증 컨텍스트 (현재 사용)
+│   │
+│   ├── layout/             # 레이아웃 관련 ✅ 구현 완료
+│   │   └── LayoutContext.tsx # 레이아웃 컨텍스트 프로바이더
+│   │
+│   └── utils.ts            # 유틸리티 함수 (cn 등)
+│
+├── store/                   # Zustand 상태 관리 ✅ 구현 완료
+│   └── layout.ts           # 레이아웃 전역 상태 (배너, 사이드바, 헤더 등)
+│
+├── types/                   # TypeScript 타입 정의
+│   ├── database.ts         # 데이터베이스 타입
+│   └── database.types.ts   # Supabase 생성 타입
+│
+└── hooks/                   # Custom React Hooks
+    ├── use-auth.ts         # 인증 훅 (예정)
+    └── use-supabase.ts     # Supabase 훅 (예정)
+```
+
+### `/public` - 정적 자산
+```
+public/
+├── images/                  # 이미지 자산
+│   ├── logo/               # 로고 이미지
+│   │   └── dhacle-logo.png
+│   └── carousel/           # 캐러셀 이미지
+│       ├── carousel-01.jpg
+│       ├── carousel-02.jpg
+│       ├── carousel-03.jpg
+│       └── carousel-04.jpg
+└── fonts/                  # 폰트 파일 (필요시)
+```
+
+### `/docs` - 문서
+```
+docs/
+├── PROJECT.md              # 프로젝트 현황
+├── PROJECT-CODEMAP.md      # 이 문서
+├── DEVELOPMENT-INSTRUCTION-TEMPLATE.md  # 개발 템플릿
+```
+
+### 루트 설정 파일
+```
+/
+├── .env.local              # 환경 변수 (Git 제외)
+├── .env.local.example      # 환경 변수 예시
+├── next.config.ts          # Next.js 설정
+├── tailwind.config.ts      # Tailwind CSS 설정
+├── tsconfig.json           # TypeScript 설정
+├── postcss.config.mjs      # PostCSS 설정
+├── components.json         # shadcn/ui 설정
+├── package.json            # 프로젝트 의존성
+├── middleware.ts           # Next.js 미들웨어
+├── README.md              # 프로젝트 README
+├── CLAUDE.md              # Claude AI 가이드
+└── vercel.json            # Vercel 배포 설정
+```
+
+---
+
+## 🔑 핵심 파일 설명
+
+### 레이아웃 시스템 ✨ NEW
+- **`layout.tsx`**: Root Layout with 완벽한 메타데이터
+- **`globals.css`**: CSS 변수, 애니메이션, 다크모드 지원
+- **`Providers.tsx`**: 통합 Provider (Theme + Auth + Layout)
+- **`layout.ts` (store)**: Zustand 기반 전역 상태 관리
+- **`LayoutContext.tsx`**: 레이아웃 컨텍스트 프로바이더
+
+### 인증 시스템
+- **`browser-client.ts`**: 클라이언트 사이드 Supabase 접속
+- **`server-client.ts`**: 서버 사이드 Supabase 접속
+- **`middleware.ts`**: 보호된 라우트 처리
+- **`auth/callback/route.ts`**: Kakao OAuth 콜백 처리
+- **`AuthContext.tsx`**: 인증 컨텍스트 (현재 사용)
+
+### 데이터베이스
+- **`ALL_MIGRATIONS_COMBINED.sql`**: 전체 DB 스키마
+- **`database.types.ts`**: TypeScript 타입 정의
+- 7개 개별 마이그레이션 파일
+
+### UI 컴포넌트
+- **shadcn/ui**: 15개 사전 설치된 컴포넌트
+- **레이아웃 컴포넌트**: 8개 완성 (TopBanner, Header, Sidebar 등)
+- 모든 컴포넌트는 수정 가능
+- Radix UI primitives 기반
+
+---
+
+## 🚀 개발 플로우
+
+### 1. 컴포넌트 개발
+```bash
+# shadcn/ui 컴포넌트 추가
+npx shadcn@latest add [component-name]
+
+# 커스텀 컴포넌트 생성
+# src/components/features/[feature]/[ComponentName].tsx
+```
+
+### 2. 페이지 개발
+```bash
+# 새 페이지 생성
+# src/app/[page-name]/page.tsx
+
+# 동적 라우트
+# src/app/[dynamic]/[id]/page.tsx
+```
+
+### 3. API 개발
+```bash
+# API Route 생성
+# src/app/api/[endpoint]/route.ts
+
+# HTTP 메소드별 함수
+export async function GET() {}
+export async function POST() {}
+export async function PUT() {}
+export async function DELETE() {}
+```
+
+### 4. 타입 안정성
+```bash
+# 타입 체크
+npx tsc --noEmit
+
+# Supabase 타입 생성
+npx supabase gen types typescript --local
+```
+
+---
+
+## 📊 프로젝트 통계
+
+### 현재 상태 (2025-01-14 업데이트)
+- **총 파일 수**: ~60개
+- **shadcn/ui 컴포넌트**: 15개 설치됨 (scroll-area 추가)
+- **레이아웃 컴포넌트**: 8개 완성 (TopBanner, Header, Sidebar, Footer, MobileNav, ScrollToTop, ProgressBar, NotificationDropdown)
+- **Provider 시스템**: 3개 (Theme, Auth, Layout)
+- **상태 관리**: Zustand store 구현 완료
+- **API Routes**: 2개 (user/profile, user/check-username)
+- **DB 마이그레이션**: 7개
+- **환경 변수**: 3개 필수
+- **폴더 구조**: main → (pages) 변경 완료
+
+### 코드 품질 지표
+- **TypeScript**: Strict mode 활성화
+- **ESLint**: Next.js 권장 설정
+- **Prettier**: 코드 포맷팅 적용
+- **빌드 상태**: ✅ 성공
+
+---
+
+## 🔄 마이그레이션 추적
+
+### 완료된 마이그레이션
+- ✅ 프로젝트 구조 재설계
+- ✅ shadcn/ui 설치
+- ✅ Supabase 설정 복원
+- ✅ 인증 시스템 복원
+
+### 진행 예정
+- [ ] 메인 페이지 UI
+- [ ] 네비게이션 헤더
+- [ ] 강의 시스템
+- [ ] 커뮤니티 기능
+
+---
+
+## 📌 주의사항
+
+### ❌ 금지 사항
+1. styled-components 사용
+2. any 타입 사용
+3. inline styles 남용
+4. 환경 변수 하드코딩
+
+### ✅ 권장 사항
+1. shadcn/ui 컴포넌트 우선 사용
+2. Server Components 기본 사용
+3. TypeScript strict mode 준수
+4. Tailwind 유틸리티 클래스 사용
+
+---
+
+*이 문서는 코드베이스 변경 시 지속적으로 업데이트됩니다.*

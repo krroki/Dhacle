@@ -1,129 +1,79 @@
-import type { Config } from 'tailwindcss';
-import stripeTheme from './theme.deep.json';
+import type { Config } from "tailwindcss"
 
 const config: Config = {
+  darkMode: ["class"],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  prefix: "",
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
-        // Primary brand colors from Stripe
-        'stripe-blue': stripeTheme.colors.primary.blue.default,
-        'stripe-blue-hover': stripeTheme.colors.primary.blue.hover,
-        'stripe-blue-active': stripeTheme.colors.primary.blue.active,
-        'stripe-darkBlue': stripeTheme.colors.primary.darkBlue,
-        'stripe-lightBlue': stripeTheme.colors.primary.lightBlue,
-        
-        // Neutral palette
-        white: stripeTheme.colors.neutral.white,
-        offWhite: stripeTheme.colors.neutral.offWhite,
-        gray: stripeTheme.colors.neutral.gray,
-        
-        // Text colors
-        'text-primary': stripeTheme.colors.text.primary.default,
-        'text-primary-dark': stripeTheme.colors.text.primary.dark,
-        'text-primary-light': stripeTheme.colors.text.primary.light,
-        'text-inverse': stripeTheme.colors.text.inverse,
-        
-        // Button colors
-        button: {
-          primary: {
-            bg: {
-              DEFAULT: stripeTheme.colors.button.primary.background.default,
-              hover: stripeTheme.colors.button.primary.background.hover,
-            },
-            text: {
-              DEFAULT: stripeTheme.colors.button.primary.text.default,
-              hover: stripeTheme.colors.button.primary.text.hover,
-            },
-          },
-          secondary: {
-            bg: {
-              DEFAULT: stripeTheme.colors.button.secondary.background.default,
-              hover: stripeTheme.colors.button.secondary.background.hover,
-            },
-            text: {
-              DEFAULT: stripeTheme.colors.button.secondary.text.default,
-              hover: stripeTheme.colors.button.secondary.text.hover,
-            },
-          },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
-      fontFamily: {
-        sans: stripeTheme.typography.fontFamily.base.split(',').map(f => f.trim()),
-        mono: stripeTheme.typography.fontFamily.mono.split(',').map(f => f.trim()),
-      },
-      fontSize: stripeTheme.typography.fontSize,
-      fontWeight: stripeTheme.typography.fontWeight,
-      lineHeight: stripeTheme.typography.lineHeight,
-      letterSpacing: stripeTheme.typography.letterSpacing,
-      spacing: stripeTheme.spacing,
-      borderRadius: stripeTheme.borderRadius,
-      boxShadow: {
-        ...stripeTheme.effects.shadows,
-        'card-default': stripeTheme.effects.shadows.card.default,
-        'card-hover': stripeTheme.effects.shadows.card.hover,
-        'button-default': stripeTheme.effects.shadows.button.default,
-        'button-hover': stripeTheme.effects.shadows.button.hover,
-      },
-      backgroundImage: {
-        'gradient-hero': stripeTheme.gradients.hero,
-        'gradient-primary': stripeTheme.gradients.primary,
-        'gradient-stripe': stripeTheme.gradients.stripe,
-      },
-      transitionDuration: stripeTheme.effects.transitions.duration,
-      transitionTimingFunction: stripeTheme.effects.transitions.timing,
-      opacity: stripeTheme.effects.opacity,
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.5s ease-out',
-        'scale-hover': 'scaleHover 0.2s ease-in-out',
-        'float': 'float 6s ease-in-out infinite',
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        fadeIn: {
-          '0%': {
-            opacity: '0',
-            transform: 'translateY(10px)',
-          },
-          '100%': {
-            opacity: '1',
-            transform: 'translateY(0)',
-          },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        slideUp: {
-          '0%': {
-            transform: 'translateY(20px)',
-            opacity: '0',
-          },
-          '100%': {
-            transform: 'translateY(0)',
-            opacity: '1',
-          },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
-        scaleHover: {
-          '0%': {
-            transform: stripeTheme.effects.transforms.scale.default,
-          },
-          '100%': {
-            transform: stripeTheme.effects.transforms.scale.hover,
-          },
-        },
-        float: {
-          '0%, 100%': {
-            transform: 'translateY(0)',
-          },
-          '50%': {
-            transform: 'translateY(-20px)',
-          },
-        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
-};
+  plugins: [require("tailwindcss-animate")],
+}
 
-export default config;
+export default config

@@ -8,10 +8,11 @@ export async function middleware(request: NextRequest) {
   
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
-    return NextResponse.json(
-      { error: 'Server configuration error' },
-      { status: 500 }
-    )
+    // Redirect to error page for configuration issues
+    const errorUrl = new URL('/auth/error', request.url)
+    errorUrl.searchParams.set('error', 'configuration_error')
+    errorUrl.searchParams.set('error_description', 'Server configuration error. Please contact support.')
+    return NextResponse.redirect(errorUrl)
   }
 
   // Create a response object that we'll modify throughout
@@ -90,11 +91,11 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.error('Middleware error:', error)
-    // Return error response for critical failures
-    return NextResponse.json(
-      { error: 'Authentication service error' },
-      { status: 503 }
-    )
+    // Redirect to error page for authentication service failures
+    const errorUrl = new URL('/auth/error', request.url)
+    errorUrl.searchParams.set('error', 'auth_service_error')
+    errorUrl.searchParams.set('error_description', 'Authentication service temporarily unavailable. Please try again.')
+    return NextResponse.redirect(errorUrl)
   }
 
   return response

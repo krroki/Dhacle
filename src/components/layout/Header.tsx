@@ -1,148 +1,326 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { Button } from '../ui/Button';
-import content from '../../../content-map.complete.json';
-import { createBrowserClient } from '@/lib/supabase/browser-client';
-import type { User } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
+import { useAuth } from '@/lib/auth/AuthContext'
+import {
+  Search,
+  Menu,
+  X,
+  User,
+  BookOpen,
+  Trophy,
+  Heart,
+  Settings,
+  LogOut,
+  Moon,
+  Sun,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
+import { useLayoutStore } from '@/store/layout'
+import { NotificationDropdown } from './NotificationDropdown'
+
+interface NavItem {
+  label: string
+  href: string
+  badge?: string
+}
+
+const navItems: NavItem[] = [
+  { label: '강의', href: '/courses' },
+  { label: '무료 강의', href: '/courses/free', badge: 'NEW' },
+  { label: '커뮤니티', href: '/community' },
+  { label: '도구', href: '/tools', badge: 'HOT' },
+  { label: '수익 인증', href: '/revenue' },
+]
 
 export function Header() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createBrowserClient();
+  const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  
+  const {
+    isHeaderVisible,
+    setHeaderVisible,
+    isMobileMenuOpen,
+    toggleMobileMenu,
+    isSearchOpen,
+    toggleSearch,
+    isNotificationOpen,
+    toggleNotification,
+    isProfileOpen,
+    toggleProfile,
+  } = useLayoutStore()
+
+  // Get auth state from context
+  const { user, signOut } = useAuth()
+  const isAuthenticated = !!user
 
   useEffect(() => {
-    // Check for initial session
-    const getInitialUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error('Error getting user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    getInitialUser();
+    setMounted(true)
+  }, [])
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth]);
-
-  const handleKakaoLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'kakao',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
       
-      if (error) {
-        // Login error handled by Supabase
-        alert('로그인 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
+      // Add scrolled class
+      setIsScrolled(currentScrollY > 10)
+      
+      // Hide/show header based on scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setHeaderVisible(false)
+      } else {
+        setHeaderVisible(true)
       }
-    } catch {
-      // Error handled silently
+      
+      setLastScrollY(currentScrollY)
     }
-  };
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY, setHeaderVisible])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      // TODO: 실제 검색 기능 구현 필요
+      // - Supabase full-text search 구현
+      // - 검색 결과 페이지 생성
+      // - 검색 히스토리 저장
+      console.log('검색 기능 구현 예정:', searchQuery)
+      // Navigate to search results page
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
+    }
+  }
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout error:', error);
-        alert('로그아웃 중 오류가 발생했습니다.');
-      } else {
-        setUser(null);
-        // Optionally redirect to home
-        window.location.href = '/';
-      }
-    } catch (error) {
-      console.error('Unexpected error during logout:', error);
-    }
-  };
-
-  // Extract display name from user metadata or email
-  const getDisplayName = () => {
-    if (!user) return '';
-    
-    // Check for Kakao profile name in user metadata
-    const fullName = user.user_metadata?.full_name;
-    const email = user.email;
-    
-    if (fullName) {
-      return fullName;
-    } else if (email) {
-      // Show only the part before @ for privacy
-      return email.split('@')[0];
-    }
-    return '사용자';
-  };
+    await signOut()
+    window.location.href = '/'
+  }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-white/10">
-      <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo removed as requested */}
-        <div className="w-20"></div>
-
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {content.extracted.navigation.mainMenu.map((item) => (
-            <Link key={item.url} href={item.url} className="text-primary/80 hover:text-primary transition-colors">
-              {item.text}
-            </Link>
-          ))}
-        </div>
-
-        {/* Auth Section */}
-        <div className="flex items-center gap-4">
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-              <span className="text-sm text-primary/60">로딩중...</span>
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b transition-all duration-300 z-[1200]',
+        isScrolled && 'shadow-sm',
+        !isHeaderVisible && '-translate-y-full'
+      )}
+      style={{
+        height: isScrolled ? 'var(--header-height-scroll)' : 'var(--header-height)',
+        top: useLayoutStore.getState().isBannerClosed ? 0 : 'var(--top-banner-height)',
+      }}
+    >
+      <div className="container-responsive h-full flex items-center justify-between">
+        {/* Logo and Desktop Nav */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-32 h-8 flex items-center">
+              <span className="text-xl font-bold text-primary">디하클</span>
             </div>
-          ) : user ? (
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">
-                    {getDisplayName().charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-sm text-primary/80">
-                  {getDisplayName()}
-                </span>
-              </div>
-              <Button 
-                onClick={handleLogout} 
-                variant="outline"
-                size="sm"
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary',
+                  pathname === item.href ? 'text-primary' : 'text-muted-foreground'
+                )}
               >
-                {content.extracted.navigation.userMenu.logout || '로그아웃'}
-              </Button>
-            </div>
-          ) : null}
+                {item.label}
+                {item.badge && (
+                  <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        {/* Mobile Menu Button (optional - not implemented yet) */}
-        <button className="md:hidden flex items-center">
-          <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </nav>
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-3">
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="hidden md:block">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="검색어를 입력하세요"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-64 h-9"
+              />
+            </div>
+          </form>
+
+          {/* Mobile Search Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleSearch}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
+
+          {/* Theme Toggle */}
+          {mounted && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+          )}
+
+          {isAuthenticated ? (
+            <>
+              {/* Notifications */}
+              <NotificationDropdown 
+                isOpen={isNotificationOpen} 
+                onOpenChange={toggleNotification} 
+              />
+
+              {/* Profile Dropdown */}
+              <DropdownMenu open={isProfileOpen} onOpenChange={toggleProfile}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem asChild>
+                    <Link href="/mypage" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      마이페이지
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/mypage/courses" className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      내 강의
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/mypage/achievements" className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4" />
+                      업적
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/mypage/wishlist" className="flex items-center gap-2">
+                      <Heart className="h-4 w-4" />
+                      찜 목록
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      설정
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    로그아웃
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/auth/login">로그인</Link>
+              </Button>
+              <Button asChild className="hidden sm:inline-flex">
+                <Link href="/auth/signup">회원가입</Link>
+              </Button>
+            </>
+          )}
+
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={toggleMobileMenu}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Search Bar */}
+      {isSearchOpen && (
+        <div className="md:hidden border-t p-4">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="검색어를 입력하세요"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-full"
+                autoFocus
+              />
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-[var(--header-height)] bg-background z-[1100]">
+          <nav className="p-4 space-y-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => toggleMobileMenu()}
+                className={cn(
+                  'flex items-center justify-between p-3 rounded-md hover:bg-muted transition-colors',
+                  pathname === item.href && 'bg-muted'
+                )}
+              >
+                <span className="font-medium">{item.label}</span>
+                {item.badge && (
+                  <Badge variant="secondary" className="ml-2">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
-  );
+  )
 }
