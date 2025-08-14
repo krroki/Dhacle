@@ -1,3 +1,7 @@
+// Next.js App Router에서 환경 변수가 동적으로 로드되도록 설정
+// 이렇게 하면 빌드 타임이 아닌 런타임에 환경 변수를 읽습니다
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server-client';
 import { 

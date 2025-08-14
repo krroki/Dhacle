@@ -472,3 +472,57 @@
     color: black;
   }
 }
+
+/* Hero Carousel Peek Effect Styles */
+@layer components {
+  .hero-carousel-container {
+    @apply relative w-full;
+  }
+  
+  @media (min-width: 768px) {
+    .hero-carousel-container {
+      max-width: 1920px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* Embla Carousel Peek Effect */
+  .embla__slide {
+    flex: 0 0 85%; /* 모바일: 85% 너비 */
+    min-width: 0;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .embla__slide {
+      flex: 0 0 80%; /* 태블릿: 80% 너비 */
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .embla__slide {
+      flex: 0 0 70%; /* 데스크톱: 70% 너비 */
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  
+  /* 슬라이드 애니메이션 */
+  .hero-carousel-slide {
+    transition: opacity 0.3s, transform 0.3s;
+    opacity: 1;
+  }
+  
+  /* 선택된 슬라이드 강조 */
+  .embla__slide.is-selected .hero-carousel-slide {
+    transform: scale(1.02);
+  }
+  
+  .embla__slide:not(.is-selected) .hero-carousel-slide {
+    transform: scale(0.98);
+    opacity: 0.85;
+  }
+}

@@ -25,10 +25,31 @@ export function HeroCarousel() {
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const autoplayTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // 이미지 프리로드
+  // 이미지 프리로드 최적화 (viewport에 가까운 슬라이드만)
   useEffect(() => {
-    preloadImages(carouselItems);
-  }, []);
+    const preloadNearbyImages = () => {
+      const currentIndex = api?.selectedScrollSnap() ?? 0;
+      const itemsToPreload = [
+        carouselItems[currentIndex - 1],
+        carouselItems[currentIndex],
+        carouselItems[currentIndex + 1]
+      ].filter(Boolean);
+      
+      preloadImages(itemsToPreload);
+    };
+    
+    if (api) {
+      api.on('select', preloadNearbyImages);
+      preloadNearbyImages();
+      
+      return () => {
+        api.off('select', preloadNearbyImages);
+      };
+    } else {
+      // API가 없을 때 처음 3개만 프리로드
+      preloadImages(carouselItems.slice(0, 3));
+    }
+  }, [api]);
 
   // Carousel API 설정
   useEffect(() => {

@@ -4,6 +4,16 @@ import crypto from 'crypto';
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
   
+  // 디버깅 정보 (프로덕션에서는 제거해야 함)
+  console.log('[DEBUG] Environment check:', {
+    hasKey: !!key,
+    keyLength: key?.length,
+    firstChars: key ? key.substring(0, 4) + '...' : 'undefined',
+    nodeEnv: process.env.NODE_ENV,
+    runtime: typeof window === 'undefined' ? 'server' : 'client',
+    cryptoAvailable: typeof crypto !== 'undefined'
+  });
+  
   if (!key) {
     throw new Error('ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.');
   }
@@ -13,7 +23,17 @@ function getEncryptionKey(): Buffer {
     throw new Error(`ENCRYPTION_KEY must be exactly 64 characters (32 bytes hex). Current length: ${key.length}. Generate a new key with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`);
   }
   
-  return Buffer.from(key, 'hex');
+  // hex 문자열 유효성 검사
+  if (!/^[0-9a-fA-F]{64}$/.test(key)) {
+    throw new Error('ENCRYPTION_KEY must be a valid 64-character hexadecimal string.');
+  }
+  
+  try {
+    return Buffer.from(key, 'hex');
+  } catch (error) {
+    console.error('[DEBUG] Buffer conversion error:', error);
+    throw new Error(`Failed to convert ENCRYPTION_KEY to buffer: ${error}`);
+  }
 }
 
 /**
@@ -23,18 +43,33 @@ function getEncryptionKey(): Buffer {
  */
 export function encryptApiKey(apiKey: string): string {
   try {
+    console.log('[DEBUG] Starting encryption...');
+    
     const key = getEncryptionKey();
+    console.log('[DEBUG] Encryption key obtained, buffer length:', key.length);
+    
     const iv = crypto.randomBytes(16);
+    console.log('[DEBUG] IV generated, length:', iv.length);
+    
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    console.log('[DEBUG] Cipher created');
     
     let encrypted = cipher.update(apiKey, 'utf8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
+    console.log('[DEBUG] Encryption successful, encrypted length:', encrypted.length);
     
     // IV와 암호화된 데이터를 콜론으로 구분하여 저장
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
+    const result = iv.toString('hex') + ':' + encrypted.toString('hex');
+    console.log('[DEBUG] Final encrypted string length:', result.length);
+    
+    return result;
   } catch (error) {
-    console.error('Encryption error:', error);
-    throw new Error('Failed to encrypt API key');
+    console.error('[DEBUG] Detailed encryption error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      errorType: error?.constructor?.name
+    });
+    throw new Error(`Failed to encrypt API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

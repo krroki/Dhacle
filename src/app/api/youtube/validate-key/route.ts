@@ -1,3 +1,6 @@
+// Next.js App Router에서 환경 변수가 동적으로 로드되도록 설정
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateYouTubeApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
