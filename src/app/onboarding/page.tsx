@@ -4,26 +4,36 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@/components/ui'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Check, Loader2 } from 'lucide-react'
+import { ArrowRight, Check, Loader2, Briefcase, GraduationCap, Store, Laptop, Building2, Users, TrendingUp, DollarSign } from 'lucide-react'
 
 interface OnboardingData {
-  username: string
-  fullName: string
-  interests: string[]
+  workType: 'main' | 'side' | ''
+  jobCategory: string
+  currentIncome: string
+  targetIncome: string
   experienceLevel: 'beginner' | 'intermediate' | 'advanced' | ''
 }
 
-const INTERESTS = [
-  { id: 'youtube', label: 'YouTube Shorts', icon: '📹' },
-  { id: 'tiktok', label: 'TikTok', icon: '🎵' },
-  { id: 'instagram', label: 'Instagram Reels', icon: '📷' },
-  { id: 'editing', label: '영상 편집', icon: '✂️' },
-  { id: 'thumbnail', label: '썸네일 제작', icon: '🎨' },
-  { id: 'monetization', label: '수익화', icon: '💰' },
+const JOB_CATEGORIES = [
+  { value: 'office_worker', label: '회사원', icon: Building2 },
+  { value: 'student', label: '학생', icon: GraduationCap },
+  { value: 'freelancer', label: '프리랜서', icon: Laptop },
+  { value: 'self_employed', label: '자영업자', icon: Store },
+  { value: 'creator', label: '크리에이터', icon: Users },
+  { value: 'unemployed', label: '무직/취준생', icon: Briefcase },
+  { value: 'other', label: '기타', icon: TrendingUp }
+]
+
+const INCOME_RANGES = [
+  { value: '0-100', label: '100만원 미만' },
+  { value: '100-300', label: '100-300만원' },
+  { value: '300-500', label: '300-500만원' },
+  { value: '500-1000', label: '500-1,000만원' },
+  { value: '1000+', label: '1,000만원 이상' }
 ]
 
 const EXPERIENCE_LEVELS = [
@@ -53,12 +63,12 @@ export default function OnboardingPage() {
   
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [checkingUsername, setCheckingUsername] = useState(false)
-  const [usernameError, setUsernameError] = useState('')
+  const [generatedUsername, setGeneratedUsername] = useState('')
   const [data, setData] = useState<OnboardingData>({
-    username: '',
-    fullName: '',
-    interests: [],
+    workType: '',
+    jobCategory: '',
+    currentIncome: '',
+    targetIncome: '',
     experienceLevel: ''
   })
 
@@ -69,54 +79,43 @@ export default function OnboardingPage() {
     }
   }, [user, authLoading, router])
 
-  // 사용자명 중복 체크
-  const checkUsername = async (username: string) => {
-    if (username.length < 3) {
-      setUsernameError('사용자명은 3자 이상이어야 합니다')
-      return false
-    }
-
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setUsernameError('영문, 숫자, 언더스코어(_)만 사용 가능합니다')
-      return false
-    }
-
-    setCheckingUsername(true)
+  // 사용자명 자동 생성
+  const generateUsername = async () => {
     try {
-      const response = await fetch('/api/user/check-username?' + new URLSearchParams({ username }))
-      const { available } = await response.json()
+      const response = await fetch('/api/user/generate-username', {
+        method: 'POST'
+      })
+      const data = await response.json()
       
-      if (!available) {
-        setUsernameError('이미 사용 중인 사용자명입니다')
-        return false
+      if (response.ok && data.username) {
+        setGeneratedUsername(data.username)
+        return data.username
       }
       
-      setUsernameError('')
-      return true
+      throw new Error('Failed to generate username')
     } catch (error) {
-      console.error('사용자명 체크 에러:', error)
-      setUsernameError('사용자명 확인 중 오류가 발생했습니다')
-      return false
-    } finally {
-      setCheckingUsername(false)
+      console.error('Username generation error:', error)
+      // 폴백: 클라이언트에서 생성
+      const fallbackUsername = `creator_${Math.random().toString(36).substring(2, 10)}`
+      setGeneratedUsername(fallbackUsername)
+      return fallbackUsername
     }
   }
 
   // 다음 단계로
   const handleNext = async () => {
     if (step === 1) {
-      if (!data.username || !data.fullName) {
-        alert('모든 필드를 입력해주세요')
+      if (!data.workType || !data.jobCategory) {
+        alert('모든 필드를 선택해주세요')
         return
       }
-      
-      const isValid = await checkUsername(data.username)
-      if (!isValid) return
     }
     
-    if (step === 2 && data.interests.length === 0) {
-      alert('최소 1개 이상의 관심 분야를 선택해주세요')
-      return
+    if (step === 2) {
+      if (!data.currentIncome || !data.targetIncome) {
+        alert('현재 수입과 목표 금액을 선택해주세요')
+        return
+      }
     }
     
     if (step === 3 && !data.experienceLevel) {
@@ -138,14 +137,19 @@ export default function OnboardingPage() {
     
     setLoading(true)
     try {
+      // 먼저 사용자명 자동 생성
+      const username = await generateUsername()
+      
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: user.id,
-          username: data.username,
-          full_name: data.fullName,
-          interests: data.interests,
+          username: username,
+          work_type: data.workType,
+          job_category: data.jobCategory,
+          current_income: data.currentIncome,
+          target_income: data.targetIncome,
           experience_level: data.experienceLevel,
         })
       })
@@ -162,16 +166,6 @@ export default function OnboardingPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  // 관심 분야 토글
-  const toggleInterest = (interest: string) => {
-    setData(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interest)
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
-    }))
   }
 
   if (authLoading) {
@@ -215,85 +209,118 @@ export default function OnboardingPage() {
         <Card className="border-2">
           <CardHeader>
             <CardTitle className="text-2xl">
-              {step === 1 && '기본 정보를 입력해주세요'}
-              {step === 2 && '관심 분야를 선택해주세요'}
+              {step === 1 && '크리에이터 활동 형태를 알려주세요'}
+              {step === 2 && '수익 목표를 설정해주세요'}
               {step === 3 && '경험 수준을 알려주세요'}
             </CardTitle>
             <CardDescription>
-              {step === 1 && '디하클에서 사용할 프로필 정보입니다'}
-              {step === 2 && '맞춤형 콘텐츠를 추천해드리기 위해 필요해요'}
+              {step === 1 && '본업인지 부업인지, 현재 직업은 무엇인지 알려주세요'}
+              {step === 2 && '현재 월 수입과 목표로 하는 수입을 선택해주세요'}
               {step === 3 && '적합한 난이도의 강의를 추천해드릴게요'}
             </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Step 1: 기본 정보 */}
+            {/* Step 1: 본업/부업 + 직업 카테고리 */}
             {step === 1 && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">
-                    사용자명 (ID) <span className="text-destructive">*</span>
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    크리에이터 활동이 본업인가요, 부업인가요? <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="username"
-                    placeholder="예: creator_kim"
-                    value={data.username}
-                    onChange={(e) => {
-                      setData(prev => ({ ...prev, username: e.target.value }))
-                      setUsernameError('')
-                    }}
-                    onBlur={() => data.username && checkUsername(data.username)}
-                    className={cn(usernameError && 'border-destructive')}
-                  />
-                  {usernameError && (
-                    <p className="text-sm text-destructive">{usernameError}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    영문, 숫자, 언더스코어(_)만 사용 가능합니다
-                  </p>
+                  <RadioGroup
+                    value={data.workType}
+                    onValueChange={(value) => setData(prev => ({ ...prev, workType: value as 'main' | 'side' }))}
+                  >
+                    <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+                      <RadioGroupItem value="main" id="main" />
+                      <Label htmlFor="main" className="cursor-pointer flex-1">
+                        <span className="font-medium">본업</span>
+                        <p className="text-sm text-muted-foreground">크리에이터 활동이 주 수입원이에요</p>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+                      <RadioGroupItem value="side" id="side" />
+                      <Label htmlFor="side" className="cursor-pointer flex-1">
+                        <span className="font-medium">부업</span>
+                        <p className="text-sm text-muted-foreground">다른 일을 하면서 크리에이터 활동을 해요</p>
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">
-                    이름 <span className="text-destructive">*</span>
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    현재 직업을 선택해주세요 <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="실명 또는 활동명"
-                    value={data.fullName}
-                    onChange={(e) => setData(prev => ({ ...prev, fullName: e.target.value }))}
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    {JOB_CATEGORIES.map((job) => (
+                      <button
+                        key={job.value}
+                        onClick={() => setData(prev => ({ ...prev, jobCategory: job.value }))}
+                        className={cn(
+                          'p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
+                          data.jobCategory === job.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-muted hover:border-muted-foreground'
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <job.icon className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-medium">{job.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Step 2: 관심 분야 */}
+            {/* Step 2: 수입 정보 */}
             {step === 2 && (
-              <div className="grid grid-cols-2 gap-3">
-                {INTERESTS.map((interest) => (
-                  <button
-                    key={interest.id}
-                    onClick={() => toggleInterest(interest.id)}
-                    className={cn(
-                      'p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
-                      data.interests.includes(interest.id)
-                        ? 'border-primary bg-primary/5'
-                        : 'border-muted hover:border-muted-foreground'
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">{interest.icon}</span>
-                      <div className="space-y-1">
-                        <p className="font-medium">{interest.label}</p>
-                        {data.interests.includes(interest.id) && (
-                          <Badge variant="secondary" className="text-xs">
-                            선택됨
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    현재 월 평균 수입은 얼마인가요? <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={data.currentIncome} onValueChange={(value) => setData(prev => ({ ...prev, currentIncome: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="수입 범위를 선택해주세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INCOME_RANGES.map((range) => (
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    크리에이터 활동으로 목표하는 월 수입은? <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={data.targetIncome} onValueChange={(value) => setData(prev => ({ ...prev, targetIncome: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="목표 수입을 선택해주세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INCOME_RANGES.map((range) => (
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="p-4 bg-primary/5 rounded-lg">
+                  <p className="text-sm">
+                    <DollarSign className="inline h-4 w-4 mr-1" />
+                    목표 달성을 위한 맞춤형 강의와 전략을 추천해드릴게요!
+                  </p>
+                </div>
               </div>
             )}
 
@@ -337,7 +364,7 @@ export default function OnboardingPage() {
               </Button>
               <Button
                 onClick={handleNext}
-                disabled={loading || checkingUsername}
+                disabled={loading}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {step === 3 ? '시작하기' : '다음'}
