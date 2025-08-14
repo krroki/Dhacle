@@ -24,9 +24,14 @@ export function RevenueGalleryNew() {
         
         if (result.data && result.data.length > 0) {
           setItems(result.data);
+        } else {
+          // 데이터가 없을 때도 로딩 상태를 false로 설정
+          setItems([]);
         }
       } catch (error) {
         console.error('Failed to load revenue proofs:', error);
+        // 오류 발생 시 빈 배열로 설정
+        setItems([]);
       } finally {
         setIsLoading(false);
       }
@@ -108,38 +113,41 @@ export function RevenueGalleryNew() {
         </div>
       </div>
 
-      <div className="relative">
-        <motion.div
-          className="flex gap-4"
-          animate={{
-            x: [0, -280 * items.length], // 카드 너비 * 개수
-          }}
-          transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: 'loop',
-              duration: items.length * 3, // 개수에 따라 속도 조절
-              ease: 'linear',
-            },
-          }}
-        >
-          {duplicatedItems.map((item, index) => (
-            <div 
-              key={`${item.id}-${index}`} 
-              className="flex-shrink-0 w-[280px]"
-            >
-              <Link href={`/revenue-proof/${item.id}`}>
-                <div className="transform transition-transform hover:scale-105">
-                  <RevenueProofCard data={item} />
-                </div>
-              </Link>
-            </div>
-          ))}
-        </motion.div>
+      {/* Revenue Cards Container - Custom max-width and padding for precise control */}
+      <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1280px' }}>
+        <div className="relative overflow-hidden">
+          <motion.div
+            className="flex gap-4"
+            animate={{
+              x: [0, -280 * items.length], // 카드 너비 * 개수
+            }}
+            transition={{
+              x: {
+                repeat: Infinity,
+                repeatType: 'loop',
+                duration: items.length * 3, // 개수에 따라 속도 조절
+                ease: 'linear',
+              },
+            }}
+          >
+            {duplicatedItems.map((item, index) => (
+              <div 
+                key={`${item.id}-${index}`} 
+                className="flex-shrink-0 w-[280px]"
+              >
+                <Link href={`/revenue-proof/${item.id}`}>
+                  <div className="transform transition-transform hover:scale-105">
+                    <RevenueProofCard data={item} />
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </motion.div>
 
-        {/* Gradient Overlays for smooth edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none" />
+          {/* Gradient Overlays - Position at exact edges of overflow container */}
+          <div className="hidden md:block absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
+          <div className="hidden md:block absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none" />
+        </div>
       </div>
 
       {/* Call to Action */}

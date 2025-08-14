@@ -24,7 +24,10 @@ export async function getRevenueProofs(params?: {
   const response = await fetch(`${API_BASE}?${searchParams.toString()}`);
   
   if (!response.ok) {
-    throw new Error('Failed to fetch revenue proofs');
+    const errorData = await response.json().catch(() => null);
+    const errorMessage = errorData?.error || `Failed to fetch revenue proofs (${response.status})`;
+    console.error('Revenue proofs fetch error:', errorMessage, errorData);
+    throw new Error(errorMessage);
   }
   
   return response.json();
