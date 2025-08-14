@@ -154,8 +154,33 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('Status check error:', error);
+    
+    // 상세한 에러 메시지 제공
+    let errorMessage = 'Failed to check authentication status';
+    let errorCode = 'status_check_failed';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('decrypt')) {
+        errorMessage = '암호화된 토큰을 읽을 수 없습니다. 재로그인이 필요합니다.';
+        errorCode = 'decryption_failed';
+      } else if (error.message.includes('refresh')) {
+        errorMessage = '토큰 갱신에 실패했습니다. 재로그인이 필요합니다.';
+        errorCode = 'token_refresh_failed';
+      } else if (error.message.includes('network')) {
+        errorMessage = '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        errorCode = 'network_error';
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to check authentication status' },
+      { 
+        error: errorMessage,
+        errorCode,
+        authenticated: false,
+        user: null,
+        youtube: null,
+        quota: null
+      },
       { status: 500 }
     );
   }

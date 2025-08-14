@@ -4,7 +4,14 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
-import { SearchBar, VideoGrid, QuotaStatus } from '@/components/features/tools/youtube-lens';
+import { 
+  SearchBar, 
+  VideoGrid, 
+  QuotaStatus, 
+  SetupGuide,
+  EnvironmentChecker,
+  YouTubeLensErrorBoundary 
+} from '@/components/features/tools/youtube-lens';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +33,12 @@ import { toast } from 'sonner';
 import type { YouTubeSearchFilters, FlattenedYouTubeVideo, YouTubeFavorite, QuotaStatus as QuotaStatusType } from '@/types/youtube';
 
 // API 함수들
+const checkConfig = async () => {
+  const response = await fetch('/api/youtube/auth/check-config');
+  if (!response.ok) throw new Error('Failed to check configuration');
+  return response.json();
+};
+
 const fetchAuthStatus = async () => {
   const response = await fetch('/api/youtube/auth/status');
   if (!response.ok) throw new Error('Failed to fetch auth status');
@@ -105,11 +118,18 @@ function YouTubeLensContent() {
   const [activeTab, setActiveTab] = useState('search');
   const [isSearching, setIsSearching] = useState(false);
 
+  // 환경 변수 설정 체크
+  const { data: configCheck, isLoading: configLoading } = useQuery({
+    queryKey: ['youtube-config-check'],
+    queryFn: checkConfig,
+    retry: 1,
+  });
+
   // 인증 상태 쿼리
   const { data: authStatus, isLoading: authStatusLoading, refetch: refetchAuthStatus } = useQuery({
     queryKey: ['youtube-auth-status'],
     queryFn: fetchAuthStatus,
-    enabled: !!user,
+    enabled: !!user && configCheck?.configured,
     refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
   });
 
@@ -194,6 +214,9 @@ function YouTubeLensContent() {
         'oauth_failed': 'Google 로그인에 실패했습니다',
         'auth_required': '로그인이 필요합니다',
         'security_error': '보안 오류가 발생했습니다',
+        'config_missing': '환경 변수 설정이 필요합니다. 아래 가이드를 참고해주세요.',
+        'oauth_init_failed': 'OAuth 초기화에 실패했습니다. 설정을 확인해주세요.',
+        'unknown_error': '알 수 없는 오류가 발생했습니다'
       };
       toast.error(messages[error] || '알 수 없는 오류가 발생했습니다');
       router.replace('/tools/youtube-lens');
@@ -228,7 +251,7 @@ function YouTubeLensContent() {
     window.location.href = '/api/youtube/auth/login';
   };
 
-  if (authLoading || authStatusLoading) {
+  if (authLoading || configLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -241,6 +264,27 @@ function YouTubeLensContent() {
 
   if (!user) {
     return null;
+  }
+
+  // 환경 변수가 설정되지 않았을 때 설정 가이드 표시
+  if (!configCheck?.configured) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="space-y-6">
+          {/* 환경 변수 체커 */}
+          <EnvironmentChecker 
+            autoCheck={true}
+            onComplete={() => {
+              // 설정 완료 시 페이지 새로고침
+              window.location.reload();
+            }}
+          />
+          
+          {/* 설정 가이드 */}
+          <SetupGuide missingVars={configCheck?.missingVars || []} />
+        </div>
+      </div>
+    );
   }
 
   const isAuthenticated = authStatus?.youtube?.authenticated;
@@ -428,15 +472,17 @@ function YouTubeLensContent() {
 
 export default function YouTubeLensPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>로딩 중...</p>
+    <YouTubeLensErrorBoundary>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>로딩 중...</p>
+          </div>
         </div>
-      </div>
-    }>
-      <YouTubeLensContent />
-    </Suspense>
+      }>
+        <YouTubeLensContent />
+      </Suspense>
+    </YouTubeLensErrorBoundary>
   );
 }

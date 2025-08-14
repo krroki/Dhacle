@@ -33,11 +33,28 @@ export class YouTubeOAuth {
    */
   static generateAuthUrl(state?: string): string {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    
+    // 환경 변수 검증 - 더 명확한 에러 메시지
     if (!clientId) {
-      throw new Error('Google Client ID is not configured');
+      console.error('Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable');
+      throw new Error(
+        'Google OAuth가 구성되지 않았습니다. ' +
+        'NEXT_PUBLIC_GOOGLE_CLIENT_ID 환경 변수를 설정해주세요. ' +
+        '자세한 내용은 .env.local.example 파일을 참조하세요.'
+      );
+    }
+    
+    if (!siteUrl) {
+      console.error('Missing NEXT_PUBLIC_SITE_URL environment variable');
+      throw new Error(
+        'Site URL이 구성되지 않았습니다. ' +
+        'NEXT_PUBLIC_SITE_URL 환경 변수를 설정해주세요. ' +
+        '개발 환경: http://localhost:3000'
+      );
     }
 
-    const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL}/api/youtube/auth/callback`;
+    const redirectUri = `${siteUrl}/api/youtube/auth/callback`;
     
     // CSRF 방지를 위한 state 파라미터
     const stateParam = state || CryptoUtil.generateCSRFToken();
@@ -62,11 +79,24 @@ export class YouTubeOAuth {
   static async exchangeCodeForToken(code: string): Promise<OAuthToken> {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL}/api/youtube/auth/callback`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-    if (!clientId || !clientSecret) {
-      throw new Error('Google OAuth credentials are not configured');
+    // 환경 변수 검증 - 상세한 에러 메시지
+    const missingVars = [];
+    if (!clientId) missingVars.push('NEXT_PUBLIC_GOOGLE_CLIENT_ID');
+    if (!clientSecret) missingVars.push('GOOGLE_CLIENT_SECRET');
+    if (!siteUrl) missingVars.push('NEXT_PUBLIC_SITE_URL');
+    
+    if (missingVars.length > 0) {
+      console.error(`Missing environment variables: ${missingVars.join(', ')}`);
+      throw new Error(
+        `Google OAuth 설정이 완료되지 않았습니다. ` +
+        `다음 환경 변수를 설정해주세요: ${missingVars.join(', ')}. ` +
+        `.env.local.example 파일을 참조하여 설정하세요.`
+      );
     }
+    
+    const redirectUri = `${siteUrl}/api/youtube/auth/callback`;
 
     try {
       const response = await fetch(this.GOOGLE_TOKEN_URL, {

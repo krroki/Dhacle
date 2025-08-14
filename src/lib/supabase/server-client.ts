@@ -57,6 +57,7 @@ export async function createSupabaseServerClient() {
 // Alias for backward compatibility
 export const createServerClient = createSupabaseServerClient;
 export const createServerSupabaseClient = createSupabaseServerClient;
+export const createClient = createSupabaseServerClient;
 
 /**
  * Create a Supabase client for server-side usage in Route Handlers

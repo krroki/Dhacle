@@ -53,3 +53,6 @@ export function createBrowserClient() {
     supabaseAnonKey
   )
 }
+
+// Alias for backward compatibility
+export const createClient = createBrowserClient;

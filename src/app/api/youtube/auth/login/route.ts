@@ -9,6 +9,24 @@ import { cookies } from 'next/headers';
  */
 export async function GET(request: NextRequest) {
   try {
+    // 환경 변수 검증
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    
+    if (!clientId || !clientSecret || !siteUrl) {
+      console.error('Missing OAuth configuration:', {
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret,
+        hasSiteUrl: !!siteUrl
+      });
+      
+      // 설정 오류로 리다이렉트
+      const errorUrl = new URL('/tools/youtube-lens', request.url);
+      errorUrl.searchParams.set('error', 'config_missing');
+      return NextResponse.redirect(errorUrl);
+    }
+    
     // CSRF 방지를 위한 state 토큰 생성
     const state = CryptoUtil.generateCSRFToken();
     
@@ -30,9 +48,19 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('OAuth login error:', error);
     
-    // 에러 발생시 에러 페이지로 리다이렉트
-    const errorUrl = new URL('/auth/error', request.url);
-    errorUrl.searchParams.set('error', 'oauth_init_failed');
+    // 에러 메시지 매핑
+    let errorCode = 'oauth_init_failed';
+    if (error instanceof Error) {
+      if (error.message.includes('환경 변수')) {
+        errorCode = 'config_missing';
+      } else if (error.message.includes('암호화')) {
+        errorCode = 'security_error';
+      }
+    }
+    
+    // 에러 발생시 YouTube Lens 페이지로 리다이렉트
+    const errorUrl = new URL('/tools/youtube-lens', request.url);
+    errorUrl.searchParams.set('error', errorCode);
     
     return NextResponse.redirect(errorUrl);
   }

@@ -8,10 +8,19 @@ export class CryptoUtil {
   private static getEncryptionKey(): string {
     const key = process.env.ENCRYPTION_KEY;
     if (!key) {
-      throw new Error('ENCRYPTION_KEY is not defined in environment variables');
+      console.error('ENCRYPTION_KEY environment variable is missing');
+      throw new Error(
+        '암호화 키가 설정되지 않았습니다. ' +
+        'ENCRYPTION_KEY 환경 변수를 설정해주세요. ' +
+        '생성 방법: Node.js 콘솔에서 require("crypto").randomBytes(32).toString("hex") 실행'
+      );
     }
     if (key.length < 32) {
-      throw new Error('ENCRYPTION_KEY must be at least 32 characters long');
+      console.error(`ENCRYPTION_KEY is too short: ${key.length} characters (minimum: 32)`);
+      throw new Error(
+        `암호화 키가 너무 짧습니다. 현재 길이: ${key.length}자, 최소 길이: 32자. ` +
+        '더 긴 암호화 키를 생성해주세요.'
+      );
     }
     return key;
   }

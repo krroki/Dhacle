@@ -198,28 +198,83 @@ export async function POST(request: NextRequest) {
     
     // YouTube API 에러 처리
     if (error instanceof Error) {
+      // API 할당량 초과
       if (error.message.includes('quotaExceeded')) {
         return NextResponse.json(
-          { error: 'YouTube API quota exceeded. Please try again later.' },
+          { 
+            error: 'YouTube API 일일 할당량을 초과했습니다. 내일 다시 시도해주세요.',
+            errorCode: 'quota_exceeded',
+            resetTime: new Date().setHours(24, 0, 0, 0) // 다음날 자정
+          },
           { status: 429 }
         );
       }
-      if (error.message.includes('forbidden')) {
+      
+      // 권한 오류
+      if (error.message.includes('forbidden') || error.message.includes('403')) {
         return NextResponse.json(
-          { error: 'Access forbidden. Please check your API permissions.' },
+          { 
+            error: 'YouTube API 접근 권한이 없습니다. Google 로그인을 다시 시도해주세요.',
+            errorCode: 'access_forbidden',
+            actionRequired: 'reauth'
+          },
           { status: 403 }
         );
       }
-      if (error.message.includes('invalid')) {
+      
+      // 잘못된 요청
+      if (error.message.includes('invalid') || error.message.includes('400')) {
         return NextResponse.json(
-          { error: 'Invalid request parameters.' },
+          { 
+            error: '잘못된 검색 요청입니다. 검색어를 확인해주세요.',
+            errorCode: 'invalid_request'
+          },
           { status: 400 }
+        );
+      }
+      
+      // 인증 만료
+      if (error.message.includes('401') || error.message.includes('unauthenticated')) {
+        return NextResponse.json(
+          { 
+            error: '인증이 만료되었습니다. 다시 로그인해주세요.',
+            errorCode: 'auth_expired',
+            actionRequired: 'reauth'
+          },
+          { status: 401 }
+        );
+      }
+      
+      // 암호화 오류
+      if (error.message.includes('decrypt')) {
+        return NextResponse.json(
+          { 
+            error: '저장된 인증 정보를 읽을 수 없습니다. 다시 로그인해주세요.',
+            errorCode: 'decryption_failed',
+            actionRequired: 'reauth'
+          },
+          { status: 500 }
+        );
+      }
+      
+      // 네트워크 오류
+      if (error.message.includes('network') || error.message.includes('fetch')) {
+        return NextResponse.json(
+          { 
+            error: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            errorCode: 'network_error'
+          },
+          { status: 503 }
         );
       }
     }
     
+    // 기본 에러 메시지
     return NextResponse.json(
-      { error: 'Failed to search YouTube videos' },
+      { 
+        error: 'YouTube 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        errorCode: 'search_failed'
+      },
       { status: 500 }
     );
   }
