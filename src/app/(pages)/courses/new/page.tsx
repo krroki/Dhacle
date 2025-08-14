@@ -1,63 +1,133 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Metadata } from 'next';
+import { getNewCourses } from '@/lib/api/courses';
+import { CourseGrid } from '../components/CourseGrid';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Construction, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Sparkles, Clock, Calendar, Zap } from 'lucide-react';
 import Link from 'next/link';
 
-export default function NewCoursesPage() {
-  return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <div className="mb-6">
-        <Link href="/courses">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            강의 목록으로 돌아가기
-          </Button>
-        </Link>
-      </div>
+export const metadata: Metadata = {
+  title: '신규 강의 | 디하클',
+  description: '디하클에 새롭게 추가된 최신 YouTube Shorts 강의를 만나보세요.',
+  openGraph: {
+    title: '신규 강의 | 디하클',
+    description: '디하클에 새롭게 추가된 최신 YouTube Shorts 강의를 만나보세요.',
+    type: 'website',
+  },
+};
 
-      <Card className="border-2 border-dashed">
-        <CardHeader className="text-center pb-8">
-          <div className="mx-auto mb-4 w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-primary" />
+export default async function NewCoursesPage() {
+  const courses = await getNewCourses();
+
+  // 최근 7일 이내 강의 체크
+  const isRecentlyAdded = (date: string) => {
+    const courseDate = new Date(date);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return courseDate > weekAgo;
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* 헤더 섹션 */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/courses">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              전체 강의 목록
+            </Button>
+          </Link>
+        </div>
+
+        <div className="text-center mb-8">
+          <div className="mx-auto mb-4 w-20 h-20 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-purple-600 dark:text-purple-400" />
           </div>
-          <CardTitle className="text-3xl mb-2">신규 강의</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            새롭게 추가된 최신 강의들
+          <h1 className="text-4xl font-bold mb-4">신규 강의</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            최신 트렌드와 알고리즘을 반영한 새로운 강의!
+            누구보다 빠르게 최신 정보를 습득하세요.
           </p>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
-            <Construction className="w-12 h-12 text-amber-600 dark:text-amber-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-lg mb-2">🚧 준비 중입니다</h3>
-            <p className="text-muted-foreground">
-              새로운 강의들을 준비하고 있습니다. 최신 트렌드를 반영한 콘텐츠를 기대해주세요.
+        </div>
+
+        {/* 신규 강의 특징 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-900 rounded-lg p-4 text-center">
+            <Zap className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-sm mb-1">최신 트렌드</h3>
+            <p className="text-xs text-muted-foreground">
+              2025년 최신 YouTube 동향 반영
             </p>
           </div>
-
-          <div className="space-y-4">
-            <h3 className="font-semibold">곧 공개될 신규 강의:</h3>
-            <ul className="space-y-2 text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <span className="text-primary">•</span>
-                최신 YouTube Shorts 알고리즘 공략법
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">•</span>
-                AI 도구 활용한 콘텐츠 제작
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">•</span>
-                바이럴 콘텐츠 기획 전략
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">•</span>
-                수익화 최적화 실전 가이드
-              </li>
-            </ul>
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-900 rounded-lg p-4 text-center">
+            <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-sm mb-1">실시간 업데이트</h3>
+            <p className="text-xs text-muted-foreground">
+              알고리즘 변화 즉시 반영
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-900 rounded-lg p-4 text-center">
+            <Calendar className="w-8 h-8 text-green-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-sm mb-1">얼리버드 혜택</h3>
+            <p className="text-xs text-muted-foreground">
+              신규 강의 특별 할인 제공
+            </p>
+          </div>
+        </div>
+
+        {/* NEW 뱃지 설명 */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/10 dark:to-pink-950/10 border border-purple-200 dark:border-purple-900 rounded-lg p-4 mb-8 max-w-3xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Badge className="bg-purple-500 text-white hover:bg-purple-600">✨ NEW</Badge>
+            <p className="text-sm text-muted-foreground">
+              최근 7일 이내 추가된 강의에는 NEW 뱃지가 표시됩니다
+            </p>
+          </div>
+        </div>
+
+        {/* 신규 강의 주제 미리보기 */}
+        <div className="mb-8 max-w-4xl mx-auto">
+          <h3 className="font-semibold mb-4 text-center">🎯 최신 강의 주제</h3>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Badge variant="outline">YouTube Shorts 알고리즘 2025</Badge>
+            <Badge variant="outline">AI 도구 활용법</Badge>
+            <Badge variant="outline">바이럴 콘텐츠 전략</Badge>
+            <Badge variant="outline">수익화 최적화</Badge>
+            <Badge variant="outline">글로벌 진출 가이드</Badge>
+            <Badge variant="outline">브랜드 협업 노하우</Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* 강의 목록 */}
+      {courses.length > 0 ? (
+        <>
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-muted-foreground">
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 신규 강의
+            </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="w-4 h-4" />
+              최신 등록순
+            </div>
+          </div>
+          <CourseGrid initialCourses={courses} />
+        </>
+      ) : (
+        <div className="text-center py-12">
+          <div className="max-w-md mx-auto">
+            <Sparkles className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">새로운 강의를 준비 중입니다</h2>
+            <p className="text-muted-foreground mb-6">
+              최신 트렌드를 반영한 새로운 강의가 곧 공개됩니다.
+            </p>
+            <Link href="/courses">
+              <Button>전체 강의 둘러보기</Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

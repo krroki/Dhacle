@@ -24,8 +24,11 @@ export interface Course {
   target_audience?: string[];
   objectives?: string[]; // Learning objectives
   category?: string; // Course category
-  difficulty?: 'beginner' | 'intermediate' | 'advanced'; // Difficulty level
+  level?: 'beginner' | 'intermediate' | 'advanced'; // Difficulty level
+  difficulty?: 'beginner' | 'intermediate' | 'advanced'; // Difficulty level (legacy)
   language?: string; // Course language
+  tags?: string[]; // Course tags for categorization
+  preview_enabled?: boolean; // Whether preview/trial is available
   status: 'upcoming' | 'active' | 'completed';
   launch_date: string;
   created_at: string;
