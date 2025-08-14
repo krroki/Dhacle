@@ -18,6 +18,7 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
     if (filters) {
       filterCourses();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const filterCourses = async () => {
@@ -33,7 +34,7 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
         filtered = filtered.filter(c => c.is_free === filters.is_free);
       }
       if (filters?.rating !== undefined) {
-        filtered = filtered.filter(c => c.average_rating >= filters.rating);
+        filtered = filtered.filter(c => c.average_rating >= filters.rating!);
       }
       if (filters?.search) {
         const searchLower = filters.search.toLowerCase();

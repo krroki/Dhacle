@@ -227,6 +227,7 @@ export default function CreateRevenueProof() {
                     src={imagePreview} 
                     alt="스크린샷 미리보기" 
                     className="max-w-full h-auto mx-auto rounded-lg"
+                    // eslint-disable-next-line @next/next/no-img-element
                   />
                   <div className="flex gap-2 justify-center mt-4">
                     <Button
@@ -383,6 +384,7 @@ export default function CreateRevenueProof() {
               minWidth={100}
               minHeight={100}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 ref={imageRef}
                 src={imagePreview} 

@@ -1,14 +1,11 @@
 // 강의 API 유틸리티 함수
 
-import { createClient } from '@/lib/supabase/server-client';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { 
   Course, 
-  Lesson, 
   CourseFilters, 
   CourseListResponse,
   CourseDetailResponse,
-  Purchase,
-  Enrollment,
   CourseProgress
 } from '@/types/course';
 
@@ -16,7 +13,7 @@ import type {
  * 강의 목록 조회
  */
 export async function getCourses(filters?: CourseFilters): Promise<CourseListResponse> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   let query = supabase
     .from('courses')
@@ -70,7 +67,7 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
  * 강의 상세 정보 조회
  */
 export async function getCourseDetail(courseId: string): Promise<CourseDetailResponse | null> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   // 강의 정보
   const { data: course, error: courseError } = await supabase
@@ -149,7 +146,7 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
  * 강사별 강의 목록 조회
  */
 export async function getCoursesByInstructor(instructorName: string): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('courses')
@@ -170,7 +167,7 @@ export async function getCoursesByInstructor(instructorName: string): Promise<Co
  * 무료 강의 목록 조회
  */
 export async function getFreeCourses(): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('courses')
@@ -192,7 +189,7 @@ export async function getFreeCourses(): Promise<Course[]> {
  * 인기 강의 목록 조회
  */
 export async function getPopularCourses(): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('courses')
@@ -213,7 +210,7 @@ export async function getPopularCourses(): Promise<Course[]> {
  * 신규 강의 목록 조회
  */
 export async function getNewCourses(): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('courses')
@@ -234,7 +231,7 @@ export async function getNewCourses(): Promise<Course[]> {
  * 사용자의 구매한 강의 목록
  */
 export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('purchases')
@@ -249,14 +246,17 @@ export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
     return [];
   }
 
-  return data?.map(item => item.course).filter(Boolean) as Course[] || [];
+  return data?.map((item: unknown) => {
+    const typedItem = item as { course: Course };
+    return typedItem.course;
+  }).filter(Boolean) as Course[] || [];
 }
 
 /**
  * 사용자의 진행 중인 강의 목록
  */
 export async function getMyActiveCourses(userId: string): Promise<Course[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('enrollments')
@@ -272,14 +272,17 @@ export async function getMyActiveCourses(userId: string): Promise<Course[]> {
     return [];
   }
 
-  return data?.map(item => item.course).filter(Boolean) as Course[] || [];
+  return data?.map((item: unknown) => {
+    const typedItem = item as { course: Course };
+    return typedItem.course;
+  }).filter(Boolean) as Course[] || [];
 }
 
 /**
  * 강의 진도율 계산
  */
 export async function getCourseProgress(userId: string, courseId: string): Promise<number> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   // 전체 레슨 수
   const { count: totalLessons } = await supabase
@@ -304,7 +307,7 @@ export async function getCourseProgress(userId: string, courseId: string): Promi
  * 유니크한 강사 목록 조회
  */
 export async function getUniqueInstructors(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   
   const { data, error } = await supabase
     .from('courses')
@@ -316,6 +319,9 @@ export async function getUniqueInstructors(): Promise<string[]> {
     return [];
   }
 
-  const uniqueInstructors = [...new Set(data?.map(item => item.instructor_name).filter(Boolean))];
+  const uniqueInstructors = [...new Set(data?.map((item: unknown) => {
+    const typedItem = item as { instructor_name: string };
+    return typedItem.instructor_name;
+  }).filter(Boolean))];
   return uniqueInstructors as string[];
 }

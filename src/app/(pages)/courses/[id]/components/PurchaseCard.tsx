@@ -14,9 +14,11 @@ import {
   Award, 
   ShieldCheck,
   ChevronRight,
-  Tag
+  Tag,
+  Loader2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { loadStripe } from '@stripe/stripe-js';
 import type { Course } from '@/types/course';
 
 interface PurchaseCardProps {
@@ -30,6 +32,8 @@ export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardPr
   const [couponCode, setCouponCode] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [discount, setDiscount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
   const formatPrice = (price: number): string => {
     if (price === 0) return '무료';
@@ -43,9 +47,46 @@ export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardPr
     if (course.is_free || isEnrolled || isPurchased) {
       // 무료 강의나 이미 구매한 경우 바로 학습 페이지로
       router.push(`/learn/${course.id}`);
-    } else {
-      // 결제 페이지로 이동
-      router.push(`/payment?courseId=${course.id}&coupon=${couponCode}`);
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // 1. Create payment intent
+      const response = await fetch('/api/payment/create-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId: course.id,
+          couponCode: appliedCoupon?.code || ''
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '결제 처리 중 오류가 발생했습니다.');
+      }
+
+      const paymentData = await response.json() as { clientSecret: string; purchaseId: string; finalPrice: number };
+      const { purchaseId } = paymentData;
+      // clientSecret and finalPrice would be used for payment processing
+
+      // 2. Initialize Stripe
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+      
+      if (!stripe) {
+        throw new Error('Stripe 초기화에 실패했습니다.');
+      }
+
+      // 3. Redirect to payment page with the purchase ID
+      // The actual card payment will be handled on the payment page with Stripe Elements
+      router.push(`/payment?purchaseId=${purchaseId}&courseId=${course.id}`);
+      
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -57,15 +98,20 @@ export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardPr
       const response = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode, courseId: course.id })
+        body: JSON.stringify({ couponCode, courseId: course.id })
       });
 
       if (response.ok) {
         const data = await response.json();
-        setDiscount(data.discountAmount);
+        setDiscount(data.discount.discountAmount);
+        setAppliedCoupon(data.coupon);
+      } else {
+        const error = await response.json();
+        alert(error.error || '쿠폰 적용에 실패했습니다.');
       }
     } catch (error) {
       console.error('쿠폰 적용 실패:', error);
+      alert('쿠폰 적용 중 오류가 발생했습니다.');
     } finally {
       setIsApplyingCoupon(false);
     }
@@ -134,9 +180,19 @@ export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardPr
             size="lg" 
             className="w-full"
             onClick={handlePurchase}
+            disabled={isProcessing}
           >
-            {getButtonText()}
-            <ChevronRight className="w-4 h-4 ml-1" />
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                처리중...
+              </>
+            ) : (
+              <>
+                {getButtonText()}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </>
+            )}
           </Button>
         </div>
       </CardHeader>

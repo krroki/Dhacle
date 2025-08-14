@@ -113,7 +113,7 @@ ENCRYPTION_KEY=`;
               <div className="space-y-2">
                 <h4 className="font-medium">4. API 키 생성</h4>
                 <p className="text-sm text-muted-foreground ml-4">
-                  "사용자 인증 정보" → "API 키 만들기"
+                  {'"사용자 인증 정보" → "API 키 만들기"'}
                 </p>
               </div>
             </div>
@@ -232,7 +232,7 @@ AND table_name IN ('user_api_keys', 'youtube_favorites');
                   <h4 className="font-medium">2. OAuth 플로우 테스트</h4>
                   <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground ml-4">
                     <li>이 페이지 새로고침</li>
-                    <li>"Google로 로그인" 버튼 클릭</li>
+                    <li>{'"Google로 로그인" 버튼 클릭'}</li>
                     <li>Google 계정 선택 및 권한 승인</li>
                     <li>성공 시 YouTube Lens 페이지로 리디렉션</li>
                   </ol>

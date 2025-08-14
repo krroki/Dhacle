@@ -13,7 +13,7 @@ export interface Course {
   discount_price?: number;
   is_free: boolean;
   is_premium: boolean;
-  content_blocks?: ContentBlock[];
+  content_blocks?: ContentBlock[] | string; // Can be JSON string or parsed array
   total_duration: number;
   student_count: number;
   average_rating: number;
@@ -22,6 +22,10 @@ export interface Course {
   requirements?: string[];
   what_you_learn?: string[];
   target_audience?: string[];
+  objectives?: string[]; // Learning objectives
+  category?: string; // Course category
+  difficulty?: 'beginner' | 'intermediate' | 'advanced'; // Difficulty level
+  language?: string; // Course language
   status: 'upcoming' | 'active' | 'completed';
   launch_date: string;
   created_at: string;

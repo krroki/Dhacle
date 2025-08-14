@@ -95,7 +95,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       // 변수 상태 업데이트
       const updatedVars = variables.map(v => ({
         ...v,
-        status: data.missingVars?.includes(v.name) ? 'missing' : 'configured' as const
+        status: (data.missingVars?.includes(v.name) ? 'missing' : 'configured') as 'missing' | 'configured'
       }));
       
       setVariables(updatedVars);

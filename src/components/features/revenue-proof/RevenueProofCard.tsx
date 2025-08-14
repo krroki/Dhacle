@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import type { RevenueProof } from '@/types/revenue-proof';
 
 interface RevenueProofCardProps {
@@ -48,10 +47,9 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
   };
 
   return (
-    <Link href={`/revenue-proof/${data.id}`}>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-        {/* 이미지 섹션 */}
-        <div className="relative aspect-[4/3] bg-gray-100">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+      {/* 이미지 섹션 */}
+      <div className="relative aspect-[4/3] bg-gray-100">
           <Image
             src={data.screenshot_url}
             alt={data.title}
@@ -124,6 +122,5 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
           </div>
         </div>
       </Card>
-    </Link>
   );
 }

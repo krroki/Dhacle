@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Youtube, Instagram, MessageCircle, Mail, Phone } from 'lucide-react'
+import { Youtube, Instagram, MessageCircle, Mail, Phone, Coffee, Facebook, MapPin } from 'lucide-react'
 import { Button, Input, Separator } from '@/components/ui'
 
 const footerLinks = {
@@ -32,9 +32,11 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: 'YouTube', icon: Youtube, href: 'https://youtube.com', color: 'hover:text-red-600' },
-  { name: 'Instagram', icon: Instagram, href: 'https://instagram.com', color: 'hover:text-pink-600' },
-  { name: '카카오톡 채널', icon: MessageCircle, href: 'https://pf.kakao.com', color: 'hover:text-yellow-600' },
+  { name: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@%EB%A7%88%EC%BC%80%ED%84%B0%EC%A0%9C%EC%9D%B4J', color: 'hover:text-red-600' },
+  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/marketerjjj', color: 'hover:text-pink-600' },
+  { name: '카카오톡 오픈채팅', icon: MessageCircle, href: 'https://open.kakao.com/o/goShEsJg', color: 'hover:text-yellow-600' },
+  { name: '네이버 카페', icon: Coffee, href: 'https://cafe.naver.com/dinohighclass', color: 'hover:text-green-600' },
+  { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/p/%EB%A7%88%EC%BC%80%ED%84%B0-%EC%A0%9C%EC%9D%B4J-100091505784956/', color: 'hover:text-blue-600' },
 ]
 
 export function Footer() {
@@ -160,22 +162,28 @@ export function Footer() {
         {/* Business Info & Copyright */}
         <div className="space-y-4 text-sm text-muted-foreground">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <span>사업자등록번호: 123-45-67890</span>
+            <span>사업자등록번호: 286-12-01284</span>
             <span className="hidden sm:inline">|</span>
-            <span>대표: 홍길동</span>
+            <span>대표: 최주원</span>
             <span className="hidden sm:inline">|</span>
             <span className="flex items-center gap-1">
               <Mail className="h-3 w-3" />
-              support@dhacle.com
+              info@bforest.kr
             </span>
             <span className="hidden sm:inline">|</span>
             <span className="flex items-center gap-1">
               <Phone className="h-3 w-3" />
-              1588-0000
+              070-8028-2422
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="flex items-start gap-1">
+              <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+              <span>경기도 수원시 영통구 영일로 6번길 7, 3층</span>
             </span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <p>© 2025 Dhacle. All rights reserved.</p>
+            <p>© 2025 BForest. All rights reserved.</p>
             <div className="flex gap-4">
               <Link href="/sitemap" className="hover:text-foreground transition-colors">
                 사이트맵

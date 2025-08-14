@@ -115,87 +115,99 @@ export const dummyHeroSlides: HeroSlide[] = [
 export const dummyInstructors: Instructor[] = [
   {
     id: '1',
-    name: '김강사',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kim',
-    specialty: '콘텐츠 기획',
-    courseCount: 5
+    name: '데헷이',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=deheti',
+    specialty: '초효율쇼츠',
+    courseCount: 1
   },
   {
     id: '2',
-    name: '이멘토',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lee',
-    specialty: '영상 편집',
-    courseCount: 8
+    name: '빠대',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bbadae',
+    specialty: '탑클래스쿠팡',
+    courseCount: 1
   },
   {
     id: '3',
-    name: '박코치',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=park',
-    specialty: '채널 성장',
-    courseCount: 3
+    name: '테일러',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=taylor',
+    specialty: '월억쇼츠',
+    courseCount: 1
   },
   {
     id: '4',
-    name: '최전문가',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=choi',
-    specialty: '알고리즘 분석',
-    courseCount: 7
+    name: '룰루랄라릴리',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lululala',
+    specialty: '쇼츠투벤츠',
+    courseCount: 1
   },
   {
     id: '5',
-    name: '정크리에이터',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jung',
-    specialty: '트렌드 분석',
-    courseCount: 4
+    name: '유쾌한케로로',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=keroro',
+    specialty: 'AI뮤직자동화',
+    courseCount: 1
   },
   {
     id: '6',
-    name: '강마스터',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kang',
-    specialty: '수익화 전략',
-    courseCount: 6
+    name: '한다해',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=handahae',
+    specialty: '이지롱폼',
+    courseCount: 1
   },
   {
     id: '7',
-    name: '윤샘',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=yoon',
-    specialty: '브랜딩',
-    courseCount: 5
+    name: '꿍디순디',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kkungdi',
+    specialty: '셀럽팬튜브',
+    courseCount: 1
   },
   {
     id: '8',
-    name: '장튜터',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jang',
-    specialty: '스토리텔링',
-    courseCount: 9
+    name: '그라운드',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ground',
+    specialty: '실버버튼 챌린지',
+    courseCount: 1
   },
   {
     id: '9',
-    name: '임코치',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lim',
-    specialty: '라이브 방송',
-    courseCount: 4
+    name: '위쏭',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wesong',
+    specialty: '이베이 이스타터',
+    courseCount: 1
   },
   {
     id: '10',
-    name: '한멘토',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=han',
-    specialty: '커뮤니티 관리',
-    courseCount: 3
+    name: '링밥',
+    // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ringbob',
+    specialty: '폰편집 월천쇼츠',
+    courseCount: 1
   },
   {
     id: '11',
-    name: '오선생',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=oh',
-    specialty: '협업 전략',
-    courseCount: 5
+    name: '강사11',
+    // TODO: 실제 강사 정보로 업데이트 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor11',
+    specialty: '준비중',
+    courseCount: 0
   },
   {
     id: '12',
-    name: '서마스터',
-    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=seo',
-    specialty: 'SEO 최적화',
-    courseCount: 7
+    name: '강사12',
+    // TODO: 실제 강사 정보로 업데이트 필요
+    profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor12',
+    specialty: '준비중',
+    courseCount: 0
   }
 ];
 

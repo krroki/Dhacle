@@ -65,7 +65,7 @@ export default function LearnPage() {
 
       if (lessonsData) {
         setLessons(lessonsData);
-        const current = lessonsData.find(l => l.id === lessonId);
+        const current = lessonsData.find((l: Lesson) => l.id === lessonId);
         setCurrentLesson(current || null);
       }
 

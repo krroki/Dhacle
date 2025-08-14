@@ -1,6 +1,6 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-14*
+*최종 업데이트: 2025-01-15*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -20,7 +20,7 @@
 - **현재 상태**: 완전 재구축 진행 중 (styled-components → shadcn/ui)
 - **백업 위치**: `../dhacle-backup/` (기존 코드 모두 보존)
 
-## 🚨 현재 재구축 상황 (2025-01-14)
+## 🚨 현재 재구축 상황 (2025-01-15)
 
 ### 🔄 마이그레이션 진행 상황
 
@@ -102,10 +102,58 @@
   - Next.js 15 호환성 문제 해결 (Suspense boundary)
   - 타입 정의 완성 (YouTubeChannelResponse, FlattenedYouTubeVideo 등)
 
-#### Phase 7: 페이지 구현 📋 예정
-- [ ] 강의 목록 페이지
-- [ ] 강의 상세 페이지
-- [ ] 커뮤니티 페이지
+#### Phase 7: 강의 시스템 구현 ✅ 완료 (2025-01-14)
+- ✅ **강의 목록 페이지 구현**
+  - CourseGrid 컴포넌트 (필터링, 정렬 기능)
+  - InstructorFilter 컴포넌트 (강사별 필터)
+  - 반응형 그리드 레이아웃
+- ✅ **강의 상세 페이지 구현**
+  - CourseDetailClient 컴포넌트 (클라이언트 사이드 렌더링)
+  - PurchaseCard 컴포넌트 (결제 UI)
+  - 탭 기반 커리큘럼/리뷰/공지 표시
+- ✅ **비디오 플레이어 구현**
+  - HLS 스트리밍 지원 (video.js)
+  - 진도 저장 기능
+  - 자동 다음 레슨 재생
+- ✅ **관리자 시스템 구현**
+  - 관리자 대시보드 (`/admin`)
+  - 강의 생성/편집 페이지
+  - CourseEditor 컴포넌트
+  - AdminSidebar 네비게이션
+
+#### Phase 8: 결제 시스템 구현 ✅ 완료 (2025-01-14)
+- ✅ **Stripe 결제 연동**
+  - PaymentIntent API 구현
+  - Webhook 처리 (`/api/payment/webhook`)
+  - 결제 성공/실패 처리
+- ✅ **쿠폰 시스템 구현**
+  - 쿠폰 검증 API (`/api/coupons/validate`)
+  - 할인 금액 계산 로직
+- ✅ **결제 페이지 구현**
+  - `/payment/checkout` 페이지
+  - `/payment/success` 페이지
+  - `/payment/cancel` 페이지
+- ✅ **Stripe 라이브러리 설정**
+  - `@stripe/stripe-js` 설치
+  - `stripe` SDK 설치
+  - Stripe 클라이언트 초기화
+
+#### Phase 9: SEO 및 메타데이터 최적화 ✅ 완료 (2025-01-14)
+- ✅ **sitemap.ts 구현**
+  - 동적 사이트맵 생성
+  - 강의 페이지 포함
+- ✅ **robots.ts 구현**
+  - 검색 엔진 크롤링 규칙 설정
+  - Sitemap URL 포함
+- ✅ **Switch 컴포넌트 추가**
+  - shadcn/ui switch 컴포넌트 설치
+  - 토글 기능 구현
+
+#### Phase 10: 진행 예정 📋
+- [ ] 커뮤니티 페이지 구현
+- [ ] 알림 시스템 구현
+- [ ] 실시간 채팅 기능
+- [ ] 이메일 인증 시스템
 
 ### 📊 기존 문제점 분석 (재구축 이유)
 - **스타일링 혼재**: styled-components + Tailwind + inline styles (955개 className)
@@ -119,7 +167,7 @@
 3. **성능 최적화**: 번들 크기 감소, SSR/SSG 활용
 4. **유지보수성**: 명확한 폴더 구조, 재사용 가능한 컴포넌트
 
-### ⚠️ 알려진 이슈 (2025-01-14 업데이트)
+### ⚠️ 알려진 이슈 (2025-01-15 업데이트)
 
 #### 🔴 보안 취약점 (우선 해결 필요)
 - **문제**: `src/app/auth/callback/route.ts`에 Supabase 자격 증명 하드코딩
@@ -162,7 +210,7 @@
 
 ### Frontend
 - **Framework**: Next.js 15.4.6 (App Router)
-- **UI Library**: shadcn/ui (Radix UI + Tailwind)
+- **UI Library**: shadcn/ui (Radix UI + Tailwind) - 24개 컴포넌트
 - **Styling**: Tailwind CSS
 - **Language**: TypeScript (strict mode)
 - **State**: Zustand 5.0.7 (설치됨)
@@ -173,6 +221,8 @@
 - **Observer**: react-intersection-observer 9.16.0
 - **Toast**: Sonner (Radix UI Toast 기반)
 - **Editor**: TipTap (리치 텍스트 에디터)
+- **Payment**: Stripe (@stripe/stripe-js, stripe) ✅ NEW
+- **Video**: video.js (HLS 스트리밍 지원) ✅ NEW
 
 ### Backend & Infrastructure
 - **Database**: Supabase (PostgreSQL)
@@ -191,45 +241,82 @@ src/
 │   ├── layout.tsx         # Root Layout ✅ 구현 완료
 │   ├── page.tsx          # 메인 페이지 ✅ 구현 완료
 │   ├── globals.css       # 전역 스타일
+│   ├── sitemap.ts        # 사이트맵 생성 ✅ NEW
+│   ├── robots.ts         # robots.txt 생성 ✅ NEW
 │   ├── (pages)/          # 페이지 그룹
-│   │   ├── courses/      # 강의 페이지
-│   │   ├── community/    # 커뮤니티
-│   │   ├── revenue-proof/ # 수익 인증 페이지 ✅ NEW
+│   │   ├── courses/      # 강의 페이지 ✅ 구현 완료
+│   │   │   ├── [id]/     # 강의 상세 ✅ NEW
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── components/
+│   │   │   │       ├── CourseDetailClient.tsx
+│   │   │   │       └── PurchaseCard.tsx
+│   │   │   ├── page.tsx  # 강의 목록
+│   │   │   └── components/
+│   │   │       ├── CourseGrid.tsx
+│   │   │       └── InstructorFilter.tsx
+│   │   ├── payment/      # 결제 페이지 ✅ NEW
+│   │   │   ├── checkout/page.tsx
+│   │   │   ├── success/page.tsx
+│   │   │   └── cancel/page.tsx
+│   │   ├── community/    # 커뮤니티 (예정)
+│   │   ├── revenue-proof/ # 수익 인증 페이지 ✅
 │   │   └── tools/        # 도구
-│   ├── mypage/           # 마이페이지 ✅ NEW
+│   ├── learn/            # 학습 페이지 ✅ NEW
+│   │   └── [courseId]/[lessonId]/page.tsx
+│   ├── admin/            # 관리자 페이지 ✅ NEW
+│   │   ├── layout.tsx    # 관리자 레이아웃
+│   │   ├── page.tsx      # 대시보드
+│   │   ├── courses/      # 강의 관리
+│   │   │   ├── page.tsx
+│   │   │   ├── new/page.tsx
+│   │   │   └── components/
+│   │   │       └── CourseEditor.tsx
+│   │   └── components/
+│   │       └── AdminSidebar.tsx
+│   ├── mypage/           # 마이페이지 ✅
 │   │   ├── profile/      # 프로필
 │   │   ├── courses/      # 내 강의
 │   │   ├── badges/       # 뱃지
 │   │   └── settings/     # 설정
 │   ├── api/              # API Routes
 │   │   ├── user/         # 사용자 API
-│   │   │   ├── init-profile/ # 프로필 초기화 ✅ NEW
-│   │   │   ├── generate-nickname/ # 닉네임 생성 ✅ NEW
-│   │   │   └── naver-cafe/ # 네이버 카페 ✅ NEW
-│   │   ├── revenue-proof/ # 수익 인증 API ✅ NEW
-│   │   └── upload/       # 파일 업로드 ✅ NEW
+│   │   │   ├── init-profile/ # 프로필 초기화 ✅
+│   │   │   ├── generate-nickname/ # 닉네임 생성 ✅
+│   │   │   └── naver-cafe/ # 네이버 카페 ✅
+│   │   ├── payment/      # 결제 API ✅ NEW
+│   │   │   ├── create-intent/route.ts
+│   │   │   └── webhook/route.ts
+│   │   ├── coupons/      # 쿠폰 API ✅ NEW
+│   │   │   └── validate/route.ts
+│   │   ├── revenue-proof/ # 수익 인증 API ✅
+│   │   ├── youtube/      # YouTube API ✅
+│   │   └── upload/       # 파일 업로드 ✅
 │   └── auth/             # 인증 관련
 │       ├── callback/     # OAuth callback
 │       ├── error/        # 인증 에러
 │       ├── login/        # 로그인 (구현 예정)
 │       └── signup/       # 회원가입 (구현 예정)
 ├── components/            
-│   ├── ui/               # shadcn/ui 컴포넌트 (15개)
+│   ├── ui/               # shadcn/ui 컴포넌트 (24개) ✅ 확장
+│   │   └── switch.tsx    # 토글 스위치 ✅ NEW
 │   ├── layout/           # Header, Footer 등
 │   └── features/         # 기능별 컴포넌트
 │       ├── home/         # 메인 페이지 컴포넌트
-│       ├── revenue-proof/ # 수익 인증 컴포넌트 ✅ NEW
-│       └── tools/        # 도구 컴포넌트 ✅ NEW
+│       ├── revenue-proof/ # 수익 인증 컴포넌트 ✅
+│       └── tools/        # 도구 컴포넌트 ✅
 │           └── youtube-lens/ # YouTube Lens 컴포넌트
 ├── lib/
 │   ├── supabase/         # Supabase 클라이언트
 │   │   ├── browser-client.ts
 │   │   ├── server-client.ts
-│   │   └── migrations/   # SQL 마이그레이션 (10개) ✅ 추가
+│   │   └── migrations/   # SQL 마이그레이션 (10개) ✅
+│   ├── stripe/           # Stripe 관련 ✅ NEW
+│   │   └── client.ts     # Stripe 클라이언트 초기화
 │   ├── auth/             # 인증 관련
-│   ├── api/              # API 유틸리티 ✅ NEW
-│   ├── validations/      # 유효성 검사 ✅ NEW
-│   ├── youtube/          # YouTube API 관련 ✅ NEW
+│   ├── api/              # API 유틸리티 ✅
+│   │   └── courses.ts    # 강의 API 함수
+│   ├── validations/      # 유효성 검사 ✅
+│   ├── youtube/          # YouTube API 관련 ✅
 │   │   ├── api-client.ts # YouTube API 클라이언트
 │   │   ├── oauth.ts      # OAuth 2.0 인증
 │   │   └── crypto.ts     # 암호화 유틸리티
@@ -237,8 +324,9 @@ src/
 ├── types/                # TypeScript 타입 정의
 │   ├── database.ts
 │   ├── database.types.ts
-│   ├── revenue-proof.ts  # 수익 인증 타입 ✅ NEW
-│   └── youtube.ts        # YouTube 타입 ✅ NEW
+│   ├── course.ts         # 강의 타입 정의 ✅ 수정
+│   ├── revenue-proof.ts  # 수익 인증 타입 ✅
+│   └── youtube.ts        # YouTube 타입 ✅
 ├── store/                # Zustand 상태 관리
 │   ├── layout.ts         # 레이아웃 상태
 │   └── youtube-lens.ts   # YouTube Lens 상태 ✅ NEW
@@ -299,6 +387,15 @@ YOUTUBE_API_KEY=your_youtube_api_key
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ENCRYPTION_KEY=your_32_character_encryption_key
+
+# Stripe (결제 시스템) ✅ NEW
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Cloudflare Stream (비디오 스트리밍) - 예정
+# CLOUDFLARE_ACCOUNT_ID=your_account_id
+# CLOUDFLARE_STREAM_TOKEN=your_stream_token
 ```
 
 ---
