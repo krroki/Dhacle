@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -339,10 +340,25 @@ export function Header() {
       <div className="container-responsive h-full flex items-center justify-between">
         {/* Logo and Desktop Nav */}
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-32 h-8 flex items-center">
-              <span className="text-xl font-bold text-primary">디하클</span>
-            </div>
+          <Link href="/" className="flex items-center">
+            {/* 데스크톱 로고 */}
+            <Image 
+              src="/images/logo/dhacle-logo@2x.png"
+              alt="디하클"
+              width={160}
+              height={48}
+              className="hidden md:block"
+              priority
+            />
+            {/* 모바일 로고 */}
+            <Image 
+              src="/images/logo/dhacle-logo-mobile.png"
+              alt="디하클"
+              width={120}
+              height={36}
+              className="block md:hidden"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

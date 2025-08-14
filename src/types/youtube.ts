@@ -207,6 +207,7 @@ export interface ApiUsage {
 // API 할당량 상태
 export interface QuotaStatus {
   used: number;
+  limit: number;
   remaining: number;
   percentage: number;
   resetTime: Date;

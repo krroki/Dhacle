@@ -8,9 +8,12 @@
     "dev:turbo": "next dev --turbo",
     "build": "next build",
     "build:clean": "npm run clean && next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
+    "db:seed": "node scripts/seed.js",
     "clean": "rimraf .next node_modules/.cache",
     "clean:all": "rimraf .next node_modules/.cache out",
     "fresh": "npm run clean:all && npm install && npm run dev"

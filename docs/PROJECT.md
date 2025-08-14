@@ -1,6 +1,6 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-16*
+*최종 업데이트: 2025-01-16 (Phase 10: YouTube Lens OAuth → API Key 전환 완료)*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -149,16 +149,16 @@
   - shadcn/ui switch 컴포넌트 설치
   - 토글 기능 구현
 
-#### Phase 10: YouTube Lens API Key 전환 ✅ 완료 (2025-01-16)
+#### Phase 10: YouTube Lens OAuth → API Key 전환 ✅ 완료 (2025-01-16)
 - ✅ **OAuth 시스템 완전 제거**
   - Google OAuth 2.0 관련 파일 모두 삭제
-  - `/api/youtube/auth/*` 엔드포인트 제거 (5개 파일)
+  - `/api/youtube/auth/*` 엔드포인트 제거 (callback, refresh, token, logout, status)
   - `/lib/youtube/oauth.ts` 제거
-  - OAuth 관련 환경 변수 제거 (CLIENT_ID, CLIENT_SECRET)
+  - OAuth 관련 환경 변수 제거 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
 - ✅ **API Key 시스템 구현**
   - 사용자별 API Key 관리 시스템 구축
   - AES-256-CBC 암호화 저장 구현 (64자 hex key)
-  - API Key 마스킹 기능 (앞 8자 + 뒤 4자만 표시)
+  - API Key 마스킹 기능 (앞 4자 + 뒤 3자만 표시: AIza...XXX)
   - YouTube API 유효성 실시간 검증
 - ✅ **새로운 DB 테이블**
   - `user_api_keys` 테이블 생성 (마이그레이션 011)
@@ -171,14 +171,24 @@
   - `/api/youtube/search` - API Key 기반으로 수정
   - 모든 YouTube API 호출 개인 Key 사용으로 전환
 - ✅ **UI 페이지 구현**
-  - `/settings/api-keys` - API Key 설정 페이지 (Form + 마스킹)
-  - `/docs/get-api-key` - 발급 가이드 페이지 (5분 소요)
+  - `/settings/api-keys` - API Key 설정 페이지 (Form + 마스킹 표시)
+  - `/docs/get-api-key` - 발급 가이드 페이지 (5단계 상세 가이드)
   - YouTube Lens 페이지 OAuth UI 제거 및 API Key 상태 표시
+- ✅ **Frontend 수정사항**
+  - `fetchApiKeyStatus` 함수 구현 (YouTube Lens 페이지)
+  - Google 로그인 버튼 → API Key 설정 버튼 변경
+  - QuotaStatus 타입에 `limit` 필드 추가
+  - 모든 OAuth 관련 코드 제거
+- ✅ **보안 기능**
+  - `/lib/api-keys/crypto.ts` - 암호화/복호화 모듈
+  - `maskApiKey` 함수로 안전한 표시
+  - `validateApiKeyFormat` 함수로 형식 검증
+  - 환경 변수 ENCRYPTION_KEY 필수 설정
 - ✅ **성능 개선 결과**
   - 사용자당 할당량: 100 units → 10,000 units (100배 증가)
-  - 구현 복잡도: 10개 파일 → 5개 파일 (50% 감소)
-  - 운영 비용: 증가 예상 → 0원 (100% 절감)
-  - 인증 단계: 5단계 → 2단계 (60% 간소화)
+  - 구현 복잡도: OAuth 10개 파일 → API Key 5개 파일 (50% 감소)
+  - 운영 비용: 증가 예상 → 0원 (사용자 개인 할당량)
+  - 인증 단계: OAuth 5단계 → API Key 2단계 (60% 간소화)
 
 #### Phase 11: 진행 예정 📋
 - [ ] 커뮤니티 페이지 구현

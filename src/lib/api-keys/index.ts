@@ -16,14 +16,14 @@ export interface UserApiKey {
   is_active: boolean;
   is_valid: boolean;
   validation_error: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, string | number | boolean | null>;
 }
 
 export interface SaveApiKeyParams {
   userId: string;
   apiKey: string;
   serviceName?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null>;
 }
 
 export interface ApiKeyValidationResult {

@@ -153,6 +153,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                   course={course}
                   isEnrolled={isEnrolled}
                   isPurchased={isPurchased}
+                  firstLessonId={lessons[0]?.id}
                 />
               </div>
             </div>

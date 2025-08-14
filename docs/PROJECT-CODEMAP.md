@@ -15,21 +15,30 @@
 
 ## 🆕 최근 업데이트 (2025-01-16)
 
-### Phase 10: YouTube Lens API Key 전환 ✅ 완료 (2025-01-16)
+### Phase 10: YouTube Lens OAuth → API Key 전환 ✅ 완료 (2025-01-16)
 - **OAuth 시스템 제거**: 
-  - `/api/youtube/auth/*` 엔드포인트 모두 삭제 (5개 파일)
+  - `/api/youtube/auth/*` 엔드포인트 모두 삭제 (callback, refresh, token, logout, status)
   - `/lib/youtube/oauth.ts` 제거
-  - Google OAuth 환경 변수 제거
+  - Google OAuth 환경 변수 제거 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
 - **API Key 시스템 구현**: 
-  - 사용자별 API Key 관리 시스템
-  - AES-256-CBC 암호화 (64자 hex key)
-  - Key 마스킹 (앞 8자 + 뒤 4자)
+  - 사용자별 API Key 관리 시스템 (개인 할당량 사용)
+  - AES-256-CBC 암호화 (64자 hex key, ENCRYPTION_KEY 환경변수)
+  - Key 마스킹 (앞 4자 + 뒤 3자: AIza...XXX)
+  - YouTube API 유효성 실시간 검증
 - **새 DB 테이블**: 
   - `user_api_keys` 테이블 추가 (마이그레이션 011)
-  - RLS 정책으로 사용자 격리
+  - RLS 정책으로 사용자별 격리
+  - 일일 사용량 추적 (usage_today, usage_date)
+  - 서비스별 Key 관리 (service_name 필드)
+- **Frontend 변경사항**:
+  - YouTube Lens 페이지 OAuth 코드 완전 제거
+  - `fetchApiKeyStatus` 함수 구현
+  - API Key 설정 버튼 추가
+  - QuotaStatus 타입 수정 (limit 필드 추가)
 - **성능 개선**: 
-  - 사용자당 10,000 units (100배 증가)
+  - 사용자당 10,000 units/day (100배 증가)
   - 운영 비용 0원 (사용자 개인 할당량)
+  - 구현 복잡도 50% 감소
 
 ### Phase 9: SEO 및 메타데이터 최적화 ✅ 완료 (2025-01-14)
 - **sitemap.ts**: 동적 사이트맵 생성 (`/app/sitemap.ts`)
@@ -120,31 +129,36 @@ src/
     └── course.ts               # 강의 타입 정의 ✅ 수정
 ```
 
-### 새로 추가된 파일 (Phase 10 - API Key 전환)
+### 새로 추가된 파일 (Phase 10 - OAuth → API Key 전환)
 ```
 src/
 ├── app/
 │   ├── (pages)/
 │   │   ├── settings/            # 설정 페이지
-│   │   │   └── api-keys/        # API Key 관리
-│   │   │       └── page.tsx     # API Key 설정 UI
-│   │   └── docs/                # 문서 페이지
-│   │       └── get-api-key/     # API Key 발급 가이드
-│   │           └── page.tsx     # 가이드 페이지
+│   │   │   └── api-keys/        # API Key 관리 ✅ NEW
+│   │   │       └── page.tsx     # API Key 설정 UI (Form + 마스킹)
+│   │   ├── docs/                # 문서 페이지
+│   │   │   └── get-api-key/     # API Key 발급 가이드 ✅ NEW
+│   │   │       └── page.tsx     # 5단계 상세 가이드
+│   │   └── tools/youtube-lens/
+│   │       └── page.tsx         # ✅ MODIFIED (OAuth 제거, API Key 추가)
 │   └── api/
 │       ├── user/                # 사용자 API
-│       │   └── api-keys/        # API Key 관리
-│       │       └── route.ts     # CRUD 엔드포인트
-│       └── youtube/             # YouTube API (수정됨)
-│           ├── validate-key/    # Key 유효성 검증
+│       │   └── api-keys/        # API Key 관리 ✅ NEW
+│       │       └── route.ts     # GET/POST/DELETE 엔드포인트
+│       └── youtube/             # YouTube API
+│           ├── validate-key/    # Key 유효성 검증 ✅ NEW
 │           │   └── route.ts     # 검증 엔드포인트
-│           └── search/route.ts  # 검색 (API Key 기반)
+│           ├── search/route.ts  # ✅ MODIFIED (API Key 기반)
+│           └── auth/            # ❌ DELETED (OAuth 제거)
 ├── lib/
-│   ├── api-keys/                # API Key 유틸리티
-│   │   ├── crypto.ts           # AES-256 암호화
-│   │   └── manager.ts          # Key 관리 함수
+│   ├── api-keys/                # API Key 유틸리티 ✅ NEW
+│   │   ├── index.ts            # Key 관리 함수
+│   │   └── crypto.ts           # AES-256-CBC 암호화
 │   └── supabase/migrations/
-│       └── 011_user_api_keys.sql # API Key 테이블
+│       └── 011_user_api_keys.sql # API Key 테이블 ✅ NEW
+└── types/
+    └── youtube.ts              # ✅ MODIFIED (QuotaStatus에 limit 추가)
 ```
 
 ### 새로 추가된 파일 (Phase 6 - YouTube Lens 초기)
@@ -376,6 +390,7 @@ src/
 │   │   │   ├── generate-nickname/ # 닉네임 생성 ✅ NEW
 │   │   │   ├── naver-cafe/      # 네이버 카페 ✅ NEW
 │   │   │   └── api-keys/        # API Key 관리 ✅ NEW (Phase 10)
+│   │   │       └── route.ts     # GET/POST/DELETE 엔드포인트
 │   │   ├── payment/        # 결제 API ✅ NEW
 │   │   │   ├── create-intent/route.ts # PaymentIntent 생성
 │   │   │   └── webhook/route.ts       # Stripe Webhook
@@ -505,8 +520,8 @@ src/
 │   │   ├── api-client.ts  # YouTube API 클라이언트 (API Key 기반)
 │   │   └── ~~oauth.ts~~   # ~~OAuth 인증~~ (Phase 10에서 제거)
 │   ├── api-keys/          # API Key 관리 ✅ NEW (Phase 10)
-│   │   ├── crypto.ts      # AES-256 암호화/복호화
-│   │   └── manager.ts     # Key 관리 함수
+│   │   ├── index.ts       # Key 관리 함수
+│   │   └── crypto.ts      # AES-256 암호화/복호화
 │   └── utils/             # 유틸리티 함수 ✅ 확장
 │
 ├── store/                   # Zustand 상태 관리 ✅ 구현 완료
@@ -654,24 +669,26 @@ npx supabase gen types typescript --local
 
 ## 📊 프로젝트 통계
 
-### 현재 상태 (2025-01-16 업데이트)
-- **총 파일 수**: ~230개+ (API Key 시스템 추가)
+### 현재 상태 (2025-01-16 업데이트 - Phase 10 완료)
+- **총 파일 수**: ~230개+ (OAuth 파일 5개 제거, API Key 파일 7개 추가)
 - **shadcn/ui 컴포넌트**: 24개 설치됨 (switch 추가)
 - **레이아웃 컴포넌트**: 8개 완성
 - **메인 페이지 컴포넌트**: 21개 구현 (8개 섹션 + 공유 컴포넌트)
 - **강의 시스템 컴포넌트**: 6개 구현 (Grid, Detail, Purchase, Editor 등)
 - **관리자 컴포넌트**: 2개 구현 (Sidebar, CourseEditor)
 - **수익 인증 컴포넌트**: 5개 구현
-- **YouTube Lens 컴포넌트**: 4개 구현 (OAuth UI 제거)
-- **API Key 시스템**: 3개 페이지, 4개 API 엔드포인트 구현
+- **YouTube Lens 컴포넌트**: 4개 구현 (OAuth → API Key 전환 완료)
+- **API Key 시스템**: 2개 페이지 (`/settings/api-keys`, `/docs/get-api-key`), 3개 API 엔드포인트
 - **마이페이지**: 5개 페이지 구현
 - **Provider 시스템**: 3개 (Theme, Auth, Layout)
 - **상태 관리**: Zustand store 2개 (layout, youtube-lens)
-- **API Routes**: 35개+ (API Key 관련 4개 추가)
-- **DB 마이그레이션**: 11개 (user_api_keys 추가)
+- **API Routes**: 35개+ (OAuth 5개 제거, API Key 3개 추가)
+- **DB 마이그레이션**: 11개 (011_user_api_keys.sql 추가)
 - **DB 테이블**: 18개 (user_api_keys 추가, youtube_api_keys 제거)
-- **환경 변수**: 7개 필수 (YouTube OAuth 3개 제거, ENCRYPTION_KEY 추가)
-- **NPM 패키지**: 60개+ (@stripe/stripe-js, stripe, video.js 추가)
+- **환경 변수**: 
+  - 필수 7개 (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, ENCRYPTION_KEY, STRIPE_SECRET_KEY)
+  - 제거됨 3개 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
+- **NPM 패키지**: 60개+ (@stripe/stripe-js, stripe, video.js 포함)
 - **더미 데이터**: 8종류 (총 676줄)
 
 ### 코드 품질 지표
