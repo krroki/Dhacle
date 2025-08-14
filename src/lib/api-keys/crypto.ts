@@ -5,12 +5,12 @@ function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
   
   if (!key) {
-    throw new Error('ENCRYPTION_KEY environment variable is not set');
+    throw new Error('ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.');
   }
   
   // 32바이트 (256비트) hex 문자열인지 확인
   if (key.length !== 64) {
-    throw new Error('ENCRYPTION_KEY must be a 64-character hex string (32 bytes)');
+    throw new Error(`ENCRYPTION_KEY must be exactly 64 characters (32 bytes hex). Current length: ${key.length}. Generate a new key with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`);
   }
   
   return Buffer.from(key, 'hex');

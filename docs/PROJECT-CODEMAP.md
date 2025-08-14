@@ -1,6 +1,6 @@
 # 📊 디하클(Dhacle) 프로젝트 코드맵
 
-*최종 업데이트: 2025-01-17 (Phase 12 완료: 강의 카테고리 시스템)*
+*최종 업데이트: 2025-01-17 (ENCRYPTION_KEY 환경 변수 문제 해결)*
 
 ## 🎯 프로젝트 개요
 
@@ -14,6 +14,29 @@
 ---
 
 ## 🆕 최근 업데이트 (2025-01-17)
+
+### 🔐 ENCRYPTION_KEY 환경 변수 문제 해결 (2025-01-17 오후)
+- **문제**: API Key 저장 시 "Failed to encrypt API key" 에러 발생
+- **원인**: `.env.local`의 ENCRYPTION_KEY가 63자로 설정됨 (64자 필요)
+- **해결**: 
+  - 올바른 64자 암호화 키 생성 (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+  - `.env.local` 파일 업데이트
+  - `/lib/api-keys/crypto.ts` 에러 메시지 개선
+- **영향**: YouTube Lens API Key 저장 기능 정상화
+- **개선사항**:
+  - 에러 메시지에 현재 키 길이 표시
+  - 키 생성 명령어 안내 추가
+  - 환경 변수 설정 경로 명시
+
+### 🔧 YouTube API Key 검증 버그 수정 (2025-01-17 오전)
+- **문제**: API Key 검증 시 "No filter selected. Expected one of: myRating, id, chart" 에러 발생
+- **원인**: YouTube Data API v3의 videos.list 엔드포인트는 필수 필터 파라미터 요구
+- **해결**: 
+  - `/lib/api-keys/index.ts` 수정
+  - videos.list → search.list 엔드포인트로 변경
+  - search.list는 필터 없이도 작동하여 API Key 검증에 적합
+  - type=video 파라미터 추가
+- **영향**: YouTube Lens 도구의 API Key 설정 및 검증 기능 정상화
 
 ### Phase 12: 강의 카테고리 시스템 ✅ 완료 (2025-01-17)
 - **무료 강의 시스템 구현**:
@@ -580,8 +603,8 @@ src/
 │   │   ├── api-client.ts  # YouTube API 클라이언트 (API Key 기반)
 │   │   └── ~~oauth.ts~~   # ~~OAuth 인증~~ (Phase 10에서 제거)
 │   ├── api-keys/          # API Key 관리 ✅ NEW (Phase 10)
-│   │   ├── index.ts       # Key 관리 함수
-│   │   └── crypto.ts      # AES-256 암호화/복호화
+│   │   ├── index.ts       # Key 관리 함수 ✅ 수정 (search.list 사용)
+│   │   └── crypto.ts      # AES-256 암호화/복호화 ✅ 개선 (에러 메시지)
 │   └── utils/             # 유틸리티 함수 ✅ 확장
 │
 ├── store/                   # Zustand 상태 관리 ✅ 구현 완료
@@ -746,8 +769,9 @@ npx supabase gen types typescript --local
 - **DB 마이그레이션**: 11개 (011_user_api_keys.sql 추가)
 - **DB 테이블**: 18개 (user_api_keys 추가, youtube_api_keys 제거)
 - **환경 변수**: 
-  - 필수 7개 (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, ENCRYPTION_KEY, STRIPE_SECRET_KEY)
+  - 필수 7개 (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, ENCRYPTION_KEY[64자 필수], STRIPE_SECRET_KEY)
   - 제거됨 3개 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
+  - ⚠️ ENCRYPTION_KEY는 정확히 64자여야 함
 - **NPM 패키지**: 60개+ (@stripe/stripe-js, stripe, video.js 포함)
 - **더미 데이터**: 8종류 (총 676줄)
 
@@ -799,6 +823,7 @@ npx supabase gen types typescript --local
 2. any 타입 사용
 3. inline styles 남용
 4. 환경 변수 하드코딩
+5. ENCRYPTION_KEY를 63자나 65자로 설정 (정확히 64자 필요)
 
 ### ✅ 권장 사항
 1. shadcn/ui 컴포넌트 우선 사용

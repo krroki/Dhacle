@@ -7,13 +7,14 @@ import type { CarouselItem } from './data';
 
 interface HeroSlideProps {
   slide: CarouselItem;
+  index?: number;
 }
 
-export function HeroSlide({ slide }: HeroSlideProps) {
+export function HeroSlide({ slide, index = 0 }: HeroSlideProps) {
   return (
     <Link 
       href={slide.link}
-      className="relative block w-full h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden group"
+      className="relative block w-full h-[240px] sm:h-[320px] lg:h-[450px] overflow-hidden group"
       aria-label={slide.alt}
     >
       {/* 이미지/YouTube 썸네일 표시 */}
@@ -24,9 +25,9 @@ export function HeroSlide({ slide }: HeroSlideProps) {
         }
         alt={slide.alt}
         fill
-        className="object-cover transition-transform duration-700 group-hover:scale-105"
-        priority
-        sizes="100vw"
+        className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+        priority={index < 3}
+        sizes="(max-width: 640px) 360px, (max-width: 1024px) 768px, 1220px"
       />
       
       {/* 그라데이션 오버레이 - 호버 시 약간 밝아짐 */}

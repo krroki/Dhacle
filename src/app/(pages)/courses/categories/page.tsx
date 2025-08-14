@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   },
 };
 
+// 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
+export const dynamic = 'force-dynamic';
+
 // 카테고리 정의
 const categories = [
   {

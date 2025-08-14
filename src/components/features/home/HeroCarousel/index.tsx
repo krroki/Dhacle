@@ -11,7 +11,7 @@ import {
 import { HeroSlide } from './HeroSlide';
 import { carouselItems, preloadImages } from './data';
 
-const AUTOPLAY_DELAY = 5000; // 5초
+const AUTOPLAY_DELAY = 4000; // 4초
 const PROGRESS_INTERVAL = 50; // 50ms마다 업데이트
 
 export function HeroCarousel() {
@@ -20,6 +20,7 @@ export function HeroCarousel() {
   const [count, setCount] = useState(0);
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const autoplayTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -40,6 +41,7 @@ export function HeroCarousel() {
 
     const onSelect = () => {
       setCurrent(api.selectedScrollSnap());
+      setSelectedIndex(api.selectedScrollSnap());
       setProgress(0); // 슬라이드 변경 시 프로그레스 리셋
     };
 
@@ -140,7 +142,7 @@ export function HeroCarousel() {
 
   return (
     <section 
-      className="relative w-full overflow-hidden"
+      className="relative w-full max-w-[1920px] mx-auto overflow-hidden"
       aria-label="메인 프로모션 캐러셀"
       aria-roledescription="carousel"
       onMouseEnter={handleMouseEnter}
@@ -150,8 +152,9 @@ export function HeroCarousel() {
         setApi={setApi}
         className="w-full"
         opts={{
-          align: 'start',
+          align: 'center',
           loop: true,
+          containScroll: false,
           duration: prefersReducedMotion ? 0 : 30,
         }}
         onKeyDown={handleKeyDown}
@@ -160,11 +163,16 @@ export function HeroCarousel() {
           {carouselItems.map((slide, index) => (
             <CarouselItem 
               key={slide.id} 
-              className="pl-0"
+              className={cn(
+                "embla__slide pl-0",
+                selectedIndex === index && "is-selected"
+              )}
               aria-label={`슬라이드 ${index + 1} / ${carouselItems.length}: ${slide.alt}`}
               aria-current={current === index ? 'true' : 'false'}
             >
-              <HeroSlide slide={slide} />
+              <div className="hero-carousel-slide rounded-lg overflow-hidden">
+                <HeroSlide slide={slide} index={index} />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -172,7 +180,7 @@ export function HeroCarousel() {
         {/* 커스텀 네비게이션 버튼 - 항상 표시, 무한 루프 */}
         <button
           onClick={goToPrev}
-          className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
+          className="absolute left-4 sm:left-8 lg:left-[5%] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
           aria-label="이전 슬라이드"
         >
           <svg
@@ -192,7 +200,7 @@ export function HeroCarousel() {
         
         <button
           onClick={goToNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
+          className="absolute right-4 sm:right-8 lg:right-[5%] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
           aria-label="다음 슬라이드"
         >
           <svg

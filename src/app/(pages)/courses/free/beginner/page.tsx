@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: 'YouTube Shorts를 처음 시작하는 분들을 위한 무료 입문 강의',
 };
 
+// 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
+export const dynamic = 'force-dynamic';
+
 export default async function BeginnerFreeCoursesPage() {
   // 입문자용 무료 강의 필터링
   const response = await getCourses({ is_free: true });

@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: '이번 주 한정 무료로 제공되는 특별 강의를 만나보세요.',
 };
 
+// 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
+export const dynamic = 'force-dynamic';
+
 export default async function WeeklyFreeCoursesPage() {
   // 주간 무료 강의 필터링 (is_free이면서 특별 태그가 있는 강의)
   const response = await getCourses({ is_free: true });

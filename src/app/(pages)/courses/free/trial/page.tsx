@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: '유료 강의를 무료로 체험해보세요. 일부 레슨을 미리 들어볼 수 있습니다.',
 };
 
+// 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
+export const dynamic = 'force-dynamic';
+
 export default async function TrialCoursesPage() {
   // 무료 체험이 가능한 강의 필터링 (유료 강의 중 미리보기 제공)
   const response = await getCourses();

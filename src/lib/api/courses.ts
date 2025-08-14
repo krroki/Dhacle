@@ -13,76 +13,90 @@ import type {
  * 강의 목록 조회
  */
 export async function getCourses(filters?: CourseFilters): Promise<CourseListResponse> {
-  const supabase = await createSupabaseServerClient();
-  
-  let query = supabase
-    .from('courses')
-    .select(`
-      *,
-      instructor:instructor_profiles(*)
-    `, { count: 'exact' });
+  try {
+    const supabase = await createSupabaseServerClient();
+    
+    // instructor_profiles 관계 제거하고 courses 테이블만 조회
+    let query = supabase
+      .from('courses')
+      .select('*', { count: 'exact' });
 
-  // 필터 적용
-  if (filters) {
-    if (filters.instructor) {
-      query = query.eq('instructor_name', filters.instructor);
+    // 필터 적용
+    if (filters) {
+      if (filters.instructor) {
+        query = query.eq('instructor_name', filters.instructor);
+      }
+      if (filters.is_free !== undefined) {
+        query = query.eq('is_free', filters.is_free);
+      }
+      if (filters.status) {
+        query = query.eq('status', filters.status);
+      }
+      if (filters.rating) {
+        query = query.gte('average_rating', filters.rating);
+      }
+      if (filters.search) {
+        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+      }
+      if (filters.price_range) {
+        query = query.gte('price', filters.price_range[0])
+                     .lte('price', filters.price_range[1]);
+      }
     }
-    if (filters.is_free !== undefined) {
-      query = query.eq('is_free', filters.is_free);
-    }
-    if (filters.status) {
-      query = query.eq('status', filters.status);
-    }
-    if (filters.rating) {
-      query = query.gte('average_rating', filters.rating);
-    }
-    if (filters.search) {
-      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-    }
-    if (filters.price_range) {
-      query = query.gte('price', filters.price_range[0])
-                   .lte('price', filters.price_range[1]);
-    }
-  }
 
-  // 정렬
-  query = query.order('created_at', { ascending: false });
+    // 정렬
+    query = query.order('created_at', { ascending: false });
 
-  const { data, error, count } = await query;
+    const { data, error, count } = await query;
 
-  if (error) {
-    console.error('Error fetching courses:', error);
+    if (error) {
+      console.error('[Server] Error fetching courses:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        filters
+      });
+      return { courses: [], total: 0, page: 1, pageSize: 20 };
+    }
+
+    return {
+      courses: data || [],
+      total: count || 0,
+      page: 1,
+      pageSize: 20
+    };
+  } catch (error) {
+    console.error('[Server] Unexpected error in getCourses:', {
+      error: error instanceof Error ? error.message : String(error),
+      filters
+    });
     return { courses: [], total: 0, page: 1, pageSize: 20 };
   }
-
-  return {
-    courses: data || [],
-    total: count || 0,
-    page: 1,
-    pageSize: 20
-  };
 }
 
 /**
  * 강의 상세 정보 조회
  */
 export async function getCourseDetail(courseId: string): Promise<CourseDetailResponse | null> {
-  const supabase = await createSupabaseServerClient();
-  
-  // 강의 정보
-  const { data: course, error: courseError } = await supabase
-    .from('courses')
-    .select(`
-      *,
-      instructor:instructor_profiles(*)
-    `)
-    .eq('id', courseId)
-    .single();
+  try {
+    const supabase = await createSupabaseServerClient();
+    
+    // 강의 정보 (instructor_profiles 관계 제거)
+    const { data: course, error: courseError } = await supabase
+      .from('courses')
+      .select('*')
+      .eq('id', courseId)
+      .single();
 
-  if (courseError || !course) {
-    console.error('Error fetching course:', courseError);
-    return null;
-  }
+    if (courseError || !course) {
+      console.error('[Server] Error fetching course detail:', {
+        message: courseError?.message,
+        code: courseError?.code,
+        courseId
+      });
+      return null;
+    }
 
   // 레슨 목록
   const { data: lessons } = await supabase
@@ -133,13 +147,20 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
     }
   }
 
-  return {
-    course,
-    lessons: lessons || [],
-    isEnrolled,
-    isPurchased,
-    progress
-  };
+    return {
+      course,
+      lessons: lessons || [],
+      isEnrolled,
+      isPurchased,
+      progress
+    };
+  } catch (error) {
+    console.error('[Server] Unexpected error in getCourseDetail:', {
+      error: error instanceof Error ? error.message : String(error),
+      courseId
+    });
+    return null;
+  }
 }
 
 /**
@@ -167,64 +188,94 @@ export async function getCoursesByInstructor(instructorName: string): Promise<Co
  * 무료 강의 목록 조회
  */
 export async function getFreeCourses(): Promise<Course[]> {
-  const supabase = await createSupabaseServerClient();
-  
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('is_free', true)
-    .eq('status', 'active')
-    .order('student_count', { ascending: false })
-    .limit(8);
+  try {
+    const supabase = await createSupabaseServerClient();
+    
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .eq('is_free', true)
+      .eq('status', 'active')
+      .order('student_count', { ascending: false })
+      .limit(8);
 
-  if (error) {
-    console.error('Error fetching free courses:', error);
+    if (error) {
+      console.error('[Server] Error fetching free courses:', {
+        message: error.message,
+        code: error.code
+      });
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[Server] Unexpected error in getFreeCourses:', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
-
-  return data || [];
 }
 
 /**
  * 인기 강의 목록 조회
  */
 export async function getPopularCourses(): Promise<Course[]> {
-  const supabase = await createSupabaseServerClient();
-  
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('status', 'active')
-    .order('student_count', { ascending: false })
-    .limit(8);
+  try {
+    const supabase = await createSupabaseServerClient();
+    
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .eq('status', 'active')
+      .order('student_count', { ascending: false })
+      .limit(8);
 
-  if (error) {
-    console.error('Error fetching popular courses:', error);
+    if (error) {
+      console.error('[Server] Error fetching popular courses:', {
+        message: error.message,
+        code: error.code
+      });
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[Server] Unexpected error in getPopularCourses:', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
-
-  return data || [];
 }
 
 /**
  * 신규 강의 목록 조회
  */
 export async function getNewCourses(): Promise<Course[]> {
-  const supabase = await createSupabaseServerClient();
-  
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-    .limit(4);
+  try {
+    const supabase = await createSupabaseServerClient();
+    
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(4);
 
-  if (error) {
-    console.error('Error fetching new courses:', error);
+    if (error) {
+      console.error('[Server] Error fetching new courses:', {
+        message: error.message,
+        code: error.code
+      });
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[Server] Unexpected error in getNewCourses:', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
-
-  return data || [];
 }
 
 /**
