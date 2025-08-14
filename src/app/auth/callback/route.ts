@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const next = requestUrl.searchParams.get('next') ?? '/'
+  let isNewUser = false // Flag to track if this is a new user
   
   // 디버깅용 로그
   console.log('[Auth Callback] Started processing', {
@@ -122,6 +123,7 @@ export async function GET(request: NextRequest) {
         // If profile doesn't exist, create it with random nickname
         if (profileError?.code === 'PGRST116' || !userProfile) {
           console.log('[Auth Callback] Creating new profile for user', user.id)
+          isNewUser = true // Mark as new user for onboarding
           
           // Call init-profile API to create profile with random nickname
           const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
@@ -181,5 +183,7 @@ export async function GET(request: NextRequest) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${requestUrl.origin}${next}`)
+  // If this is a new user, redirect to onboarding instead of the requested page
+  const redirectUrl = isNewUser ? '/onboarding' : next
+  return NextResponse.redirect(`${requestUrl.origin}${redirectUrl}`)
 }

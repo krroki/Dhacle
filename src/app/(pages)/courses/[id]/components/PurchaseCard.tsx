@@ -25,9 +25,10 @@ interface PurchaseCardProps {
   course: Course;
   isEnrolled?: boolean;
   isPurchased?: boolean;
+  firstLessonId?: string;
 }
 
-export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardProps) {
+export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }: PurchaseCardProps) {
   const router = useRouter();
   const [couponCode, setCouponCode] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
@@ -46,7 +47,11 @@ export function PurchaseCard({ course, isEnrolled, isPurchased }: PurchaseCardPr
   const handlePurchase = async () => {
     if (course.is_free || isEnrolled || isPurchased) {
       // 무료 강의나 이미 구매한 경우 바로 학습 페이지로
-      router.push(`/learn/${course.id}`);
+      // firstLessonId가 있으면 첫 번째 레슨으로, 없으면 강의 ID만으로 이동
+      const learnUrl = firstLessonId 
+        ? `/learn/${course.id}/${firstLessonId}`
+        : `/learn/${course.id}/1`; // 기본값으로 레슨 1
+      router.push(learnUrl);
       return;
     }
 

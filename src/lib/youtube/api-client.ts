@@ -1,5 +1,4 @@
-import { YouTubeOAuth } from './oauth';
-import { CryptoUtil } from './crypto';
+// OAuth removed - using API Key system
 import type { 
   YouTubeVideo, 
   FlattenedYouTubeVideo,
@@ -51,50 +50,7 @@ export class YouTubeAPIClient {
     params: Record<string, unknown>,
     quotaCost: number
   ): Promise<T> {
-    // OAuth 토큰 사용
-    if (this.token) {
-      return await YouTubeOAuth.withAutoRefresh(
-        this.token,
-        async (newToken) => {
-          this.token = newToken;
-          if (this.onTokenRefresh) {
-            await this.onTokenRefresh(newToken);
-          }
-        },
-        async (accessToken) => {
-          const url = new URL(`${YouTubeAPIClient.BASE_URL}/${endpoint}`);
-          
-          // 파라미터 추가
-          Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-              url.searchParams.append(key, String(value));
-            }
-          });
-
-          const response = await fetch(url.toString(), {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Accept': 'application/json',
-            },
-          });
-
-          if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(
-              error.error?.message || 
-              `YouTube API error: ${response.status} ${response.statusText}`
-            );
-          }
-
-          // 할당량 업데이트
-          if (this.onQuotaUpdate) {
-            await this.onQuotaUpdate(quotaCost);
-          }
-
-          return response.json();
-        }
-      );
-    }
+    // OAuth 시스템이 제거되었습니다 - API Key만 사용
     
     // API 키 사용
     if (this.apiKey) {

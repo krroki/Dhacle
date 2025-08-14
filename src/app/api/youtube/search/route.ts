@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { YouTubeAPIClient } from '@/lib/youtube/api-client';
-import { CryptoUtil } from '@/lib/youtube/crypto';
-import { createServerSupabaseClient } from '@/lib/supabase/server-client';
-import type { YouTubeSearchFilters, OAuthToken } from '@/types/youtube';
+import { createServerClient } from '@/lib/supabase/server-client';
+import { getDecryptedApiKey } from '@/lib/api-keys';
+import type { YouTubeSearchFilters } from '@/types/youtube';
 
 /**
  * YouTube 영상 검색 API
@@ -10,7 +10,7 @@ import type { YouTubeSearchFilters, OAuthToken } from '@/types/youtube';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = await createServerClient();
     
     // 현재 사용자 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -48,44 +48,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 사용자 API 키/토큰 가져오기
-    const { data: apiKeys, error: fetchError } = await supabase
-      .from('user_api_keys')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
+    // 사용자의 YouTube API Key 가져오기
+    const apiKey = await getDecryptedApiKey(user.id, 'youtube');
 
-    if (fetchError || !apiKeys) {
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'YouTube authentication required. Please login with Google.' },
-        { status: 401 }
-      );
-    }
-
-    // OAuth 토큰 또는 API 키 확인
-    let oauthToken: OAuthToken | undefined;
-    let apiKey: string | undefined;
-
-    if (apiKeys.google_access_token) {
-      // OAuth 토큰 사용
-      oauthToken = {
-        access_token: CryptoUtil.decrypt(apiKeys.google_access_token),
-        refresh_token: apiKeys.google_refresh_token 
-          ? CryptoUtil.decrypt(apiKeys.google_refresh_token)
-          : undefined,
-        expires_at: apiKeys.google_token_expires_at 
-          ? new Date(apiKeys.google_token_expires_at).getTime()
-          : undefined,
-        expires_in: 3600,
-        token_type: 'Bearer',
-        scope: ''
-      };
-    } else if (apiKeys.encrypted_api_key) {
-      // 개인 API 키 사용
-      apiKey = CryptoUtil.decrypt(apiKeys.encrypted_api_key);
-    } else {
-      return NextResponse.json(
-        { error: 'No valid authentication method found. Please re-authenticate.' },
+        { 
+          error: 'YouTube API Key가 필요합니다. 설정 페이지에서 API Key를 등록해주세요.',
+          errorCode: 'api_key_required',
+          actionRequired: 'setup_api_key'
+        },
         { status: 401 }
       );
     }
@@ -117,24 +89,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // YouTube API 클라이언트 생성
+    // YouTube API 클라이언트 생성 (API Key 사용)
     const apiClient = new YouTubeAPIClient({
-      token: oauthToken,
       apiKey: apiKey,
-      onTokenRefresh: async (newToken) => {
-        // 갱신된 토큰 저장
-        const encryptedAccessToken = CryptoUtil.encrypt(newToken.access_token);
-        await supabase
-          .from('user_api_keys')
-          .update({
-            google_access_token: encryptedAccessToken,
-            google_token_expires_at: newToken.expires_at 
-              ? new Date(newToken.expires_at).toISOString()
-              : null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id);
-      },
       onQuotaUpdate: async (units) => {
         // 할당량 업데이트는 검색 완료 후 처리
       }
@@ -214,9 +171,9 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('forbidden') || error.message.includes('403')) {
         return NextResponse.json(
           { 
-            error: 'YouTube API 접근 권한이 없습니다. Google 로그인을 다시 시도해주세요.',
+            error: 'YouTube API 접근 권한이 없습니다. API Key를 확인해주세요.',
             errorCode: 'access_forbidden',
-            actionRequired: 'reauth'
+            actionRequired: 'check_api_key'
           },
           { status: 403 }
         );
@@ -233,13 +190,13 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      // 인증 만료
-      if (error.message.includes('401') || error.message.includes('unauthenticated')) {
+      // API Key 인증 오류
+      if (error.message.includes('401') || error.message.includes('API key not valid')) {
         return NextResponse.json(
           { 
-            error: '인증이 만료되었습니다. 다시 로그인해주세요.',
-            errorCode: 'auth_expired',
-            actionRequired: 'reauth'
+            error: 'API Key가 유효하지 않습니다. 설정 페이지에서 다시 등록해주세요.',
+            errorCode: 'invalid_api_key',
+            actionRequired: 'update_api_key'
           },
           { status: 401 }
         );
@@ -249,9 +206,9 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('decrypt')) {
         return NextResponse.json(
           { 
-            error: '저장된 인증 정보를 읽을 수 없습니다. 다시 로그인해주세요.',
+            error: '저장된 API Key를 읽을 수 없습니다. 다시 등록해주세요.',
             errorCode: 'decryption_failed',
-            actionRequired: 'reauth'
+            actionRequired: 'update_api_key'
           },
           { status: 500 }
         );

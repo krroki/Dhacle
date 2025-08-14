@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#635BFF",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "ko-KR",
@@ -13,24 +13,36 @@
   "categories": ["education", "social", "entertainment"],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "32x32",
+      "src": "/images/favicon/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/images/favicon/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/images/favicon/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/favicon/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/images/favicon/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/favicon/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }
@@ -56,40 +68,19 @@
       "name": "강의 목록",
       "short_name": "강의",
       "description": "YouTube Shorts 제작 강의 둘러보기",
-      "url": "/courses",
-      "icons": [
-        {
-          "src": "/icon-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/courses"
     },
     {
       "name": "수익 인증",
       "short_name": "수익",
       "description": "크리에이터 수익 인증 갤러리",
-      "url": "/revenue-proof",
-      "icons": [
-        {
-          "src": "/icon-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/revenue-proof"
     },
     {
       "name": "YouTube Lens",
       "short_name": "Lens",
       "description": "YouTube 영상 분석 도구",
-      "url": "/tools/youtube-lens",
-      "icons": [
-        {
-          "src": "/icon-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/tools/youtube-lens"
     }
   ]
 }

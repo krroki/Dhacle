@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       'YouTube Shorts',
       '동영상 제작',
       course.instructor_name || '전문가',
-      course.level || 'beginner',
+      course.difficulty || 'beginner',
     ],
     alternates: {
       canonical: `${siteConfig.url}/courses/${course.id}`,
@@ -67,7 +67,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const { course, modules } = courseData;
+  const { course, lessons } = courseData;
 
   // 구조화된 데이터 - Course Schema
   const courseSchema = {
@@ -84,12 +84,12 @@ export default async function CourseDetailPage({ params }: PageProps) {
     instructor: {
       '@type': 'Person',
       name: course.instructor_name || '디하클 전문강사',
-      description: course.instructor_bio,
-      image: course.instructor_avatar,
+      description: course.instructor_name || 'YouTube Shorts 전문강사',
+      image: course.thumbnail_url
     },
     url: `https://dhacle.com/courses/${course.id}`,
     courseMode: 'online',
-    educationalLevel: course.level || 'beginner',
+    educationalLevel: course.difficulty || 'beginner',
     inLanguage: 'ko-KR',
     hasCourseInstance: {
       '@type': 'CourseInstance',

@@ -125,11 +125,11 @@ function YouTubeLensContent() {
     retry: 1,
   });
 
-  // 인증 상태 쿼리
+  // API Key 상태 쿼리
   const { data: authStatus, isLoading: authStatusLoading, refetch: refetchAuthStatus } = useQuery({
-    queryKey: ['youtube-auth-status'],
-    queryFn: fetchAuthStatus,
-    enabled: !!user && configCheck?.configured,
+    queryKey: ['youtube-api-key-status'],
+    queryFn: fetchApiKeyStatus,
+    enabled: !!user,
     refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
   });
 
@@ -137,7 +137,7 @@ function YouTubeLensContent() {
   const { data: favoritesData, refetch: refetchFavorites } = useQuery({
     queryKey: ['youtube-favorites'],
     queryFn: fetchFavorites,
-    enabled: !!user && !!authStatus?.youtube?.authenticated,
+    enabled: !!user && authStatus?.success && authStatus?.data,
   });
 
   // 즐겨찾기 추가 뮤테이션

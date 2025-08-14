@@ -67,6 +67,15 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  icons: {
+    icon: [
+      { url: '/images/favicon/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { url: '/images/favicon/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/images/favicon/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/images/favicon/apple-touch-icon.png',
+    shortcut: '/images/favicon/favicon.ico',
+  },
   manifest: '/manifest.json',
   alternates: {
     canonical: 'https://dhacle.com',

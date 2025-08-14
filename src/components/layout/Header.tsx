@@ -18,6 +18,7 @@ import {
   Moon,
   Sun,
   Wrench,
+  Shield,
   Calculator,
   Palette,
   Eye,
@@ -55,6 +56,7 @@ import {
 } from '@/components/ui'
 import { useLayoutStore } from '@/store/layout'
 import { NotificationDropdown } from './NotificationDropdown'
+import { createBrowserClient } from '@/lib/supabase/browser-client'
 
 interface SubItem {
   label: string
@@ -232,6 +234,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
+  const [userRole, setUserRole] = useState<'user' | 'instructor' | 'admin' | null>(null)
   
   const {
     isHeaderVisible,
@@ -253,6 +256,28 @@ export function Header() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch user role from profiles table
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const supabase = createBrowserClient()
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (data && !error) {
+          setUserRole(data.role as 'user' | 'instructor' | 'admin')
+        }
+      } else {
+        setUserRole(null)
+      }
+    }
+
+    fetchUserRole()
+  }, [user])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -483,6 +508,14 @@ export function Header() {
                       설정
                     </Link>
                   </DropdownMenuItem>
+                  {userRole === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        관리자
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     로그아웃
