@@ -13,7 +13,8 @@ import {
   Video,
   Award,
   BarChart3,
-  LogOut
+  LogOut,
+  Upload
 } from 'lucide-react';
 
 const menuItems = [
@@ -31,6 +32,11 @@ const menuItems = [
     icon: Video, 
     label: '레슨 관리', 
     href: '/admin/lessons' 
+  },
+  {
+    icon: Upload,
+    label: '비디오 업로드',
+    href: '/admin/courses/videos'
   },
   { 
     icon: Users, 

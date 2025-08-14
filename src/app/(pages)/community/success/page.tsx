@@ -7,12 +7,14 @@ export default function CommunitySuccessPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <div className="mb-6">
-        <Link href="/community">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            커뮤니티로 돌아가기
-          </Button>
-        </Link>
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/community">
+            <span className="flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              커뮤니티로 돌아가기
+            </span>
+          </Link>
+        </Button>
       </div>
 
       <Card className="border-2 border-dashed">

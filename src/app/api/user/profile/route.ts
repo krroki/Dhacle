@@ -128,9 +128,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if profile exists
+    // Check if profile exists (users 테이블 사용)
     const { data: existingProfile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id')
       .eq('id', user.id)
       .single()
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     if (existingProfile) {
       // Update existing profile
       result = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           username,
           work_type,
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
     } else {
       // Create new profile
       result = await supabase
-        .from('profiles')
+        .from('users')
         .insert({
           id: user.id,
           username,

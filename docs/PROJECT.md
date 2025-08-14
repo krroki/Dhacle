@@ -251,8 +251,36 @@
   - Empty State 디자인 추가
   - 각 페이지별 특색 있는 아이콘 및 설명
 
-#### Phase 13: 진행 예정 📋
-- [ ] 커뮤니티 페이지 구현
+#### Phase 13: 커뮤니티 시스템 구현 ✅ 완료 (2025-01-19)
+- ✅ **데이터베이스 스키마 구축**
+  - `012_community_system.sql` 마이그레이션 생성
+  - 3개 테이블: community_posts, community_comments, community_likes
+  - RLS 정책 및 인덱스 설정 완료
+  - 조회수 증가 함수 (increment_view_count) 구현
+- ✅ **API 엔드포인트 구현**
+  - `/api/community/posts` - 게시글 목록 조회/생성 (GET/POST)
+  - `/api/community/posts/[id]` - 게시글 상세 조회/수정/삭제 (GET/PUT/DELETE)
+  - 페이지네이션, 카테고리 필터링 지원
+  - Next.js 15 동적 라우트 호환성 문제 해결
+- ✅ **커뮤니티 게시판 UI 구현**
+  - `/community/board` - 자유 게시판 페이지
+  - 게시글 목록, 작성, 조회수/댓글수/좋아요수 표시
+  - 반응형 디자인 및 로딩 상태 처리
+  - shadcn/ui 컴포넌트 활용
+- ✅ **관리자 비디오 업로드 UI 추가**
+  - `/admin/courses/videos` - 비디오 업로드 페이지
+  - 파일 검증 (MP4, WebM, OGG 형식, 최대 500MB)
+  - 업로드 진행 상태 표시
+  - AdminSidebar에 메뉴 추가
+- ✅ **API Keys v2 제거 및 통합**
+  - `/api/user/api-keys-v2` 디렉토리 완전 제거
+  - v1 엔드포인트로 통합 완료
+  - 중복 코드 제거로 유지보수성 향상
+
+#### Phase 14: 진행 예정 📋
+- [ ] 커뮤니티 게시글 상세 페이지 구현
+- [ ] 댓글 및 좋아요 기능 UI 구현
+- [ ] Q&A 및 스터디 모집 게시판 구현
 - [ ] 알림 시스템 구현
 - [ ] 실시간 채팅 기능
 - [ ] 이메일 인증 시스템
@@ -418,7 +446,7 @@ src/
 │   ├── supabase/         # Supabase 클라이언트
 │   │   ├── browser-client.ts
 │   │   ├── server-client.ts
-│   │   └── migrations/   # SQL 마이그레이션 (10개) ✅
+│   │   └── migrations/   # SQL 마이그레이션 (12개) ✅
 │   ├── stripe/           # Stripe 관련 ✅ NEW
 │   │   └── client.ts     # Stripe 클라이언트 초기화
 │   ├── auth/             # 인증 관련
@@ -446,7 +474,7 @@ src/
 
 ## 📋 Supabase 테이블 현황
 
-### 17개 테이블 현황
+### 20개 테이블 현황
 #### 기본 테이블 (8개)
 - ✅ **users** - 사용자 인증 정보 (Supabase Auth 기본)
 - ✅ **profiles** - 사용자 프로필 정보 (닉네임 필드 추가됨)
@@ -466,12 +494,16 @@ src/
 #### 네이버 카페 연동 테이블 (1개) ✅ NEW
 - ✅ **naver_cafe_verifications** - 카페 인증 로그
 
-#### YouTube Lens 테이블 (5개) ✅ NEW
+#### YouTube Lens 테이블 (4개) ✅ NEW
 - ✅ **youtube_favorites** - YouTube 즐겨찾기
 - ✅ **youtube_search_history** - 검색 히스토리
 - ✅ **api_usage** - API 사용량 추적
-- ✅ **youtube_api_keys** - YouTube OAuth 토큰 (제거됨 Phase 10)
 - ✅ **user_api_keys** - 사용자 API 키 (AES-256 암호화)
+
+#### 커뮤니티 시스템 테이블 (3개) ✅ NEW (Phase 13)
+- ✅ **community_posts** - 게시글 정보 (카테고리, 제목, 내용, 조회수)
+- ✅ **community_comments** - 댓글 정보 (계층형 댓글 지원)
+- ✅ **community_likes** - 좋아요 정보 (게시글별 좋아요)
 
 ### 추가 예정 테이블
 - [ ] **course_reviews** - 강의 리뷰

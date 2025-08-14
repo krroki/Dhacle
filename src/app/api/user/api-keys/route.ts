@@ -1,6 +1,7 @@
 // Next.js App Router에서 환경 변수가 동적으로 로드되도록 설정
 // 이렇게 하면 빌드 타임이 아닌 런타임에 환경 변수를 읽습니다
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Edge Runtime 대신 Node.js Runtime 사용
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server-client';
@@ -85,6 +86,15 @@ export async function GET(request: NextRequest) {
  * API Key 저장
  */
 export async function POST(request: NextRequest) {
+  // 환경 변수 디버깅
+  console.log('[API Route] Environment check:', {
+    hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasEncryptionKey: !!process.env.ENCRYPTION_KEY,
+    encryptionKeyLength: process.env.ENCRYPTION_KEY?.length,
+    nodeEnv: process.env.NODE_ENV,
+    runtime: process.env.NEXT_RUNTIME
+  });
+  
   try {
     const supabase = await createServerClient();
     
@@ -134,12 +144,14 @@ export async function POST(request: NextRequest) {
     }
     
     // API Key 저장
+    console.log('[API Route] Before saveUserApiKey');
     const savedKey = await saveUserApiKey({
       userId: user.id,
       apiKey,
       serviceName,
       metadata
     });
+    console.log('[API Route] After saveUserApiKey:', { savedKeyId: savedKey?.id });
     
     // 민감한 정보 제거
     const safeApiKey = {
@@ -157,11 +169,25 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Error saving API key:', error);
+    console.error('[API Route] Error saving API key:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error
+    });
+    
+    // 더 상세한 에러 메시지 반환
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : typeof error === 'string' 
+        ? error 
+        : 'Failed to save API key (unknown error)';
+    
     return NextResponse.json(
       { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to save API key' 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );

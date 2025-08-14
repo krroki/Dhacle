@@ -368,19 +368,25 @@ export function Header() {
                 if (item.subItems) {
                   return (
                     <NavigationMenuItem key={item.href}>
-                      <NavigationMenuTrigger 
-                        className={cn(
-                          'flex items-center gap-2 text-sm font-medium hover:text-primary data-[state=open]:text-primary transition-none',
-                          pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground'
-                        )}
+                      <Link
+                        href={item.href}
+                        className="block"
+                        passHref
                       >
-                        {item.label}
-                        {item.badge && (
-                          <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </NavigationMenuTrigger>
+                        <NavigationMenuTrigger
+                          className={cn(
+                            'cursor-pointer',
+                            pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground'
+                          )}
+                        >
+                          {item.label}
+                          {item.badge && (
+                            <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </NavigationMenuTrigger>
+                      </Link>
                       <NavigationMenuContent>
                         <div className="grid gap-2 p-4 w-[400px] lg:w-[500px]">
                           {item.subItems.map((subItem) => (

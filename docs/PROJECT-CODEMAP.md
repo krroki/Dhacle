@@ -1,19 +1,41 @@
 # 📊 디하클(Dhacle) 프로젝트 코드맵
 
-*최종 업데이트: 2025-01-17 (ENCRYPTION_KEY 환경 변수 문제 해결)*
+*최종 업데이트: 2025-01-19 (커뮤니티 시스템 구현 완료)*
 
 ## 🎯 프로젝트 개요
 
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼
 - **위치**: `C:\My_Claude_Project\9.Dhacle`
-- **현재 상태**: Phase 12 완료 ✅ (강의 카테고리 시스템 완료)
+- **현재 상태**: Phase 13 완료 ✅ (커뮤니티 시스템 구현 완료)
 - **백업 위치**: `C:\My_Claude_Project\dhacle-backup`
 - **도메인**: https://dhacle.com (배포 준비 완료)
 
 ---
 
-## 🆕 최근 업데이트 (2025-01-17)
+## 🆕 최근 업데이트 (2025-01-19)
+
+### Phase 13: 커뮤니티 시스템 구현 ✅ 완료 (2025-01-19)
+- **데이터베이스 스키마 구축**:
+  - `012_community_system.sql` 마이그레이션 생성
+  - 3개 테이블 (community_posts, community_comments, community_likes) 추가
+  - RLS 정책 및 인덱스 설정, 조회수 증가 함수 구현
+- **API 엔드포인트 구현**:
+  - `/api/community/posts` - 게시글 목록/생성
+  - `/api/community/posts/[id]` - 게시글 CRUD
+  - Next.js 15 동적 라우트 파라미터 타입 문제 해결
+- **커뮤니티 UI 구현**:
+  - `/community/board` - 자유 게시판 페이지
+  - 게시글 목록, 작성 다이얼로그, 페이지네이션
+  - 조회수/댓글수/좋아요수 표시
+- **관리자 비디오 업로드**:
+  - `/admin/courses/videos` 페이지 추가
+  - 파일 검증 및 업로드 진행 상태 표시
+- **API Keys v2 제거**:
+  - `/api/user/api-keys-v2` 완전 제거
+  - v1 단일 엔드포인트로 통합
+
+### 이전 업데이트 (2025-01-17)
 
 ### 🔐 ENCRYPTION_KEY 환경 변수 문제 해결 (2025-01-17 오후)
 - **문제**: API Key 저장 시 "Failed to encrypt API key" 에러 발생
@@ -134,6 +156,30 @@
 - **더미 데이터**: 완전한 더미 데이터 세트 구현
 - **반응형 디자인**: 모바일/태블릿/데스크톱 완벽 대응
 - **TypeScript**: 에러 0개, 타입 안정성 100%
+
+### 새로 추가된 파일 (Phase 13 - 커뮤니티 시스템)
+```
+src/
+├── app/
+│   ├── (pages)/
+│   │   ├── community/
+│   │   │   └── board/              # 자유 게시판 ✅ NEW
+│   │   │       └── page.tsx        # 게시글 목록/작성
+│   ├── admin/
+│   │   └── courses/
+│   │       └── videos/             # 비디오 업로드 ✅ NEW
+│   │           └── page.tsx        # 업로드 UI
+│   └── api/
+│       └── community/              # 커뮤니티 API ✅ NEW
+│           └── posts/
+│               ├── route.ts        # 목록/생성
+│               └── [id]/
+│                   └── route.ts    # CRUD
+├── lib/
+│   └── supabase/
+│       └── migrations/
+│           └── 012_community_system.sql  # 커뮤니티 테이블 ✅ NEW
+```
 
 ### 새로 추가된 파일 (Phase 12 - 강의 카테고리 시스템)
 ```
@@ -431,7 +477,9 @@ src/
 │   │   ├── payment/          # 결제 페이지 ✅ NEW
 │   │   │   ├── success/page.tsx
 │   │   │   └── fail/page.tsx
-│   │   ├── community/        # 커뮤니티 페이지 (예정)
+│   │   ├── community/        # 커뮤니티 페이지 ✅ 구현 중
+│   │   │   └── board/        # 자유 게시판 ✅ NEW
+│   │   │       └── page.tsx  # 게시글 목록/작성
 │   │   ├── revenue-proof/    # 수익 인증 페이지 ✅
 │   │   │   ├── [id]/page.tsx  # 상세 페이지
 │   │   │   ├── create/page.tsx # 생성 페이지
@@ -453,6 +501,8 @@ src/
 │   │   ├── courses/         # 강의 관리
 │   │   │   ├── page.tsx     # 강의 목록
 │   │   │   ├── new/page.tsx # 강의 생성
+│   │   │   ├── videos/      # 비디오 업로드 ✅ NEW
+│   │   │   │   └── page.tsx # 업로드 UI
 │   │   │   └── components/
 │   │   │       └── CourseEditor.tsx
 │   │   └── components/
@@ -488,6 +538,11 @@ src/
 │   │   │   ├── my/route.ts      # 내 수익 인증
 │   │   │   ├── ranking/route.ts # 랭킹
 │   │   │   └── route.ts         # 목록
+│   │   ├── community/       # 커뮤니티 API ✅ NEW (Phase 13)
+│   │   │   └── posts/       # 게시글 관리
+│   │   │       ├── route.ts    # 목록/생성
+│   │   │       └── [id]/
+│   │   │           └── route.ts # CRUD
 │   │   ├── youtube/         # YouTube API ✅ 수정됨 (Phase 10)
 │   │   │   ├── ~~auth/~~    # ~~OAuth 인증~~ (Phase 10에서 제거)
 │   │   │   ├── validate-key/ # Key 유효성 검증 ✅ NEW (Phase 10)
@@ -572,7 +627,7 @@ src/
 │   │   ├── browser-client.ts  # 브라우저 클라이언트
 │   │   ├── server-client.ts   # 서버 클라이언트
 │   │   ├── client.ts          # 공통 클라이언트
-│   │   └── migrations/        # DB 마이그레이션 (10개) ✅ 추가
+│   │   └── migrations/        # DB 마이그레이션 (12개) ✅ 추가
 │   │       ├── ALL_MIGRATIONS_COMBINED.sql
 │   │       ├── 001_initial_schema.sql
 │   │       ├── 002_initial_triggers.sql
@@ -585,7 +640,8 @@ src/
 │   │       ├── 008_youtube_lens.sql ✅ NEW
 │   │       ├── 009_payment_system.sql ✅ NEW
 │   │       ├── 010_course_improvements.sql ✅ NEW
-│   │       └── 011_user_api_keys.sql ✅ NEW (Phase 10)
+│   │       ├── 011_user_api_keys.sql ✅ NEW (Phase 10)
+│   │       └── 012_community_system.sql ✅ NEW (Phase 13)
 │   │
 │   ├── auth/               # 인증 관련 ✅ 구현 완료
 │   │   ├── AuthProvider.tsx  # 인증 프로바이더 (Legacy)
@@ -752,22 +808,23 @@ npx supabase gen types typescript --local
 
 ## 📊 프로젝트 통계
 
-### 현재 상태 (2025-01-17 업데이트 - Phase 12 완료)
-- **총 파일 수**: ~240개+ (Phase 12에서 7개 페이지 추가)
+### 현재 상태 (2025-01-19 업데이트 - Phase 13 완료)
+- **총 파일 수**: ~250개+ (Phase 13에서 커뮤니티 파일 추가)
 - **shadcn/ui 컴포넌트**: 24개 설치됨 (switch 추가)
 - **레이아웃 컴포넌트**: 8개 완성
 - **메인 페이지 컴포넌트**: 21개 구현 (8개 섹션 + 공유 컴포넌트)
-- **강의 시스템 컴포넌트**: 13개 구현 (Phase 12에서 7개 추가)
-- **관리자 컴포넌트**: 2개 구현 (Sidebar, CourseEditor)
+- **강의 시스템 컴포넌트**: 13개 구현
+- **관리자 컴포넌트**: 3개 구현 (Sidebar, CourseEditor, VideoUpload)
+- **커뮤니티 컴포넌트**: 1개 구현 (Board 페이지)
 - **수익 인증 컴포넌트**: 5개 구현
 - **YouTube Lens 컴포넌트**: 4개 구현 (OAuth → API Key 전환 완료)
 - **API Key 시스템**: 2개 페이지 (`/settings/api-keys`, `/docs/get-api-key`), 3개 API 엔드포인트
 - **마이페이지**: 5개 페이지 구현
 - **Provider 시스템**: 3개 (Theme, Auth, Layout)
 - **상태 관리**: Zustand store 2개 (layout, youtube-lens)
-- **API Routes**: 35개+ (OAuth 5개 제거, API Key 3개 추가)
-- **DB 마이그레이션**: 11개 (011_user_api_keys.sql 추가)
-- **DB 테이블**: 18개 (user_api_keys 추가, youtube_api_keys 제거)
+- **API Routes**: 38개+ (커뮤니티 API 3개 추가)
+- **DB 마이그레이션**: 12개 (012_community_system.sql 추가)
+- **DB 테이블**: 20개 (community_posts, community_comments, community_likes 추가)
 - **환경 변수**: 
   - 필수 7개 (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, ENCRYPTION_KEY[64자 필수], STRIPE_SECRET_KEY)
   - 제거됨 3개 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
@@ -803,13 +860,16 @@ npx supabase gen types typescript --local
 - ✅ SEO 최적화 (sitemap, robots)
 - ✅ YouTube Lens API Key 전환 (OAuth → API Key)
 - ✅ 강의 카테고리 시스템 구현 (무료/인기/신규/카테고리)
+- ✅ 커뮤니티 시스템 구현 (게시판, API, 댓글/좋아요 DB)
 
 ### 진행 중
-- 🚧 환경 변수 설정 (Stripe, Cloudflare)
+- 🚧 환경 변수 설정 (Cloudflare)
 - 🚧 배포 준비 (Vercel)
+- 🚧 커뮤니티 게시글 상세 페이지
 
 ### 진행 예정
-- [ ] 커뮤니티 기능
+- [ ] 커뮤니티 댓글/좋아요 UI 구현
+- [ ] Q&A 및 스터디 모집 게시판
 - [ ] 알림 시스템
 - [ ] 실시간 채팅
 - [ ] 이메일 인증
