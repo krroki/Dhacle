@@ -188,8 +188,8 @@ function YouTubeLensContent() {
         remaining: result.quota.remaining || 10000,
         percentage: ((result.quota.used || 0) / (result.quota.limit || 10000)) * 100,
         resetTime: new Date(new Date().setHours(24, 0, 0, 0)),
-        warning: result.quota.remaining < 2000,
-        critical: result.quota.remaining < 500,
+        warning: (result.quota.remaining || 0) < 2000,
+        critical: (result.quota.remaining || 0) < 500,
         searchCount: (result.quota.searchCount || 0) + 1,
         videoCount: result.quota.videoCount || 0
       };

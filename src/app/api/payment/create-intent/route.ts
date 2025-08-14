@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server-client';
-
-const stripeKey = process.env.STRIPE_SECRET_KEY;
-
-const stripe = stripeKey ? new Stripe(stripeKey, {
-  apiVersion: '2025-07-30.basil',
-}) : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -90,26 +83,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Stripe PaymentIntent 생성
-    if (!stripe) {
-      return NextResponse.json(
-        { error: 'Stripe 설정이 되어있지 않습니다.' },
-        { status: 500 }
-      );
-    }
-    
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: finalPrice,
-      currency: 'krw',
-      metadata: {
-        userId: user.id,
-        courseId: course.id,
-        courseTitle: course.title,
-        couponId: appliedCoupon?.id || '',
-        couponCode: appliedCoupon?.code || '',
-      },
-      description: `${course.title} 강의 구매`,
-    });
+    // 주문 ID 생성 (고유해야 함)
+    const orderId = `ORDER_${Date.now()}_${courseId}_${user.id.substring(0, 8)}`;
 
     // 구매 레코드 생성 (pending 상태)
     const { data: purchase, error: purchaseError } = await supabase
@@ -119,8 +94,8 @@ export async function POST(req: NextRequest) {
         course_id: courseId,
         amount: course.price,
         final_amount: finalPrice,
-        payment_method: 'stripe',
-        payment_intent_id: paymentIntent.id,
+        payment_method: 'tosspayments',
+        payment_intent_id: orderId, // 주문 ID 저장
         status: 'pending',
         coupon_id: appliedCoupon?.id,
       })
@@ -128,19 +103,28 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (purchaseError) {
-      // PaymentIntent 취소
-      await stripe.paymentIntents.cancel(paymentIntent.id);
-      
       return NextResponse.json(
         { error: '구매 처리 중 오류가 발생했습니다.' },
         { status: 500 }
       );
     }
 
+    // 사용자 프로필 정보 가져오기
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, email')
+      .eq('id', user.id)
+      .single();
+
+    // 토스페이먼츠는 프론트엔드에서 직접 결제 요청
+    // 서버는 주문 정보만 생성
     return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
+      orderId,
+      amount: finalPrice,
+      orderName: course.title,
+      customerName: profile?.username || '고객',
+      customerEmail: profile?.email || user.email,
       purchaseId: purchase.id,
-      finalPrice,
       appliedCoupon: appliedCoupon ? {
         code: appliedCoupon.code,
         discountType: appliedCoupon.discount_type,

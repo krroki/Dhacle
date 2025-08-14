@@ -1,6 +1,6 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-16 (Phase 10: YouTube Lens OAuth → API Key 전환 완료)*
+*최종 업데이트: 2025-01-16 (Phase 11: TossPayments 마이그레이션 완료)*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -20,7 +20,7 @@
 - **현재 상태**: 완전 재구축 진행 중 (styled-components → shadcn/ui)
 - **백업 위치**: `../dhacle-backup/` (기존 코드 모두 보존)
 
-## 🚨 현재 재구축 상황 (2025-01-15)
+## 🚨 현재 재구축 상황 (2025-01-16)
 
 ### 🔄 마이그레이션 진행 상황
 
@@ -190,7 +190,30 @@
   - 운영 비용: 증가 예상 → 0원 (사용자 개인 할당량)
   - 인증 단계: OAuth 5단계 → API Key 2단계 (60% 간소화)
 
-#### Phase 11: 진행 예정 📋
+#### Phase 11: TossPayments 마이그레이션 ✅ 완료 (2025-01-16)
+- ✅ **Stripe 완전 제거**
+  - 모든 Stripe 패키지 제거 (stripe, @stripe/stripe-js, @stripe/react-stripe-js)
+  - `/lib/stripe/` 폴더 삭제
+  - `/api/payment/webhook/route.ts` 삭제 (Stripe webhook)
+  - 레거시 `/payment/page.tsx` 삭제
+- ✅ **TossPayments 통합**
+  - @tosspayments/payment-sdk v1.9.1 설치
+  - `/lib/tosspayments/client.ts` 구현 (싱글톤 패턴)
+  - 7가지 한국 결제 수단 지원 (카드, 계좌이체, 가상계좌, 휴대폰, 카카오페이, 네이버페이, 토스페이)
+- ✅ **PaymentMethodSelector 통합**
+  - PurchaseCard.tsx에 결제 수단 선택 모달 통합
+  - 하드코딩된 '카드' 결제 → 사용자 선택 방식으로 개선
+  - Dialog 컴포넌트로 UX 개선
+- ✅ **에러 처리 강화**
+  - 상태별 맞춤형 에러 메시지 (로그인 필요, 이미 구매, 네트워크 오류 등)
+  - Alert 컴포넌트 활용한 사용자 친화적 피드백
+  - 결제 취소 시 에러 메시지 미표시 처리
+- ✅ **TypeScript 지원**
+  - `/types/tosspayments.d.ts` 완전한 타입 정의
+  - 모든 인터페이스 정의 완료
+  - 빌드 에러 0개 달성
+
+#### Phase 12: 진행 예정 📋
 - [ ] 커뮤니티 페이지 구현
 - [ ] 알림 시스템 구현
 - [ ] 실시간 채팅 기능
@@ -262,7 +285,7 @@
 - **Observer**: react-intersection-observer 9.16.0
 - **Toast**: Sonner (Radix UI Toast 기반)
 - **Editor**: TipTap (리치 텍스트 에디터)
-- **Payment**: Stripe (@stripe/stripe-js, stripe) ✅ NEW
+- **Payment**: TossPayments (@tosspayments/payment-sdk) ✅ NEW
 - **Video**: video.js (HLS 스트리밍 지원) ✅ NEW
 
 ### Backend & Infrastructure
@@ -430,10 +453,11 @@ ENCRYPTION_KEY=your_64_character_hex_encryption_key
 # YouTube API (Phase 10 이후 개인별 설정)
 # 사용자가 /settings/api-keys 페이지에서 개별 등록
 
-# Stripe (결제 시스템) ✅ NEW
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+# TossPayments (결제 시스템) ✅ NEW
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_...
+TOSS_SECRET_KEY=test_sk_...
+# 옵션: Webhook 사용 시
+# TOSS_WEBHOOK_SECRET=...
 
 # Cloudflare Stream (비디오 스트리밍) - 예정
 # CLOUDFLARE_ACCOUNT_ID=your_account_id

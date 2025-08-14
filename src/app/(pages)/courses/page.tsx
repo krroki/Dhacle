@@ -55,7 +55,7 @@ export default async function CoursesPage() {
         },
         url: `https://dhacle.com/courses/${course.id}`,
         courseMode: 'online',
-        educationalLevel: course.level || 'beginner',
+        educationalLevel: course.difficulty || 'beginner',
         inLanguage: 'ko-KR',
         offers: {
           '@type': 'Offer',

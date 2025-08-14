@@ -12,24 +12,66 @@ import type { Course } from '@/types/course';
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const courseId = searchParams.get('courseId');
+  
+  // 토스페이먼츠 파라미터
+  const orderId = searchParams.get('orderId');
+  const paymentKey = searchParams.get('paymentKey');
+  const amount = searchParams.get('amount');
+  
   const [course, setCourse] = useState<Course | null>(null);
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 축하 애니메이션
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#10b981', '#22c55e', '#84cc16'],
-    });
-
-    if (courseId) {
-      loadCourseData();
+    if (!orderId || !paymentKey || !amount) {
+      setError('결제 정보가 올바르지 않습니다.');
+      setIsProcessing(false);
+      return;
     }
-  }, [courseId]);
 
-  const loadCourseData = async () => {
+    confirmPayment();
+  }, [orderId, paymentKey, amount]);
+
+  const confirmPayment = async () => {
+    try {
+      const response = await fetch('/api/payment/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          paymentKey,
+          amount: parseInt(amount || '0'),
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '결제 승인에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      
+      // 축하 애니메이션
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#22c55e', '#84cc16'],
+      });
+
+      // 강의 정보 로드
+      if (data.purchase?.course_id) {
+        loadCourseData(data.purchase.course_id);
+      }
+    } catch (error) {
+      console.error('Payment confirmation error:', error);
+      setError(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const loadCourseData = async (courseId: string) => {
     const supabase = createClient();
     const { data } = await supabase
       .from('courses')
@@ -42,7 +84,40 @@ function PaymentSuccessContent() {
     }
   };
 
-  if (!courseId || !course) {
+  if (isProcessing) {
+    return (
+      <div className="container mx-auto px-4 py-16 max-w-2xl">
+        <div className="text-center">
+          <p className="text-muted-foreground">결제를 처리하는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-16 max-w-2xl">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full mb-6">
+              <span className="text-4xl">❌</span>
+            </div>
+            <CardTitle>결제 실패</CardTitle>
+            <CardDescription className="text-destructive">
+              {error}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Button onClick={() => router.push('/courses')}>
+              강의 목록으로 돌아가기
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!course) {
     return (
       <div className="container mx-auto px-4 py-16 max-w-2xl">
         <div className="text-center">
@@ -96,7 +171,7 @@ function PaymentSuccessContent() {
         <Button 
           size="lg" 
           className="w-full"
-          onClick={() => router.push(`/learn/${courseId}`)}
+          onClick={() => router.push(`/learn/${course.id}`)}
         >
           <BookOpen className="w-4 h-4 mr-2" />
           바로 학습 시작하기

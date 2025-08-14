@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   PlayCircle, 
   Clock, 
@@ -15,10 +17,12 @@ import {
   ShieldCheck,
   ChevronRight,
   Tag,
-  Loader2
+  Loader2,
+  CreditCard
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { loadStripe } from '@stripe/stripe-js';
+import { requestPayment, type PaymentMethod } from '@/lib/tosspayments/client';
+import { PaymentMethodSelector } from '@/components/features/payment/PaymentMethodSelector';
 import type { Course } from '@/types/course';
 
 interface PurchaseCardProps {
@@ -35,6 +39,16 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
   const [discount, setDiscount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [orderData, setOrderData] = useState<{
+    orderId: string;
+    amount: number;
+    orderName: string;
+    customerName: string;
+    customerEmail: string;
+    purchaseId: string;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const formatPrice = (price: number): string => {
     if (price === 0) return '무료';
@@ -56,8 +70,10 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
     }
 
     setIsProcessing(true);
+    setError(null);
+    
     try {
-      // 1. Create payment intent
+      // 1. 주문 정보 생성
       const response = await fetch('/api/payment/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,30 +84,70 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || '결제 처리 중 오류가 발생했습니다.');
+        const errorData = await response.json();
+        const errorMessage = errorData.error || '결제 준비 중 오류가 발생했습니다.';
+        
+        // 특정 에러에 대한 사용자 친화적 메시지
+        if (response.status === 401) {
+          throw new Error('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else if (response.status === 404) {
+          throw new Error('강의를 찾을 수 없습니다. 페이지를 새로고침 해주세요.');
+        } else if (response.status === 400 && errorData.error?.includes('이미 구매')) {
+          throw new Error('이미 구매한 강의입니다. 내 강의 페이지에서 확인해주세요.');
+        } else {
+          throw new Error(errorMessage);
+        }
       }
 
-      const paymentData = await response.json() as { clientSecret: string; purchaseId: string; finalPrice: number };
-      const { purchaseId } = paymentData;
-      // clientSecret and finalPrice would be used for payment processing
+      const data = await response.json() as { 
+        orderId: string; 
+        amount: number; 
+        orderName: string;
+        customerName: string;
+        customerEmail: string;
+        purchaseId: string; 
+      };
 
-      // 2. Initialize Stripe
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+      // 2. 주문 데이터 저장하고 결제 수단 선택 모달 열기
+      setOrderData(data);
+      setShowPaymentModal(true);
+      setError(null);
       
-      if (!stripe) {
-        throw new Error('Stripe 초기화에 실패했습니다.');
+    } catch (err) {
+      console.error('Payment error:', err);
+      const errorMessage = err instanceof Error ? err.message : '결제 처리 중 오류가 발생했습니다.';
+      setError(errorMessage);
+      
+      // 로그인 필요 시 로그인 페이지로 리다이렉트
+      if (errorMessage.includes('로그인이 필요')) {
+        setTimeout(() => {
+          router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
+        }, 2000);
       }
-
-      // 3. Redirect to payment page with the purchase ID
-      // The actual card payment will be handled on the payment page with Stripe Elements
-      router.push(`/payment?purchaseId=${purchaseId}&courseId=${course.id}`);
-      
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    setError(null);
+    // 결제 성공 시 처리는 TossPayments가 successUrl로 리다이렉트 처리
+  };
+
+  const handlePaymentError = (err: Error) => {
+    setShowPaymentModal(false);
+    
+    // 사용자가 취소한 경우는 에러 메시지를 표시하지 않음
+    if (err.message.includes('사용자가 결제를 취소')) {
+      return;
+    }
+    
+    // 네트워크 에러 처리
+    if (err.message.includes('네트워크') || err.message.includes('Network')) {
+      setError('네트워크 연결을 확인해주세요. 잠시 후 다시 시도해주세요.');
+    } else {
+      setError(err.message || '결제 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -129,8 +185,9 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
   };
 
   return (
-    <Card className="sticky top-24">
-      <CardHeader>
+    <>
+      <Card className="sticky top-24">
+        <CardHeader>
         <div className="space-y-3">
           {/* 가격 표시 */}
           <div className="space-y-1">
@@ -178,6 +235,13 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
             <div className="text-sm text-green-600">
               쿠폰 할인: -₩{discount.toLocaleString()}
             </div>
+          )}
+
+          {/* 에러 메시지 */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           {/* 구매/학습 버튼 */}
@@ -257,5 +321,29 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
         )}
       </CardContent>
     </Card>
+
+    {/* 결제 수단 선택 모달 */}
+    <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>결제하기</DialogTitle>
+          <DialogDescription>
+            원하시는 결제 수단을 선택하여 진행해주세요
+          </DialogDescription>
+        </DialogHeader>
+        {orderData && (
+          <PaymentMethodSelector
+            orderId={orderData.orderId}
+            amount={orderData.amount}
+            orderName={orderData.orderName}
+            customerName={orderData.customerName}
+            customerEmail={orderData.customerEmail}
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

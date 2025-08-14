@@ -1,19 +1,33 @@
 # 📊 디하클(Dhacle) 프로젝트 코드맵
 
-*최종 업데이트: 2025-01-16 (Phase 10 완료: YouTube Lens API Key 전환)*
+*최종 업데이트: 2025-01-16 (Phase 11 완료: TossPayments 마이그레이션)*
 
 ## 🎯 프로젝트 개요
 
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼
 - **위치**: `C:\My_Claude_Project\9.Dhacle`
-- **현재 상태**: Phase 10 완료 ✅ (YouTube Lens API Key 전환 완료)
+- **현재 상태**: Phase 11 완료 ✅ (TossPayments 마이그레이션 완료)
 - **백업 위치**: `C:\My_Claude_Project\dhacle-backup`
 - **도메인**: https://dhacle.com (배포 준비 완료)
 
 ---
 
 ## 🆕 최근 업데이트 (2025-01-16)
+
+### Phase 11: TossPayments 마이그레이션 ✅ 완료 (2025-01-16)
+- **Stripe 완전 제거**:
+  - Stripe 패키지 모두 제거 (stripe, @stripe/stripe-js, @stripe/react-stripe-js)
+  - `/lib/stripe/` 폴더 삭제
+  - 레거시 결제 페이지 제거 (`/payment/page.tsx`)
+- **TossPayments 통합**:
+  - @tosspayments/payment-sdk v1.9.1 설치
+  - `/lib/tosspayments/client.ts` 구현
+  - `/components/features/payment/PaymentMethodSelector.tsx` 구현
+- **결제 플로우 개선**:
+  - PurchaseCard.tsx에 PaymentMethodSelector 모달 통합
+  - 7가지 한국 결제 수단 지원
+  - 에러 처리 강화 (Alert 컴포넌트 활용)
 
 ### Phase 10: YouTube Lens OAuth → API Key 전환 ✅ 완료 (2025-01-16)
 - **OAuth 시스템 제거**: 
@@ -45,10 +59,10 @@
 - **robots.ts**: 검색 엔진 크롤링 규칙 (`/app/robots.ts`)
 - **Switch 컴포넌트**: shadcn/ui 토글 스위치 추가
 
-### Phase 8: 결제 시스템 구현 ✅ 완료 (2025-01-14)
-- **Stripe 결제 연동**: PaymentIntent API, Webhook 처리
+### Phase 8: 결제 시스템 구현 ✅ 완료 (2025-01-14) → Phase 11에서 TossPayments로 전환
+- ~~**Stripe 결제 연동**: PaymentIntent API, Webhook 처리~~ → TossPayments로 교체
 - **쿠폰 시스템**: 할인 코드 검증 및 적용
-- **결제 페이지**: checkout, success, cancel 페이지
+- **결제 페이지**: success, fail 페이지
 - **API 엔드포인트**: `/api/payment/*`, `/api/coupons/*`
 
 ### Phase 7: 강의 시스템 구현 ✅ 완료 (2025-01-14)
@@ -112,21 +126,26 @@ src/
 │   │   └── components/
 │   │       └── AdminSidebar.tsx
 │   └── api/
-│       ├── payment/            # 결제 API ✅ NEW
-│       │   ├── create-intent/route.ts
-│       │   └── webhook/route.ts
+│       ├── payment/            # 결제 API ✅ MODIFIED (TossPayments)
+│       │   ├── create-intent/route.ts  # 주문 생성
+│       │   ├── confirm/route.ts        # 결제 승인 ✅ NEW
+│       │   └── fail/route.ts           # 결제 실패 ✅ NEW
 │       └── coupons/            # 쿠폰 API ✅ NEW
 │           └── validate/route.ts
 ├── components/
-│   └── ui/
-│       └── switch.tsx          # 토글 스위치 ✅ NEW
+│   ├── ui/
+│   │   └── switch.tsx          # 토글 스위치 ✅ NEW
+│   └── features/
+│       └── payment/            # 결제 컴포넌트 ✅ NEW
+│           └── PaymentMethodSelector.tsx
 ├── lib/
-│   ├── stripe/                 # Stripe 클라이언트 ✅ NEW
+│   ├── tosspayments/           # TossPayments 클라이언트 ✅ NEW
 │   │   └── client.ts
 │   └── api/
 │       └── courses.ts          # 강의 API 함수 ✅ NEW
 └── types/
-    └── course.ts               # 강의 타입 정의 ✅ 수정
+    ├── course.ts               # 강의 타입 정의 ✅ 수정
+    └── tosspayments.d.ts       # TossPayments 타입 정의 ✅ NEW
 ```
 
 ### 새로 추가된 파일 (Phase 10 - OAuth → API Key 전환)
@@ -261,9 +280,9 @@ State & Forms:
   - Utilities: class-variance-authority 0.7.1
 
 Payment & Commerce:
-  - Payment: @stripe/stripe-js 5.5.0 ✅ NEW
-  - Stripe SDK: stripe 17.5.0 ✅ NEW
-  - Checkout: Stripe Elements
+  - Payment: @tosspayments/payment-sdk 1.9.1 ✅ NEW
+  - TossPayments: 한국 결제 수단 통합
+  - Checkout: 결제 수단 선택 UI
 
 Video & Media:
   - Video Player: video.js 8.17.3 ✅ NEW
@@ -345,9 +364,8 @@ src/
 │   │   │       ├── CourseGrid.tsx
 │   │   │       └── InstructorFilter.tsx
 │   │   ├── payment/          # 결제 페이지 ✅ NEW
-│   │   │   ├── checkout/page.tsx
 │   │   │   ├── success/page.tsx
-│   │   │   └── cancel/page.tsx
+│   │   │   └── fail/page.tsx
 │   │   ├── community/        # 커뮤니티 페이지 (예정)
 │   │   ├── revenue-proof/    # 수익 인증 페이지 ✅
 │   │   │   ├── [id]/page.tsx  # 상세 페이지

@@ -35,6 +35,7 @@ export default function LearnPage() {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
     loadCourseData();
@@ -72,6 +73,8 @@ export default function LearnPage() {
       // 진도 정보
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setUserId(user.id); // 사용자 ID 설정
+        
         const { data: progressData } = await supabase
           .from('course_progress_extended')
           .select('*')
@@ -332,7 +335,7 @@ export default function LearnPage() {
             <VideoPlayer
               streamUrl={currentLesson.video_url || ''}
               lessonId={lessonId}
-              userId="user123" // TODO: 실제 사용자 ID로 교체
+              userId={userId}
               title={currentLesson.title}
               onProgress={handleProgressUpdate}
               initialProgress={progress.find(p => p.lesson_id === lessonId)?.progress || 0}

@@ -94,7 +94,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
     hasCourseInstance: {
       '@type': 'CourseInstance',
       courseMode: 'online',
-      courseWorkload: course.duration ? `PT${course.duration}H` : undefined,
+      courseWorkload: course.total_duration ? `PT${course.total_duration}H` : undefined,
     },
     offers: {
       '@type': 'Offer',
@@ -104,17 +104,17 @@ export default async function CourseDetailPage({ params }: PageProps) {
       url: `${siteConfig.url}/courses/${course.id}`,
       validFrom: course.created_at,
     },
-    aggregateRating: course.rating ? {
+    aggregateRating: course.average_rating ? {
       '@type': 'AggregateRating',
-      ratingValue: course.rating,
+      ratingValue: course.average_rating,
       reviewCount: course.review_count || 0,
       bestRating: 5,
       worstRating: 1,
     } : undefined,
-    syllabusSections: modules?.map((module) => ({
+    syllabusSections: lessons?.map((lesson) => ({
       '@type': 'Syllabus',
-      name: module.title,
-      description: module.description,
+      name: lesson.title,
+      description: lesson.description,
     })),
   };
 
