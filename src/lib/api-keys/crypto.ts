@@ -4,17 +4,9 @@ import crypto from 'crypto';
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
   
-  // 디버깅 정보 (프로덕션에서는 제거해야 함)
-  console.log('[DEBUG] Environment check:', {
-    hasKey: !!key,
-    keyLength: key?.length,
-    firstChars: key ? key.substring(0, 4) + '...' : 'undefined',
-    nodeEnv: process.env.NODE_ENV,
-    runtime: typeof window === 'undefined' ? 'server' : 'client',
-    cryptoAvailable: typeof crypto !== 'undefined'
-  });
-  
+  // 최소한의 디버깅 정보만 남김
   if (!key) {
+    console.error('[crypto] ENCRYPTION_KEY not found in environment');
     throw new Error('ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.');
   }
   
@@ -43,32 +35,19 @@ function getEncryptionKey(): Buffer {
  */
 export function encryptApiKey(apiKey: string): string {
   try {
-    console.log('[DEBUG] Starting encryption...');
-    
     const key = getEncryptionKey();
-    console.log('[DEBUG] Encryption key obtained, buffer length:', key.length);
-    
     const iv = crypto.randomBytes(16);
-    console.log('[DEBUG] IV generated, length:', iv.length);
-    
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    console.log('[DEBUG] Cipher created');
     
     let encrypted = cipher.update(apiKey, 'utf8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-    console.log('[DEBUG] Encryption successful, encrypted length:', encrypted.length);
     
     // IV와 암호화된 데이터를 콜론으로 구분하여 저장
     const result = iv.toString('hex') + ':' + encrypted.toString('hex');
-    console.log('[DEBUG] Final encrypted string length:', result.length);
     
     return result;
   } catch (error) {
-    console.error('[DEBUG] Detailed encryption error:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      errorType: error?.constructor?.name
-    });
+    console.error('[crypto] Encryption error:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error(`Failed to encrypt API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

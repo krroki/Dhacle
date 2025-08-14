@@ -1,4 +1,5 @@
 import { createServerClient as createSupabaseSSRClient, type CookieOptions } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/database'
 
@@ -58,6 +59,37 @@ export async function createSupabaseServerClient() {
 export const createServerClient = createSupabaseServerClient;
 export const createServerSupabaseClient = createSupabaseServerClient;
 export const createClient = createSupabaseServerClient;
+
+/**
+ * Create a Supabase client with Service Role Key for bypassing RLS
+ * WARNING: This should only be used in secure server-side contexts
+ * Never expose Service Role Key to the client
+ */
+export async function createSupabaseServiceRoleClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('Missing Supabase Service Role environment variables')
+    throw new Error(
+      'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
+      'Please check your environment configuration.'
+    )
+  }
+
+  // Service Role Key bypasses RLS policies
+  // Using createSupabaseClient directly for service role key
+  return createSupabaseClient<Database>(
+    supabaseUrl,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
 
 /**
  * Create a Supabase client for server-side usage in Route Handlers

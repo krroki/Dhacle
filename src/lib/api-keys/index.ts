@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase/server-client';
+import { createServerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { encryptApiKey, decryptApiKey, maskApiKey, validateApiKeyFormat } from './crypto';
 
 export interface UserApiKey {
@@ -46,16 +46,22 @@ export async function saveUserApiKey({
   metadata = {}
 }: SaveApiKeyParams): Promise<UserApiKey> {
   try {
+    console.log('[saveUserApiKey] Starting...', { userId, serviceName });
+    
     // API Key 형식 검증
     if (!validateApiKeyFormat(apiKey, serviceName)) {
+      console.error('[saveUserApiKey] Invalid API key format');
       throw new Error('Invalid API key format');
     }
     
     // 암호화
     const encryptedKey = encryptApiKey(apiKey);
     const maskedKey = maskApiKey(apiKey);
+    console.log('[saveUserApiKey] Encryption successful');
     
-    const supabase = await createServerClient();
+    // Service Role Client 사용 (RLS 우회)
+    const supabase = await createSupabaseServiceRoleClient();
+    console.log('[saveUserApiKey] Service Role Client created');
     
     // 기존 키가 있는지 확인
     const { data: existingKey } = await supabase
@@ -83,7 +89,16 @@ export async function saveUserApiKey({
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('[saveUserApiKey] Update error:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+      console.log('[saveUserApiKey] Updated existing key');
       result = data;
     } else {
       // 새로 생성
@@ -99,13 +114,23 @@ export async function saveUserApiKey({
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('[saveUserApiKey] Insert error:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+      console.log('[saveUserApiKey] Inserted new key');
       result = data;
     }
     
+    console.log('[saveUserApiKey] Success:', { id: result?.id });
     return result as UserApiKey;
   } catch (error) {
-    console.error('Error saving API key:', error);
+    console.error('[saveUserApiKey] Final error:', error);
     throw error;
   }
 }
@@ -258,12 +283,29 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
  */
 async function incrementUsage(apiKeyId: string): Promise<void> {
   try {
-    const supabase = await createServerClient();
+    const supabase = await createSupabaseServiceRoleClient();
     
-    // PostgreSQL 함수 호출
-    await supabase.rpc('increment_api_key_usage', {
-      p_api_key_id: apiKeyId
+    // user_api_keys에서 user_id와 service_name 조회
+    const { data: keyData, error: fetchError } = await supabase
+      .from('user_api_keys')
+      .select('user_id, service_name')
+      .eq('id', apiKeyId)
+      .single();
+    
+    if (fetchError || !keyData) {
+      console.error('Error fetching key data for usage increment:', fetchError);
+      return;
+    }
+    
+    // PostgreSQL 함수 호출 (올바른 파라미터 사용)
+    const { error: rpcError } = await supabase.rpc('increment_api_key_usage', {
+      p_user_id: keyData.user_id,
+      p_service_name: keyData.service_name
     });
+    
+    if (rpcError) {
+      console.error('Error calling increment_api_key_usage:', rpcError);
+    }
   } catch (error) {
     console.error('Error incrementing usage:', error);
   }
