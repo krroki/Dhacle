@@ -78,33 +78,7 @@ const sidebarData: Record<string, SidebarItem[]> = {
       href: '/community/showcase',
     },
   ],
-  '/mypage': [
-    {
-      id: 'profile',
-      label: '프로필',
-      href: '/mypage',
-    },
-    {
-      id: 'courses',
-      label: '내 강의',
-      href: '/mypage/courses',
-    },
-    {
-      id: 'achievements',
-      label: '업적',
-      href: '/mypage/achievements',
-    },
-    {
-      id: 'certificates',
-      label: '수료증',
-      href: '/mypage/certificates',
-    },
-    {
-      id: 'settings',
-      label: '설정',
-      href: '/mypage/settings',
-    },
-  ],
+  // '/mypage' is handled by its own layout sidebar
   '/tools': [
     {
       id: 'thumbnail',
@@ -151,8 +125,8 @@ export function Sidebar() {
 
   const sidebarItems = getSidebarItems()
 
-  // Don't show sidebar if no matching data
-  if (!sidebarItems) return null
+  // Don't show sidebar on mypage (has its own sidebar) or if no matching data
+  if (pathname.startsWith('/mypage') || !sidebarItems) return null
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) =>

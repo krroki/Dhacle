@@ -1,6 +1,6 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-17 (ENCRYPTION_KEY 환경 변수 문제 해결)*
+*최종 업데이트: 2025-01-21 (마이페이지 사이드바 중복 문제 해결)*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -20,9 +20,27 @@
 - **현재 상태**: 완전 재구축 진행 중 (styled-components → shadcn/ui)
 - **백업 위치**: `../dhacle-backup/` (기존 코드 모두 보존)
 
-## 🚨 현재 재구축 상황 (2025-01-17)
+## 🚨 현재 재구축 상황 (2025-01-21)
 
 ### 🔧 최근 수정 사항
+- **마이페이지 사이드바 중복 문제 해결** (2025-01-21)
+  - 문제: 마이페이지에서 사이드바가 두 개 표시되는 문제
+  - 원인: Root Layout의 전역 Sidebar와 마이페이지 Layout의 자체 사이드바가 동시 렌더링
+  - 해결:
+    - 전역 Sidebar 컴포넌트에서 /mypage 경로 제외 처리
+    - 마이페이지 사이드바를 별도 Client Component로 분리 (MyPageSidebar.tsx)
+    - 경로 기반 활성화 상태 구현으로 UX 개선
+  - 영향: 마이페이지 독립적인 네비게이션 시스템 구축
+
+- **Header 프로필 드롭다운 UI 개선** (2025-01-20)
+  - 문제: 프로필 드롭다운이 네비게이션바 아래로 가려지는 문제
+  - 원인: z-index 설정 부재 및 위치 조정 필요
+  - 해결: 
+    - DropdownMenuContent에 z-[1200] 및 sideOffset 적용
+    - globals.css에 드롭다운 전역 z-index 설정
+    - Header 컴포넌트에 z-[1000] 적용으로 레이어 순서 명확화
+  - 영향: 드롭다운 메뉴가 올바르게 표시되며 UX 개선
+
 - **ENCRYPTION_KEY 환경 변수 문제 해결** (2025-01-17 오후)
   - 문제: API Key 저장 시 "Failed to encrypt API key" 에러
   - 원인: ENCRYPTION_KEY가 63자로 설정됨 (64자 필요)
@@ -252,7 +270,26 @@
   - 각 페이지별 특색 있는 아이콘 및 설명
 
 #### Phase 13: 커뮤니티 시스템 구현 ✅ 완료 (2025-01-19)
-- ✅ **데이터베이스 스키마 구축**
+
+#### Phase 14: Supabase CLI 자동화 구축 ✅ 완료 (2025-01-20)
+- ✅ **Supabase CLI 설정**
+  - `npx supabase` 명령어 설정
+  - `supabase/` 표준 디렉토리 구조 생성
+  - `config.toml` 설정 파일 생성
+- ✅ **마이그레이션 시스템 개선**
+  - 기존 `src/lib/supabase/migrations/` → `supabase/migrations/` 이동
+  - 타임스탬프 기반 파일명으로 변환 (예: `20250109000001_initial_schema.sql`)
+  - 중복 번호 문제 해결 (007 두 개 → 순차 번호로 정리)
+- ✅ **package.json 스크립트 추가**
+  - `npm run supabase:db:push` - 마이그레이션 실행
+  - `npm run supabase:migration:new` - 새 마이그레이션 생성
+  - `npm run supabase:migration:list` - 마이그레이션 목록 확인
+- ✅ **프로젝트 정리**
+  - 기존 마이그레이션 파일 삭제 (백업: ALL_MIGRATIONS_COMBINED.sql 유지)
+  - `.gitignore` 업데이트 (Supabase 임시 파일 제외)
+  - 문서 업데이트
+
+- ✅ **데이터베이스 스키마 구축** (Phase 13에서 이동)
   - `012_community_system.sql` 마이그레이션 생성
   - 3개 테이블: community_posts, community_comments, community_likes
   - RLS 정책 및 인덱스 설정 완료
@@ -297,7 +334,7 @@
 3. **성능 최적화**: 번들 크기 감소, SSR/SSG 활용
 4. **유지보수성**: 명확한 폴더 구조, 재사용 가능한 컴포넌트
 
-### ⚠️ 알려진 이슈 (2025-01-17 업데이트)
+### ⚠️ 알려진 이슈 (2025-01-20 업데이트)
 
 #### 🔴 보안 취약점 (우선 해결 필요)
 - **문제**: `src/app/auth/callback/route.ts`에 Supabase 자격 증명 하드코딩
@@ -323,6 +360,10 @@
    - **참고**: Phase 5에서 구현 예정
 
 #### ✅ 해결된 이슈
+- **프로필 드롭다운 UI 문제**: 네비게이션바 아래로 가려지는 문제 해결 (2025-01-20)
+  - Header.tsx의 DropdownMenuContent에 z-index 및 위치 속성 추가
+  - globals.css에 드롭다운 전역 스타일 적용
+  - 모든 드롭다운이 올바르게 표시되도록 개선
 - **ENCRYPTION_KEY 길이 문제**: API Key 암호화 실패 해결 (2025-01-17 오후)
   - 63자 → 64자 암호화 키로 수정
   - `.env.local` 파일 업데이트 완료
