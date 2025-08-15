@@ -47,8 +47,17 @@ const menuItems = [
   },
 ];
 
+interface Profile {
+  id?: string;
+  username?: string | null;
+  display_nickname?: string | null;
+  naver_cafe_verified?: boolean | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 interface MyPageSidebarProps {
-  profile: any;
+  profile: Profile | null;
 }
 
 export function MyPageSidebar({ profile }: MyPageSidebarProps) {

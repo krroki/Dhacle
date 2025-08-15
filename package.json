@@ -16,7 +16,16 @@
     "db:seed": "node scripts/seed.js",
     "clean": "rimraf .next node_modules/.cache",
     "clean:all": "rimraf .next node_modules/.cache out",
-    "fresh": "npm run clean:all && npm install && npm run dev"
+    "fresh": "npm run clean:all && npm install && npm run dev",
+    "supabase": "npx supabase",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status",
+    "supabase:db:push": "npx supabase db push",
+    "supabase:db:reset": "npx supabase db reset",
+    "supabase:migration:new": "npx supabase migration new",
+    "supabase:migration:up": "npx supabase migration up",
+    "supabase:migration:list": "npx supabase migration list"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

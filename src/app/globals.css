@@ -43,6 +43,11 @@
     z-index: 50 !important;
   }
   
+  /* DropdownMenu 컨텐츠 z-index 설정 (프로필 드롭다운 등) */
+  [data-radix-dropdown-menu-content] {
+    z-index: 1200 !important;
+  }
+  
   /* 각 드롭다운이 해당 메뉴 아래 정확히 위치 */
   [data-radix-navigation-menu-viewport] {
     position: absolute !important;

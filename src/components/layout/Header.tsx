@@ -329,7 +329,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        'bg-background/95 backdrop-blur-sm border-b transition-all duration-300',
+        'bg-background/95 backdrop-blur-sm border-b transition-all duration-300 relative z-[1000]',
         isScrolled && 'shadow-sm'
       )}
       style={{
@@ -498,7 +498,13 @@ export function Header() {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent 
+                  align="end" 
+                  alignOffset={-5}
+                  sideOffset={8}
+                  className="w-56 z-[1200] bg-background border shadow-lg"
+                  forceMount
+                >
                   <DropdownMenuItem asChild>
                     <Link href="/mypage" className="flex items-center gap-2">
                       <User className="h-4 w-4" />

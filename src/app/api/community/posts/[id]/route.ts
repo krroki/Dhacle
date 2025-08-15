@@ -6,7 +6,7 @@ interface CommentWithProfile {
   content: string;
   created_at: string;
   parent_id: string | null;
-  profiles: {
+  users: {
     id: string;
     username: string;
     avatar_url?: string;
@@ -30,7 +30,7 @@ export async function GET(
       .from('community_posts')
       .select(`
         *,
-        profiles:user_id (
+        users:user_id (
           id,
           username,
           avatar_url
@@ -70,10 +70,10 @@ export async function GET(
     // 데이터 가공
     const formattedPost = {
       ...post,
-      author: post.profiles,
+      author: post.users,
       comments: post.community_comments?.map((comment: CommentWithProfile) => ({
         ...comment,
-        author: comment.profiles
+        author: comment.users
       })) || [],
       like_count: post.community_likes?.length || 0,
       comment_count: post.community_comments?.length || 0

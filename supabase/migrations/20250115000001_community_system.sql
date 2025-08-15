@@ -1,10 +1,10 @@
--- 012_community_system.sql
+-- 013_community_system.sql
 -- 커뮤니티 시스템 테이블 생성
 
 -- 게시판 테이블
 CREATE TABLE IF NOT EXISTS community_posts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   category TEXT NOT NULL CHECK (category IN ('board', 'qna', 'study')),
   title TEXT NOT NULL,
   content TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS community_posts (
 CREATE TABLE IF NOT EXISTS community_comments (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   post_id UUID REFERENCES community_posts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   parent_id UUID REFERENCES community_comments(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   is_deleted BOOLEAN DEFAULT false,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS community_comments (
 CREATE TABLE IF NOT EXISTS community_likes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   post_id UUID REFERENCES community_posts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(post_id, user_id)
 );

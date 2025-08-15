@@ -25,12 +25,9 @@ const nextConfig: NextConfig = {
   webpack: (config, { dev, isServer }) => {
     // 개발 환경 최적화
     if (dev) {
-      // 파일 시스템 캐시 활성화
+      // 메모리 캐시 사용 (ChunkLoadError 방지)
       config.cache = {
-        type: 'filesystem',
-        buildDependencies: {
-          config: [__filename],
-        },
+        type: 'memory',
       }
       
       // 파일 감시 설정 (Windows 최적화)
@@ -38,6 +35,35 @@ const nextConfig: NextConfig = {
         poll: 1000, // 1초마다 체크
         aggregateTimeout: 300, // 변경 후 300ms 대기
         ignored: ['**/node_modules', '**/.next'],
+      }
+    }
+    
+    // 청크 최적화 설정 (ChunkLoadError 방지)
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        runtimeChunk: 'single',
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            vendor: {
+              name: 'vendor',
+              chunks: 'all',
+              test: /node_modules/,
+              priority: 20,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 10,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+          },
+        },
       }
     }
     

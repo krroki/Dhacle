@@ -107,3 +107,11 @@ node_modules/
 
 *storybook.log
 storybook-static
+
+# Supabase
+.branches
+.temp
+.env.local
+
+# Old migration folder (moved to supabase/migrations)
+/src/lib/supabase/migrations/

@@ -14,12 +14,12 @@ export async function GET(req: NextRequest) {
     const limit = 20;
     const offset = (page - 1) * limit;
 
-    // 게시글 목록 조회 (프로필 정보 포함)
+    // 게시글 목록 조회 (사용자 정보 포함)
     const { data, error, count } = await supabase
       .from('community_posts')
       .select(`
         *,
-        profiles:user_id (
+        users:user_id (
           id,
           username,
           avatar_url
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       ...post,
       comment_count: post.community_comments?.[0]?.count || 0,
       like_count: post.community_likes?.[0]?.count || 0,
-      author: post.profiles
+      author: post.users
     })) || [];
 
     return NextResponse.json({
