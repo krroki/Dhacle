@@ -2,8 +2,7 @@
 // 수익인증 상세 조회, 수정, 삭제 API
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseServiceRoleClient, createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
 
@@ -13,7 +12,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    // Service Role Client를 사용하여 RLS를 우회하고 공개 데이터를 가져옴
+    const supabase = await createSupabaseServiceRoleClient();
     const { id } = await params;
 
     // 인증 정보 조회
@@ -40,7 +40,9 @@ export async function GET(
 
     // 숨김 처리된 인증은 작성자만 볼 수 있음
     if (proof.is_hidden) {
-      const { data: { session } } = await supabase.auth.getSession();
+      // 인증 확인용 클라이언트 생성
+      const authClient = await createSupabaseRouteHandlerClient();
+      const { data: { session } } = await authClient.auth.getSession();
       if (!session || session.user.id !== proof.user_id) {
         return NextResponse.json(
           { error: '접근 권한이 없습니다' },
@@ -109,7 +111,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
 
     // 인증 확인
@@ -213,7 +215,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
 
     // 인증 확인

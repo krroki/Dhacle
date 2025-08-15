@@ -2,12 +2,13 @@
 // 랭킹 조회 API
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 
 // GET: 랭킹 조회
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
+    // Service Role Client를 사용하여 RLS를 우회하고 공개 데이터를 가져옴
+    const supabase = await createSupabaseServiceRoleClient();
     const { searchParams } = new URL(request.url);
     
     // 기간 파라미터 (daily, weekly, monthly)

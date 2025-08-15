@@ -10,45 +10,45 @@ export interface CarouselItem {
 export const carouselItems: CarouselItem[] = [
   {
     id: '1',
-    type: 'youtube',
-    src: 'fj_AsijzIhM', 
-    alt: 'YouTube Shorts 마스터 클래스 소개',
-    link: '/courses/youtube-shorts-master'
+    type: 'image',
+    src: '/images/carousel/1.png',
+    alt: 'YouTube Shorts 크리에이터 교육 플랫폼',
+    link: '/courses'
   },
   {
     id: '2',
     type: 'image',
-    src: '/images/carousel/carousel-01.jpg',
-    alt: '2025년 새해 특별 할인 이벤트',
-    link: '/events/new-year-2025'
+    src: '/images/carousel/2.png',
+    alt: '디하클 특별 프로모션',
+    link: '/courses/free'
   },
   {
     id: '3',
-    type: 'youtube',
-    src: 'RxhBub7IQRg', 
-    alt: '디하클 커뮤니티 소개',
-    link: '/community'
+    type: 'image',
+    src: '/images/carousel/3.png',
+    alt: '크리에이터 성공 스토리',
+    link: '/community/success'
   },
   {
     id: '4',
     type: 'image',
-    src: '/images/carousel/carousel-02.jpg',
+    src: '/images/carousel/4.png',
     alt: '무료 강의 오픈',
     link: '/courses/free'
   },
   {
     id: '5',
-    type: 'youtube',
-    src: 'M_7tBvpVPo0', 
-    alt: '크리에이터 성공 스토리',
-    link: '/success-stories'
+    type: 'image',
+    src: '/images/carousel/5.png',
+    alt: '디하클 커뮤니티',
+    link: '/community'
   },
   {
     id: '6',
     type: 'image',
-    src: '/images/carousel/carousel-03.jpg',
-    alt: '실시간 라이브 세미나',
-    link: '/live-seminar'
+    src: '/images/carousel/6.png',
+    alt: '실시간 수익 인증',
+    link: '/revenue-proof'
   }
 ];
 

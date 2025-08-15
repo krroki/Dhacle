@@ -163,7 +163,7 @@ export function HeroCarousel() {
 
   return (
     <section 
-      className="relative w-full max-w-[1920px] mx-auto overflow-hidden"
+      className="relative w-full overflow-hidden"
       aria-label="메인 프로모션 캐러셀"
       aria-roledescription="carousel"
       onMouseEnter={handleMouseEnter}
@@ -191,7 +191,7 @@ export function HeroCarousel() {
               aria-label={`슬라이드 ${index + 1} / ${carouselItems.length}: ${slide.alt}`}
               aria-current={current === index ? 'true' : 'false'}
             >
-              <div className="hero-carousel-slide rounded-lg overflow-hidden">
+              <div className="hero-carousel-slide w-full">
                 <HeroSlide slide={slide} index={index} />
               </div>
             </CarouselItem>

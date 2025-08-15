@@ -2,13 +2,15 @@
 // 수익인증 메인 API Route (목록 조회, 생성)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { createSupabaseRouteHandlerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { createProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
 
 // GET: 수익인증 목록 조회
 export async function GET(request: NextRequest) {
   try {
+    // Route Handler Client를 사용하여 공개 데이터를 가져옴
+    // revenue_proofs 테이블은 공개 읽기 가능하므로 Service Role Key 불필요
     const supabase = await createSupabaseRouteHandlerClient();
     const { searchParams } = new URL(request.url);
     
@@ -91,8 +93,19 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('API error:', error);
+    
+    // 개발 환경에서는 상세한 에러 메시지 제공
+    const errorMessage = process.env.NODE_ENV === 'development' 
+      ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+      : '서버 오류가 발생했습니다';
+    
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
+      { 
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && {
+          details: error instanceof Error ? error.stack : String(error)
+        })
+      },
       { status: 500 }
     );
   }
@@ -258,8 +271,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 개발 환경에서는 상세한 에러 메시지 제공
+    const errorMessage = process.env.NODE_ENV === 'development' 
+      ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+      : '서버 오류가 발생했습니다';
+    
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
+      { 
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && {
+          details: error instanceof Error ? error.stack : String(error)
+        })
+      },
       { status: 500 }
     );
   }

@@ -345,19 +345,21 @@ export function Header() {
             <Image 
               src="/images/logo/dhacle-logo@2x.png"
               alt="디하클"
-              width={160}
-              height={48}
+              width={120}
+              height={36}
               className="hidden md:block"
               priority
+              quality={80}
             />
             {/* 모바일 로고 */}
             <Image 
               src="/images/logo/dhacle-logo-mobile.png"
               alt="디하클"
-              width={120}
-              height={36}
+              width={90}
+              height={27}
               className="block md:hidden"
               priority
+              quality={80}
             />
           </Link>
 
