@@ -31,8 +31,8 @@ export function HeroSlide({ slide, index = 0 }: HeroSlideProps) {
         sizes="100vw"
       />
       
-      {/* 그라데이션 오버레이 - 호버 시 약간 밝아짐 */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:from-black/10 transition-all duration-300" />
+      {/* 그라데이션 오버레이 제거 - 이미지를 더 밝고 선명하게 표시 */}
+      {/* <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:from-black/10 transition-all duration-300" /> */}
       
       {/* YouTube 아이콘 표시 (YouTube 비디오인 경우) */}
       {slide.type === 'youtube' && (
