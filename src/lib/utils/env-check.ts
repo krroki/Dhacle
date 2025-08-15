@@ -58,7 +58,7 @@ export function checkRequiredEnvVars(): EnvCheckResult {
 export async function testSupabaseConnection(): Promise<{
   success: boolean;
   error?: string;
-  details?: any;
+  details?: unknown;
 }> {
   try {
     const { createSupabaseRouteHandlerClient } = await import('@/lib/supabase/server-client');
