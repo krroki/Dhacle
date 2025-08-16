@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       stats: statsByVideo.get(video.video_id) || []
     }));
 
-    let result: unknown;
+    let result: Record<string, unknown> = {};
 
     switch (type) {
       case 'outlier':
@@ -286,7 +286,7 @@ export async function GET(request: NextRequest) {
     const videoId = searchParams.get('video_id');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    let result: unknown;
+    let result: Record<string, unknown> = {};
 
     switch (type) {
       case 'summary':

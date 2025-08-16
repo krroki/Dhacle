@@ -331,13 +331,13 @@ function calculateViralScore(metrics: Record<string, number>): number {
 /**
  * Helper: Categorize videos by performance
  */
-function categorizeByPerformance(videos: Array<Record<string, unknown>>) {
+function categorizeByPerformance(videos: Array<YouTubeVideo & { metrics?: { viralScore?: number } }>) {
   const tiers = {
-    viral: [] as Array<Record<string, unknown>>,
-    trending: [] as Array<Record<string, unknown>>,
-    growing: [] as Array<Record<string, unknown>>,
-    steady: [] as Array<Record<string, unknown>>,
-    low: [] as any[]
+    viral: [] as Array<YouTubeVideo & { metrics?: { viralScore?: number } }>,
+    trending: [] as Array<YouTubeVideo & { metrics?: { viralScore?: number } }>,
+    growing: [] as Array<YouTubeVideo & { metrics?: { viralScore?: number } }>,
+    steady: [] as Array<YouTubeVideo & { metrics?: { viralScore?: number } }>,
+    low: [] as Array<YouTubeVideo & { metrics?: { viralScore?: number } }>
   };
 
   videos.forEach(video => {
@@ -362,7 +362,13 @@ function categorizeByPerformance(videos: Array<Record<string, unknown>>) {
 /**
  * Helper: Calculate aggregate statistics
  */
-function calculateAggregateStats(videos: Array<Record<string, unknown>>) {
+function calculateAggregateStats(videos: Array<YouTubeVideo & { 
+  metrics?: { 
+    viralScore?: number;
+    vph?: number;
+    engagementRate?: number;
+  }
+}>) {
   if (videos.length === 0) {
     return {
       averageViralScore: 0,
@@ -396,7 +402,7 @@ function calculateAggregateStats(videos: Array<Record<string, unknown>>) {
 /**
  * Helper: Save metrics snapshot
  */
-async function saveMetricsSnapshot(userId: string, videos: Array<Record<string, unknown>>) {
+async function saveMetricsSnapshot(userId: string, videos: any[]) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     
