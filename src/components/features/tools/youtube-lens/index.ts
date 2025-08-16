@@ -5,3 +5,6 @@ export { QuotaStatus } from './components/QuotaStatus';
 export { SetupGuide } from './components/SetupGuide';
 export { EnvironmentChecker } from './components/EnvironmentChecker';
 export { YouTubeLensErrorBoundary } from './components/YouTubeLensErrorBoundary';
+export { MetricsDashboard } from './MetricsDashboard';
+export { TrendChart } from './TrendChart';
+export { EntityRadar } from './EntityRadar';

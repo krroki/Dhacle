@@ -1,6 +1,7 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
-*최종 업데이트: 2025-01-21 (마이페이지 사이드바 중복 문제 해결)*
+*목적: 프로젝트 현재 상태와 진행 상황 추적*
+*최종 업데이트: 2025-01-21 PM (YouTube Lens Phase 3 완료)*
 
 ## 🔴 필수: 새 세션 시작 체크리스트
 
@@ -17,370 +18,60 @@
 
 - **프로젝트명**: 디하클 (Dhacle)
 - **목적**: YouTube Shorts 크리에이터 교육 및 커뮤니티 플랫폼
-- **현재 상태**: 완전 재구축 진행 중 (styled-components → shadcn/ui)
-- **백업 위치**: `../dhacle-backup/` (기존 코드 모두 보존)
 
-## 🚨 현재 재구축 상황 (2025-01-21)
+---
 
-### 🔧 최근 수정 사항
-- **마이페이지 사이드바 중복 문제 해결** (2025-01-21)
-  - 문제: 마이페이지에서 사이드바가 두 개 표시되는 문제
-  - 원인: Root Layout의 전역 Sidebar와 마이페이지 Layout의 자체 사이드바가 동시 렌더링
-  - 해결:
-    - 전역 Sidebar 컴포넌트에서 /mypage 경로 제외 처리
-    - 마이페이지 사이드바를 별도 Client Component로 분리 (MyPageSidebar.tsx)
-    - 경로 기반 활성화 상태 구현으로 UX 개선
-  - 영향: 마이페이지 독립적인 네비게이션 시스템 구축
+## 🔴 현재 작업 상태
 
-- **Header 프로필 드롭다운 UI 개선** (2025-01-20)
-  - 문제: 프로필 드롭다운이 네비게이션바 아래로 가려지는 문제
-  - 원인: z-index 설정 부재 및 위치 조정 필요
-  - 해결: 
-    - DropdownMenuContent에 z-[1200] 및 sideOffset 적용
-    - globals.css에 드롭다운 전역 z-index 설정
-    - Header 컴포넌트에 z-[1000] 적용으로 레이어 순서 명확화
-  - 영향: 드롭다운 메뉴가 올바르게 표시되며 UX 개선
+> **⚠️ 중요**: 이 섹션은 작업 완료 즉시 삭제하세요
 
-- **ENCRYPTION_KEY 환경 변수 문제 해결** (2025-01-17 오후)
-  - 문제: API Key 저장 시 "Failed to encrypt API key" 에러
-  - 원인: ENCRYPTION_KEY가 63자로 설정됨 (64자 필요)
-  - 해결: 올바른 64자 암호화 키 생성 및 적용
-  - 영향: YouTube Lens API Key 저장 기능 정상화
+*현재 진행 중인 작업이 없습니다.*
 
-- **YouTube API Key 검증 버그 수정** (2025-01-17 오전)
-  - 문제: API Key 검증 시 "No filter selected" 에러
-  - 해결: videos.list → search.list 엔드포인트 변경
-  - 영향: YouTube Lens 도구 정상 작동
+<!-- 작업 예시:
+- [ ] 로그인 페이지 구현 중
+- [ ] API 엔드포인트 수정 작업
+-->
 
-### 🔄 마이그레이션 진행 상황
+---
 
-#### Phase 1: 프로젝트 초기화 ✅ 완료
-- ✅ 기존 프로젝트 백업 (45개+ 핵심 파일)
-- ✅ 새 프로젝트 구조 생성 (src 기반)
-- ✅ 필수 패키지 설치 (Next.js 15.4.6, React 19.1.1)
-- ✅ shadcn/ui 설치 (15개 컴포넌트)
+## 📊 반복 실수 추적
 
-#### Phase 2: 핵심 기능 복원 ✅ 완료
-- ✅ Supabase 설정 복원 (7개 마이그레이션 파일)
-- ✅ Kakao OAuth 인증 로직 복원
-- ✅ API Routes 복원 (`/api/user/*`)
-- ✅ 타입 정의 복원 (`database.types.ts`)
+> **관리 규칙**: 발생 횟수만 누적, 패턴 파악용
 
-#### Phase 3: UI 재구축 ✅ 완료
-- ✅ Root Layout 설정 (layout.tsx 구현)
-- ✅ 네비게이션 헤더 구현 (Header.tsx)
-- ✅ 레이아웃 컴포넌트 전체 구현 (8개)
-  - TopBanner (그라데이션 배경)
-  - Header (스크롤 동적 높이)
-  - Sidebar (인프런 스타일)
-  - Footer (전체 섹션)
-  - MobileNav (하단 고정)
-  - ScrollToTop, ProgressBar, NotificationDropdown
+| 실수 유형 | 발생 횟수 | 마지막 발생 |
+|----------|----------|------------|
+| className 직접 사용 | 0회 | - |
+| any 타입 사용 | 0회 | - |
+| 'use client' 남발 | 0회 | - |
+| 임의 파일 생성 | 0회 | - |
 
-#### Phase 4: 메인 페이지 구현 ✅ 완료 (2025-01-14)
-- ✅ **메인 페이지 구현** (page.tsx)
-- ✅ **8개 섹션 완성**
-  - HeroCarousel (자동재생, YouTube 최적화)
-  - InstructorCategories (12명 강사)
-  - RevenueGallery (무한 스크롤 애니메이션)
-  - FreeCoursesCarousel (무료 강의 8개)
-  - FreeCoursesSchedule (캘린더 그리드)
-  - NewCoursesCarousel (신규 강의 4개)
-  - EbookSection (무료/유료 탭)
-  - FAQSection (아코디언)
-- ✅ **성능 최적화**
-  - Suspense & 스켈레톤 UI (7종)
-  - YouTube 썸네일 최적화
-  - 이미지 최적화 (Next/Image)
-- ✅ **더미 데이터 구현** (676줄, 8종류)
-- ✅ **반응형 디자인** (모바일/태블릿/데스크톱)
+---
 
-#### Phase 5: 수익 인증 시스템 & 마이페이지 ✅ 완료 (2025-01-13)
-- ✅ **수익 인증 시스템 구현**
-  - Revenue Proof 메인 페이지
-  - 수익 인증 생성/상세/랭킹 페이지
-  - 좋아요, 댓글, 신고 기능
-  - 실시간 랭킹 시스템
-- ✅ **마이페이지 시스템 구현**
-  - 프로필 페이지
-  - 내 강의 관리
-  - 뱃지 시스템
-  - 설정 페이지
-- ✅ **네이버 카페 연동**
-  - 카페 닉네임 인증 시스템
-  - 랜덤 닉네임 생성 기능
-- ✅ **파일 업로드 시스템**
-  - 이미지 업로드 API 구현
+## 🆕 최근 변경사항
 
-#### Phase 6: YouTube Lens 도구 ✅ 완료 (2025-01-14)
-- ✅ **YouTube Lens 도구 구현**
-  - YouTube 검색 및 분석 도구
-  - ~~OAuth 2.0 인증 시스템~~ → API Key 시스템으로 전환 (Phase 10)
-  - 즐겨찾기 및 검색 히스토리
-  - API 할당량 관리
-- ✅ **데이터베이스 확장**
-  - 5개 테이블 (favorites, history, usage, ~~api_keys~~, user_api_keys)
-  - RLS 정책 설정 완료
-- ✅ **API 엔드포인트 구현**
-  - YouTube API 통합 (search, favorites)
-  - ~~Google OAuth 2.0 연동~~ → 제거됨 (Phase 10)
-- ✅ **UI 컴포넌트**
-  - SearchBar, VideoCard, VideoGrid, QuotaStatus
-  - Zustand 상태 관리 (youtube-lens store)
-- ✅ **TypeScript Strict Mode 준수**
-  - 29개 any 타입 에러 모두 수정
-  - Next.js 15 호환성 문제 해결 (Suspense boundary)
-  - 타입 정의 완성 (YouTubeChannelResponse, FlattenedYouTubeVideo 등)
+> **관리 규칙**: 최신 7개만 유지, 오래된 항목 자동 삭제
 
-#### Phase 7: 강의 시스템 구현 ✅ 완료 (2025-01-14)
-- ✅ **강의 목록 페이지 구현**
-  - CourseGrid 컴포넌트 (필터링, 정렬 기능)
-  - InstructorFilter 컴포넌트 (강사별 필터)
-  - 반응형 그리드 레이아웃
-- ✅ **강의 상세 페이지 구현**
-  - CourseDetailClient 컴포넌트 (클라이언트 사이드 렌더링)
-  - PurchaseCard 컴포넌트 (결제 UI)
-  - 탭 기반 커리큘럼/리뷰/공지 표시
-- ✅ **비디오 플레이어 구현**
-  - HLS 스트리밍 지원 (video.js)
-  - 진도 저장 기능
-  - 자동 다음 레슨 재생
-- ✅ **관리자 시스템 구현**
-  - 관리자 대시보드 (`/admin`)
-  - 강의 생성/편집 페이지
-  - CourseEditor 컴포넌트
-  - AdminSidebar 네비게이션
+1. **2025-01-21 (PM)**: YouTube Lens 컬렉션 기능 구현 완료 (Phase 3 100% 완료)
+2. **2025-01-21 (AM)**: YouTube Lens Phase 1&3 핵심 기능 구현 (DB, 무키워드 검색, 지표 계산)
+3. **2025-01-21**: 마이페이지 사이드바 중복 문제 해결
+4. **2025-01-20**: Header 프로필 드롭다운 UI 개선
+5. **2025-01-20**: Supabase CLI 자동화 구축 (Phase 14)
+6. **2025-01-19**: 커뮤니티 시스템 구현 (Phase 13)
+7. **2025-01-17**: ENCRYPTION_KEY 환경 변수 문제 해결
 
-#### Phase 8: 결제 시스템 구현 ✅ 완료 (2025-01-14)
-- ✅ **Stripe 결제 연동**
-  - PaymentIntent API 구현
-  - Webhook 처리 (`/api/payment/webhook`)
-  - 결제 성공/실패 처리
-- ✅ **쿠폰 시스템 구현**
-  - 쿠폰 검증 API (`/api/coupons/validate`)
-  - 할인 금액 계산 로직
-- ✅ **결제 페이지 구현**
-  - `/payment/checkout` 페이지
-  - `/payment/success` 페이지
-  - `/payment/cancel` 페이지
-- ✅ **Stripe 라이브러리 설정**
-  - `@stripe/stripe-js` 설치
-  - `stripe` SDK 설치
-  - Stripe 클라이언트 초기화
+---
 
-#### Phase 9: SEO 및 메타데이터 최적화 ✅ 완료 (2025-01-14)
-- ✅ **sitemap.ts 구현**
-  - 동적 사이트맵 생성
-  - 강의 페이지 포함
-- ✅ **robots.ts 구현**
-  - 검색 엔진 크롤링 규칙 설정
-  - Sitemap URL 포함
-- ✅ **Switch 컴포넌트 추가**
-  - shadcn/ui switch 컴포넌트 설치
-  - 토글 기능 구현
+## 📈 Phase별 진행 요약
 
-#### Phase 10: YouTube Lens OAuth → API Key 전환 ✅ 완료 (2025-01-16)
-- ✅ **OAuth 시스템 완전 제거**
-  - Google OAuth 2.0 관련 파일 모두 삭제
-  - `/api/youtube/auth/*` 엔드포인트 제거 (callback, refresh, token, logout, status)
-  - `/lib/youtube/oauth.ts` 제거
-  - OAuth 관련 환경 변수 제거 (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
-- ✅ **API Key 시스템 구현**
-  - 사용자별 API Key 관리 시스템 구축
-  - AES-256-CBC 암호화 저장 구현 (64자 hex key)
-  - API Key 마스킹 기능 (앞 4자 + 뒤 3자만 표시: AIza...XXX)
-  - YouTube API 유효성 실시간 검증
-- ✅ **새로운 DB 테이블**
-  - `user_api_keys` 테이블 생성 (마이그레이션 011)
-  - RLS 정책 설정 (사용자별 격리)
-  - 일일 사용량 추적 기능 (usage_today, usage_date)
-  - 서비스별 Key 관리 (service_name 필드)
-- ✅ **API 엔드포인트 재구성**
-  - `/api/user/api-keys` - Key 관리 CRUD (GET/POST/DELETE)
-  - `/api/youtube/validate-key` - Key 유효성 검증
-  - `/api/youtube/search` - API Key 기반으로 수정
-  - 모든 YouTube API 호출 개인 Key 사용으로 전환
-- ✅ **UI 페이지 구현**
-  - `/settings/api-keys` - API Key 설정 페이지 (Form + 마스킹 표시)
-  - `/docs/get-api-key` - 발급 가이드 페이지 (5단계 상세 가이드)
-  - YouTube Lens 페이지 OAuth UI 제거 및 API Key 상태 표시
-- ✅ **Frontend 수정사항**
-  - `fetchApiKeyStatus` 함수 구현 (YouTube Lens 페이지)
-  - Google 로그인 버튼 → API Key 설정 버튼 변경
-  - QuotaStatus 타입에 `limit` 필드 추가
-  - 모든 OAuth 관련 코드 제거
-- ✅ **보안 기능**
-  - `/lib/api-keys/crypto.ts` - 암호화/복호화 모듈
-  - `maskApiKey` 함수로 안전한 표시
-  - `validateApiKeyFormat` 함수로 형식 검증
-  - 환경 변수 ENCRYPTION_KEY 필수 설정
-- ✅ **성능 개선 결과**
-  - 사용자당 할당량: 100 units → 10,000 units (100배 증가)
-  - 구현 복잡도: OAuth 10개 파일 → API Key 5개 파일 (50% 감소)
-  - 운영 비용: 증가 예상 → 0원 (사용자 개인 할당량)
-  - 인증 단계: OAuth 5단계 → API Key 2단계 (60% 간소화)
+### 완료된 Phase (1-14) ✅
+- **Phase 1-4**: 프로젝트 초기화, UI 재구축, 메인 페이지 구현
+- **Phase 5-9**: 수익 인증, YouTube Lens, 강의 시스템, 결제, SEO
+- **Phase 10-11**: OAuth→API Key 전환, TossPayments 마이그레이션
+- **Phase 12-14**: 카테고리 시스템, 커뮤니티, Supabase CLI 자동화
 
-#### Phase 11: TossPayments 마이그레이션 ✅ 완료 (2025-01-16)
-- ✅ **Stripe 완전 제거**
-  - 모든 Stripe 패키지 제거 (stripe, @stripe/stripe-js, @stripe/react-stripe-js)
-  - `/lib/stripe/` 폴더 삭제
-  - `/api/payment/webhook/route.ts` 삭제 (Stripe webhook)
-  - 레거시 `/payment/page.tsx` 삭제
-- ✅ **TossPayments 통합**
-  - @tosspayments/payment-sdk v1.9.1 설치
-  - `/lib/tosspayments/client.ts` 구현 (싱글톤 패턴)
-  - 7가지 한국 결제 수단 지원 (카드, 계좌이체, 가상계좌, 휴대폰, 카카오페이, 네이버페이, 토스페이)
-- ✅ **PaymentMethodSelector 통합**
-  - PurchaseCard.tsx에 결제 수단 선택 모달 통합
-  - 하드코딩된 '카드' 결제 → 사용자 선택 방식으로 개선
-  - Dialog 컴포넌트로 UX 개선
-- ✅ **에러 처리 강화**
-  - 상태별 맞춤형 에러 메시지 (로그인 필요, 이미 구매, 네트워크 오류 등)
-  - Alert 컴포넌트 활용한 사용자 친화적 피드백
-  - 결제 취소 시 에러 메시지 미표시 처리
-- ✅ **TypeScript 지원**
-  - `/types/tosspayments.d.ts` 완전한 타입 정의
-  - 모든 인터페이스 정의 완료
-  - 빌드 에러 0개 달성
-
-#### Phase 12: 강의 카테고리 시스템 ✅ 완료 (2025-01-17)
-- ✅ **무료 강의 시스템 구현**
-  - `/courses/free` - 무료 강의 메인 페이지
-  - `/courses/free/weekly` - 주간 무료 강의 (매주 금요일 업데이트)
-  - `/courses/free/beginner` - 입문자 무료 강의 
-  - `/courses/free/trial` - 무료 체험 강의
-  - 무료 강의 특징 섹션 추가 (광고 없음, 평생 소장, 실습 자료 제공)
-- ✅ **인기/신규 강의 페이지 구현**
-  - `/courses/popular` - 인기 강의 페이지 (HOT 뱃지, 수강생 1,000명 이상)
-  - `/courses/new` - 신규 강의 페이지 (NEW 뱃지, 최신 30일 이내)
-  - 각 페이지별 특색 있는 디자인 및 그라디언트 배경
-- ✅ **카테고리 시스템 구축**
-  - `/courses/categories` - 6개 카테고리 정의
-  - 카테고리: 기초, 콘텐츠 기획, 촬영/편집, 성장 전략, 수익화, 분석
-  - 카테고리별 강의 수 집계 시스템
-  - 학습 로드맵 제공
-- ✅ **기술적 개선**
-  - Course 타입에 `tags`, `level`, `preview_enabled` 필드 추가
-  - 모든 페이지 Server Component로 구현 (SEO 최적화)
-  - getFreeCourses(), getPopularCourses(), getNewCourses() API 함수 구현
-  - 메타데이터 설정 완료
-- ✅ **UX 개선**
-  - 뱃지 시스템으로 시각적 강조 (HOT, NEW, FREE)
-  - Empty State 디자인 추가
-  - 각 페이지별 특색 있는 아이콘 및 설명
-
-#### Phase 13: 커뮤니티 시스템 구현 ✅ 완료 (2025-01-19)
-
-#### Phase 14: Supabase CLI 자동화 구축 ✅ 완료 (2025-01-20)
-- ✅ **Supabase CLI 설정**
-  - `npx supabase` 명령어 설정
-  - `supabase/` 표준 디렉토리 구조 생성
-  - `config.toml` 설정 파일 생성
-- ✅ **마이그레이션 시스템 개선**
-  - 기존 `src/lib/supabase/migrations/` → `supabase/migrations/` 이동
-  - 타임스탬프 기반 파일명으로 변환 (예: `20250109000001_initial_schema.sql`)
-  - 중복 번호 문제 해결 (007 두 개 → 순차 번호로 정리)
-- ✅ **package.json 스크립트 추가**
-  - `npm run supabase:db:push` - 마이그레이션 실행
-  - `npm run supabase:migration:new` - 새 마이그레이션 생성
-  - `npm run supabase:migration:list` - 마이그레이션 목록 확인
-- ✅ **프로젝트 정리**
-  - 기존 마이그레이션 파일 삭제 (백업: ALL_MIGRATIONS_COMBINED.sql 유지)
-  - `.gitignore` 업데이트 (Supabase 임시 파일 제외)
-  - 문서 업데이트
-
-- ✅ **데이터베이스 스키마 구축** (Phase 13에서 이동)
-  - `012_community_system.sql` 마이그레이션 생성
-  - 3개 테이블: community_posts, community_comments, community_likes
-  - RLS 정책 및 인덱스 설정 완료
-  - 조회수 증가 함수 (increment_view_count) 구현
-- ✅ **API 엔드포인트 구현**
-  - `/api/community/posts` - 게시글 목록 조회/생성 (GET/POST)
-  - `/api/community/posts/[id]` - 게시글 상세 조회/수정/삭제 (GET/PUT/DELETE)
-  - 페이지네이션, 카테고리 필터링 지원
-  - Next.js 15 동적 라우트 호환성 문제 해결
-- ✅ **커뮤니티 게시판 UI 구현**
-  - `/community/board` - 자유 게시판 페이지
-  - 게시글 목록, 작성, 조회수/댓글수/좋아요수 표시
-  - 반응형 디자인 및 로딩 상태 처리
-  - shadcn/ui 컴포넌트 활용
-- ✅ **관리자 비디오 업로드 UI 추가**
-  - `/admin/courses/videos` - 비디오 업로드 페이지
-  - 파일 검증 (MP4, WebM, OGG 형식, 최대 500MB)
-  - 업로드 진행 상태 표시
-  - AdminSidebar에 메뉴 추가
-- ✅ **API Keys v2 제거 및 통합**
-  - `/api/user/api-keys-v2` 디렉토리 완전 제거
-  - v1 엔드포인트로 통합 완료
-  - 중복 코드 제거로 유지보수성 향상
-
-#### Phase 14: 진행 예정 📋
-- [ ] 커뮤니티 게시글 상세 페이지 구현
-- [ ] 댓글 및 좋아요 기능 UI 구현
-- [ ] Q&A 및 스터디 모집 게시판 구현
-- [ ] 알림 시스템 구현
-- [ ] 실시간 채팅 기능
-- [ ] 이메일 인증 시스템
-
-### 📊 기존 문제점 분석 (재구축 이유)
-- **스타일링 혼재**: styled-components + Tailwind + inline styles (955개 className)
-- **타입 안정성**: any 타입 남용, TypeScript 에러 다수
-- **코드 일관성**: 컴포넌트 구조 불일치, 디자인 시스템 미통합
-- **성능 이슈**: 번들 크기 과다, 불필요한 re-render
-
-### 🎯 재구축 목표
-1. **통일된 UI 시스템**: shadcn/ui 기반 일관된 컴포넌트
-2. **타입 안정성**: TypeScript strict mode, any 타입 제거
-3. **성능 최적화**: 번들 크기 감소, SSR/SSG 활용
-4. **유지보수성**: 명확한 폴더 구조, 재사용 가능한 컴포넌트
-
-### ⚠️ 알려진 이슈 (2025-01-20 업데이트)
-
-#### 🔴 보안 취약점 (우선 해결 필요)
-- **문제**: `src/app/auth/callback/route.ts`에 Supabase 자격 증명 하드코딩
-- **위치**: 라인 29-35
-- **영향**: 프로덕션 배포 시 보안 위험
-- **해결 방안**: 환경 변수로 완전 이관 필요, fallback 로직 제거
-
-#### 🟡 구조적 이슈
-1. **미구현 기능 (TODO 주석 추가됨)**
-   - 검색 기능: Header.tsx에 TODO 추가
-   - 알림 시스템: NotificationDropdown.tsx에 TODO 추가
-   - 뉴스레터: Footer.tsx에 TODO 추가
-
-2. **Supabase 클라이언트 구현 불완전**
-   - **파일**: `src/lib/supabase/browser-client.ts`
-   - **문제**: Mock 클라이언트 반환 로직, 불완전한 구현 (50라인에서 중단)
-   - **해결 방안**: 환경 변수 설정 후 전체 구현 필요
-
-3. **빈 디렉토리 구조**
-   - `src/app/(pages)/` - 페이지 그룹 (courses, community, tools 포함)
-   - `src/app/auth/login/` - 로그인 페이지 구현 예정
-   - `src/app/auth/signup/` - 회원가입 페이지 구현 예정
-   - **참고**: Phase 5에서 구현 예정
-
-#### ✅ 해결된 이슈
-- **프로필 드롭다운 UI 문제**: 네비게이션바 아래로 가려지는 문제 해결 (2025-01-20)
-  - Header.tsx의 DropdownMenuContent에 z-index 및 위치 속성 추가
-  - globals.css에 드롭다운 전역 스타일 적용
-  - 모든 드롭다운이 올바르게 표시되도록 개선
-- **ENCRYPTION_KEY 길이 문제**: API Key 암호화 실패 해결 (2025-01-17 오후)
-  - 63자 → 64자 암호화 키로 수정
-  - `.env.local` 파일 업데이트 완료
-  - 에러 메시지 개선으로 디버깅 용이성 향상
-- **YouTube API Key 검증 에러**: "No filter selected" 에러 해결 (2025-01-17 오전)
-  - videos.list → search.list 엔드포인트로 변경
-  - `/lib/api-keys/index.ts` 수정 완료
-- **폴더 구조**: `src/app/main` → `src/app/(pages)` 변경 완료 (2025-01-13)
-- **미들웨어 에러 처리**: NextResponse.redirect 사용으로 수정 완료 (2025-01-13)
-- **타입 정의**: database.types.ts re-export 패턴 유지 (호환성 보장)
-- **UI 컴포넌트**: Card 컴포넌트 시맨틱 HTML 개선 (h3, p 태그 사용)
-- **ESLint 설정**: eslint-config-prettier 설치 완료 (2025-01-14)
-- **레이아웃 시스템**: 전체 레이아웃 구현 완료 (2025-01-14)
-- **미사용 import**: 모든 경고 제거 완료 (2025-01-14)
-- **InstructorCategories onClick 에러**: 수정 완료 (2025-01-14)
-- **HeroCarousel import 순서**: 정리 완료 (2025-01-14)
-- **TypeScript 빌드 에러**: 모두 해결 (2025-01-14)
+### 진행 예정 Phase
+- **Phase 15**: 알림 시스템, 실시간 채팅
+- **Phase 16**: 이메일 인증, 사용자 성과 시스템
 
 ---
 
@@ -482,7 +173,12 @@ src/
 │       ├── home/         # 메인 페이지 컴포넌트
 │       ├── revenue-proof/ # 수익 인증 컴포넌트 ✅
 │       └── tools/        # 도구 컴포넌트 ✅
-│           └── youtube-lens/ # YouTube Lens 컴포넌트
+│           └── youtube-lens/ # YouTube Lens 컴포넌트 ✅ UPDATED
+│               ├── PopularShortsList.tsx # 인기 쇼츠 목록 ✅ NEW
+│               ├── ChannelFolders.tsx # 채널 폴더 관리 ✅ NEW
+│               ├── AlertRules.tsx # 알림 규칙 설정 ✅ NEW
+│               ├── CollectionBoard.tsx # 컬렉션 보드 ✅ NEW
+│               └── CollectionViewer.tsx # 컬렉션 뷰어 ✅ NEW
 ├── lib/
 │   ├── supabase/         # Supabase 클라이언트
 │   │   ├── browser-client.ts
@@ -494,8 +190,13 @@ src/
 │   ├── api/              # API 유틸리티 ✅
 │   │   └── courses.ts    # 강의 API 함수
 │   ├── validations/      # 유효성 검사 ✅
-│   ├── youtube/          # YouTube API 관련 ✅
+│   ├── youtube/          # YouTube API 관련 ✅ UPDATED
 │   │   ├── api-client.ts # YouTube API 클라이언트
+│   │   ├── client-helper.ts # API 클라이언트 헬퍼 ✅ NEW
+│   │   ├── popular-shorts.ts # 무키워드 검색 ✅ NEW
+│   │   ├── metrics.ts    # 지표 계산 엔진 ✅ NEW
+│   │   ├── monitoring.ts # 채널 모니터링 ✅ NEW
+│   │   ├── collections.ts # 컬렉션 관리 ✅ NEW
 │   │   ├── oauth.ts      # OAuth 2.0 인증
 │   │   └── crypto.ts     # 암호화 유틸리티
 │   └── utils/            # 유틸리티 함수 ✅ 확장
@@ -504,7 +205,8 @@ src/
 │   ├── database.types.ts
 │   ├── course.ts         # 강의 타입 정의 ✅ 수정
 │   ├── revenue-proof.ts  # 수익 인증 타입 ✅
-│   └── youtube.ts        # YouTube 타입 ✅
+│   ├── youtube.ts        # YouTube 타입 ✅
+│   └── youtube-lens.ts   # YouTube Lens 전체 타입 ✅ NEW
 ├── store/                # Zustand 상태 관리
 │   ├── layout.ts         # 레이아웃 상태
 │   └── youtube-lens.ts   # YouTube Lens 상태 ✅ NEW
@@ -515,7 +217,7 @@ src/
 
 ## 📋 Supabase 테이블 현황
 
-### 20개 테이블 현황
+### 31개 테이블 현황 ✅ UPDATED (11개 추가)
 #### 기본 테이블 (8개)
 - ✅ **users** - 사용자 인증 정보 (Supabase Auth 기본)
 - ✅ **profiles** - 사용자 프로필 정보 (닉네임 필드 추가됨)
@@ -535,11 +237,22 @@ src/
 #### 네이버 카페 연동 테이블 (1개) ✅ NEW
 - ✅ **naver_cafe_verifications** - 카페 인증 로그
 
-#### YouTube Lens 테이블 (4개) ✅ NEW
+#### YouTube Lens 테이블 (15개) ✅ UPDATED
 - ✅ **youtube_favorites** - YouTube 즐겨찾기
 - ✅ **youtube_search_history** - 검색 히스토리
 - ✅ **api_usage** - API 사용량 추적
 - ✅ **user_api_keys** - 사용자 API 키 (AES-256 암호화)
+- ✅ **videos** - 비디오 메타데이터 (Phase 1)
+- ✅ **video_stats** - 비디오 통계 시계열 데이터 (Phase 1)
+- ✅ **channels** - YouTube 채널 정보 (Phase 1)
+- ✅ **source_folders** - 채널 폴더 관리 (Phase 1)
+- ✅ **folder_channels** - 폴더-채널 매핑 (Phase 1)
+- ✅ **alert_rules** - 모니터링 알림 규칙 (Phase 1)
+- ✅ **alerts** - 트리거된 알림 (Phase 1)
+- ✅ **collections** - 비디오 컬렉션 (Phase 3)
+- ✅ **collection_items** - 컬렉션 아이템 (Phase 3)
+- ✅ **saved_searches** - 저장된 검색 (Phase 1)
+- ✅ **subscriptions** - 구독 플랜 관리 (Phase 1)
 
 #### 커뮤니티 시스템 테이블 (3개) ✅ NEW (Phase 13)
 - ✅ **community_posts** - 게시글 정보 (카테고리, 제목, 내용, 조회수)
@@ -745,6 +458,10 @@ POST   /api/[resource]/[action] // 특수 액션
 - ✅ `/api/youtube/auth/status` - 인증 상태
 - ✅ `/api/youtube/favorites` - 즐겨찾기 관리
 - ✅ `/api/youtube/favorites/[id]` - 개별 즐겨찾기
+- ✅ `/api/youtube/popular` - 인기 Shorts 검색 ✅ NEW
+- ✅ `/api/youtube/metrics` - 지표 조회 ✅ NEW
+- ✅ `/api/youtube/collections` - 컬렉션 관리 ✅ NEW
+- ✅ `/api/youtube/collections/items` - 컬렉션 아이템 관리 ✅ NEW
 
 ---
 

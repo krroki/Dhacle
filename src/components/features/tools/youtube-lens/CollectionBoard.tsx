@@ -1,0 +1,402 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Plus, Folder, Trash2, Edit2, Globe, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
+import type { Collection } from '@/types/youtube-lens';
+
+export default function CollectionBoard() {
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    is_public: false,
+    tags: ''
+  });
+
+  // 컬렉션 목록 조회
+  const fetchCollections = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/youtube/collections');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setCollections(data.collections || []);
+      } else {
+        toast.error(data.error || '컬렉션 목록을 불러오는데 실패했습니다');
+      }
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+      toast.error('컬렉션 목록을 불러오는데 실패했습니다');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, []);
+
+  // 새 컬렉션 생성
+  const handleCreateCollection = async () => {
+    if (!formData.name.trim()) {
+      toast.error('컬렉션 이름을 입력해주세요');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/youtube/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          is_public: formData.is_public,
+          tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success('컬렉션이 생성되었습니다');
+        setCollections([data.collection, ...collections]);
+        setIsCreateDialogOpen(false);
+        resetForm();
+      } else {
+        toast.error(data.error || '컬렉션 생성에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+      toast.error('컬렉션 생성에 실패했습니다');
+    }
+  };
+
+  // 컬렉션 업데이트
+  const handleUpdateCollection = async () => {
+    if (!editingCollection || !formData.name.trim()) {
+      toast.error('컬렉션 이름을 입력해주세요');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/youtube/collections', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingCollection.id,
+          name: formData.name,
+          description: formData.description,
+          is_public: formData.is_public,
+          tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success('컬렉션이 업데이트되었습니다');
+        setCollections(collections.map(c => 
+          c.id === editingCollection.id ? data.collection : c
+        ));
+        setEditingCollection(null);
+        resetForm();
+      } else {
+        toast.error(data.error || '컬렉션 업데이트에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('Error updating collection:', error);
+      toast.error('컬렉션 업데이트에 실패했습니다');
+    }
+  };
+
+  // 컬렉션 삭제
+  const handleDeleteCollection = async (collectionId: string) => {
+    if (!confirm('정말로 이 컬렉션을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/youtube/collections?id=${collectionId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success('컬렉션이 삭제되었습니다');
+        setCollections(collections.filter(c => c.id !== collectionId));
+      } else {
+        toast.error(data.error || '컬렉션 삭제에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      toast.error('컬렉션 삭제에 실패했습니다');
+    }
+  };
+
+  // 편집 시작
+  const startEdit = (collection: Collection) => {
+    setEditingCollection(collection);
+    setFormData({
+      name: collection.name,
+      description: collection.description || '',
+      is_public: collection.is_public,
+      tags: collection.tags?.join(', ') || ''
+    });
+  };
+
+  // 폼 초기화
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      is_public: false,
+      tags: ''
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">컬렉션을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">내 컬렉션</h2>
+          <p className="text-muted-foreground">
+            관심있는 YouTube 동영상을 컬렉션으로 관리하세요
+          </p>
+        </div>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              새 컬렉션
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>새 컬렉션 만들기</DialogTitle>
+              <DialogDescription>
+                YouTube 동영상을 저장할 새 컬렉션을 만들어보세요
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">컬렉션 이름</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="예: 마케팅 참고 영상"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">설명 (선택)</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="이 컬렉션에 대한 설명을 입력하세요"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tags">태그 (쉼표로 구분)</Label>
+                <Input
+                  id="tags"
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  placeholder="예: 마케팅, 광고, 트렌드"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="public"
+                  checked={formData.is_public}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+                />
+                <Label htmlFor="public">공개 컬렉션으로 설정</Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                setIsCreateDialogOpen(false);
+                resetForm();
+              }}>
+                취소
+              </Button>
+              <Button onClick={handleCreateCollection}>
+                컬렉션 만들기
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* 컬렉션 목록 */}
+      {collections.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Folder className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">컬렉션이 없습니다</h3>
+            <p className="text-muted-foreground mb-4">
+              첫 번째 컬렉션을 만들어 YouTube 동영상을 저장해보세요
+            </p>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              첫 컬렉션 만들기
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {collections.map((collection) => (
+            <Card key={collection.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      {collection.name}
+                      {collection.is_public ? (
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </CardTitle>
+                    {collection.description && (
+                      <CardDescription className="mt-1">
+                        {collection.description}
+                      </CardDescription>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEdit(collection)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteCollection(collection.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">
+                    {collection.item_count} 개의 동영상
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(collection.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                {collection.tags && collection.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {collection.tags.slice(0, 3).map((tag, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {collection.tags.length > 3 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{collection.tags.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* 편집 다이얼로그 */}
+      <Dialog open={!!editingCollection} onOpenChange={(open) => !open && setEditingCollection(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>컬렉션 편집</DialogTitle>
+            <DialogDescription>
+              컬렉션 정보를 수정하세요
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">컬렉션 이름</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">설명</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-tags">태그 (쉼표로 구분)</Label>
+              <Input
+                id="edit-tags"
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-public"
+                checked={formData.is_public}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+              />
+              <Label htmlFor="edit-public">공개 컬렉션으로 설정</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setEditingCollection(null);
+              resetForm();
+            }}>
+              취소
+            </Button>
+            <Button onClick={handleUpdateCollection}>
+              저장
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

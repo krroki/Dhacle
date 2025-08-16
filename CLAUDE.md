@@ -1,26 +1,13 @@
-# 🤖 Claude AI 프로젝트 가이드라인
+# 📋 Claude AI 작업 지침서
 
-이 문서는 Claude AI가 디하클(Dhacle) 프로젝트 작업 시 준수해야 할 핵심 지침입니다.
+*목적: AI가 디하클(Dhacle) 프로젝트 작업 시 따라야 할 규칙과 프로세스*
+*업데이트: 새로운 작업 패턴이나 금지사항 발견 시에만*
 
-## 📌 프로젝트 개요
-- **프로젝트명**: 디하클(Dhacle)
-- **목적**: YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼
-- **도메인**: https://dhacle.com (배포 완료)
-- **현재 단계**: Phase 6 완료 - YouTube Lens 도구 구현 (2025-01-14)
+> **관련 문서**:
+> - 프로젝트 현황: `/docs/PROJECT.md`
+> - 프로젝트 구조: `/docs/CODEMAP.md`
 
-## 🔴 테스트 계정 정보
-**카카오 로그인 테스트 계정**:
-```
-ID: glemfkcl@naver.com
-PW: dhfl9909
-```
-⚠️ **중요**: 인증 화면이 나타나면 사용자가 직접 인증하므로 잠시 대기 필요
-
-## 🛠 기술 스택
-- **Frontend**: Next.js 15.4.6, React 19.1.1, TypeScript (strict mode)
-- **UI**: shadcn/ui + Tailwind CSS (styled-components 완전 제거)
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **인증**: Kakao OAuth 2.0
+---
 
 ## ✅ 필수 행동 지침
 
@@ -41,14 +28,10 @@ PW: dhfl9909
 - 새 파일 생성보다 기존 파일 수정 우선
 - 문서 파일(*.md, README) 임의 생성 금지
 - 환경 변수 하드코딩 금지
-- **폴더 구조 준수**: 정해진 폴더 구조에 맞게 파일 배치
-  - `src/components/ui/` - shadcn/ui 컴포넌트
-  - `src/components/features/` - 기능별 컴포넌트
-  - `src/components/layout/` - 레이아웃 컴포넌트
-  - `src/app/(pages)/` - 페이지 파일
-  - `src/app/api/` - API Routes
-   * 자세한 구조는 반드시 /docs/PROJECT-CODEMAP.md 참조할것
+- **폴더 구조 준수**: `/docs/CODEMAP.md` 참조
 - **파일명 규칙**: 컴포넌트는 PascalCase, 기타 파일은 kebab-case
+
+---
 
 ## 🚫 절대 금지 사항
 
@@ -69,22 +52,27 @@ PW: dhfl9909
 - ❌ 민감 정보 로깅
 - ❌ 보안 키/토큰 코드 포함
 
-## 📁 프로젝트 구조
+---
+
+## 📁 기본 프로젝트 구조
 
 ```
 src/
 ├── app/                    # App Router
 │   ├── (pages)/           # 페이지 그룹
 │   ├── api/               # API Routes
-│   └── auth/              # 인증 관련 (callback, error 등)
+│   └── auth/              # 인증 관련
 ├── components/            
-│   ├── ui/                # shadcn/ui 컴포넌트 (14개)
-│   ├── layout/            # 헤더, 푸터 등
+│   ├── ui/                # shadcn/ui 컴포넌트
+│   ├── layout/            # 레이아웃 컴포넌트
 │   └── features/          # 기능별 컴포넌트
 └── lib/
     ├── supabase/          # Supabase 클라이언트
     └── utils.ts           # 유틸리티 함수
 ```
+*상세 구조는 `/docs/CODEMAP.md` 참조*
+
+---
 
 ## 🎨 템플릿 기반 개발 프로세스
 
@@ -134,22 +122,15 @@ src/
 3. 최소한의 수정으로 해결
 4. 부수 효과 확인
 
-## 🎯 현재 작업 상태
+### 3. 빌드 전 체크리스트
+- [ ] `npm run build` 성공 확인
+- [ ] TypeScript 에러 0개 (`npx tsc --noEmit`)
+- [ ] ESLint 에러 0개 (`npm run lint`)
+- [ ] 콘솔 에러 없음
 
-### 완료된 작업
-- ✅ 프로젝트 구조 재설계
-- ✅ shadcn/ui 설치 (14개 컴포넌트)
-- ✅ Supabase 설정 복원
-- ✅ 인증 시스템 복원
-- ✅ Next.js 15.4.6 / React 19.1.1 업그레이드
+---
 
-### 진행 예정
-- [ ] Root Layout 설정 (사용자와 협의)
-- [ ] 메인 페이지 구현 (사용자와 협의)
-- [ ] 네비게이션 헤더 구현
-- [ ] 강의 시스템 구현
-
-## ❌ 실패 사례 & 절대 금지사항
+## ❌ 실패 사례 & 안티패턴
 
 ### 이전 AI들의 실패 TOP 5
 1. **className 직접 사용**: 955개나 생성해서 프로젝트 망침
@@ -174,27 +155,18 @@ const data: CourseType = {}         // 명확한 타입 정의
 
 ---
 
-## ⚠️ 주의사항
+## 📝 Git 작업 규칙
 
-### 알려진 이슈
-1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-2. **구조**: layout.tsx, page.tsx 미구현 (Phase 3에서 사용자와 협의)
-3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
-
-### 빌드 전 체크리스트
-- [ ] `npm run build` 성공 확인
-- [ ] TypeScript 에러 0개 (`npx tsc --noEmit`)
-- [ ] ESLint 에러 0개 (`npm run lint`)
-- [ ] 콘솔 에러 없음
-
-### Git 작업 규칙
 **모든 git 명령은 사용자 확인 후 실행:**
 - `git add` - 파일 추가 전 확인
 - `git commit` - 커밋 메시지와 내용 확인
 - `git push` - 원격 저장소 푸시 전 확인
 - `git reset` - 되돌리기 전 반드시 확인
 
-### 커뮤니케이션
+---
+
+## 💬 커뮤니케이션
+
 - 작업 전 의도 설명
 - 중요 변경사항 사전 협의
 - 에러 발생 시 즉시 보고
@@ -202,5 +174,13 @@ const data: CourseType = {}         // 명확한 타입 정의
 
 ---
 
-*이 문서는 프로젝트 진행에 따라 업데이트됩니다.*
-*마지막 업데이트: 2025-01-14*
+## ⚠️ 주의사항
+
+### 알려진 이슈
+1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
+2. **구조**: layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
+
+---
+
+*이 문서는 AI 작업 지침서입니다. 프로젝트 상태는 `/docs/PROJECT.md` 참조*

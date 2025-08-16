@@ -10,8 +10,13 @@ import {
   QuotaStatus, 
   SetupGuide,
   EnvironmentChecker,
-  YouTubeLensErrorBoundary 
+  YouTubeLensErrorBoundary,
+  MetricsDashboard 
 } from '@/components/features/tools/youtube-lens';
+import PopularShortsList from '@/components/features/tools/youtube-lens/PopularShortsList';
+import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
+import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
+import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,7 +31,12 @@ import {
   AlertCircle,
   Key,
   CheckCircle,
-  XCircle
+  XCircle,
+  TrendingUp,
+  Folder,
+  Bell,
+  FolderOpen,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { toast } from 'sonner';
@@ -136,7 +146,7 @@ function YouTubeLensContent() {
     loadFavorites
   } = useYouTubeLensStore();
 
-  const [activeTab, setActiveTab] = useState('search');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [isSearching, setIsSearching] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
 
@@ -294,13 +304,17 @@ function YouTubeLensContent() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* 페이지 헤더 */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="mb-8 bg-gradient-to-r from-yt-lens-primary/10 to-yt-lens-secondary/10 rounded-xl p-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Youtube className="h-8 w-8 text-red-600" />
+            <div className="p-3 bg-yt-lens-secondary rounded-lg">
+              <Youtube className="h-8 w-8 text-white" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold">YouTube Lens</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-yt-lens-primary to-yt-lens-secondary bg-clip-text text-transparent">
+                YouTube Lens
+              </h1>
+              <p className="text-muted-foreground mt-1">
                 YouTube Shorts 영상 탐색 및 분석 도구
               </p>
             </div>
@@ -308,14 +322,14 @@ function YouTubeLensContent() {
           
           <div className="flex items-center gap-2">
             {!isAuthenticated ? (
-              <Button onClick={handleApiKeySetup} variant="default">
+              <Button onClick={handleApiKeySetup} className="bg-yt-lens-primary hover:bg-yt-lens-primary-dark text-white">
                 <Key className="mr-2 h-4 w-4" />
                 API Key 설정
               </Button>
             ) : (
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="gap-1">
-                  <CheckCircle className="h-3 w-3 text-green-500" />
+                <Badge className="gap-1 bg-yt-lens-accent/20 text-yt-lens-accent-dark border-yt-lens-accent">
+                  <CheckCircle className="h-3 w-3" />
                   API Key 등록됨
                 </Badge>
                 <Button 
@@ -343,9 +357,9 @@ function YouTubeLensContent() {
 
         {/* API Key 필요 경고 */}
         {!isAuthenticated && (
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>YouTube API Key 설정이 필요합니다</AlertTitle>
+          <Alert className="mb-4 border-yt-lens-secondary bg-yt-lens-secondary/10">
+            <AlertCircle className="h-4 w-4 text-yt-lens-secondary" />
+            <AlertTitle className="text-yt-lens-secondary">YouTube API Key 설정이 필요합니다</AlertTitle>
             <AlertDescription>
               YouTube 영상을 검색하려면 API Key를 등록해주세요. 개인별로 일일 10,000 units를 무료로 사용할 수 있습니다.
             </AlertDescription>
@@ -355,20 +369,65 @@ function YouTubeLensContent() {
 
       {/* 메인 콘텐츠 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="search">
+        <TabsList className="grid w-full grid-cols-8 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
+          <TabsTrigger value="dashboard" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            대시보드
+          </TabsTrigger>
+          <TabsTrigger value="popular" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+            <TrendingUp className="mr-2 h-4 w-4" />
+            인기 Shorts
+          </TabsTrigger>
+          <TabsTrigger value="folders" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+            <Folder className="mr-2 h-4 w-4" />
+            채널 폴더
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+            <Bell className="mr-2 h-4 w-4" />
+            알림 설정
+          </TabsTrigger>
+          <TabsTrigger value="collections" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+            <FolderOpen className="mr-2 h-4 w-4" />
+            컬렉션
+          </TabsTrigger>
+          <TabsTrigger value="search" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
             <Search className="mr-2 h-4 w-4" />
             검색
           </TabsTrigger>
-          <TabsTrigger value="favorites">
+          <TabsTrigger value="favorites" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
             <Heart className="mr-2 h-4 w-4" />
             즐겨찾기 ({favoriteVideos.size})
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="history" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
             <History className="mr-2 h-4 w-4" />
             검색 기록
           </TabsTrigger>
         </TabsList>
+
+        {/* 대시보드 탭 */}
+        <TabsContent value="dashboard" className="space-y-4">
+          <MetricsDashboard />
+        </TabsContent>
+
+        {/* 인기 Shorts 탭 */}
+        <TabsContent value="popular" className="space-y-4">
+          <PopularShortsList />
+        </TabsContent>
+
+        {/* 채널 폴더 탭 */}
+        <TabsContent value="folders" className="space-y-4">
+          {user && <ChannelFolders userId={user.id} />}
+        </TabsContent>
+
+        {/* 알림 설정 탭 */}
+        <TabsContent value="alerts" className="space-y-4">
+          <AlertRules />
+        </TabsContent>
+
+        {/* 컬렉션 탭 */}
+        <TabsContent value="collections" className="space-y-4">
+          <CollectionBoard />
+        </TabsContent>
 
         {/* 검색 탭 */}
         <TabsContent value="search" className="space-y-4">

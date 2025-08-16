@@ -50,6 +50,18 @@ const config: Config = {
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			// YouTube Lens 브랜드 컬러
+  			'yt-lens': {
+  				primary: 'hsl(var(--yt-lens-primary, 245 58% 61%))', // 보라
+  				secondary: 'hsl(var(--yt-lens-secondary, 0 100% 71%))', // 빨강
+  				accent: 'hsl(var(--yt-lens-accent, 161 94% 50%))', // 민트
+  				'primary-dark': 'hsl(245 55% 54%)', // 진한 보라
+  				'primary-light': 'hsl(245 65% 77%)', // 연한 보라
+  				'secondary-dark': 'hsl(0 85% 60%)', // 진한 빨강
+  				'secondary-light': 'hsl(0 100% 85%)', // 연한 빨강
+  				'accent-dark': 'hsl(161 84% 40%)', // 진한 민트
+  				'accent-light': 'hsl(161 94% 70%)' // 연한 민트
   			}
   		},
   		borderRadius: {

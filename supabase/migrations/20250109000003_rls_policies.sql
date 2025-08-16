@@ -19,6 +19,11 @@ ALTER TABLE public.tools ENABLE ROW LEVEL SECURITY;
 -- USERS TABLE POLICIES
 -- ================================================
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+
 -- Public profiles are viewable by everyone
 CREATE POLICY "Public profiles are viewable by everyone" 
 ON public.users FOR SELECT 
@@ -38,6 +43,11 @@ WITH CHECK (auth.uid() = id);
 -- ================================================
 -- COURSES TABLE POLICIES
 -- ================================================
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Published courses are viewable by everyone" ON public.courses;
+DROP POLICY IF EXISTS "Instructors can create courses" ON public.courses;
+DROP POLICY IF EXISTS "Instructors can update own courses" ON public.courses;
 
 -- Published courses are viewable by everyone
 CREATE POLICY "Published courses are viewable by everyone" 
@@ -71,6 +81,12 @@ USING (
 -- ENROLLMENTS TABLE POLICIES
 -- ================================================
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Instructors can view course enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Users can enroll in courses" ON public.enrollments;
+DROP POLICY IF EXISTS "Users can update own enrollment" ON public.enrollments;
+
 -- Users can view their own enrollments
 CREATE POLICY "Users can view own enrollments" 
 ON public.enrollments FOR SELECT 
@@ -101,6 +117,13 @@ WITH CHECK (user_id = auth.uid());
 -- ================================================
 -- REVENUE CERTIFICATIONS TABLE POLICIES
 -- ================================================
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Verified certifications are public" ON public.revenue_certifications;
+DROP POLICY IF EXISTS "Users can view own certifications" ON public.revenue_certifications;
+DROP POLICY IF EXISTS "Users can create certifications" ON public.revenue_certifications;
+DROP POLICY IF EXISTS "Users can update own unverified certifications" ON public.revenue_certifications;
+DROP POLICY IF EXISTS "Admins can verify certifications" ON public.revenue_certifications;
 
 -- All verified certifications are public
 CREATE POLICY "Verified certifications are public" 
@@ -145,6 +168,9 @@ WITH CHECK (
 -- RANKINGS TABLE POLICIES
 -- ================================================
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Rankings are public" ON public.rankings;
+
 -- Rankings are public
 CREATE POLICY "Rankings are public" 
 ON public.rankings FOR SELECT 
@@ -156,6 +182,12 @@ USING (true);
 -- ================================================
 -- COMMUNITIES TABLE POLICIES
 -- ================================================
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Published posts are viewable" ON public.communities;
+DROP POLICY IF EXISTS "Users can create posts" ON public.communities;
+DROP POLICY IF EXISTS "Users can update own posts" ON public.communities;
+DROP POLICY IF EXISTS "Users can delete own posts" ON public.communities;
 
 -- Published posts are viewable by everyone
 CREATE POLICY "Published posts are viewable" 
@@ -179,6 +211,9 @@ ON public.communities FOR UPDATE
 USING (user_id = auth.uid())
 WITH CHECK (user_id = auth.uid() AND is_deleted = true);
 
+-- Drop admin policy if exists
+DROP POLICY IF EXISTS "Admins can moderate posts" ON public.communities;
+
 -- Admins can update any post
 CREATE POLICY "Admins can moderate posts" 
 ON public.communities FOR UPDATE 
@@ -193,6 +228,12 @@ USING (
 -- ================================================
 -- COMMENTS TABLE POLICIES
 -- ================================================
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Comments are viewable" ON public.comments;
+DROP POLICY IF EXISTS "Users can create comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can update own comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can delete own comments" ON public.comments;
 
 -- Non-deleted comments are viewable
 CREATE POLICY "Comments are viewable" 
@@ -219,6 +260,11 @@ WITH CHECK (user_id = auth.uid() AND is_deleted = true);
 -- ================================================
 -- TOOLS TABLE POLICIES
 -- ================================================
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own tool usage" ON public.tools;
+DROP POLICY IF EXISTS "Users can use tools" ON public.tools;
+DROP POLICY IF EXISTS "Users can update own tool records" ON public.tools;
 
 -- Users can view their own tool usage
 CREATE POLICY "Users can view own tool usage" 

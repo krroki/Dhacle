@@ -96,6 +96,11 @@
     --dhacle-secondary: 0 100% 71%; /* #FF6B6B */
     --dhacle-accent: 161 94% 50%; /* #09E08C */
     
+    /* YouTube Lens Brand Colors */
+    --yt-lens-primary: 245 58% 61%; /* 보라 */
+    --yt-lens-secondary: 0 100% 71%; /* 빨강 */
+    --yt-lens-accent: 161 94% 50%; /* 민트 */
+    
     /* Semantic Colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
