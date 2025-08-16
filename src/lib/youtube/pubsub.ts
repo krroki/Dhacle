@@ -462,8 +462,8 @@ export class PubSubHubbubManager {
     subscriptionId: string,
     action: string,
     status: SubscriptionStatus,
-    requestData?: any,
-    responseData?: any,
+    requestData?: unknown,
+    responseData?: unknown,
     error?: string
   ): Promise<void> {
     try {
@@ -485,7 +485,7 @@ export class PubSubHubbubManager {
   /**
    * Get user's active subscriptions
    */
-  async getUserSubscriptions(userId: string): Promise<any[]> {
+  async getUserSubscriptions(userId: string): Promise<ChannelSubscription[]> {
     try {
       const { data, error } = await this.supabase
         .from('channel_subscriptions')
@@ -505,7 +505,7 @@ export class PubSubHubbubManager {
   /**
    * Get recent webhook events for a user
    */
-  async getRecentEvents(userId: string, limit: number = 50): Promise<any[]> {
+  async getRecentEvents(userId: string, limit: number = 50): Promise<WebhookEvent[]> {
     try {
       const { data, error } = await this.supabase
         .from('webhook_events')

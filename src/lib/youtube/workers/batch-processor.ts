@@ -83,7 +83,7 @@ export class YouTubeBatchProcessor {
   }
 
   // 작업 처리
-  private async processJob(job: Job<YouTubeJobData>): Promise<any> {
+  private async processJob(job: Job<YouTubeJobData>): Promise<unknown> {
     const { type, params, userId } = job.data;
 
     // API 키 확인
@@ -114,7 +114,7 @@ export class YouTubeBatchProcessor {
       await job.updateProgress(10);
 
       // API 호출 처리
-      let result: any;
+      let result: unknown;
       switch (type) {
         case JobType.SEARCH:
           result = await this.processSearch(youtube, params);
@@ -154,8 +154,8 @@ export class YouTubeBatchProcessor {
   // 검색 처리
   private async processSearch(
     youtube: youtube_v3.Youtube, 
-    params: any
-  ): Promise<any> {
+    params: Record<string, unknown>
+  ): Promise<youtube_v3.Schema$SearchListResponse> {
     const response = await youtube.search.list({
       part: ['snippet'],
       q: params.query || ' ',
@@ -175,8 +175,8 @@ export class YouTubeBatchProcessor {
   // 비디오 상세 정보 처리
   private async processVideoDetails(
     youtube: youtube_v3.Youtube,
-    params: any
-  ): Promise<any> {
+    params: Record<string, unknown>
+  ): Promise<{ items: youtube_v3.Schema$Video[] }> {
     const videoIds = Array.isArray(params.id) ? params.id : [params.id];
     
     // 배치로 처리 (최대 50개)
@@ -198,8 +198,8 @@ export class YouTubeBatchProcessor {
   // 채널 상세 정보 처리
   private async processChannelDetails(
     youtube: youtube_v3.Youtube,
-    params: any
-  ): Promise<any> {
+    params: Record<string, unknown>
+  ): Promise<{ items: youtube_v3.Schema$Channel[] }> {
     const channelIds = Array.isArray(params.id) ? params.id : [params.id];
     
     const chunks = this.chunkArray(channelIds, 50);
@@ -220,8 +220,8 @@ export class YouTubeBatchProcessor {
   // 재생목록 아이템 처리
   private async processPlaylistItems(
     youtube: youtube_v3.Youtube,
-    params: any
-  ): Promise<any> {
+    params: Record<string, unknown>
+  ): Promise<youtube_v3.Schema$PlaylistItemListResponse> {
     const response = await youtube.playlistItems.list({
       part: ['snippet', 'contentDetails'],
       playlistId: params.playlistId,
@@ -236,8 +236,8 @@ export class YouTubeBatchProcessor {
   // 비디오 통계 처리
   private async processVideoStats(
     youtube: youtube_v3.Youtube,
-    params: any
-  ): Promise<any> {
+    params: Record<string, unknown>
+  ): Promise<youtube_v3.Schema$VideoListResponse> {
     const videoIds = Array.isArray(params.id) ? params.id : [params.id];
     
     const response = await youtube.videos.list({

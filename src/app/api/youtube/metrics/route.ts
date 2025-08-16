@@ -310,7 +310,7 @@ async function getChannelMetrics(channelId: string, period: string) {
 /**
  * Helper: Calculate viral score
  */
-function calculateViralScore(metrics: any): number {
+function calculateViralScore(metrics: Record<string, number>): number {
   const {
     views = 0,
     likes = 0,
@@ -331,12 +331,12 @@ function calculateViralScore(metrics: any): number {
 /**
  * Helper: Categorize videos by performance
  */
-function categorizeByPerformance(videos: any[]) {
+function categorizeByPerformance(videos: Array<Record<string, unknown>>) {
   const tiers = {
-    viral: [] as any[],
-    trending: [] as any[],
-    growing: [] as any[],
-    steady: [] as any[],
+    viral: [] as Array<Record<string, unknown>>,
+    trending: [] as Array<Record<string, unknown>>,
+    growing: [] as Array<Record<string, unknown>>,
+    steady: [] as Array<Record<string, unknown>>,
     low: [] as any[]
   };
 
@@ -362,7 +362,7 @@ function categorizeByPerformance(videos: any[]) {
 /**
  * Helper: Calculate aggregate statistics
  */
-function calculateAggregateStats(videos: any[]) {
+function calculateAggregateStats(videos: Array<Record<string, unknown>>) {
   if (videos.length === 0) {
     return {
       averageViralScore: 0,
@@ -396,7 +396,7 @@ function calculateAggregateStats(videos: any[]) {
 /**
  * Helper: Save metrics snapshot
  */
-async function saveMetricsSnapshot(userId: string, videos: any[]) {
+async function saveMetricsSnapshot(userId: string, videos: Array<Record<string, unknown>>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     

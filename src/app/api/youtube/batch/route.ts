@@ -146,11 +146,11 @@ export async function POST(request: NextRequest) {
         status: 'queued',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Batch API POST error:', error);
     
     // 쿼터 초과 에러 처리
-    if (error.message?.includes('quota exceeded')) {
+    if (error instanceof Error && error.message?.includes('quota exceeded')) {
       return NextResponse.json(
         { error: 'Daily quota exceeded. Please try again tomorrow.' },
         { status: 429 }

@@ -35,11 +35,11 @@ export enum JobPriority {
 // 작업 데이터 인터페이스
 export interface YouTubeJobData {
   type: JobType;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
   userId?: string;
   retryCount?: number;
   priority?: JobPriority;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // 쿼터 관리자
@@ -240,7 +240,7 @@ export class YouTubeQueueManager {
 
   // 모든 큐 상태 조회
   async getAllQueuesStatus() {
-    const statuses: Record<string, any> = {};
+    const statuses: Record<string, unknown> = {};
     
     for (const jobType of Object.values(JobType)) {
       statuses[jobType] = await this.getQueueStatus(jobType as JobType);

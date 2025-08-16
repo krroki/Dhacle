@@ -16,7 +16,7 @@ export interface ChannelSubscription {
   notification_count: number;
   error_count: number;
   last_error?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   user_id: string;
   created_at: string;
   updated_at: string;
@@ -37,7 +37,7 @@ export interface WebhookEvent {
   video_id?: string;
   video_title?: string;
   published_at?: string;
-  raw_data?: any;
+  raw_data?: unknown;
   processed: boolean;
   processed_at?: string;
   error?: string;
@@ -55,8 +55,8 @@ export interface SubscriptionLog {
   subscription_id: string;
   action: SubscriptionAction;
   status?: string;
-  request_data?: any;
-  response_data?: any;
+  request_data?: unknown;
+  response_data?: unknown;
   error?: string;
   created_at: string;
 }

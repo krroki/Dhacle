@@ -8,8 +8,6 @@ import {
   SearchBar, 
   VideoGrid, 
   QuotaStatus, 
-  SetupGuide,
-  EnvironmentChecker,
   YouTubeLensErrorBoundary,
   MetricsDashboard 
 } from '@/components/features/tools/youtube-lens';
@@ -31,7 +29,6 @@ import {
   AlertCircle,
   Key,
   CheckCircle,
-  XCircle,
   TrendingUp,
   Folder,
   Bell,
@@ -40,7 +37,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { toast } from 'sonner';
-import type { YouTubeSearchFilters, FlattenedYouTubeVideo, YouTubeFavorite, QuotaStatus as QuotaStatusType } from '@/types/youtube';
+import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaStatusType } from '@/types/youtube';
 
 // API 함수들
 const fetchApiKeyStatus = async () => {

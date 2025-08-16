@@ -5,14 +5,11 @@
  */
 
 import { youtube_v3 } from 'googleapis';
-import { getYouTubeClient, trackQuotaUsage, QUOTA_COSTS } from './client-helper';
+import { getYouTubeClient } from './client-helper';
 import { 
-  Video, 
   VideoWithStats, 
-  PopularShortsParams,
-  VideoMetrics 
+  PopularShortsParams
 } from '@/types/youtube-lens';
-import { calculateMetrics } from './metrics';
 import { supabase } from '@/lib/supabase/client';
 
 /**
@@ -115,7 +112,7 @@ async function executeSearchStrategy(
 ): Promise<youtube_v3.Schema$Video[]> {
   const youtube = await getYouTubeClient();
   
-  let searchParams: youtube_v3.Params$Resource$Search$List = {
+  const searchParams: youtube_v3.Params$Resource$Search$List = {
     part: ['snippet'],
     type: ['video'],
     videoDefinition: 'high',
@@ -184,8 +181,8 @@ async function executeSearchStrategy(
     });
 
     return videosResponse.data.items || [];
-  } catch (error: any) {
-    console.error(`Strategy ${strategy} failed:`, error.message);
+  } catch (error: unknown) {
+    console.error(`Strategy ${strategy} failed:`, error instanceof Error ? error.message : String(error));
     return [];
   }
 }
@@ -262,7 +259,7 @@ async function enrichWithMetrics(
       published_at: video.snippet.publishedAt || '',
       duration_seconds: parseDuration(video.contentDetails?.duration || ''),
       is_short: true,
-      thumbnails: video.snippet.thumbnails as any,
+      thumbnails: video.snippet.thumbnails || null,
       tags: video.snippet.tags || null,
       category_id: video.snippet.categoryId || null,
       language_code: video.snippet.defaultLanguage || null,

@@ -307,9 +307,11 @@ export function generateOutlierReport(results: OutlierDetectionResult[]): {
   };
 }
 
-export default {
+const outlierAnalysis = {
   detectOutliers,
   findTopOutliers,
   analyzeOutlierTrends,
   generateOutlierReport
 };
+
+export default outlierAnalysis;

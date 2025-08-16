@@ -44,7 +44,7 @@ interface CacheItem<T> {
 // 캐시 매니저 클래스
 export class CacheManager {
   private static instance: CacheManager;
-  private memoryCache: LRUCache<string, CacheItem<any>>;
+  private memoryCache: LRUCache<string, CacheItem<unknown>>;
   private stats: CacheStats = {
     hits: 0,
     misses: 0,
@@ -56,7 +56,7 @@ export class CacheManager {
 
   private constructor() {
     // LRU 캐시 설정 (메모리)
-    this.memoryCache = new LRUCache<string, CacheItem<any>>({
+    this.memoryCache = new LRUCache<string, CacheItem<unknown>>({
       max: 500,                        // 최대 500개 항목
       maxSize: 50 * 1024 * 1024,      // 최대 50MB
       sizeCalculation: (value) => {
@@ -91,7 +91,7 @@ export class CacheManager {
   }
 
   // 캐시 키 생성
-  generateKey(type: string, params: any): string {
+  generateKey(type: string, params: unknown): string {
     const normalized = this.normalizeParams(params);
     const hash = crypto
       .createHash('sha256')
@@ -103,11 +103,11 @@ export class CacheManager {
   }
 
   // 파라미터 정규화
-  private normalizeParams(params: any): any {
+  private normalizeParams(params: unknown): Record<string, unknown> {
     if (!params) return {};
     
     // 객체 키 정렬
-    const sorted: any = {};
+    const sorted: Record<string, unknown> = {};
     Object.keys(params)
       .sort()
       .forEach(key => {
@@ -269,7 +269,7 @@ export class CacheManager {
   }
 
   // 캐시 워밍업
-  async warmup(items: Array<{ key: string; data: any; ttl?: number }>): Promise<void> {
+  async warmup(items: Array<{ key: string; data: unknown; ttl?: number }>): Promise<void> {
     console.log(`Warming up cache with ${items.length} items...`);
     
     for (const item of items) {
@@ -286,7 +286,7 @@ export class CacheManager {
 
   // 캐시 크기 조회
   getSize(): { memory: number; redis?: number } {
-    const result: any = {
+    const result: CacheDebugInfo = {
       memory: this.memoryCache.size,
     };
 
@@ -322,7 +322,7 @@ export class CacheManager {
   }
 
   // 캐시 가능 여부 확인
-  static isCacheable(response: any): boolean {
+  static isCacheable(response: unknown): boolean {
     // 에러 응답은 캐시하지 않음
     if (response.error) return false;
     
@@ -347,7 +347,7 @@ export class CacheManager {
 }
 
 // 캐시 데코레이터 (함수 래핑용)
-export function withCache<T extends (...args: any[]) => Promise<any>>(
+export function withCache<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options?: {
     ttl?: number;

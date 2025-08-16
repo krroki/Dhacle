@@ -11,8 +11,7 @@ import {
   VideoMetrics,
   ChannelMetrics,
   VideoWithStats,
-  YouTubeVideo,
-  YouTubeChannel,
+  YouTubeVideo
 } from '@/types/youtube-lens';
 import { supabase } from '@/lib/supabase/client';
 

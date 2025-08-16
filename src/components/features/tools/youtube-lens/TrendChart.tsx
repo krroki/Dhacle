@@ -16,7 +16,6 @@ import {
   TrendingDown, 
   Activity,
   BarChart3,
-  LineChart,
   AlertCircle
 } from 'lucide-react';
 import type { TrendAnalysis } from '@/types/youtube-lens';

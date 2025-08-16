@@ -521,10 +521,12 @@ export function generateTrendReport(
   };
 }
 
-export default {
+const trendsAnalysis = {
   detectTrend,
   analyzePatterns,
   findViralMoments,
   compareToBenchmark,
   generateTrendReport
 };
+
+export default trendsAnalysis;

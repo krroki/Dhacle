@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
 /**
  * Helper: Save search history
  */
-async function saveSearchHistory(userId: string, searchData: any) {
+async function saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     
@@ -254,7 +254,7 @@ async function saveSearchHistory(userId: string, searchData: any) {
 /**
  * Helper: Save videos to collection
  */
-async function saveToCollection(userId: string, collectionId: string, videos: any[]) {
+async function saveToCollection(userId: string, collectionId: string, videos: Array<Record<string, unknown>>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     

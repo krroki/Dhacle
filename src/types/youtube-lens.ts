@@ -143,7 +143,7 @@ export interface Alert {
   severity: AlertSeverity;
   metric_value?: number;
   triggered_at?: string;
-  context_data: Record<string, any> | null;
+  context_data: Record<string, unknown> | null;
   is_read: boolean;
   read_at: string | null;
   is_archived: boolean;
@@ -192,7 +192,7 @@ export interface SavedSearch {
     videoDuration?: string;
     maxResults?: number;
     channelId?: string;
-    [key: string]: any;
+    [key: string]: string | number | boolean | undefined;
   };
   search_type: SearchType;
   auto_run: boolean;
@@ -456,7 +456,7 @@ export interface FilterOptions {
 export interface YouTubeLensError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: string;
 }
 

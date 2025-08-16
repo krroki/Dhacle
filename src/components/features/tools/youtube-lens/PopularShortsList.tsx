@@ -6,7 +6,8 @@
  * Phase 3: Core Features Implementation
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +22,6 @@ import {
   Heart, 
   MessageCircle, 
   Clock, 
-  Filter, 
   RefreshCw,
   Download,
   Bookmark,
@@ -48,7 +48,7 @@ export default function PopularShortsList({
   const [selectedTier, setSelectedTier] = useState<string>('all');
 
   // Fetch popular shorts
-  const fetchPopularShorts = async () => {
+  const fetchPopularShorts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -68,12 +68,12 @@ export default function PopularShortsList({
     } finally {
       setLoading(false);
     }
-  };
+  }, [region, period]);
 
   // Initial fetch
   useEffect(() => {
     fetchPopularShorts();
-  }, [region, period]);
+  }, [fetchPopularShorts]);
 
   // Format number with K/M suffix
   const formatNumber = (num: number): string => {
@@ -277,11 +277,12 @@ export default function PopularShortsList({
                 >
                   <CardContent className="p-4">
                     {/* Thumbnail */}
-                    <div className="relative mb-3">
-                      <img
+                    <div className="relative mb-3 w-full h-40">
+                      <Image
                         src={video.snippet.thumbnails?.medium?.url || '/placeholder.jpg'}
                         alt={video.snippet.title}
-                        className="w-full h-40 object-cover rounded-lg"
+                        fill
+                        className="object-cover rounded-lg"
                       />
                       <Badge 
                         className={`absolute top-2 right-2 ${getTierColor(video.metrics?.viral_score || 0)} text-white`}

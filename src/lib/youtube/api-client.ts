@@ -1,6 +1,5 @@
 // OAuth removed - using API Key system
 import type { 
-  YouTubeVideo, 
   FlattenedYouTubeVideo,
   YouTubeChannel, 
   YouTubeSearchFilters,

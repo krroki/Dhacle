@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       stats: statsByVideo.get(video.video_id) || []
     }));
 
-    let result: any;
+    let result: unknown;
 
     switch (type) {
       case 'outlier':
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       case 'prediction':
         // Performance prediction
         const predictions = await batchPredict(
-          videosWithStats.map((v: any) => ({
+          videosWithStats.map((v) => ({
             video: v,
             stats: v.stats || []
           })),
@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
           Promise.all(videos.map((v: Video) => extractEntities(v))),
           analyzeTrends(videos, time_window_days),
           batchPredict(
-            videosWithStats.map((v: any) => ({
+            videosWithStats.map((v) => ({
               video: v,
               stats: v.stats || []
             })),
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
         ]);
 
         const batchResult: BatchAnalysisResult = {
-          outliers: batchOutliers.filter((o: any) => o.is_outlier),
+          outliers: batchOutliers.filter((o) => o.is_outlier),
           trends: batchTrends,
           predictions: batchPredictions,
           processing_time_ms: Date.now() - startTime,
@@ -286,7 +286,7 @@ export async function GET(request: NextRequest) {
     const videoId = searchParams.get('video_id');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    let result: any;
+    let result: unknown;
 
     switch (type) {
       case 'summary':
@@ -303,7 +303,7 @@ export async function GET(request: NextRequest) {
           recent_analyses: recentAnalytics,
           usage_stats: {
             total_analyses: recentAnalytics?.length || 0,
-            analysis_types: recentAnalytics?.reduce((acc: any, log: any) => {
+            analysis_types: recentAnalytics?.reduce((acc: Record<string, number>, log) => {
               acc[log.analysis_type] = (acc[log.analysis_type] || 0) + 1;
               return acc;
             }, {})
@@ -321,7 +321,7 @@ export async function GET(request: NextRequest) {
 
         if (outlierVideos) {
           const outliers = await detectOutliers(
-            outlierVideos.map((v: any) => ({
+            outlierVideos.map((v) => ({
               ...v,
               stats: v.video_stats
             }))

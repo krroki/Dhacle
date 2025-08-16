@@ -492,8 +492,10 @@ export function generateNLPReport(
   };
 }
 
-export default {
+const nlpAnalysis = {
   extractEntities,
   analyzeTrends,
   generateNLPReport
 };
+
+export default nlpAnalysis;

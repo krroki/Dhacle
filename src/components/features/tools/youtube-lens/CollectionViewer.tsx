@@ -171,7 +171,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
                   <Image
                     src={typeof item.video.thumbnails === 'string' 
                       ? JSON.parse(item.video.thumbnails)?.high?.url || ''
-                      : (item.video.thumbnails as any)?.high?.url || ''}
+                      : (item.video.thumbnails as { high?: { url: string } })?.high?.url || ''}
                     alt={item.video.title}
                     fill
                     className="object-cover"
@@ -266,7 +266,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
                   <Image
                     src={typeof selectedVideo.thumbnails === 'string'
                       ? JSON.parse(selectedVideo.thumbnails)?.high?.url || ''
-                      : (selectedVideo.thumbnails as any)?.high?.url || ''}
+                      : (selectedVideo.thumbnails as { high?: { url: string } })?.high?.url || ''}
                     alt={selectedVideo.title}
                     fill
                     className="object-cover rounded-lg"

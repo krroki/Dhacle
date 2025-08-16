@@ -10,9 +10,8 @@
  */
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { YouTubeVideo, YouTubeChannel, AlertRule, SourceFolder, Alert } from '@/types/youtube-lens';
+import { YouTubeVideo, AlertRule, SourceFolder, Alert } from '@/types/youtube-lens';
 import { calculateMetrics } from './metrics';
-import { getPopularShortsWithoutKeyword } from './popular-shorts';
 
 const supabase = createClientComponentClient();
 
@@ -320,7 +319,7 @@ export class MonitoringScheduler {
       const channelIds = new Set<string>();
       for (const folder of folders) {
         if (folder.is_monitoring_enabled && folder.folder_channels) {
-          folder.folder_channels.forEach((fc: any) => {
+          folder.folder_channels.forEach((fc) => {
             channelIds.add(fc.channel_id);
           });
         }

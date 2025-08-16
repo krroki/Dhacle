@@ -503,10 +503,12 @@ export function generatePredictionReport(
   };
 }
 
-export default {
+const predictorAnalysis = {
   predictVideoPerformance,
   batchPredict,
   findViralCandidates,
   analyzePredictionAccuracy,
   generatePredictionReport
 };
+
+export default predictorAnalysis;
