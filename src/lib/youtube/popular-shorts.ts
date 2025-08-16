@@ -7,6 +7,7 @@
 import { youtube_v3 } from 'googleapis';
 import { getYouTubeClient } from './client-helper';
 import { 
+  Video,
   VideoWithStats, 
   PopularShortsParams
 } from '@/types/youtube-lens';
@@ -259,7 +260,7 @@ async function enrichWithMetrics(
       published_at: video.snippet.publishedAt || '',
       duration_seconds: parseDuration(video.contentDetails?.duration || ''),
       is_short: true,
-      thumbnails: video.snippet.thumbnails || null,
+      thumbnails: (video.snippet.thumbnails as unknown as Video['thumbnails']) || null,
       tags: video.snippet.tags || null,
       category_id: video.snippet.categoryId || null,
       language_code: video.snippet.defaultLanguage || null,

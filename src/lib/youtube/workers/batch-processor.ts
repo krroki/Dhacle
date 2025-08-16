@@ -156,18 +156,18 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube, 
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$SearchListResponse> {
-    const response = await youtube.search.list({
+    const searchParams: youtube_v3.Params$Resource$Search$List = {
       part: ['snippet'],
-      q: params.query || ' ',
-      type: params.type || ['video'],
-      maxResults: params.maxResults || 50,
-      order: params.order || 'relevance',
-      regionCode: params.regionCode || 'KR',
-      videoDuration: params.videoDuration,
-      publishedAfter: params.publishedAfter,
-      publishedBefore: params.publishedBefore,
-      ...params,
-    });
+      q: (params.query as string) || ' ',
+      type: (params.type as string[]) || ['video'],
+      maxResults: (params.maxResults as number) || 50,
+      order: (params.order as string) || 'relevance',
+      regionCode: (params.regionCode as string) || 'KR',
+      videoDuration: params.videoDuration as string | undefined,
+      publishedAfter: params.publishedAfter as string | undefined,
+      publishedBefore: params.publishedBefore as string | undefined,
+    };
+    const response = await youtube.search.list(searchParams);
 
     return response.data;
   }
@@ -184,11 +184,11 @@ export class YouTubeBatchProcessor {
     const results = [];
 
     for (const chunk of chunks) {
-      const response = await youtube.videos.list({
+      const videoParams: youtube_v3.Params$Resource$Videos$List = {
         part: ['snippet', 'statistics', 'contentDetails'],
         id: chunk,
-        ...params,
-      });
+      };
+      const response = await youtube.videos.list(videoParams);
       results.push(...(response.data.items || []));
     }
 
@@ -206,11 +206,11 @@ export class YouTubeBatchProcessor {
     const results = [];
 
     for (const chunk of chunks) {
-      const response = await youtube.channels.list({
+      const channelParams: youtube_v3.Params$Resource$Channels$List = {
         part: ['snippet', 'statistics', 'contentDetails'],
         id: chunk,
-        ...params,
-      });
+      };
+      const response = await youtube.channels.list(channelParams);
       results.push(...(response.data.items || []));
     }
 
@@ -222,13 +222,13 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$PlaylistItemListResponse> {
-    const response = await youtube.playlistItems.list({
+    const playlistParams: youtube_v3.Params$Resource$Playlistitems$List = {
       part: ['snippet', 'contentDetails'],
-      playlistId: params.playlistId,
-      maxResults: params.maxResults || 50,
-      pageToken: params.pageToken,
-      ...params,
-    });
+      playlistId: params.playlistId as string,
+      maxResults: (params.maxResults as number) || 50,
+      pageToken: params.pageToken as string | undefined,
+    };
+    const response = await youtube.playlistItems.list(playlistParams);
 
     return response.data;
   }
@@ -240,11 +240,11 @@ export class YouTubeBatchProcessor {
   ): Promise<youtube_v3.Schema$VideoListResponse> {
     const videoIds = Array.isArray(params.id) ? params.id : [params.id];
     
-    const response = await youtube.videos.list({
+    const statsParams: youtube_v3.Params$Resource$Videos$List = {
       part: ['statistics'],
       id: videoIds,
-      ...params,
-    });
+    };
+    const response = await youtube.videos.list(statsParams);
 
     return response.data;
   }

@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 /**
  * Handle video updates (called after successful notification processing)
  */
-async function handleVideoUpdate(video: Record<string, unknown>) {
+async function handleVideoUpdate(video: unknown) {
   try {
     // Import monitoring system dynamically to avoid circular dependencies
     const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
@@ -143,8 +143,13 @@ async function handleVideoUpdate(video: Record<string, unknown>) {
     // const alertEngine = new AlertRuleEngine(supabase);
     // await alertEngine.checkVideoAgainstRules(video, rules);
     
+    // Type guard to check if video has expected properties
+    const isVideoObject = (v: unknown): v is { videoId?: string; deleted?: boolean } => {
+      return typeof v === 'object' && v !== null;
+    };
+    
     // Update video statistics if needed
-    if (video.videoId && !video.deleted) {
+    if (isVideoObject(video) && video.videoId && !video.deleted) {
       // Fetch latest statistics from YouTube API
       // This would need to be implemented with proper YouTube API integration
       // const apiClient = new YouTubeAPIClient();

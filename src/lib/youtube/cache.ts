@@ -104,15 +104,18 @@ export class CacheManager {
 
   // 파라미터 정규화
   private normalizeParams(params: unknown): Record<string, unknown> {
-    if (!params) return {};
+    if (!params || typeof params !== 'object' || params === null) return {};
+    
+    // Type assertion after type guard
+    const paramsObj = params as Record<string, unknown>;
     
     // 객체 키 정렬
     const sorted: Record<string, unknown> = {};
-    Object.keys(params)
+    Object.keys(paramsObj)
       .sort()
       .forEach(key => {
-        if (params[key] !== undefined && params[key] !== null) {
-          sorted[key] = params[key];
+        if (paramsObj[key] !== undefined && paramsObj[key] !== null) {
+          sorted[key] = paramsObj[key];
         }
       });
     
@@ -127,7 +130,7 @@ export class CacheManager {
       this.stats.hits++;
       this.updateHitRate();
       console.log(`Memory cache hit: ${key}`);
-      return memoryItem.data;
+      return memoryItem.data as T;
     }
 
     // 2. Redis 캐시 확인 (연결된 경우)
@@ -143,7 +146,7 @@ export class CacheManager {
             this.updateHitRate();
             
             // 메모리 캐시에도 저장
-            this.memoryCache.set(key, item);
+            this.memoryCache.set(key, item as CacheItem<unknown>);
             
             console.log(`Redis cache hit: ${key}`);
             return item.data;
@@ -176,7 +179,7 @@ export class CacheManager {
     };
 
     // 1. 메모리 캐시 저장
-    this.memoryCache.set(key, item);
+    this.memoryCache.set(key, item as CacheItem<unknown>);
 
     // 2. Redis 캐시 저장 (연결된 경우)
     if (this.redisConnected) {
@@ -285,8 +288,8 @@ export class CacheManager {
   }
 
   // 캐시 크기 조회
-  getSize(): { memory: number; redis?: number } {
-    const result: CacheDebugInfo = {
+  getSize(): { memory: number; redis?: number | string } {
+    const result: { memory: number; redis?: number | string } = {
       memory: this.memoryCache.size,
     };
 
@@ -323,11 +326,19 @@ export class CacheManager {
 
   // 캐시 가능 여부 확인
   static isCacheable(response: unknown): boolean {
+    // Type guard to check if response is an object
+    if (!response || typeof response !== 'object') {
+      return false;
+    }
+    
+    // Type assertion after type guard
+    const responseObj = response as { error?: unknown; items?: unknown[] };
+    
     // 에러 응답은 캐시하지 않음
-    if (response.error) return false;
+    if (responseObj.error) return false;
     
     // 빈 결과는 짧게 캐시
-    if (!response.items || response.items.length === 0) {
+    if (!responseObj.items || !Array.isArray(responseObj.items) || responseObj.items.length === 0) {
       return true; // 하지만 TTL을 짧게
     }
 

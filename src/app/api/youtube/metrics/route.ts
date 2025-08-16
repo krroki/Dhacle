@@ -402,7 +402,13 @@ function calculateAggregateStats(videos: Array<YouTubeVideo & {
 /**
  * Helper: Save metrics snapshot
  */
-async function saveMetricsSnapshot(userId: string, videos: any[]) {
+async function saveMetricsSnapshot(userId: string, videos: Array<YouTubeVideo & { 
+  metrics?: { 
+    vph?: number;
+    engagementRate?: number;
+    viralScore?: number;
+  }
+}>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     

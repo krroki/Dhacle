@@ -254,16 +254,19 @@ async function saveSearchHistory(userId: string, searchData: Record<string, unkn
 /**
  * Helper: Save videos to collection
  */
-async function saveToCollection(userId: string, collectionId: string, videos: Array<Record<string, unknown>>) {
+async function saveToCollection(userId: string, collectionId: string, videos: unknown[]) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     
-    const collectionItems = videos.map(video => ({
-      collection_id: collectionId,
-      video_id: video.id,
-      added_at: new Date().toISOString(),
-      item_data: video
-    }));
+    const collectionItems = videos.map(video => {
+      const videoData = video as { id: string };
+      return {
+        collection_id: collectionId,
+        video_id: videoData.id,
+        added_at: new Date().toISOString(),
+        item_data: video
+      };
+    });
 
     await supabase.from('collection_items').insert(collectionItems);
   } catch (error) {
