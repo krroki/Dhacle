@@ -62,7 +62,8 @@ export async function GET(request: NextRequest) {
     const videosWithMetrics = await getPopularShortsWithoutKeyword({
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
-      maxResults: limit
+      maxResults: limit,
+      userId: session.user.id
     });
 
     // Sort by viral score
@@ -160,7 +161,8 @@ export async function POST(request: NextRequest) {
     let videosWithMetrics = await getPopularShortsWithoutKeyword({
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
-      maxResults: maxResults * 2 // Fetch more to apply filters
+      maxResults: maxResults * 2, // Fetch more to apply filters
+      userId: session.user.id
     });
 
     // Apply filters

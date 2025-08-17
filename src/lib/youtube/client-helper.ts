@@ -5,75 +5,40 @@
  */
 
 import { google, youtube_v3 } from 'googleapis';
-import { supabase } from '@/lib/supabase/client';
+import { getDecryptedApiKey } from '@/lib/api-keys';
+import { createServerClient } from '@/lib/supabase/server-client';
 
 let cachedClient: youtube_v3.Youtube | null = null;
 
 /**
  * Get or create YouTube API client
+ * @param userId - Optional user ID for server-side calls
  */
-export async function getYouTubeClient(): Promise<youtube_v3.Youtube> {
-  if (cachedClient) {
-    return cachedClient;
+export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Youtube> {
+  // For server-side calls, we need to get the API key differently
+  let apiKey: string | null = null;
+  
+  if (userId) {
+    // Server-side: Get decrypted API key from database
+    apiKey = await getDecryptedApiKey(userId, 'youtube');
+  } else {
+    // Client-side fallback or environment variable
+    apiKey = process.env.YOUTUBE_API_KEY || null;
   }
-
-  // Get API key from user or environment
-  const apiKey = await getUserApiKey();
   
   if (!apiKey) {
     throw new Error('YouTube API key not configured. Please add your API key in settings.');
   }
 
   // Create YouTube client with API key
-  cachedClient = google.youtube({
+  const youtube = google.youtube({
     version: 'v3',
     auth: apiKey,
   });
 
-  return cachedClient;
+  return youtube;
 }
 
-/**
- * Get user's YouTube API key
- */
-async function getUserApiKey(): Promise<string | null> {
-  try {
-    // First, try to get from authenticated user's settings
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      const { data, error } = await supabase
-        .from('user_api_keys')
-        .select('user_youtube_api_key')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (data?.user_youtube_api_key) {
-        // Decrypt if needed (assuming it's stored encrypted)
-        return decryptApiKey(data.user_youtube_api_key);
-      }
-    }
-    
-    // Fallback to environment variable (for development)
-    if (process.env.YOUTUBE_API_KEY) {
-      return process.env.YOUTUBE_API_KEY;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error fetching API key:', error);
-    return null;
-  }
-}
-
-/**
- * Decrypt API key (placeholder - implement actual decryption)
- */
-function decryptApiKey(encryptedKey: string): string {
-  // TODO: Implement actual decryption using ENCRYPTION_KEY
-  // For now, return as-is (assuming it's not encrypted yet)
-  return encryptedKey;
-}
 
 /**
  * Clear cached client (useful when API key changes)
@@ -90,6 +55,7 @@ export async function trackQuotaUsage(
   units: number
 ): Promise<void> {
   try {
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     
     if (user) {
@@ -140,6 +106,7 @@ export async function getRemainingQuota(): Promise<{
   remaining: number;
 }> {
   try {
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {

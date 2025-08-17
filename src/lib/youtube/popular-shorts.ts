@@ -29,7 +29,7 @@ enum SearchStrategy {
  * Main function to get popular Shorts without keyword
  */
 export async function getPopularShortsWithoutKeyword(
-  params: PopularShortsParams = {}
+  params: PopularShortsParams & { userId?: string } = {}
 ): Promise<VideoWithStats[]> {
   const {
     regionCode = 'US',
@@ -52,7 +52,8 @@ export async function getPopularShortsWithoutKeyword(
       executeSearchStrategy(strategy, {
         regionCode,
         categoryId,
-        maxResults: Math.ceil(limit / strategies.length)
+        maxResults: Math.ceil(limit / strategies.length),
+        userId: params.userId
       })
     );
 
@@ -109,9 +110,10 @@ async function executeSearchStrategy(
     regionCode: string;
     categoryId?: string;
     maxResults: number;
+    userId?: string;
   }
 ): Promise<youtube_v3.Schema$Video[]> {
-  const youtube = await getYouTubeClient();
+  const youtube = await getYouTubeClient(options.userId);
   
   const searchParams: youtube_v3.Params$Resource$Search$List = {
     part: ['snippet'],
