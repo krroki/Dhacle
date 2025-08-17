@@ -125,11 +125,11 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">3.</span>
-              <span>"API 및 서비스" → "라이브러리"에서 YouTube Data API v3 활성화</span>
+              <span>{'"API 및 서비스"'} → {'"라이브러리"'}에서 YouTube Data API v3 활성화</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">4.</span>
-              <span>"사용자 인증 정보" → "사용자 인증 정보 만들기" → "API 키" 선택</span>
+              <span>{'"사용자 인증 정보"'} → {'"사용자 인증 정보 만들기"'} → {'"API 키"'} 선택</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">5.</span>
