@@ -250,11 +250,19 @@ Build & Deploy:
 - `POST /api/user/cafe-verify` - 네이버 카페 인증
 - `GET/POST/DELETE /api/user/api-keys` - API Key CRUD
 
-### YouTube API
+### YouTube API (전체 12개 엔드포인트)
 - `GET /api/youtube/search` - 동영상 검색
-- `POST /api/youtube/favorites` - 즐겨찾기 추가
-- `GET /api/youtube/history` - 검색 기록 조회
+- `GET/POST /api/youtube/favorites` - 즐겨찾기 관리
+- `DELETE /api/youtube/favorites/[id]` - 즐겨찾기 삭제
 - `GET /api/youtube/validate-key` - API Key 검증
+- `GET /api/youtube/popular` - 인기 Shorts 조회
+- `GET /api/youtube/metrics` - 지표 조회
+- `GET/POST /api/youtube/collections` - 컬렉션 관리
+- `GET/POST /api/youtube/collections/items` - 컬렉션 아이템
+- `POST /api/youtube/subscribe` - 구독 관리
+- `GET /api/youtube/analysis` - 분석 데이터
+- `POST /api/youtube/batch` - 배치 처리
+- `POST /api/youtube/webhook` - Webhook 처리
 
 ### 강의 시스템
 - `GET /api/courses` - 강의 목록
@@ -277,8 +285,8 @@ Build & Deploy:
 
 ## 🎨 주요 컴포넌트
 
-### shadcn/ui 컴포넌트 (24개)
-Alert, AlertDialog, Badge, Button, Card, Checkbox, Dialog, DropdownMenu, Form, Input, Label, Progress, RadioGroup, ScrollArea, Select, Separator, Sheet, Skeleton, Switch, Tabs, Textarea, Toast, Tooltip
+### shadcn/ui 컴포넌트 (28개)
+Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Carousel, Checkbox, Dialog, DropdownMenu, Input, Label, NavigationMenu, Popover, Progress, RadioGroup, ScrollArea, Select, Separator, Skeleton, Slider, Sonner, Switch, Tabs, Textarea, TiptapEditor, Tooltip
 
 ### 레이아웃 컴포넌트
 - Header - 동적 스크롤 헤더

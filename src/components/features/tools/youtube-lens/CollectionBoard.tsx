@@ -35,14 +35,21 @@ export default function CollectionBoard() {
       });
       const data = await response.json();
       
+      console.log('[CollectionBoard] API Response:', { status: response.status, data });
+      
       if (response.ok) {
         setCollections(data.collections || []);
       } else {
-        toast.error(data.error || '컬렉션 목록을 불러오는데 실패했습니다');
+        console.error('[CollectionBoard] Fetch error:', data);
+        const errorMessage = data.error || data.message || '컬렉션 목록을 불러오는데 실패했습니다';
+        toast.error(errorMessage);
       }
     } catch (error) {
-      console.error('Error fetching collections:', error);
-      toast.error('컬렉션 목록을 불러오는데 실패했습니다');
+      console.error('[CollectionBoard] Fetch collections error:', {
+        error,
+        message: error instanceof Error ? error.message : String(error)
+      });
+      toast.error('컬렉션 목록을 불러오는데 실패했습니다: ' + (error instanceof Error ? error.message : ''));
     } finally {
       setLoading(false);
     }
@@ -73,6 +80,8 @@ export default function CollectionBoard() {
       });
 
       const data = await response.json();
+      
+      console.log('[CollectionBoard] Create response:', { status: response.status, data });
       
       if (response.ok) {
         toast.success('컬렉션이 생성되었습니다');

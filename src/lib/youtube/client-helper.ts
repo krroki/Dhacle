@@ -27,6 +27,11 @@ export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Yout
   }
   
   if (!apiKey) {
+    console.error('[getYouTubeClient] API key not found:', {
+      userId,
+      hasUserId: !!userId,
+      hasEnvKey: !!process.env.YOUTUBE_API_KEY
+    });
     throw new Error('YouTube API key not configured. Please add your API key in settings.');
   }
 
@@ -93,7 +98,11 @@ export async function trackQuotaUsage(
       }
     }
   } catch (error) {
-    console.error('Error tracking quota usage:', error);
+    console.error('[trackQuotaUsage] Error:', {
+      error: error instanceof Error ? error.message : String(error),
+      operation,
+      units
+    });
   }
 }
 

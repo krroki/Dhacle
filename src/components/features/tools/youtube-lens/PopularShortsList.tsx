@@ -61,20 +61,30 @@ export default function PopularShortsList({
       if (!response.ok) {
         const errorData = await response.json();
         
+        console.error('[PopularShortsList] API Error:', errorData);
+        
         // Check if API key is required
         if (errorData.requiresApiKey) {
           setRequiresApiKey(true);
           return;
         }
         
-        throw new Error(errorData.message || 'Failed to fetch popular shorts');
+        // Use the error field first, then message, then fallback
+        const errorMessage = errorData.error || errorData.message || `Failed to fetch (HTTP ${response.status})`;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setVideos(data.data.videos || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching popular shorts:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      console.error('[PopularShortsList] Fetch error:', {
+        error: err,
+        message: errorMessage,
+        region,
+        period
+      });
     } finally {
       setLoading(false);
     }

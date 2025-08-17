@@ -7,8 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
 import { calculateMetrics } from '@/lib/youtube/metrics';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +18,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     const { data: { session }, error: authError } = await supabase.auth.getSession();
     
     if (authError || !session) {
@@ -93,13 +92,14 @@ export async function GET(request: NextRequest) {
       return scoreB - scoreA;
     });
 
-    // Save search history (optional)
-    await saveSearchHistory(session.user.id, {
-      search_type: 'popular_shorts',
-      region_code: regionCode,
-      period,
-      result_count: videosWithMetrics.length
-    });
+    // Save search history (optional) - commented out for now
+    // TODO: Implement saveSearchHistory function if needed
+    // await saveSearchHistory(session.user.id, {
+    //   search_type: 'popular_shorts',
+    //   region_code: regionCode,
+    //   period,
+    //   result_count: videosWithMetrics.length
+    // });
 
     // Return response
     return NextResponse.json({
@@ -117,7 +117,11 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching popular shorts:', error);
+    console.error('[/api/youtube/popular] Error details:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     
     // Check if it's a quota error
     if (error instanceof Error && error.message.includes('quota')) {
@@ -132,8 +136,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { 
-        error: 'Failed to fetch popular shorts',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Failed to fetch popular shorts',
+        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );
@@ -147,7 +152,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     const { data: { session }, error: authError } = await supabase.auth.getSession();
     
     if (authError || !session) {
@@ -259,7 +264,7 @@ export async function POST(request: NextRequest) {
  */
 async function saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     
     await supabase.from('saved_searches').insert({
       user_id: userId,
@@ -278,7 +283,7 @@ async function saveSearchHistory(userId: string, searchData: Record<string, unkn
  */
 async function saveToCollection(userId: string, collectionId: string, videos: unknown[]) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     
     const collectionItems = videos.map(video => {
       const videoData = video as { id: string };

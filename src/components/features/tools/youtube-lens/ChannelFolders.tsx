@@ -85,14 +85,22 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch folders');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[ChannelFolders] API Error:', errorData);
+        const errorMessage = errorData.error || errorData.message || `Failed to fetch folders (HTTP ${response.status})`;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setFolders(data.folders || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching folders:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      console.error('[ChannelFolders] Fetch error:', {
+        error: err,
+        message: errorMessage,
+        userId
+      });
     } finally {
       setLoading(false);
     }
@@ -117,7 +125,10 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create folder');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[ChannelFolders] Create error:', errorData);
+        const errorMessage = errorData.error || errorData.message || 'Failed to create folder';
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -125,7 +136,9 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       setIsCreateDialogOpen(false);
       resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create folder');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create folder';
+      setError(errorMessage);
+      console.error('[ChannelFolders] Create folder error:', err);
     }
   };
 

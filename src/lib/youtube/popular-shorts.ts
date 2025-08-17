@@ -185,7 +185,13 @@ async function executeSearchStrategy(
 
     return videosResponse.data.items || [];
   } catch (error: unknown) {
-    console.error(`Strategy ${strategy} failed:`, error instanceof Error ? error.message : String(error));
+    console.error(`[executeSearchStrategy] Strategy ${strategy} failed:`, {
+      error: error instanceof Error ? error.message : String(error),
+      strategy,
+      options,
+      searchParams,
+      timestamp: new Date().toISOString()
+    });
     return [];
   }
 }

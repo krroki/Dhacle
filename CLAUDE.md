@@ -217,22 +217,22 @@ SUPABASE_DB_PASSWORD=skan...       # ✅ 설정됨
 
 ---
 
-## 🧪 프로덕션 테스트 필수 사항
+## 🧪 dhacle.com 사이트에서 실제 기능 테스트 할 때 반드시 참고 할 내용
 
 ### 배포 환경 정보
-- **프로덕션 URL**: https://dhacle.vercel.app
+- **프로덕션 URL**: https://dhacle.com
 - **호스팅**: Vercel (자동 배포 설정됨)
 - **데이터베이스**: Supabase (golbwnsytwbyoneucunx)
 
 ### 테스트 계정 (카카오 로그인)
 ```
-ID: testuser@kakao.com
-PW: test1234!
+ID: glemfkcl@naver.com
+PW: dhfl9909
 ```
-*주의: 실제 카카오 계정이 아닌 테스트용 정보입니다*
+*주의: 사용자의 실제 인증이 필요하므로 로그인 버튼 클릭후에는 잠시 대기해야함.
 
 ### YouTube Lens 테스트 절차
-1. **프로덕션 사이트 접속**: https://dhacle.vercel.app
+1. **프로덕션 사이트 접속**: https://dhacle.com
 2. **카카오 로그인**: 위 테스트 계정 사용
 3. **YouTube Lens 페이지**: `/tools/youtube-lens` 이동
 4. **기능별 테스트**:
@@ -254,9 +254,8 @@ PW: test1234!
 
 ### 알려진 이슈
 1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-2. **구조**: layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+2. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
 3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
-4. **YouTube Lens**: 프로덕션 환경 설정 필요 (상세: `/docs/YOUTUBE_LENS_DIAGNOSIS.md`)
 
 ---
 

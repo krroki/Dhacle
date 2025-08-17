@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerClient } from '@/lib/supabase/server';
 import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
 
 /**
@@ -8,7 +7,7 @@ import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
  */
 export class ServerCollectionManager {
   private async getSupabase() {
-    return createRouteHandlerClient({ cookies });
+    return createServerClient();
   }
 
   /**

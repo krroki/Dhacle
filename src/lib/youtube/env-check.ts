@@ -14,8 +14,7 @@ interface EnvCheckResult {
  */
 export function checkYouTubeEnvVars(): EnvCheckResult {
   const requiredVars = {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL,
   };
 
   const missingVars: string[] = [];
@@ -47,9 +46,8 @@ export function checkYouTubeEnvVars(): EnvCheckResult {
  */
 export function checkYouTubeServerEnvVars(): EnvCheckResult {
   const serverVars = {
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   };
 
   const clientCheck = checkYouTubeEnvVars();
@@ -63,9 +61,9 @@ export function checkYouTubeServerEnvVars(): EnvCheckResult {
     }
   });
 
-  // 암호화 키 길이 체크
-  if (serverVars.ENCRYPTION_KEY && serverVars.ENCRYPTION_KEY.length < 32) {
-    warnings.push(`ENCRYPTION_KEY가 너무 짧습니다 (현재: ${serverVars.ENCRYPTION_KEY.length}자, 최소: 32자)`);
+  // 암호화 키 길이 체크 (64자 = 32바이트 hex string)
+  if (serverVars.ENCRYPTION_KEY && serverVars.ENCRYPTION_KEY.length !== 64) {
+    warnings.push(`ENCRYPTION_KEY가 올바르지 않습니다 (현재: ${serverVars.ENCRYPTION_KEY.length}자, 필요: 64자)`);
   }
 
   return {

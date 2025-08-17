@@ -5,8 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerClient } from '@/lib/supabase/server';
 import { calculateMetrics, calculateChannelMetrics } from '@/lib/youtube/metrics';
 import { YouTubeVideo } from '@/types/youtube-lens';
 
@@ -19,7 +18,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     const { data: { session }, error: authError } = await supabase.auth.getSession();
     
     if (authError || !session) {
@@ -80,12 +79,17 @@ export async function GET(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error fetching metrics:', error);
+    console.error('[/api/youtube/metrics] Error details:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     
     return NextResponse.json(
       { 
-        error: 'Failed to fetch metrics',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Failed to fetch metrics',
+        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );
@@ -99,7 +103,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     const { data: { session }, error: authError } = await supabase.auth.getSession();
     
     if (authError || !session) {
@@ -146,12 +150,17 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error calculating batch metrics:', error);
+    console.error('[/api/youtube/metrics/batch] Error details:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     
     return NextResponse.json(
       { 
-        error: 'Failed to calculate batch metrics',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Failed to calculate batch metrics',
+        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );
@@ -162,7 +171,7 @@ export async function POST(request: NextRequest) {
  * Helper: Get video metrics from database
  */
 async function getVideoMetrics(videoId: string, period: string) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerClient();
   
   // Calculate date range
   const endDate = new Date();
@@ -254,7 +263,7 @@ async function getVideoMetrics(videoId: string, period: string) {
  * Helper: Get channel metrics
  */
 async function getChannelMetrics(channelId: string, period: string) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerClient();
   
   // Get channel videos with stats
   const { data: videos, error } = await supabase
@@ -410,7 +419,7 @@ async function saveMetricsSnapshot(userId: string, videos: Array<YouTubeVideo & 
   }
 }>) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createServerClient();
     
     const snapshots = videos.map(video => ({
       video_id: video.id,
