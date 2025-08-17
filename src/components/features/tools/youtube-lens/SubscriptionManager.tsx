@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Bell, BellOff, RefreshCw, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { apiGet, apiPost, apiDelete, apiPatch, ApiError } from '@/lib/api-client';
 
 interface Subscription {
   id: string;
@@ -34,10 +35,9 @@ export function SubscriptionManager() {
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/youtube/subscribe', {
-        credentials: 'same-origin'
-      });
-      const data = await response.json();
+      const data = await apiGet<{ success: boolean; subscriptions: Subscription[] }>(
+        '/api/youtube/subscribe'
+      );
       
       if (data.success) {
         setSubscriptions(data.subscriptions);
@@ -46,7 +46,11 @@ export function SubscriptionManager() {
       }
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
-      toast.error('Error loading subscriptions');
+      if (error instanceof ApiError && error.status === 401) {
+        toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+      } else {
+        toast.error('Error loading subscriptions');
+      }
     } finally {
       setLoading(false);
     }
@@ -70,19 +74,13 @@ export function SubscriptionManager() {
         }
       }
 
-      const response = await fetch('/api/youtube/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
+      const data = await apiPost<{ success: boolean; error?: string }>(
+        '/api/youtube/subscribe',
+        {
           channelId,
           channelTitle: `Channel ${channelId}` // Will be updated after verification
-        }),
-      });
-
-      const data = await response.json();
+        }
+      );
       
       if (data.success) {
         toast.success('Subscription request sent! Awaiting verification...');
@@ -93,7 +91,15 @@ export function SubscriptionManager() {
       }
     } catch (error) {
       console.error('Subscribe error:', error);
-      toast.error('Error subscribing to channel');
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          toast.error(error.message || 'Error subscribing to channel');
+        }
+      } else {
+        toast.error('Error subscribing to channel');
+      }
     } finally {
       setSubscribing(false);
     }
@@ -101,12 +107,9 @@ export function SubscriptionManager() {
 
   const handleUnsubscribe = async (channelId: string) => {
     try {
-      const response = await fetch(`/api/youtube/subscribe?channelId=${channelId}`, {
-        method: 'DELETE',
-        credentials: 'same-origin'
-      });
-
-      const data = await response.json();
+      const data = await apiDelete<{ success: boolean; error?: string }>(
+        `/api/youtube/subscribe?channelId=${channelId}`
+      );
       
       if (data.success) {
         toast.success('Unsubscribed successfully');
@@ -116,22 +119,24 @@ export function SubscriptionManager() {
       }
     } catch (error) {
       console.error('Unsubscribe error:', error);
-      toast.error('Error unsubscribing');
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          toast.error(error.message || 'Error unsubscribing');
+        }
+      } else {
+        toast.error('Error unsubscribing');
+      }
     }
   };
 
   const handleRenew = async (channelId: string) => {
     try {
-      const response = await fetch('/api/youtube/subscribe', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ channelId }),
-      });
-
-      const data = await response.json();
+      const data = await apiPatch<{ success: boolean; error?: string }>(
+        '/api/youtube/subscribe',
+        { channelId }
+      );
       
       if (data.success) {
         toast.success('Renewal request sent');
@@ -141,7 +146,15 @@ export function SubscriptionManager() {
       }
     } catch (error) {
       console.error('Renew error:', error);
-      toast.error('Error renewing subscription');
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          toast.error(error.message || 'Error renewing subscription');
+        }
+      } else {
+        toast.error('Error renewing subscription');
+      }
     }
   };
 

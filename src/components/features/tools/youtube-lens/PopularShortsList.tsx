@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { YouTubeVideo } from '@/types/youtube-lens';
 import ApiKeySetup from './ApiKeySetup';
+import { apiGet, ApiError } from '@/lib/api-client';
 import { 
   TrendingUp, 
   Eye, 
@@ -56,35 +57,38 @@ export default function PopularShortsList({
     setRequiresApiKey(false);
 
     try {
-      const response = await fetch(`/api/youtube/popular?region=${region}&period=${period}`);
+      const data = await apiGet<{
+        success: boolean;
+        data: {
+          videos: YouTubeVideo[];
+        };
+      }>(`/api/youtube/popular?region=${region}&period=${period}`);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        
-        console.error('[PopularShortsList] API Error:', errorData);
-        
-        // Check if API key is required
-        if (errorData.requiresApiKey) {
-          setRequiresApiKey(true);
-          return;
-        }
-        
-        // Use the error field first, then message, then fallback
-        const errorMessage = errorData.error || errorData.message || `Failed to fetch (HTTP ${response.status})`;
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
       setVideos(data.data.videos || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
       console.error('[PopularShortsList] Fetch error:', {
         error: err,
-        message: errorMessage,
         region,
         period
       });
+
+      if (err instanceof ApiError) {
+        // Check if API key is required
+        if (err.data && typeof err.data === 'object' && 'requiresApiKey' in err.data) {
+          setRequiresApiKey(true);
+          return;
+        }
+
+        // Handle 401 errors specially
+        if (err.status === 401) {
+          setError('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          setError(err.message);
+        }
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet, apiDelete, ApiError } from '@/lib/api-client';
 import { X, ExternalLink, Plus, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,17 +31,21 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
   const fetchCollectionVideos = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/youtube/collections/items?collectionId=${collectionId}`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setItems(data.items || []);
-      } else {
-        toast.error(data.error || '비디오 목록을 불러오는데 실패했습니다');
-      }
+      const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
+        `/api/youtube/collections/items?collectionId=${collectionId}`
+      );
+      setItems(data.items || []);
     } catch (error) {
       console.error('Error fetching collection videos:', error);
-      toast.error('비디오 목록을 불러오는데 실패했습니다');
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          toast.error(error.message || '비디오 목록을 불러오는데 실패했습니다');
+        }
+      } else {
+        toast.error('비디오 목록을 불러오는데 실패했습니다');
+      }
     } finally {
       setLoading(false);
     }
@@ -57,22 +62,22 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
     }
 
     try {
-      const response = await fetch(
-        `/api/youtube/collections/items?collectionId=${collectionId}&videoId=${videoId}`,
-        { method: 'DELETE' }
+      await apiDelete(
+        `/api/youtube/collections/items?collectionId=${collectionId}&videoId=${videoId}`
       );
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        toast.success('비디오가 제거되었습니다');
-        setItems(items.filter(item => item.video_id !== videoId));
-      } else {
-        toast.error(data.error || '비디오 제거에 실패했습니다');
-      }
+      toast.success('비디오가 제거되었습니다');
+      setItems(items.filter(item => item.video_id !== videoId));
     } catch (error) {
       console.error('Error removing video:', error);
-      toast.error('비디오 제거에 실패했습니다');
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          toast.error(error.message || '비디오 제거에 실패했습니다');
+        }
+      } else {
+        toast.error('비디오 제거에 실패했습니다');
+      }
     }
   };
 

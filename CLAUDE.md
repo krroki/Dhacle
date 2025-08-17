@@ -19,6 +19,7 @@
 - **생성 이유 설명**: 새로운 요소 생성 시 반드시 사용자에게 이유와 목적 설명
 
 ### 2. 코드 작성 규칙
+- **API 호출**: `/src/lib/api-client.ts`의 함수 사용 (`apiGet`, `apiPost`, `apiPut`, `apiDelete`)
 - **컴포넌트**: shadcn/ui 컴포넌트 우선 사용
 - **스타일링**: Tailwind CSS 클래스만 사용 (인라인 스타일 금지)
 - **타입**: TypeScript strict mode 준수, any 타입 절대 금지
@@ -30,6 +31,51 @@
 - 환경 변수 하드코딩 금지
 - **폴더 구조 준수**: `/docs/CODEMAP.md` 참조
 - **파일명 규칙**: 컴포넌트는 PascalCase, 기타 파일은 kebab-case
+
+---
+
+## 🔐 인증 프로토콜 (Authentication Protocol v1.0)
+
+### 골든룰 (인증 관련 절대 준수)
+1. **모든 클라이언트 fetch는 공용 래퍼 사용**
+   - `/src/lib/api-client.ts`의 `apiGet`, `apiPost`, `apiPut`, `apiDelete` 사용
+   - 기본 옵션: `credentials: 'same-origin'`, `Content-Type: application/json`
+   - 직접 `fetch()` 호출 금지 (외부 API 제외)
+
+2. **서버 라우트는 세션 필수**
+   - Route Handler 진입 시 세션 검사 → 없으면 `401` + `{ error: 'User not authenticated' }`
+   - `userId`는 쿼리스트링으로 받지 말고 세션에서 파생
+   - 세션 검사 템플릿:
+   ```typescript
+   const supabase = createRouteHandlerClient({ cookies });
+   const { data: { user } } = await supabase.auth.getUser();
+   if (!user) {
+     return new Response(
+       JSON.stringify({ error: 'User not authenticated' }),
+       { status: 401 }
+     );
+   }
+   ```
+
+3. **401 UX 처리**
+   - 프론트는 401 수신 시 로그인 유도 (모달/리다이렉트)
+   - "Failed to fetch" 문자열 노출 금지
+   - 사용자 친화적 메시지: "인증이 필요합니다. 로그인 후 다시 시도해주세요."
+
+4. **오리진/쿠키 불변식**
+   - 로컬 개발: 반드시 `http://localhost:<port>`만 사용 (127.0.0.1 금지)
+   - 프로덕션: HTTPS 필수, `NEXT_PUBLIC_SITE_URL` == 실제 접근 도메인
+   - 세션 식별은 항상 쿠키 + 서버 검사
+
+5. **기능 진입 전 인증 가드**
+   - 컴렉션/폴더/즐겨찾기 등 사용자 데이터 의존 화면은 렌더 전 세션 체크
+   - API 키 설정 화면은 인증 필수
+
+### 인증 관련 Definition of Done
+- [ ] 클라이언트가 **api-client만** 사용 (직접 fetch 없음)
+- [ ] 신규/수정 Route가 **세션 검사 + JSON 에러 포맷** 준수
+- [ ] 401 수신 시 **로그인 유도 UX** 구현
+- [ ] 로컬 실행 시 `localhost` 사용 (127.0.0.1 금지)
 
 ---
 
@@ -256,6 +302,12 @@ PW: dhfl9909
 1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
 2. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
 3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
+
+### 해결된 이슈 (2025-01-22)
+1. ✅ **API 키 Import 오류**: createServerClient 사용으로 통일
+2. ✅ **에러 메시지 불명확**: 상세한 에러 로깅 추가
+3. ✅ **saveSearchHistory 누락**: 함수 호출 주석 처리
+4. ✅ **YouTube Lens 인증 문제**: api-client 래퍼로 credentials 자동 포함
 
 ---
 

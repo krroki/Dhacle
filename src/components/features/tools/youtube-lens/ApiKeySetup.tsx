@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
+import { apiPost, ApiError } from '@/lib/api-client';
 import { 
   KeyRound, 
   ExternalLink, 
@@ -37,28 +38,25 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
 
     try {
       // API 키 검증 및 저장
-      const response = await fetch('/api/user/api-keys', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          apiKey: apiKey.trim(),
-          serviceName: 'youtube'
-        }),
+      await apiPost('/api/user/api-keys', {
+        apiKey: apiKey.trim(),
+        serviceName: 'youtube'
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'API 키 저장 실패');
-      }
 
       setSuccess(true);
       setTimeout(() => {
         onSuccess?.();
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'API 키 저장 중 오류가 발생했습니다');
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setError('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+        } else {
+          setError(err.message || 'API 키 저장 실패');
+        }
+      } else {
+        setError(err instanceof Error ? err.message : 'API 키 저장 중 오류가 발생했습니다');
+      }
     } finally {
       setLoading(false);
     }

@@ -27,16 +27,59 @@ node scripts/verify-with-service-role.js # RLS 우회 정확한 검증
 ```
 
 ### 🔥 자주 수정하는 파일 Top 10
-1. `src/app/page.tsx` - 메인 페이지
-2. `src/app/auth/callback/route.ts` - 인증 콜백
-3. `src/lib/supabase/browser-client.ts` - Supabase 클라이언트
-4. `src/components/layout/Header.tsx` - 헤더 컴포넌트
-5. `src/app/(pages)/courses/page.tsx` - 강의 목록
-6. `src/app/(pages)/youtube-lens/page.tsx` - YouTube Lens
-7. `src/app/(pages)/mypage/page.tsx` - 마이페이지
-8. `src/lib/types/database.types.ts` - DB 타입 정의
-9. `src/app/globals.css` - 전역 스타일
-10. `.env.local` - 환경 변수
+1. `src/lib/api-client.ts` - 클라이언트 API 래퍼 ⭐ 필수
+2. `src/app/page.tsx` - 메인 페이지
+3. `src/app/auth/callback/route.ts` - 인증 콜백
+4. `src/lib/api-keys.ts` - API 키 암호화/복호화 (2025-01-22 수정)
+5. `src/components/layout/Header.tsx` - 헤더 컴포넌트
+6. `src/app/(pages)/courses/page.tsx` - 강의 목록
+7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
+8. `src/app/(pages)/mypage/page.tsx` - 마이페이지
+9. `src/lib/types/database.types.ts` - DB 타입 정의
+10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
+
+---
+
+## 🔐 공용 유틸/핵심 위치 (Authentication & API)
+
+### 클라이언트 API 래퍼 ⭐ 필수
+- **위치**: `src/lib/api-client.ts`
+- **함수**: `apiGet()`, `apiPost()`, `apiPut()`, `apiDelete()`, `apiPatch()`
+- **특징**: 자동 `credentials: 'same-origin'` 포함, 401 에러 처리
+- **사용법**:
+```typescript
+import { apiGet, apiPost, ApiError } from '@/lib/api-client';
+
+try {
+  const data = await apiGet('/api/youtube/popular');
+} catch (error) {
+  if (error instanceof ApiError && error.status === 401) {
+    // 로그인 유도
+  }
+}
+```
+
+### 서버 Route 템플릿 패턴
+- **세션 검사 필수**:
+```typescript
+// app/api/**/route.ts
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export async function GET(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  // 비즈니스 로직...
+}
+```
 
 ---
 
@@ -100,9 +143,7 @@ node scripts/verify-with-service-role.js # RLS 우회 정확한 검증
 │       ├── types/                 # 타입 정의
 │       │   ├── database.types.ts  # DB 타입 (자동 생성)
 │       │   └── revenue-proof.ts   # 수익 인증 타입
-│       ├── api-keys/              # API Key 관리 ✅
-│       │   ├── crypto.ts          # AES-256 암호화
-│       │   └── index.ts           # Key 관리 함수
+│       ├── api-keys.ts            # API Key 관리 (2025-01-22 수정) ✅
 │       ├── youtube/               # YouTube 통합
 │       ├── tosspayments/          # TossPayments ✅
 │       │   └── client.ts          # 결제 클라이언트
