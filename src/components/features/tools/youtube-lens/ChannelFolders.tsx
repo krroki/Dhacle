@@ -80,7 +80,9 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
     setError(null);
 
     try {
-      const response = await fetch(`/api/youtube/folders?userId=${userId}`);
+      const response = await fetch(`/api/youtube/folders?userId=${userId}`, {
+        credentials: 'same-origin'
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch folders');
@@ -107,6 +109,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       const response = await fetch('/api/youtube/folders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           ...formData,
           user_id: userId
@@ -134,6 +137,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       const response = await fetch(`/api/youtube/folders/${selectedFolder.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify(formData)
       });
 
@@ -156,7 +160,8 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
 
     try {
       const response = await fetch(`/api/youtube/folders/${folderId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'same-origin'
       });
 
       if (!response.ok) {
@@ -175,6 +180,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       const response = await fetch(`/api/youtube/folders/${folderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ is_monitoring_enabled: enabled })
       });
 

@@ -123,6 +123,7 @@ src/
 4. 부수 효과 확인
 
 ### 3. 빌드 전 체크리스트
+- [ ] **마이그레이션 검증**: `npm run supabase:validate`
 - [ ] `npm run build` 성공 확인
 - [ ] TypeScript 에러 0개 (`npx tsc --noEmit`)
 - [ ] ESLint 에러 0개 (`npm run lint`)
@@ -162,6 +163,48 @@ const data: CourseType = {}         // 명확한 타입 정의
 - `git commit` - 커밋 메시지와 내용 확인
 - `git push` - 원격 저장소 푸시 전 확인
 - `git reset` - 되돌리기 전 반드시 확인
+
+---
+
+## 🔄 Supabase 마이그레이션 관리 (AI 필수 작업)
+
+### 마이그레이션 실행 체계
+
+#### 1. 새 세션 시작 시 검증
+```bash
+# Service Role Key로 정확한 테이블 검증 (권장)
+node scripts/verify-with-service-role.js
+
+# 기본 테이블 확인
+npm run supabase:verify
+```
+
+#### 2. 마이그레이션 실행 (Service Role Key 설정됨)
+```bash
+# 완벽한 자동 마이그레이션 (최우선)
+npm run supabase:migrate-complete
+
+# 기존 자동화 스크립트
+npm run supabase:auto-migrate
+```
+
+#### 3. 새 마이그레이션 추가 시
+1. SQL 파일 생성: `supabase/migrations/YYYYMMDDHHMMSS_name.sql`
+2. 즉시 적용: `npm run supabase:migrate-complete`
+3. 검증: `node scripts/verify-with-service-role.js`
+
+### 환경 설정 (모두 설정 완료 ✅)
+```bash
+# .env.local 필수 키
+SUPABASE_SERVICE_ROLE_KEY=eyJ...  # ✅ 설정됨
+DATABASE_URL=postgresql://...      # ✅ 설정됨  
+SUPABASE_DB_PASSWORD=skan...       # ✅ 설정됨
+```
+
+### AI 작업 규칙
+- **검증 우선**: 작업 전 `node scripts/verify-with-service-role.js`
+- **문제 해결**: `npm run supabase:migrate-complete` 실행
+- **상태 확인**: 21개 핵심 테이블 모두 생성 완료됨
 
 ---
 

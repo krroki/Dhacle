@@ -18,7 +18,10 @@
       "Bash(rm:*)",
       "Bash(powershell.exe:*)",
       "Bash(npx tsc:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "mcp__playwright-stealth__playwright_fill",
+      "mcp__playwright-stealth__playwright_click",
+      "mcp__playwright-stealth__playwright_get_visible_text"
     ],
     "deny": [],
     "ask": []

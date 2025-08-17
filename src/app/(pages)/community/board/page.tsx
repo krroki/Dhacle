@@ -43,7 +43,9 @@ export default function CommunityBoardPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/community/posts?category=board&page=${page}`);
+      const response = await fetch(`/api/community/posts?category=board&page=${page}`, {
+        credentials: 'same-origin'
+      });
       
       if (!response.ok) {
         throw new Error('게시글을 불러오는데 실패했습니다');
@@ -73,6 +75,7 @@ export default function CommunityBoardPage() {
       const response = await fetch('/api/community/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           category: 'board',
           title: newPost.title,

@@ -34,7 +34,9 @@ export function SubscriptionManager() {
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/youtube/subscribe');
+      const response = await fetch('/api/youtube/subscribe', {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -73,6 +75,7 @@ export function SubscriptionManager() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
         body: JSON.stringify({
           channelId,
           channelTitle: `Channel ${channelId}` // Will be updated after verification
@@ -100,6 +103,7 @@ export function SubscriptionManager() {
     try {
       const response = await fetch(`/api/youtube/subscribe?channelId=${channelId}`, {
         method: 'DELETE',
+        credentials: 'same-origin'
       });
 
       const data = await response.json();
@@ -123,6 +127,7 @@ export function SubscriptionManager() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
         body: JSON.stringify({ channelId }),
       });
 

@@ -83,7 +83,8 @@ export default function OnboardingPage() {
   const generateUsername = async () => {
     try {
       const response = await fetch('/api/user/generate-username', {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'same-origin'
       })
       const data = await response.json()
       
@@ -143,6 +144,7 @@ export default function OnboardingPage() {
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           id: user.id,
           username: username,

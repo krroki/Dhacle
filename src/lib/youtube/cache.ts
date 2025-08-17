@@ -7,14 +7,33 @@ import { LRUCache } from 'lru-cache';
 import Redis from 'ioredis';
 import crypto from 'crypto';
 
-// Redis 클라이언트
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-  lazyConnect: true,
-});
+// Redis 클라이언트 (조건부 생성)
+let redis: Redis | null = null;
+
+// Redis 연결 시도 (개발 환경에서는 선택적)
+if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
+  try {
+    redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      lazyConnect: true,
+      retryStrategy: () => null, // 재시도 비활성화
+    });
+    
+    // 에러 핸들러 등록
+    redis.on('error', (err) => {
+      console.log('Redis connection failed, using memory cache only:', err.message);
+      redis = null;
+    });
+  } catch (error) {
+    console.log('Redis initialization skipped, using memory cache only');
+    redis = null;
+  }
+} else {
+  console.log('Redis not configured, using memory cache only');
+}
 
 // 캐시 옵션 인터페이스
 export interface CacheOptions {
@@ -80,13 +99,19 @@ export class CacheManager {
 
   // Redis 연결
   private async connectRedis(): Promise<void> {
+    if (!redis) {
+      this.redisConnected = false;
+      return;
+    }
+    
     try {
       await redis.connect();
       this.redisConnected = true;
       console.log('Redis connected for caching');
     } catch (error) {
-      console.warn('Redis connection failed, using memory cache only:', error);
+      console.log('Redis connection failed, using memory cache only');
       this.redisConnected = false;
+      redis = null; // Redis 비활성화
     }
   }
 
@@ -134,7 +159,7 @@ export class CacheManager {
     }
 
     // 2. Redis 캐시 확인 (연결된 경우)
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       try {
         const redisData = await redis.get(key);
         if (redisData) {
@@ -182,7 +207,7 @@ export class CacheManager {
     this.memoryCache.set(key, item as CacheItem<unknown>);
 
     // 2. Redis 캐시 저장 (연결된 경우)
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       try {
         await redis.setex(
           key,
@@ -204,7 +229,7 @@ export class CacheManager {
     this.memoryCache.delete(key);
 
     // 2. Redis 캐시 삭제 (연결된 경우)
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       try {
         await redis.del(key);
       } catch (error) {
@@ -227,7 +252,7 @@ export class CacheManager {
     }
 
     // Redis에서 패턴 매칭 삭제
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       try {
         const keys = await redis.keys(`*${pattern}*`);
         if (keys.length > 0) {
@@ -248,7 +273,7 @@ export class CacheManager {
     this.memoryCache.clear();
 
     // Redis 캐시 초기화 (YouTube 관련만)
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       try {
         const keys = await redis.keys('youtube:*');
         if (keys.length > 0) {
@@ -348,7 +373,7 @@ export class CacheManager {
 
   // 종료 처리
   async shutdown(): Promise<void> {
-    if (this.redisConnected) {
+    if (this.redisConnected && redis) {
       await redis.quit();
     }
     

@@ -30,7 +30,9 @@ export default function CollectionBoard() {
   const fetchCollections = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/youtube/collections');
+      const response = await fetch('/api/youtube/collections', {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (response.ok) {
@@ -61,6 +63,7 @@ export default function CollectionBoard() {
       const response = await fetch('/api/youtube/collections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,
@@ -96,6 +99,7 @@ export default function CollectionBoard() {
       const response = await fetch('/api/youtube/collections', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           id: editingCollection.id,
           name: formData.name,
@@ -131,7 +135,8 @@ export default function CollectionBoard() {
 
     try {
       const response = await fetch(`/api/youtube/collections?id=${collectionId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'same-origin'
       });
 
       const data = await response.json();

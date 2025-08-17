@@ -17,8 +17,13 @@ npm run dev                     # 개발 서버 시작 (localhost:3000)
 npm run build                   # 빌드 테스트
 npx tsc --noEmit               # TypeScript 체크
 npm run lint                    # ESLint 검사
-npm run supabase:db:push       # DB 마이그레이션 적용
-npm run supabase:migration:new # 새 마이그레이션 생성
+
+# Supabase 마이그레이션 (100% 완료 ✅)
+npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
+npm run supabase:verify           # 테이블 생성 검증
+npm run supabase:auto-migrate     # 자동 마이그레이션
+npm run supabase:check            # 상태 확인
+node scripts/verify-with-service-role.js # RLS 우회 정확한 검증
 ```
 
 ### 🔥 자주 수정하는 파일 Top 10
@@ -103,10 +108,21 @@ npm run supabase:migration:new # 새 마이그레이션 생성
 │       │   └── client.ts          # 결제 클라이언트
 │       └── utils.ts               # 유틸리티
 ├── supabase/
-│   ├── migrations/                # DB 마이그레이션 (12개)
+│   ├── migrations/                # DB 마이그레이션 (18개)
 │   │   ├── 20250109000001_initial_schema.sql
-│   │   └── ...
+│   │   ├── 20250121000001_youtube_lens_complete_schema.sql 🎯
+│   │   ├── 20250816075332_youtube_lens_pubsubhubbub.sql 🎯
+│   │   ├── 20250816080000_youtube_lens_analytics.sql 🎯
+│   │   └── ... (14개 추가 파일)
 │   └── config.toml                # Supabase 설정
+├── scripts/                      # 자동화 스크립트
+│   ├── supabase-migration.js     # 기본 마이그레이션 자동화
+│   ├── auto-migrate.js           # 향상된 자동 마이그레이션
+│   ├── supabase-migrate-complete.js # Service Role Key 활용 완벽 실행 ✅
+│   ├── verify-tables.js          # 테이블 생성 검증
+│   ├── verify-with-service-role.js # RLS 우회 정확한 검증 ✅
+│   ├── check-tables-simple.js    # 간단한 테이블 체크
+│   └── seed.js                    # DB 시드 데이터
 ├── public/                        # 정적 파일
 │   ├── images/                    # 이미지
 │   └── icons/                     # 아이콘

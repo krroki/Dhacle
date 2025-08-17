@@ -25,7 +25,16 @@
     "supabase:db:reset": "npx supabase db reset",
     "supabase:migration:new": "npx supabase migration new",
     "supabase:migration:up": "npx supabase migration up",
-    "supabase:migration:list": "npx supabase migration list"
+    "supabase:migration:list": "npx supabase migration list",
+    "supabase:migrate": "node scripts/supabase-migration.js",
+    "supabase:auto-migrate": "node scripts/auto-migrate.js",
+    "supabase:check": "node scripts/auto-migrate.js --check",
+    "supabase:validate": "node scripts/auto-migrate.js --validate",
+    "supabase:verify": "node scripts/verify-tables.js",
+    "supabase:migrate-complete": "node scripts/supabase-migrate-complete.js",
+    "supabase:link": "npx supabase link --project-ref golbwnsytwbyoneucunx",
+    "prebuild": "npm run supabase:validate",
+    "predeploy": "npm run supabase:auto-migrate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -71,6 +80,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.6",
+    "dotenv": "^17.2.1",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.12",

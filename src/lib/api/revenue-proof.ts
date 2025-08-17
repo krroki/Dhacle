@@ -21,7 +21,9 @@ export async function getRevenueProofs(params?: {
   if (params?.page) searchParams.append('page', params.page.toString());
   if (params?.limit) searchParams.append('limit', params.limit.toString());
   
-  const response = await fetch(`${API_BASE}?${searchParams.toString()}`);
+  const response = await fetch(`${API_BASE}?${searchParams.toString()}`, {
+    credentials: 'same-origin',
+  });
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
@@ -35,7 +37,9 @@ export async function getRevenueProofs(params?: {
 
 // 인증 상세 조회
 export async function getRevenueProof(id: string) {
-  const response = await fetch(`${API_BASE}/${id}`);
+  const response = await fetch(`${API_BASE}/${id}`, {
+    credentials: 'same-origin',
+  });
   
   if (!response.ok) {
     throw new Error('Failed to fetch revenue proof');
@@ -58,6 +62,7 @@ export async function createRevenueProof(data: CreateProofInput) {
   const response = await fetch(API_BASE, {
     method: 'POST',
     body: formData,
+    credentials: 'same-origin',
   });
   
   const result = await response.json();
@@ -80,6 +85,7 @@ export async function updateRevenueProof(id: string, data: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -93,6 +99,7 @@ export async function updateRevenueProof(id: string, data: {
 export async function deleteRevenueProof(id: string) {
   const response = await fetch(`${API_BASE}/${id}`, {
     method: 'DELETE',
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -106,6 +113,7 @@ export async function deleteRevenueProof(id: string) {
 export async function toggleLike(proofId: string) {
   const response = await fetch(`${API_BASE}/${proofId}/like`, {
     method: 'POST',
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -123,6 +131,7 @@ export async function createComment(proofId: string, content: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ content }),
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -144,6 +153,7 @@ export async function reportProof(proofId: string, data: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -155,7 +165,9 @@ export async function reportProof(proofId: string, data: {
 
 // 랭킹 조회
 export async function getRankings(period: 'daily' | 'weekly' | 'monthly' = 'monthly') {
-  const response = await fetch(`${API_BASE}/ranking?period=${period}`);
+  const response = await fetch(`${API_BASE}/ranking?period=${period}`, {
+    credentials: 'same-origin',
+  });
   
   if (!response.ok) {
     throw new Error('Failed to fetch rankings');
@@ -166,7 +178,9 @@ export async function getRankings(period: 'daily' | 'weekly' | 'monthly' = 'mont
 
 // 내 인증 목록
 export async function getMyProofs() {
-  const response = await fetch(`${API_BASE}/my`);
+  const response = await fetch(`${API_BASE}/my`, {
+    credentials: 'same-origin',
+  });
   
   if (!response.ok) {
     throw new Error('Failed to fetch my proofs');
@@ -189,6 +203,7 @@ export async function uploadImage(file: File, bucket: string = 'revenue-proofs')
   const response = await fetch('/api/upload', {
     method: 'POST',
     body: formData,
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {
@@ -208,6 +223,7 @@ export async function deleteImage(path: string, bucket: string = 'revenue-proofs
   
   const response = await fetch(`/api/upload?${params.toString()}`, {
     method: 'DELETE',
+    credentials: 'same-origin',
   });
   
   if (!response.ok) {

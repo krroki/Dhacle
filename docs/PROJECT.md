@@ -51,13 +51,13 @@
 
 > **관리 규칙**: 최신 7개만 유지, 오래된 항목 자동 삭제
 
-1. **2025-01-21 (PM)**: YouTube Lens 컬렉션 기능 구현 완료 (Phase 3 100% 완료)
-2. **2025-01-21 (AM)**: YouTube Lens Phase 1&3 핵심 기능 구현 (DB, 무키워드 검색, 지표 계산)
-3. **2025-01-21**: 마이페이지 사이드바 중복 문제 해결
-4. **2025-01-20**: Header 프로필 드롭다운 UI 개선
-5. **2025-01-20**: Supabase CLI 자동화 구축 (Phase 14)
-6. **2025-01-19**: 커뮤니티 시스템 구현 (Phase 13)
-7. **2025-01-17**: ENCRYPTION_KEY 환경 변수 문제 해결
+1. **2025-01-21 (Evening)**: Service Role Key 설정 및 모든 마이그레이션 100% 완료
+2. **2025-01-21 (PM)**: YouTube Lens 컬렉션 기능 구현 완료 (Phase 3 100% 완료)
+3. **2025-01-21 (AM)**: YouTube Lens Phase 1&3 핵심 기능 구현 (DB, 무키워드 검색, 지표 계산)
+4. **2025-01-21**: 마이페이지 사이드바 중복 문제 해결
+5. **2025-01-20**: Header 프로필 드롭다운 UI 개선
+6. **2025-01-20**: Supabase CLI 자동화 구축 (Phase 14)
+7. **2025-01-19**: 커뮤니티 시스템 구현 (Phase 13)
 
 ---
 
@@ -215,9 +215,62 @@ src/
 
 ---
 
+## 🔄 Supabase 마이그레이션 관리
+
+### 현재 상태 (2025-01-21 - 완료)
+- **연결 상태**: ✅ 프로젝트 연결됨 (golbwnsytwbyoneucunx)
+- **적용 상태**: ✅ 모든 마이그레이션 성공적으로 완료
+- **환경변수**: ✅ 모든 필수 키 설정 완료 (Service Role Key 포함)
+- **테이블 생성**: ✅ 21개 핵심 테이블 100% 생성 완료
+
+### 마이그레이션 파일 현황 (18개)
+
+#### 기본 시스템 (13개)
+1. `20250109000001_initial_schema.sql` - ⚠️ 일부 적용됨
+2. `20250109000002_auth_triggers.sql`
+3. `20250109000003_rls_policies.sql`
+4. `20250109000004_kakao_auth_trigger.sql`
+5. `20250109000005_course_system.sql`
+6. `20250109000006_course_detail_enhancement.sql`
+7. `20250109000007_revenue_proof_system.sql`
+8. `20250109000008_naver_cafe_nickname.sql`
+9. `20250109000009_youtube_lens.sql`
+10. `20250109000010_youtube_lens_fix.sql`
+11. `20250109000011_course_system_enhancement.sql`
+12. `20250109000012_user_api_keys.sql`
+13. `20250109000013_onboarding_update.sql`
+
+#### 추가 기능 (5개)
+14. `20250115000001_community_system.sql`
+15. `20250121000001_youtube_lens_complete_schema.sql` - 🎯 YouTube Lens 핵심
+16. `20250816075332_youtube_lens_pubsubhubbub.sql` - 🎯 PubSubHubbub
+17. `20250816080000_youtube_lens_analytics.sql` - 🎯 Analytics
+18. `20250117000001_toss_payments.sql` - 💳 결제 시스템
+
+### 자동화 명령어
+```bash
+# 완벽한 마이그레이션 실행 (Service Role Key 활용)
+npm run supabase:migrate-complete
+
+# 테이블 검증
+node scripts/verify-with-service-role.js  # 정확한 검증
+npm run supabase:verify                   # 기본 검증
+
+# 기존 명령어
+npm run supabase:auto-migrate
+npm run supabase:check
+```
+
+### Dashboard 직접 확인
+- [Table Editor](https://supabase.com/dashboard/project/golbwnsytwbyoneucunx/editor)
+- [SQL Editor](https://supabase.com/dashboard/project/golbwnsytwbyoneucunx/sql)
+- [Database Settings](https://supabase.com/dashboard/project/golbwnsytwbyoneucunx/settings/database)
+
+---
+
 ## 📋 Supabase 테이블 현황
 
-### 31개 테이블 현황 ✅ UPDATED (11개 추가)
+### 21개 핵심 테이블 현황 ✅ 100% 생성 완료
 #### 기본 테이블 (8개)
 - ✅ **users** - 사용자 인증 정보 (Supabase Auth 기본)
 - ✅ **profiles** - 사용자 프로필 정보 (닉네임 필드 추가됨)

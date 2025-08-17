@@ -41,7 +41,9 @@ import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaS
 
 // API 함수들
 const fetchApiKeyStatus = async () => {
-  const response = await fetch('/api/user/api-keys?service=youtube');
+  const response = await fetch('/api/user/api-keys?service=youtube', {
+    credentials: 'same-origin'
+  });
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error('Authentication required');
@@ -78,6 +80,7 @@ const searchVideos = async (filters: YouTubeSearchFilters) => {
   const response = await fetch('/api/youtube/search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
     body: JSON.stringify(filters),
   });
   
@@ -90,7 +93,9 @@ const searchVideos = async (filters: YouTubeSearchFilters) => {
 };
 
 const fetchFavorites = async () => {
-  const response = await fetch('/api/youtube/favorites');
+  const response = await fetch('/api/youtube/favorites', {
+    credentials: 'same-origin'
+  });
   if (!response.ok) throw new Error('Failed to fetch favorites');
   return response.json();
 };
@@ -99,6 +104,7 @@ const addFavorite = async (video: FlattenedYouTubeVideo) => {
   const response = await fetch('/api/youtube/favorites', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
     body: JSON.stringify({
       video_id: video.id,
       video_data: video,
@@ -116,6 +122,7 @@ const addFavorite = async (video: FlattenedYouTubeVideo) => {
 const removeFavorite = async (favoriteId: string) => {
   const response = await fetch(`/api/youtube/favorites/${favoriteId}`, {
     method: 'DELETE',
+    credentials: 'same-origin'
   });
   
   if (!response.ok) {

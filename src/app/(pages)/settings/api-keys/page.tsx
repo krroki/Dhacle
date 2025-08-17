@@ -63,7 +63,9 @@ export default function ApiKeysPage() {
   const fetchCurrentKey = async () => {
     try {
       setFetchingKey(true);
-      const response = await fetch('/api/user/api-keys?service=youtube');
+      const response = await fetch('/api/user/api-keys?service=youtube', {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (data.success && data.data) {
@@ -88,6 +90,7 @@ export default function ApiKeysPage() {
       const response = await fetch('/api/youtube/validate-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ apiKey })
       });
 
@@ -124,6 +127,7 @@ export default function ApiKeysPage() {
       const response = await fetch('/api/user/api-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ 
           apiKey,
           serviceName: 'youtube'
@@ -160,7 +164,8 @@ export default function ApiKeysPage() {
 
     try {
       const response = await fetch('/api/user/api-keys?service=youtube', {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'same-origin'
       });
 
       const data = await response.json();
