@@ -58,6 +58,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Check if user has API key
+    const { data: apiKeyData } = await supabase
+      .from('user_api_keys')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .eq('service_name', 'youtube')
+      .eq('is_active', true)
+      .single();
+
+    if (!apiKeyData) {
+      return NextResponse.json(
+        { 
+          error: 'YouTube API key not configured',
+          message: 'Please configure your YouTube API key in settings to use this feature',
+          requiresApiKey: true
+        },
+        { status: 400 }
+      );
+    }
+
     // Fetch popular shorts (already includes metrics)
     const videosWithMetrics = await getPopularShortsWithoutKeyword({
       regionCode,

@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { YouTubeVideo } from '@/types/youtube-lens';
+import ApiKeySetup from './ApiKeySetup';
 import { 
   TrendingUp, 
   Eye, 
@@ -43,6 +44,7 @@ export default function PopularShortsList({
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requiresApiKey, setRequiresApiKey] = useState(false);
   const [region, setRegion] = useState(initialRegion);
   const [period, setPeriod] = useState(initialPeriod);
   const [selectedTier, setSelectedTier] = useState<string>('all');
@@ -51,12 +53,20 @@ export default function PopularShortsList({
   const fetchPopularShorts = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setRequiresApiKey(false);
 
     try {
       const response = await fetch(`/api/youtube/popular?region=${region}&period=${period}`);
       
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Check if API key is required
+        if (errorData.requiresApiKey) {
+          setRequiresApiKey(true);
+          return;
+        }
+        
         throw new Error(errorData.message || 'Failed to fetch popular shorts');
       }
 
@@ -147,6 +157,18 @@ export default function PopularShortsList({
     a.download = `popular-shorts-${region}-${period}-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
+
+  // Show API key setup if required
+  if (requiresApiKey) {
+    return (
+      <ApiKeySetup 
+        onSuccess={() => {
+          setRequiresApiKey(false);
+          fetchPopularShorts();
+        }} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

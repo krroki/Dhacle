@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CollectionManager } from '@/lib/youtube/collections';
+import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
-const collectionManager = new CollectionManager();
+const collectionManager = new ServerCollectionManager();
 
 /**
  * GET /api/youtube/collections
