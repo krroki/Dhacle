@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import type { Collection } from '@/types/youtube-lens';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
 
 export default function CollectionBoard() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -30,26 +31,14 @@ export default function CollectionBoard() {
   const fetchCollections = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/youtube/collections', {
-        credentials: 'same-origin'
-      });
-      const data = await response.json();
+      const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
       
-      console.log('[CollectionBoard] API Response:', { status: response.status, data });
-      
-      if (response.ok) {
-        setCollections(data.collections || []);
-      } else {
-        console.error('[CollectionBoard] Fetch error:', data);
-        const errorMessage = data.error || data.message || '컬렉션 목록을 불러오는데 실패했습니다';
-        toast.error(errorMessage);
-      }
+      console.log('[CollectionBoard] API Response:', data);
+      setCollections(data.collections || []);
     } catch (error) {
-      console.error('[CollectionBoard] Fetch collections error:', {
-        error,
-        message: error instanceof Error ? error.message : String(error)
-      });
-      toast.error('컬렉션 목록을 불러오는데 실패했습니다: ' + (error instanceof Error ? error.message : ''));
+      console.error('[CollectionBoard] Fetch collections error:', error);
+      const errorMessage = error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -67,30 +56,18 @@ export default function CollectionBoard() {
     }
 
     try {
-      const response = await fetch('/api/youtube/collections', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description,
-          is_public: formData.is_public,
-          tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
-        })
+      const data = await apiPost<{ collection: Collection }>('/api/youtube/collections', {
+        name: formData.name,
+        description: formData.description,
+        is_public: formData.is_public,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
       });
-
-      const data = await response.json();
       
-      console.log('[CollectionBoard] Create response:', { status: response.status, data });
-      
-      if (response.ok) {
-        toast.success('컬렉션이 생성되었습니다');
-        setCollections([data.collection, ...collections]);
-        setIsCreateDialogOpen(false);
-        resetForm();
-      } else {
-        toast.error(data.error || '컬렉션 생성에 실패했습니다');
-      }
+      console.log('[CollectionBoard] Create response:', data);
+      toast.success('컬렉션이 생성되었습니다');
+      setCollections([data.collection, ...collections]);
+      setIsCreateDialogOpen(false);
+      resetForm();
     } catch (error) {
       console.error('Error creating collection:', error);
       toast.error('컬렉션 생성에 실패했습니다');
@@ -105,31 +82,20 @@ export default function CollectionBoard() {
     }
 
     try {
-      const response = await fetch('/api/youtube/collections', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          id: editingCollection.id,
-          name: formData.name,
-          description: formData.description,
-          is_public: formData.is_public,
-          tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
-        })
+      const data = await apiPut<{ collection: Collection }>('/api/youtube/collections', {
+        id: editingCollection.id,
+        name: formData.name,
+        description: formData.description,
+        is_public: formData.is_public,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
       });
-
-      const data = await response.json();
       
-      if (response.ok) {
-        toast.success('컬렉션이 업데이트되었습니다');
-        setCollections(collections.map(c => 
-          c.id === editingCollection.id ? data.collection : c
-        ));
-        setEditingCollection(null);
-        resetForm();
-      } else {
-        toast.error(data.error || '컬렉션 업데이트에 실패했습니다');
-      }
+      toast.success('컬렉션이 업데이트되었습니다');
+      setCollections(collections.map(c => 
+        c.id === editingCollection.id ? data.collection : c
+      ));
+      setEditingCollection(null);
+      resetForm();
     } catch (error) {
       console.error('Error updating collection:', error);
       toast.error('컬렉션 업데이트에 실패했습니다');
@@ -143,19 +109,10 @@ export default function CollectionBoard() {
     }
 
     try {
-      const response = await fetch(`/api/youtube/collections?id=${collectionId}`, {
-        method: 'DELETE',
-        credentials: 'same-origin'
-      });
-
-      const data = await response.json();
+      await apiDelete(`/api/youtube/collections?id=${collectionId}`);
       
-      if (response.ok) {
-        toast.success('컬렉션이 삭제되었습니다');
-        setCollections(collections.filter(c => c.id !== collectionId));
-      } else {
-        toast.error(data.error || '컬렉션 삭제에 실패했습니다');
-      }
+      toast.success('컬렉션이 삭제되었습니다');
+      setCollections(collections.filter(c => c.id !== collectionId));
     } catch (error) {
       console.error('Error deleting collection:', error);
       toast.error('컬렉션 삭제에 실패했습니다');

@@ -37,100 +37,123 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { toast } from 'sonner';
-import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaStatusType } from '@/types/youtube';
+import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaStatusType, YouTubeFavorite } from '@/types/youtube';
+import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
+
+// API 타입 정의
+interface ApiKeyData {
+  id: string;
+  service_name: string;
+  is_active: boolean;
+  usage_today?: number;
+  [key: string]: unknown;
+}
+
+interface ApiKeyStatusResponse {
+  success: boolean;
+  data?: ApiKeyData;
+}
 
 // API 함수들
 const fetchApiKeyStatus = async () => {
-  const response = await fetch('/api/user/api-keys?service=youtube', {
-    credentials: 'same-origin'
-  });
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
-    throw new Error('Failed to fetch API key status');
+  try {
+    const data = await apiGet<ApiKeyStatusResponse>('/api/user/api-keys?service=youtube');
+    
+    // QuotaStatus 타입에 맞게 구성
+    const used = data.data?.usage_today || 0;
+    const limit = 10000;
+    const remaining = limit - used;
+    const percentage = (used / limit) * 100;
+    
+    return {
+      success: data.success,
+      hasApiKey: !!data.data,
+      apiKeyData: data.data,
+      quota: data.data ? {
+        used,
+        limit,
+        remaining,
+        percentage,
+        resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
+        warning: percentage >= 80,
+        critical: percentage >= 95,
+        searchCount: 0,
+        videoCount: 0
+      } : null
+    };
+  } catch (error) {
+    console.error('API Key status fetch error:', error);
+    throw error;
   }
-  const data = await response.json();
-  
-  // QuotaStatus 타입에 맞게 구성
-  const used = data.data?.usage_today || 0;
-  const limit = 10000;
-  const remaining = limit - used;
-  const percentage = (used / limit) * 100;
-  
-  return {
-    success: data.success,
-    hasApiKey: !!data.data,
-    apiKeyData: data.data,
-    quota: data.data ? {
-      used,
-      limit,
-      remaining,
-      percentage,
-      resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
-      warning: percentage >= 80,
-      critical: percentage >= 95,
-      searchCount: 0,
-      videoCount: 0
-    } : null
-  };
 };
+
+interface SearchResponse {
+  success: boolean;
+  data: {
+    items: FlattenedYouTubeVideo[];
+  };
+  quota?: {
+    used?: number;
+    limit?: number;
+    remaining?: number;
+    searchCount?: number;
+    videoCount?: number;
+  };
+  error?: string;
+  errorCode?: string;
+}
 
 const searchVideos = async (filters: YouTubeSearchFilters) => {
-  const response = await fetch('/api/youtube/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-    body: JSON.stringify(filters),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Search failed');
+  try {
+    const result = await apiPost<SearchResponse>('/api/youtube/search', filters);
+    return result;
+  } catch (error) {
+    console.error('Search error:', error);
+    throw error;
   }
-  
-  return response.json();
 };
 
+interface FavoritesResponse {
+  success: boolean;
+  data: YouTubeFavorite[];
+}
+
+interface AddFavoriteResponse {
+  success: boolean;
+  data: YouTubeFavorite;
+}
+
 const fetchFavorites = async () => {
-  const response = await fetch('/api/youtube/favorites', {
-    credentials: 'same-origin'
-  });
-  if (!response.ok) throw new Error('Failed to fetch favorites');
-  return response.json();
+  try {
+    const result = await apiGet<FavoritesResponse>('/api/youtube/favorites');
+    return result;
+  } catch (error) {
+    console.error('Favorites fetch error:', error);
+    throw error;
+  }
 };
 
 const addFavorite = async (video: FlattenedYouTubeVideo) => {
-  const response = await fetch('/api/youtube/favorites', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-    body: JSON.stringify({
+  try {
+    const result = await apiPost<AddFavoriteResponse>('/api/youtube/favorites', {
       video_id: video.id,
       video_data: video,
-    }),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to add favorite');
+    });
+    return result;
+  } catch (error) {
+    console.error('Add favorite error:', error);
+    throw error;
   }
-  
-  return response.json();
 };
 
 const removeFavorite = async (favoriteId: string) => {
-  const response = await fetch(`/api/youtube/favorites/${favoriteId}`, {
-    method: 'DELETE',
-    credentials: 'same-origin'
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to remove favorite');
+  try {
+    const result = await apiDelete<{ success: boolean }>(`/api/youtube/favorites/${favoriteId}`);
+    return result;
+  } catch (error) {
+    console.error('Remove favorite error:', error);
+    throw error;
   }
-  
-  return response.json();
 };
 
 function YouTubeLensContent() {

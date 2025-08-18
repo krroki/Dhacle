@@ -34,6 +34,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { SourceFolder, YouTubeChannel } from '@/types/youtube-lens';
+import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api-client';
 import {
   Folder,
   FolderPlus,
@@ -80,27 +81,14 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
     setError(null);
 
     try {
-      const response = await fetch(`/api/youtube/folders?userId=${userId}`, {
-        credentials: 'same-origin'
-      });
+      const data = await apiGet<{ folders?: SourceFolder[] }>(`/api/youtube/folders?userId=${userId}`);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('[ChannelFolders] API Error:', errorData);
-        const errorMessage = errorData.error || errorData.message || `Failed to fetch folders (HTTP ${response.status})`;
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      console.log('[ChannelFolders] API Response:', data);
       setFolders(data.folders || []);
     } catch (err) {
+      console.error('[ChannelFolders] Fetch error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(errorMessage);
-      console.error('[ChannelFolders] Fetch error:', {
-        error: err,
-        message: errorMessage,
-        userId
-      });
     } finally {
       setLoading(false);
     }
@@ -114,31 +102,19 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
   // Create folder
   const handleCreateFolder = async () => {
     try {
-      const response = await fetch('/api/youtube/folders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          ...formData,
-          user_id: userId
-        })
+      const data = await apiPost<{ folder: SourceFolder }>('/api/youtube/folders', {
+        ...formData,
+        user_id: userId
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('[ChannelFolders] Create error:', errorData);
-        const errorMessage = errorData.error || errorData.message || 'Failed to create folder';
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      console.log('[ChannelFolders] Create response:', data);
       setFolders([data.folder, ...folders]);
       setIsCreateDialogOpen(false);
       resetForm();
     } catch (err) {
+      console.error('[ChannelFolders] Create folder error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to create folder';
       setError(errorMessage);
-      console.error('[ChannelFolders] Create folder error:', err);
     }
   };
 
@@ -147,22 +123,13 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
     if (!selectedFolder) return;
 
     try {
-      const response = await fetch(`/api/youtube/folders/${selectedFolder.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update folder');
-      }
-
-      const data = await response.json();
+      const data = await apiPatch<{ folder: SourceFolder }>(`/api/youtube/folders/${selectedFolder.id}`, formData);
+      
       setFolders(folders.map(f => f.id === data.folder.id ? data.folder : f));
       setIsEditDialogOpen(false);
       resetForm();
     } catch (err) {
+      console.error('[ChannelFolders] Update folder error:', err);
       setError(err instanceof Error ? err.message : 'Failed to update folder');
     }
   };
@@ -172,17 +139,11 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
     if (!confirm('Are you sure you want to delete this folder?')) return;
 
     try {
-      const response = await fetch(`/api/youtube/folders/${folderId}`, {
-        method: 'DELETE',
-        credentials: 'same-origin'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete folder');
-      }
-
+      await apiDelete(`/api/youtube/folders/${folderId}`);
+      
       setFolders(folders.filter(f => f.id !== folderId));
     } catch (err) {
+      console.error('[ChannelFolders] Delete folder error:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete folder');
     }
   };
@@ -190,21 +151,13 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
   // Toggle monitoring
   const handleToggleMonitoring = async (folderId: string, enabled: boolean) => {
     try {
-      const response = await fetch(`/api/youtube/folders/${folderId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ is_monitoring_enabled: enabled })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update monitoring status');
-      }
-
+      await apiPatch(`/api/youtube/folders/${folderId}`, { is_monitoring_enabled: enabled });
+      
       setFolders(folders.map(f => 
         f.id === folderId ? { ...f, is_monitoring_enabled: enabled } : f
       ));
     } catch (err) {
+      console.error('[ChannelFolders] Toggle monitoring error:', err);
       setError(err instanceof Error ? err.message : 'Failed to update monitoring');
     }
   };
