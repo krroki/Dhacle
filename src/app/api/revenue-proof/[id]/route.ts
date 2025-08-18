@@ -2,6 +2,8 @@
 // 수익인증 상세 조회, 수정, 삭제 API
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { createSupabaseServiceRoleClient, createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
@@ -12,6 +14,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+
+  // 세션 검사
+  const authSupabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await authSupabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+
     // Service Role Client를 사용하여 RLS를 우회하고 공개 데이터를 가져옴
     const supabase = await createSupabaseServiceRoleClient();
     const { id } = await params;
@@ -117,10 +132,7 @@ export async function PUT(
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 기존 인증 조회
@@ -221,10 +233,7 @@ export async function DELETE(
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 기존 인증 조회

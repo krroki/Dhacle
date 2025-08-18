@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { apiPost } from '@/lib/api-client';
 
 function PaymentFailContent() {
   const searchParams = useSearchParams();
@@ -25,14 +26,10 @@ function PaymentFailContent() {
 
   const updateFailureStatus = async () => {
     try {
-      await fetch('/api/payment/fail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          code,
-          message,
-        }),
+      await apiPost('/api/payment/fail', {
+        orderId,
+        code,
+        message,
       });
     } catch (error) {
       console.error('Failed to update payment status:', error);

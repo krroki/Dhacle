@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, MessageSquare, Eye, Plus, Heart, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { apiGet, apiPost, ApiError } from '@/lib/api-client';
 
 interface Post {
   id: string;
@@ -43,15 +44,7 @@ export default function CommunityBoardPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/community/posts?category=board&page=${page}`, {
-        credentials: 'same-origin'
-      });
-      
-      if (!response.ok) {
-        throw new Error('게시글을 불러오는데 실패했습니다');
-      }
-      
-      const data = await response.json();
+      const data = await apiGet<{ posts: Post[], totalPages: number }>(`/api/community/posts?category=board&page=${page}`);
       setPosts(data.posts || []);
       setTotalPages(data.totalPages || 1);
     } catch (error) {
@@ -72,21 +65,11 @@ export default function CommunityBoardPage() {
       setSubmitting(true);
       setError('');
       
-      const response = await fetch('/api/community/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          category: 'board',
-          title: newPost.title,
-          content: newPost.content
-        })
+      await apiPost<any>('/api/community/posts', {
+        category: 'board',
+        title: newPost.title,
+        content: newPost.content
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '게시글 작성에 실패했습니다');
-      }
 
       setShowNewPost(false);
       setNewPost({ title: '', content: '' });

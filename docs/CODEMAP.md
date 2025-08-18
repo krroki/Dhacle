@@ -3,9 +3,20 @@
 *목적: 현재 프로젝트의 파일/폴더 구조와 기술 스택*
 *업데이트: 새 파일/폴더 추가 또는 구조 변경 시*
 
-> **관련 문서**:
-> - AI 작업 지침: `/CLAUDE.md`
-> - 프로젝트 현황: `/docs/PROJECT.md`
+> **12개 핵심 문서 체계**:
+> - 🤖 AI 작업 지침: `/CLAUDE.md`
+> - 📊 프로젝트 현황: `/docs/PROJECT.md`
+> - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md` (이 문서)
+> - ✅ 작업 검증: `/docs/CHECKLIST.md`
+> - 📖 문서 가이드: `/docs/DOCUMENT_GUIDE.md`
+> - 🎯 지시 템플릿: `/docs/INSTRUCTION_TEMPLATE.md`
+> - 🔄 사용자 플로우: `/docs/FLOWMAP.md`
+> - 🔌 UI-API 연결: `/docs/WIREFRAME.md`
+> - 🧩 컴포넌트 목록: `/docs/COMPONENT_INVENTORY.md`
+> - 📍 라우트 구조: `/docs/ROUTE_SPEC.md`
+> - 💾 상태 관리: `/docs/STATE_FLOW.md`
+> - 📦 데이터 모델: `/docs/DATA_MODEL.md`
+> - 🚨 에러 처리: `/docs/ERROR_BOUNDARY.md`
 
 ---
 
@@ -21,31 +32,37 @@ npm run lint                    # ESLint 검사
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
 npm run supabase:verify           # 테이블 생성 검증
-npm run supabase:auto-migrate     # 자동 마이그레이션
-npm run supabase:check            # 상태 확인
 node scripts/verify-with-service-role.js # RLS 우회 정확한 검증
+
+# 🔐 보안 운영 명령어 (일일 실행 권장)
+npm run security:test          # 보안 테스트 (100% 통과 목표)
+npm run security:ttl           # TTL 정책 실행
+npm run security:apply-rls-all # 새 테이블 RLS 적용
+npm run security:scan-secrets  # 비밀키 스캔
+npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 ```
 
-### 🔥 자주 수정하는 파일 Top 10
+### 🔥 자주 수정하는 파일 Top 10 (구현 상태는 `/docs/WIREFRAME.md` 참조)
 1. `src/lib/api-client.ts` - 클라이언트 API 래퍼 ⭐ 필수
 2. `src/app/page.tsx` - 메인 페이지
 3. `src/app/auth/callback/route.ts` - 인증 콜백
 4. `src/lib/api-keys.ts` - API 키 암호화/복호화 (2025-01-22 수정)
 5. `src/components/layout/Header.tsx` - 헤더 컴포넌트
 6. `src/app/(pages)/courses/page.tsx` - 강의 목록
-7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
+7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens ⚠️ API 오류
 8. `src/app/(pages)/mypage/page.tsx` - 마이페이지
 9. `src/lib/types/database.types.ts` - DB 타입 정의
-10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
+10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API ⚠️ 오류 발생
 
 ---
 
 ## 🔐 공용 유틸/핵심 위치 (Authentication & API)
 
-### 클라이언트 API 래퍼 ⭐ 필수
+### 클라이언트 API 래퍼 ⭐ 필수 (Wave 1 100% 적용 ✅)
 - **위치**: `src/lib/api-client.ts`
 - **함수**: `apiGet()`, `apiPost()`, `apiPut()`, `apiDelete()`, `apiPatch()`
 - **특징**: 자동 `credentials: 'same-origin'` 포함, 401 에러 처리
+- **적용률**: 14/14 클라이언트 파일 100% 전환 완료 (Wave 1)
 - **사용법**:
 ```typescript
 import { apiGet, apiPost, ApiError } from '@/lib/api-client';
@@ -59,8 +76,8 @@ try {
 }
 ```
 
-### 서버 Route 템플릿 패턴
-- **세션 검사 필수**:
+### 서버 Route 템플릿 패턴 (Wave 1 95% 적용 ✅)
+- **세션 검사 필수** - 35/37 API routes 적용 완료:
 ```typescript
 // app/api/**/route.ts
 import { cookies } from 'next/headers';
@@ -72,7 +89,7 @@ export async function GET(request: Request) {
   
   if (!user) {
     return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
+      JSON.stringify({ error: 'User not authenticated' }), // 표준화된 에러
       { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -85,9 +102,16 @@ export async function GET(request: Request) {
 
 ## 📁 프로젝트 구조
 
+> **🔗 관련 문서 링크**:
+> - 컴포넌트 재사용: `/docs/COMPONENT_INVENTORY.md`
+> - 라우트 가드: `/docs/ROUTE_SPEC.md`
+> - 상태 관리: `/docs/STATE_FLOW.md`
+> - 데이터 타입: `/docs/DATA_MODEL.md`
+
 ```
 9.Dhacle/
 ├── src/
+│   ├── middleware.ts              # 캐싱 정책 & 보안 헤더 ✅ Wave 2
 │   ├── app/
 │   │   ├── (pages)/              # 페이지 그룹
 │   │   │   ├── courses/           # 강의 시스템 ✅
@@ -140,6 +164,11 @@ export async function GET(request: Request) {
 │       ├── supabase/              # Supabase 설정
 │       │   ├── browser-client.ts  # 브라우저 클라이언트
 │       │   └── server-client.ts   # 서버 클라이언트
+│       ├── security/              # 보안 모듈 ✅ Wave 3
+│       │   ├── rate-limiter.ts    # Rate Limiting 시스템
+│       │   ├── validation-schemas.ts # Zod 검증 스키마 (13개)
+│       │   ├── sanitizer.ts       # XSS 방지 (DOMPurify)
+│       │   └── example-usage.ts   # 보안 사용 예제
 │       ├── types/                 # 타입 정의
 │       │   ├── database.types.ts  # DB 타입 (자동 생성)
 │       │   └── revenue-proof.ts   # 수익 인증 타입
@@ -155,19 +184,39 @@ export async function GET(request: Request) {
 │   │   ├── 20250816075332_youtube_lens_pubsubhubbub.sql 🎯
 │   │   ├── 20250816080000_youtube_lens_analytics.sql 🎯
 │   │   └── ... (14개 추가 파일)
+│   ├── migrations/
+│   │   ├── 20250123000001_wave0_security_rls.sql # Wave 0 RLS 정책 ✅
+│   │   ├── 20250123000002_wave2_security_rls.sql # Wave 2 RLS 정책 ✅ NEW
+│   │   └── ... (기존 마이그레이션 파일들)
 │   └── config.toml                # Supabase 설정
 ├── scripts/                      # 자동화 스크립트
+│   ├── security/                 # 보안 스크립트 ✅ Wave 0-3
+│   │   ├── standardize-errors.js # 에러 메시지 표준화 ✅ Wave 0
+│   │   ├── apply-rls-wave0.sql   # RLS 정책 SQL ✅ Wave 0
+│   │   ├── apply-rls.js          # RLS 적용 스크립트
+│   │   ├── verify-session-checks.js # 세션 검사 확인 ✅ Wave 1
+│   │   ├── fix-session-types.js  # TypeScript 수정 ✅ Wave 1
+│   │   ├── scan-secrets.js       # 비밀키 스캔 도구 ✅ Wave 2
+│   │   ├── apply-rls-wave2.js    # Wave 2 RLS 적용 ✅ Wave 2
+│   │   └── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
 │   ├── supabase-migration.js     # 기본 마이그레이션 자동화
 │   ├── auto-migrate.js           # 향상된 자동 마이그레이션
 │   ├── supabase-migrate-complete.js # Service Role Key 활용 완벽 실행 ✅
 │   ├── verify-tables.js          # 테이블 생성 검증
 │   ├── verify-with-service-role.js # RLS 우회 정확한 검증 ✅
 │   ├── check-tables-simple.js    # 간단한 테이블 체크
+│   ├── check-missing-tables.js   # 누락된 테이블 상세 확인 ✅ NEW (2025-01-29)
 │   └── seed.js                    # DB 시드 데이터
 ├── public/                        # 정적 파일
 │   ├── images/                    # 이미지
 │   └── icons/                     # 아이콘
 ├── docs/                          # 프로젝트 문서
+│   ├── security/                  # 보안 문서 ✅ Wave 0-3
+│   │   ├── coverage.md            # 보안 커버리지 매트릭스
+│   │   ├── security_refactor_plan.md # 보안 리팩토링 계획
+│   │   └── WAVE3_IMPLEMENTATION_REPORT.md # Wave 3 구현 보고서 ✅ NEW
+│   ├── PROJECT.md                 # 프로젝트 현황
+│   └── CODEMAP.md                 # 프로젝트 구조 (이 문서)
 └── package.json                   # 의존성 관리
 ```
 

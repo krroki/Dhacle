@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 // revenue-proof/route.ts
 // 수익인증 메인 API Route (목록 조회, 생성)
 
@@ -8,6 +10,20 @@ import { z } from 'zod';
 
 // GET: 수익인증 목록 조회
 export async function GET(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     // Route Handler Client를 사용하여 공개 데이터를 가져옴
     // revenue_proofs 테이블은 공개 읽기 가능하므로 Service Role Key 불필요
@@ -113,16 +129,27 @@ export async function GET(request: NextRequest) {
 
 // POST: 수익인증 생성 (일일 1회 제한)
 export async function POST(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const supabase = await createSupabaseRouteHandlerClient();
     
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // FormData 파싱

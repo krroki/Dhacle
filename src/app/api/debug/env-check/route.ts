@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
   
   // 간단한 보안 체크 (프로덕션에서는 더 강력한 인증 필요)
   if (debugKey !== 'debug-dhacle-2025') {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
   
   // 환경 변수 존재 여부 체크 (값은 노출하지 않음)

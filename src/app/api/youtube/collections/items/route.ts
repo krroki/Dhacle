@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { CollectionManager } from '@/lib/youtube/collections';
 
@@ -8,6 +10,20 @@ const collectionManager = new CollectionManager();
  * 특정 컬렉션의 비디오 목록 조회
  */
 export async function GET(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const collectionId = searchParams.get('collectionId');
@@ -43,6 +59,20 @@ export async function GET(request: NextRequest) {
  * 컬렉션에 비디오 추가
  */
 export async function POST(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const body = await request.json();
     const { collectionId, videoId, notes, tags } = body;
@@ -83,6 +113,20 @@ export async function POST(request: NextRequest) {
  * 컬렉션에서 비디오 제거
  */
 export async function DELETE(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const collectionId = searchParams.get('collectionId');
@@ -122,6 +166,20 @@ export async function DELETE(request: NextRequest) {
  * 컬렉션 아이템 순서 변경
  */
 export async function PUT(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const body = await request.json();
     const { collectionId, items } = body;

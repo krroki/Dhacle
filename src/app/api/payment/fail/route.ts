@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server-client';
 
 export async function POST(req: NextRequest) {
   try {
+
+  // 세션 검사
+  const authSupabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await authSupabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+
     const body = await req.json();
     const { orderId, code, message } = body;
 

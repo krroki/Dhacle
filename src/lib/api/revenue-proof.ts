@@ -3,6 +3,7 @@
 
 import type { RevenueProof } from '@/types/revenue-proof';
 import type { CreateProofInput } from '@/lib/validations/revenue-proof';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 
 // API 기본 URL
 const API_BASE = '/api/revenue-proof';
@@ -21,31 +22,17 @@ export async function getRevenueProofs(params?: {
   if (params?.page) searchParams.append('page', params.page.toString());
   if (params?.limit) searchParams.append('limit', params.limit.toString());
   
-  const response = await fetch(`${API_BASE}?${searchParams.toString()}`, {
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    const errorMessage = errorData?.error || `Failed to fetch revenue proofs (${response.status})`;
-    console.error('Revenue proofs fetch error:', errorMessage, errorData);
-    throw new Error(errorMessage);
+  try {
+    return await apiGet(`${API_BASE}?${searchParams.toString()}`);
+  } catch (error) {
+    console.error('Revenue proofs fetch error:', error);
+    throw error;
   }
-  
-  return response.json();
 }
 
 // 인증 상세 조회
 export async function getRevenueProof(id: string) {
-  const response = await fetch(`${API_BASE}/${id}`, {
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch revenue proof');
-  }
-  
-  return response.json();
+  return await apiGet(`${API_BASE}/${id}`);
 }
 
 // 인증 생성
@@ -79,66 +66,22 @@ export async function updateRevenueProof(id: string, data: {
   title?: string;
   content?: string;
 }) {
-  const response = await fetch(`${API_BASE}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to update revenue proof');
-  }
-  
-  return response.json();
+  return await apiPut(`${API_BASE}/${id}`, data);
 }
 
 // 인증 삭제
 export async function deleteRevenueProof(id: string) {
-  const response = await fetch(`${API_BASE}/${id}`, {
-    method: 'DELETE',
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to delete revenue proof');
-  }
-  
-  return response.json();
+  return await apiDelete(`${API_BASE}/${id}`);
 }
 
 // 좋아요 토글
 export async function toggleLike(proofId: string) {
-  const response = await fetch(`${API_BASE}/${proofId}/like`, {
-    method: 'POST',
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to toggle like');
-  }
-  
-  return response.json();
+  return await apiPost(`${API_BASE}/${proofId}/like`);
 }
 
 // 댓글 작성
 export async function createComment(proofId: string, content: string) {
-  const response = await fetch(`${API_BASE}/${proofId}/comment`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ content }),
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to create comment');
-  }
-  
-  return response.json();
+  return await apiPost(`${API_BASE}/${proofId}/comment`, { content });
 }
 
 // 신고하기
@@ -147,46 +90,17 @@ export async function reportProof(proofId: string, data: {
   details?: string;
   acknowledged: boolean;
 }) {
-  const response = await fetch(`${API_BASE}/${proofId}/report`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to report proof');
-  }
-  
-  return response.json();
+  return await apiPost(`${API_BASE}/${proofId}/report`, data);
 }
 
 // 랭킹 조회
 export async function getRankings(period: 'daily' | 'weekly' | 'monthly' = 'monthly') {
-  const response = await fetch(`${API_BASE}/ranking?period=${period}`, {
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch rankings');
-  }
-  
-  return response.json();
+  return await apiGet(`${API_BASE}/ranking?period=${period}`);
 }
 
 // 내 인증 목록
 export async function getMyProofs() {
-  const response = await fetch(`${API_BASE}/my`, {
-    credentials: 'same-origin',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch my proofs');
-  }
-  
-  return response.json();
+  return await apiGet(`${API_BASE}/my`);
 }
 
 // 이미지 업로드 헬퍼 함수
@@ -208,7 +122,7 @@ export async function uploadImage(file: File, bucket: string = 'revenue-proofs')
   
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to upload image');
+    throw new ApiError(error.error || 'Failed to upload image', 400);
   }
   
   return response.json();
@@ -228,7 +142,7 @@ export async function deleteImage(path: string, bucket: string = 'revenue-proofs
   
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to delete image');
+    throw new ApiError(error.error || 'Failed to delete image', 400);
   }
   
   return response.json();

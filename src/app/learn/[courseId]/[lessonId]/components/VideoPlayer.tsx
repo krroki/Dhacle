@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import Hls from 'hls.js';
 import debounce from 'lodash.debounce';
 import { Button } from '@/components/ui/button';
@@ -141,13 +142,9 @@ export function VideoPlayer({
   useEffect(() => {
     const saveProgress = debounce(async (time: number) => {
       try {
-        await fetch('/api/lessons/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        await apiPost('/api/lessons/progress', {
             lessonId,
             progress: Math.floor(time)
-          })
         });
         onProgress?.(time);
       } catch (error) {

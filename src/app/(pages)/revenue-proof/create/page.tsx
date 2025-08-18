@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -98,10 +99,11 @@ export default function CreateRevenueProof() {
       formData.append('signature', data.signature);
       formData.append('screenshot', data.screenshot);
       
-      // API 호출
+      // API 호출 (FormData는 fetch 사용)
       const response = await fetch('/api/revenue-proof', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
       
       const result = await response.json();

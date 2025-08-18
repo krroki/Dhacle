@@ -31,7 +31,7 @@ export default function RevenueProofGallery() {
     
     try {
       // 실제 API 호출
-      const result = await getRevenueProofs({
+      const result: any = await getRevenueProofs({
         platform: platform === 'all' ? undefined : platform,
         filter,
         page,

@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
@@ -8,6 +10,20 @@ const collectionManager = new ServerCollectionManager();
  * 사용자의 컬렉션 목록 조회
  */
 export async function GET() {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const { data, error } = await collectionManager.getCollections();
 
@@ -33,6 +49,20 @@ export async function GET() {
  * 새 컬렉션 생성
  */
 export async function POST(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const body = await request.json();
     const { name, description, is_public, tags, cover_image } = body;
@@ -74,6 +104,20 @@ export async function POST(request: NextRequest) {
  * 컬렉션 정보 업데이트
  */
 export async function PUT(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const body = await request.json();
     const { id, ...updates } = body;
@@ -109,6 +153,20 @@ export async function PUT(request: NextRequest) {
  * 컬렉션 삭제
  */
 export async function DELETE(request: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

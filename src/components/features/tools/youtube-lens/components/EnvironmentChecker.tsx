@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -89,8 +90,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     setIsChecking(true);
     
     try {
-      const response = await fetch('/api/youtube/auth/check-config');
-      const data = await response.json();
+      const data = await apiGet<any>('/api/youtube/auth/check-config');
       
       // 변수 상태 업데이트
       const updatedVars = variables.map(v => ({

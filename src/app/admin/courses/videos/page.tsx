@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,9 +62,11 @@ export default function VideoUploadPage() {
         });
       }, 500);
 
+      // FormData는 fetch 사용
       const response = await fetch('/api/admin/video/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
 
       clearInterval(progressInterval);

@@ -30,7 +30,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
       setIsLoading(true);
       try {
         const period = filter === 'all' ? 'monthly' : filter;
-        const data = await getRankings(period as 'daily' | 'weekly' | 'monthly');
+        const data: any = await getRankings(period as 'daily' | 'weekly' | 'monthly');
         setRankings(data.rankings || []);
       } catch (error) {
         console.error('Failed to load rankings:', error);

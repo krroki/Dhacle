@@ -1,9 +1,25 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 
 const tossSecretKey = process.env.TOSS_SECRET_KEY;
 
 export async function POST(req: NextRequest) {
+  
+  // 세션 검사
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
   try {
     const body = await req.json();
     const { paymentKey, orderId, amount } = body;

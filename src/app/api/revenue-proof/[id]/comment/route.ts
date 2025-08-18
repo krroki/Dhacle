@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { commentSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
@@ -13,6 +14,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+
+  // 세션 검사
+  const authSupabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await authSupabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+
     const supabase = createServerComponentClient({ cookies });
     const { id: proofId } = await params;
 
@@ -64,10 +78,7 @@ export async function POST(
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 인증이 존재하는지 확인
@@ -163,6 +174,19 @@ export async function DELETE(
   request: NextRequest
 ) {
   try {
+
+  // 세션 검사
+  const authSupabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await authSupabase.auth.getUser();
+  
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: 'User not authenticated' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+
     const supabase = createServerComponentClient({ cookies });
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
@@ -177,10 +201,7 @@ export async function DELETE(
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 댓글 조회

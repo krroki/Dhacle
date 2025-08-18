@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // FormData 파싱
@@ -134,10 +131,7 @@ export async function DELETE(request: NextRequest) {
     // 인증 확인
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);

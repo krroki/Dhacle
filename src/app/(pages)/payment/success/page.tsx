@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,22 +35,11 @@ function PaymentSuccessContent() {
 
   const confirmPayment = async () => {
     try {
-      const response = await fetch('/api/payment/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const data = await apiPost<any>('/api/payment/confirm', {
           orderId,
           paymentKey,
           amount: parseInt(amount || '0'),
-        }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || '결제 승인에 실패했습니다.');
-      }
-
-      const data = await response.json();
       
       // 축하 애니메이션
       confetti({

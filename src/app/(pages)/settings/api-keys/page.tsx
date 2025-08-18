@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
 import { 
   Key, 
   ShieldCheck, 
@@ -63,10 +64,7 @@ export default function ApiKeysPage() {
   const fetchCurrentKey = async () => {
     try {
       setFetchingKey(true);
-      const response = await fetch('/api/user/api-keys?service=youtube', {
-        credentials: 'same-origin'
-      });
-      const data = await response.json();
+      const data = await apiGet<{ success: boolean, data?: any }>('/api/user/api-keys?service=youtube');
       
       if (data.success && data.data) {
         setCurrentKey(data.data);
@@ -87,14 +85,7 @@ export default function ApiKeysPage() {
 
     setValidating(true);
     try {
-      const response = await fetch('/api/youtube/validate-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ apiKey })
-      });
-
-      const data = await response.json();
+      const data = await apiPost<{ success: boolean, error?: string }>('/api/youtube/validate-key', { apiKey });
 
       if (data.success) {
         toast.success('유효한 API Key입니다!');
@@ -124,17 +115,10 @@ export default function ApiKeysPage() {
       }
 
       // API Key 저장
-      const response = await fetch('/api/user/api-keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({ 
-          apiKey,
-          serviceName: 'youtube'
-        })
+      const data = await apiPost<{ success: boolean, error?: string }>('/api/user/api-keys', { 
+        apiKey,
+        serviceName: 'youtube'
       });
-
-      const data = await response.json();
 
       if (data.success) {
         toast.success('API Key가 저장되었습니다');
@@ -163,12 +147,7 @@ export default function ApiKeysPage() {
     }
 
     try {
-      const response = await fetch('/api/user/api-keys?service=youtube', {
-        method: 'DELETE',
-        credentials: 'same-origin'
-      });
-
-      const data = await response.json();
+      const data = await apiDelete<{ success: boolean, error?: string }>('/api/user/api-keys?service=youtube');
 
       if (data.success) {
         toast.success('API Key가 삭제되었습니다');

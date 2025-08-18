@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Check, Loader2, Briefcase, GraduationCap, Store, Laptop, Building2, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { apiPost } from '@/lib/api-client'
 
 interface OnboardingData {
   workType: 'main' | 'side' | ''
@@ -141,24 +142,15 @@ export default function OnboardingPage() {
       // 먼저 사용자명 자동 생성
       const username = await generateUsername()
       
-      const response = await fetch('/api/user/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          id: user.id,
-          username: username,
-          work_type: data.workType,
-          job_category: data.jobCategory,
-          current_income: data.currentIncome,
-          target_income: data.targetIncome,
-          experience_level: data.experienceLevel,
-        })
+      await apiPost('/api/user/profile', {
+        id: user.id,
+        username: username,
+        work_type: data.workType,
+        job_category: data.jobCategory,
+        current_income: data.currentIncome,
+        target_income: data.targetIncome,
+        experience_level: data.experienceLevel,
       })
-
-      if (!response.ok) {
-        throw new Error('프로필 생성 실패')
-      }
 
       // 메인 페이지로 이동
       router.push('/')

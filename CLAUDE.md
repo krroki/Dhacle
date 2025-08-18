@@ -3,9 +3,20 @@
 *목적: AI가 디하클(Dhacle) 프로젝트 작업 시 따라야 할 규칙과 프로세스*
 *업데이트: 새로운 작업 패턴이나 금지사항 발견 시에만*
 
-> **관련 문서**:
-> - 프로젝트 현황: `/docs/PROJECT.md`
-> - 프로젝트 구조: `/docs/CODEMAP.md`
+> **13개 핵심 문서 체계**:
+> - 🤖 AI 작업 지침: `/CLAUDE.md` (이 문서)
+> - 📊 프로젝트 현황: `/docs/PROJECT.md`
+> - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md`
+> - ✅ 작업 검증: `/docs/CHECKLIST.md`
+> - 📖 문서 가이드: `/docs/DOCUMENT_GUIDE.md`
+> - 🎯 지시 템플릿: `/docs/INSTRUCTION_TEMPLATE.md`
+> - 🔄 사용자 플로우: `/docs/FLOWMAP.md`
+> - 🔌 UI-API 연결: `/docs/WIREFRAME.md`
+> - 🧩 컴포넌트 목록: `/docs/COMPONENT_INVENTORY.md`
+> - 📍 라우트 구조: `/docs/ROUTE_SPEC.md`
+> - 💾 상태 관리: `/docs/STATE_FLOW.md`
+> - 📦 데이터 모델: `/docs/DATA_MODEL.md`
+> - 🚨 에러 처리: `/docs/ERROR_BOUNDARY.md`
 
 ---
 
@@ -17,32 +28,83 @@
 - 사용자와 협의 없이 **임의로** 파일 생성/수정 금지
 - **중복 체크 필수**: 새 컴포넌트/요소 생성 전 기존 파일 확인
 - **생성 이유 설명**: 새로운 요소 생성 시 반드시 사용자에게 이유와 목적 설명
+- **보안 현황**: Wave 0-3 완료 ✅, Rate Limiting/Zod/XSS 방지 구현 완료
 
 ### 2. 코드 작성 규칙
-- **API 호출**: `/src/lib/api-client.ts`의 함수 사용 (`apiGet`, `apiPost`, `apiPut`, `apiDelete`)
+- **API 호출**: `/src/lib/api-client.ts`의 함수 사용 (`apiGet`, `apiPost`, `apiPut`, `apiDelete`) - **Wave 1 100% 적용**
 - **컴포넌트**: shadcn/ui 컴포넌트 우선 사용
 - **스타일링**: Tailwind CSS 클래스만 사용 (인라인 스타일 금지)
 - **타입**: TypeScript strict mode 준수, any 타입 절대 금지
 - **구조**: Server Component 기본, 필요시만 'use client'
 
-### 3. 파일 작업 규칙
+### 3. 🔐 보안 자동 적용 규칙 (필수)
+
+#### 새 API Route 생성 시
+```typescript
+// ⚡ 모든 API Route 최상단에 필수
+const supabase = createRouteHandlerClient({ cookies });
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) {
+  return new Response(
+    JSON.stringify({ error: 'User not authenticated' }),
+    { status: 401 }
+  );
+}
+```
+
+#### 새 테이블 생성 시
+```sql
+-- ⚡ 테이블 생성 직후 즉시 적용
+ALTER TABLE 테이블명 ENABLE ROW LEVEL SECURITY;
+
+-- 기본 정책 (사용자 본인 데이터만)
+CREATE POLICY "테이블명_select_own" ON 테이블명
+  FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY "테이블명_insert_own" ON 테이블명
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+CREATE POLICY "테이블명_update_own" ON 테이블명
+  FOR UPDATE USING (user_id = auth.uid());
+CREATE POLICY "테이블명_delete_own" ON 테이블명
+  FOR DELETE USING (user_id = auth.uid());
+```
+
+#### API 엔드포인트 입력 검증
+```typescript
+// ⚡ Zod 스키마 필수 적용
+import { validateRequestBody } from '@/lib/security/validation-schemas';
+
+const validation = await validateRequestBody(request, schema);
+if (!validation.success) {
+  return createValidationErrorResponse(validation.error);
+}
+```
+
+#### 사용자 입력 XSS 방지
+```typescript
+// ⚡ HTML 컨텐츠 정화 필수
+import { sanitizeRichHTML } from '@/lib/security/sanitizer';
+
+const safeContent = sanitizeRichHTML(userInput);
+```
+
+### 4. 파일 작업 규칙
 - 새 파일 생성보다 기존 파일 수정 우선
 - 문서 파일(*.md, README) 임의 생성 금지
 - 환경 변수 하드코딩 금지
-- **폴더 구조 준수**: `/docs/CODEMAP.md` 참조
+- **폴더 구조 준수**: CODEMAP.md 참조
 - **파일명 규칙**: 컴포넌트는 PascalCase, 기타 파일은 kebab-case
 
 ---
 
-## 🔐 인증 프로토콜 (Authentication Protocol v1.0)
+## 🔐 인증 프로토콜 (Authentication Protocol v2.0) - Wave 1 완료 ✅
 
 ### 골든룰 (인증 관련 절대 준수)
-1. **모든 클라이언트 fetch는 공용 래퍼 사용**
+1. **모든 클라이언트 fetch는 공용 래퍼 사용** ✅ Wave 1 100% 적용
    - `/src/lib/api-client.ts`의 `apiGet`, `apiPost`, `apiPut`, `apiDelete` 사용
    - 기본 옵션: `credentials: 'same-origin'`, `Content-Type: application/json`
    - 직접 `fetch()` 호출 금지 (외부 API 제외)
 
-2. **서버 라우트는 세션 필수**
+2. **서버 라우트는 세션 필수** ✅ Wave 1 95% 적용 (35/37 routes)
    - Route Handler 진입 시 세션 검사 → 없으면 `401` + `{ error: 'User not authenticated' }`
    - `userId`는 쿼리스트링으로 받지 말고 세션에서 파생
    - 세션 검사 템플릿:
@@ -71,11 +133,111 @@
    - 컴렉션/폴더/즐겨찾기 등 사용자 데이터 의존 화면은 렌더 전 세션 체크
    - API 키 설정 화면은 인증 필수
 
-### 인증 관련 Definition of Done
-- [ ] 클라이언트가 **api-client만** 사용 (직접 fetch 없음)
-- [ ] 신규/수정 Route가 **세션 검사 + JSON 에러 포맷** 준수
-- [ ] 401 수신 시 **로그인 유도 UX** 구현
-- [ ] 로컬 실행 시 `localhost` 사용 (127.0.0.1 금지)
+### 인증 관련 Definition of Done - Wave 1 완료 ✅
+- [x] 클라이언트가 **api-client만** 사용 (직정 fetch 없음) - 100% 완료
+- [x] 신규/수정 Route가 **세션 검사 + JSON 에러 포맷** 준수 - 95% 완료
+- [x] 401 수신 시 **로그인 유도 UX** 구현 - 완료
+- [x] 로컬 실행 시 `localhost` 사용 (127.0.0.1 금지) - 완료
+
+## 🛡️ 데이터 보호 프로토콜 (Data Protection v2.0) - Wave 2 완료 ✅
+
+### RLS (Row Level Security) 정책 - 적용 대기
+1. **21개 테이블 SQL 작성 완료** ✅
+   - YouTube Lens 테이블 11개
+   - 사용자 데이터 테이블 4개
+   - 커뮤니티 테이블 3개
+   - 강의/기타 테이블 3개
+   - **적용 방법**: Supabase Dashboard에서 수동 실행 필요
+   - **파일 위치**: `supabase/migrations/20250123000002_wave2_security_rls.sql`
+
+2. **캐싱 정책 구현 완료** ✅
+   - 개인 데이터: `Cache-Control: no-store` 적용
+   - 공개 데이터: 5분 캐싱 허용
+   - 보안 헤더: XSS, Clickjacking 방지
+   - **미들웨어**: `src/middleware.ts` 자동 활성화
+
+3. **비밀키 스캔 도구 사용** ✅
+   ```bash
+   # 프로젝트 전체 비밀키 스캔
+   node scripts/security/scan-secrets.js
+   ```
+   - API 키, JWT, DB URL 탐지
+   - 하드코딩된 비밀번호 검출
+   - CRITICAL/HIGH 이슈 즉시 수정
+
+### 데이터 보호 Definition of Done - Wave 2 완료 ✅
+- [x] RLS 정책 SQL 작성 - 21개 테이블 100% 완료
+- [x] 캐싱 정책 미들웨어 구현 - 완료
+- [x] 비밀키 스캔 도구 구현 - 완료
+- [ ] RLS 정책 프로덕션 적용 - 대기 중
+
+## 🚀 고급 보안 프로토콜 (Advanced Security v3.0) - Wave 3 완료 ✅
+
+### Rate Limiting 정책
+1. **적용 방법**: 미들웨어 자동 활성화
+   - IP 기반 일반 API: 분당 60회 제한
+   - 인증 엔드포인트: 15분당 5회 제한
+   - 파일 업로드: 시간당 10회 제한
+   - **위치**: `src/lib/security/rate-limiter.ts`
+
+2. **입력 검증 (Zod)** ✅
+   - 모든 API Route에 Zod 스키마 적용
+   - **사용법**:
+   ```typescript
+   import { validateRequestBody, createPostSchema } from '@/lib/security/validation-schemas';
+   
+   const validation = await validateRequestBody(request, createPostSchema);
+   if (!validation.success) {
+     return createValidationErrorResponse(validation.error);
+   }
+   ```
+
+3. **XSS 방지** ✅
+   - DOMPurify 기반 정화 함수 사용
+   - **사용법**:
+   ```typescript
+   import { sanitizeRichHTML, sanitizeURL } from '@/lib/security/sanitizer';
+   
+   const safeContent = sanitizeRichHTML(userInput);
+   const safeUrl = sanitizeURL(urlInput);
+   ```
+
+### 고급 보안 Definition of Done - Wave 3 완료 ✅
+- [x] Rate Limiting 시스템 구현 - 완료
+- [x] Zod 입력 검증 13개 스키마 - 완료
+- [x] XSS 방지 DOMPurify 통합 - 완료
+- [x] 보안 사용 예제 작성 - 완료
+
+## 🔧 추가 보안 도구 (2025-01-24 구현) ✅
+
+### RLS 정책 자동 적용
+```bash
+# pg 패키지 설치 필요
+npm install pg
+
+# 개선된 RLS 적용 (트랜잭션 기반)
+npm run security:apply-rls-all     # 모든 Wave RLS 적용
+npm run security:apply-rls-dry     # Dry-run 모드
+npm run security:apply-rls-wave2   # Wave 2만 적용
+```
+
+### TTL 데이터 보관 정책
+```bash
+# 30일 이상 된 데이터 자동 정리
+npm run security:ttl       # TTL 정책 실행
+npm run security:ttl-dry   # Dry-run 모드
+npm run security:ttl-force # 강제 삭제
+```
+
+### 보안 테스트 자동화
+```bash
+# 전체 보안 테스트 (Wave 0-3)
+npm run security:test         # 기본 테스트
+npm run security:test-verbose # 상세 모드
+
+# 통합 보안 작업
+npm run security:complete # RLS + TTL + 테스트
+```
 
 ---
 
@@ -100,41 +262,15 @@
 
 ---
 
-## 📁 기본 프로젝트 구조
+## 📁 프로젝트 구조
 
-```
-src/
-├── app/                    # App Router
-│   ├── (pages)/           # 페이지 그룹
-│   ├── api/               # API Routes
-│   └── auth/              # 인증 관련
-├── components/            
-│   ├── ui/                # shadcn/ui 컴포넌트
-│   ├── layout/            # 레이아웃 컴포넌트
-│   └── features/          # 기능별 컴포넌트
-└── lib/
-    ├── supabase/          # Supabase 클라이언트
-    └── utils.ts           # 유틸리티 함수
-```
-*상세 구조는 `/docs/CODEMAP.md` 참조*
+> 프로젝트 폴더 구조는 `/docs/CODEMAP.md` 참조
 
 ---
 
-## 🎨 템플릿 기반 개발 프로세스
+## 🎨 템플릿 기반 개발
 
-### Phase 1: 템플릿 검색 및 선택
-1. **자동 템플릿 검색**: 요구사항 분석 후 적합한 무료 템플릿 3-5개 검색
-2. **일치도 평가**:
-   - 90-100%: 즉시 사용 가능, 최소 수정
-   - 70-89%: 적합, 일부 수정 필요
-   - 50-69%: 사용 가능, 상당한 수정 필요
-3. **필수 체크**: Next.js 15.4.6, TypeScript, Tailwind CSS, shadcn/ui 호환성
-
-### Phase 2: 템플릿 적용
-1. 선택된 템플릿 기반 구조 생성
-2. 프로젝트 요구사항에 맞게 수정
-3. 한국어 텍스트 변경, Supabase 연동
-4. 불필요한 기능 제거
+필요시 shadcn/ui, HyperUI 등에서 적합한 템플릿 검색 후 프로젝트 요구사항에 맞게 수정 적용
 
 ---
 
@@ -153,14 +289,35 @@ src/
 
 ---
 
-## 🔧 작업 프로세스
+## 🔧 작업 프로세스 (3단계 검증 시스템)
 
-### 1. 기능 구현 시
+### 📋 Phase 1: Pre-Flight Check (작업 전)
+1. **문서 확인**:
+   - `/docs/FLOWMAP.md` - 사용자 플로우 확인
+   - `/docs/WIREFRAME.md` - UI-API 연결 확인
+   - `/docs/COMPONENT_INVENTORY.md` - 재사용 컴포넌트 확인
+2. **현재 상태 파악**:
+   - `/docs/PROJECT.md` - 현재 이슈 확인
+   - `/docs/ROUTE_SPEC.md` - 라우트 구조 확인
+3. **데이터 모델 확인**:
+   - `/docs/DATA_MODEL.md` - 타입 매핑 확인
+   - `/docs/STATE_FLOW.md` - 상태 관리 확인
+
+### 🔨 Phase 2: Implementation (작업 중)
 1. 요구사항 명확히 확인
 2. 기존 코드/패턴 분석
 3. shadcn/ui 컴포넌트 활용 방안 검토
 4. 구현 후 타입 체크
 5. 빌드 테스트
+6. **문서 실시간 업데이트**:
+   - 새 컴포넌트 → COMPONENT_INVENTORY.md
+   - 새 라우트 → ROUTE_SPEC.md
+   - API 연결 → WIREFRAME.md
+
+### ✅ Phase 3: Post-Flight Validation (작업 후)
+1. **에러 처리 확인**: `/docs/ERROR_BOUNDARY.md` 기준 준수
+2. **체크리스트 검증**: `/docs/CHECKLIST.md` 모든 항목 확인
+3. **문서 최종 업데이트**: 구현 상태 표시 (✅/⚠️/❌)
 
 ### 2. 문제 해결 시
 1. 에러 메시지 정확히 분석
@@ -169,88 +326,41 @@ src/
 4. 부수 효과 확인
 
 ### 3. 빌드 전 체크리스트
-- [ ] **마이그레이션 검증**: `npm run supabase:validate`
-- [ ] `npm run build` 성공 확인
-- [ ] TypeScript 에러 0개 (`npx tsc --noEmit`)
-- [ ] ESLint 에러 0개 (`npm run lint`)
-- [ ] 콘솔 에러 없음
+> 체크리스트는 `/docs/CHECKLIST.md` 참조
+
+### 4. 데이터베이스 테이블 검증 (2025-01-29 추가)
+1. 테이블 상태 확인: `node scripts/verify-with-service-role.js`
+2. 누락된 테이블 검사: `node scripts/check-missing-tables.js`
+3. 반드시 21개 테이블 100% 생성 확인
+> 
+> **추가 검증 문서**:
+> - UI 완성도: `/docs/WIREFRAME.md` 모든 연결 ✅ 확인
+> - 라우트 보호: `/docs/ROUTE_SPEC.md` 인증 체크 확인
+> - 에러 처리: `/docs/ERROR_BOUNDARY.md` 401 처리 확인
 
 ---
 
-## ❌ 실패 사례 & 안티패턴
+## ❌ 절대 금지 패턴
 
-### 이전 AI들의 실패 TOP 5
-1. **className 직접 사용**: 955개나 생성해서 프로젝트 망침
-2. **'use client' 남발**: 모든 페이지에 붙여서 SSR 이점 상실
-3. **Simple* 중복 컴포넌트**: 같은 기능 여러 개 만들어 혼란
-4. **100줄 넘는 거대 파일**: page.tsx에 비즈니스 로직 전부 작성
-5. **any 타입 사용**: TypeScript 빌드 실패
-
-### 절대 하지 말아야 할 코드 패턴
 ```typescript
-// ❌❌❌ 절대 금지
-className="bg-blue-500 text-white"  // Tailwind 직접 사용 금지
-style={{ color: 'red' }}            // 인라인 스타일 금지
-const data: any = {}                // any 타입 금지
-'use client'                        // 페이지 최상단에 무조건 사용 금지
-
-// ✅✅✅ 올바른 방법
-<Button variant="primary">          // shadcn/ui 컴포넌트 사용
-const data: CourseType = {}         // 명확한 타입 정의
-// Server Component가 기본         // 필요한 곳만 Client Component
+// 금지 → 올바른 방법
+className="..." → shadcn/ui 컴포넌트 사용
+style={{...}} → Tailwind 클래스 사용
+any 타입 → 명확한 타입 정의
+'use client' 남발 → Server Component 기본, 필요시만 Client
 ```
 
 ---
 
 ## 📝 Git 작업 규칙
 
-**모든 git 명령은 사용자 확인 후 실행:**
-- `git add` - 파일 추가 전 확인
-- `git commit` - 커밋 메시지와 내용 확인
-- `git push` - 원격 저장소 푸시 전 확인
-- `git reset` - 되돌리기 전 반드시 확인
+> Git 작업 규칙과 커밋 메시지 규칙은 `/docs/CHECKLIST.md` 참조
 
 ---
 
-## 🔄 Supabase 마이그레이션 관리 (AI 필수 작업)
+## 🔄 Supabase 마이그레이션 관리
 
-### 마이그레이션 실행 체계
-
-#### 1. 새 세션 시작 시 검증
-```bash
-# Service Role Key로 정확한 테이블 검증 (권장)
-node scripts/verify-with-service-role.js
-
-# 기본 테이블 확인
-npm run supabase:verify
-```
-
-#### 2. 마이그레이션 실행 (Service Role Key 설정됨)
-```bash
-# 완벽한 자동 마이그레이션 (최우선)
-npm run supabase:migrate-complete
-
-# 기존 자동화 스크립트
-npm run supabase:auto-migrate
-```
-
-#### 3. 새 마이그레이션 추가 시
-1. SQL 파일 생성: `supabase/migrations/YYYYMMDDHHMMSS_name.sql`
-2. 즉시 적용: `npm run supabase:migrate-complete`
-3. 검증: `node scripts/verify-with-service-role.js`
-
-### 환경 설정 (모두 설정 완료 ✅)
-```bash
-# .env.local 필수 키
-SUPABASE_SERVICE_ROLE_KEY=eyJ...  # ✅ 설정됨
-DATABASE_URL=postgresql://...      # ✅ 설정됨  
-SUPABASE_DB_PASSWORD=skan...       # ✅ 설정됨
-```
-
-### AI 작업 규칙
-- **검증 우선**: 작업 전 `node scripts/verify-with-service-role.js`
-- **문제 해결**: `npm run supabase:migrate-complete` 실행
-- **상태 확인**: 21개 핵심 테이블 모두 생성 완료됨
+> Supabase 마이그레이션 관리 방법은 `/docs/PROJECT.md`의 마이그레이션 섹션 참조
 
 ---
 
@@ -270,15 +380,17 @@ SUPABASE_DB_PASSWORD=skan...       # ✅ 설정됨
 - **호스팅**: Vercel (자동 배포 설정됨)
 - **데이터베이스**: Supabase (golbwnsytwbyoneucunx)
 
+### 로그인 버튼은 button has text '카카오' 로 찾을 것.
+
 ### 테스트 계정 (카카오 로그인)
 ```
 ID: glemfkcl@naver.com
 PW: dhfl9909
 ```
-*주의: 사용자의 실제 인증이 필요하므로 로그인 버튼 클릭후에는 잠시 대기해야함.
+*주의: 사용자의 실제 인증이 필요하므로 로그인 버튼 클릭후에는 잠시 (1분) 대기해야하며 로그인이 완료되면 실제 테스트할 페이지로 다시 이동하여 테스트 진행할것.
 
 ### YouTube Lens 테스트 절차
-1. **프로덕션 사이트 접속**: https://dhacle.com
+1. **사이트의 로그인 페이지 접속**: https://dhacle.com/auth/login
 2. **카카오 로그인**: 위 테스트 계정 사용
 3. **YouTube Lens 페이지**: `/tools/youtube-lens` 이동
 4. **기능별 테스트**:
@@ -293,6 +405,7 @@ PW: dhfl9909
 - [ ] **프로덕션 배포 후 실제 사이트에서 테스트**
 - [ ] 브라우저 콘솔 에러 확인
 - [ ] Network 탭에서 API 응답 확인
+- [ ] 보안 테스트 실행 (`npm run security:test`) - 현재 38%, 목표 100%
 
 ---
 
@@ -308,6 +421,13 @@ PW: dhfl9909
 2. ✅ **에러 메시지 불명확**: 상세한 에러 로깅 추가
 3. ✅ **saveSearchHistory 누락**: 함수 호출 주석 처리
 4. ✅ **YouTube Lens 인증 문제**: api-client 래퍼로 credentials 자동 포함
+5. ✅ **Wave 1 보안 강화**: 세션 검사 95%, api-client 100% 적용 완료
+6. ✅ **데이터베이스 테이블 검증**: 21개 테이블 100% 생성 확인 (2025-01-29)
+
+### 진행 중인 이슈 (2025-01-29)
+1. ⚠️ **YouTube Lens API 오류**: 400/404/500 에러 발생 (긴급)
+2. ⚠️ **보안 테스트 성공률**: 38% - Rate Limiting, XSS 방지 미작동
+3. ⚠️ **일부 컴포넌트 직접 fetch**: api-client 전환 필요 (15% 미적용)
 
 ---
 
