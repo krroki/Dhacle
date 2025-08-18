@@ -65,7 +65,7 @@ export default function CommunityBoardPage() {
       setSubmitting(true);
       setError('');
       
-      await apiPost<any>('/api/community/posts', {
+      await apiPost<{ id: string; title: string; content: string }>('/api/community/posts', {
         category: 'board',
         title: newPost.title,
         content: newPost.content

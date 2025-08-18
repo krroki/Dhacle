@@ -161,7 +161,7 @@ export async function validateRequestBody<T>(
     const result = schema.safeParse(body);
     
     if (!result.success) {
-      const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+      const errors = result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
       return {
         success: false,
         error: errors.join(', '),
@@ -187,7 +187,7 @@ export function validateQueryParams<T>(
   params: URLSearchParams,
   schema: z.ZodSchema<T>
 ): { success: true; data: T } | { success: false; error: string } {
-  const data: Record<string, any> = {};
+  const data: Record<string, unknown> = {};
   
   params.forEach((value, key) => {
     // 숫자로 변환 가능한 경우 변환
@@ -203,7 +203,7 @@ export function validateQueryParams<T>(
   const result = schema.safeParse(data);
   
   if (!result.success) {
-    const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+    const errors = result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
     return {
       success: false,
       error: errors.join(', '),

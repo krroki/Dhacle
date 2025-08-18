@@ -3,7 +3,7 @@
 *목적: 현재 프로젝트의 파일/폴더 구조와 기술 스택*
 *업데이트: 새 파일/폴더 추가 또는 구조 변경 시*
 
-> **12개 핵심 문서 체계**:
+> **13개 핵심 문서 체계**:
 > - 🤖 AI 작업 지침: `/CLAUDE.md`
 > - 📊 프로젝트 현황: `/docs/PROJECT.md`
 > - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md` (이 문서)
@@ -42,27 +42,26 @@ npm run security:scan-secrets  # 비밀키 스캔
 npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 ```
 
-### 🔥 자주 수정하는 파일 Top 10 (구현 상태는 `/docs/WIREFRAME.md` 참조)
-1. `src/lib/api-client.ts` - 클라이언트 API 래퍼 ⭐ 필수
+### 🔥 자주 수정하는 파일 Top 10
+1. `src/lib/api-client.ts` - 클라이언트 API 래퍼
 2. `src/app/page.tsx` - 메인 페이지
 3. `src/app/auth/callback/route.ts` - 인증 콜백
 4. `src/lib/api-keys.ts` - API 키 암호화/복호화 (2025-01-22 수정)
 5. `src/components/layout/Header.tsx` - 헤더 컴포넌트
 6. `src/app/(pages)/courses/page.tsx` - 강의 목록
-7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens ⚠️ API 오류
+7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
 8. `src/app/(pages)/mypage/page.tsx` - 마이페이지
 9. `src/lib/types/database.types.ts` - DB 타입 정의
-10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API ⚠️ 오류 발생
+10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
 
 ---
 
 ## 🔐 공용 유틸/핵심 위치 (Authentication & API)
 
-### 클라이언트 API 래퍼 ⭐ 필수 (Wave 1 100% 적용 ✅)
+### 클라이언트 API 래퍼
 - **위치**: `src/lib/api-client.ts`
 - **함수**: `apiGet()`, `apiPost()`, `apiPut()`, `apiDelete()`, `apiPatch()`
 - **특징**: 자동 `credentials: 'same-origin'` 포함, 401 에러 처리
-- **적용률**: 14/14 클라이언트 파일 100% 전환 완료 (Wave 1)
 - **사용법**:
 ```typescript
 import { apiGet, apiPost, ApiError } from '@/lib/api-client';
@@ -76,8 +75,8 @@ try {
 }
 ```
 
-### 서버 Route 템플릿 패턴 (Wave 1 95% 적용 ✅)
-- **세션 검사 필수** - 35/37 API routes 적용 완료:
+### 서버 Route 템플릿 패턴
+- **세션 검사 필수**:
 ```typescript
 // app/api/**/route.ts
 import { cookies } from 'next/headers';

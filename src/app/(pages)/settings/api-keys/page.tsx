@@ -64,7 +64,7 @@ export default function ApiKeysPage() {
   const fetchCurrentKey = async () => {
     try {
       setFetchingKey(true);
-      const data = await apiGet<{ success: boolean, data?: any }>('/api/user/api-keys?service=youtube');
+      const data = await apiGet<{ success: boolean, data?: ApiKeyData }>('/api/user/api-keys?service=youtube');
       
       if (data.success && data.data) {
         setCurrentKey(data.data);

@@ -14,7 +14,14 @@ export async function getRevenueProofs(params?: {
   filter?: string;
   page?: number;
   limit?: number;
-}) {
+}): Promise<{
+  data: RevenueProof[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+  };
+}> {
   const searchParams = new URLSearchParams();
   
   if (params?.platform) searchParams.append('platform', params.platform);
@@ -23,7 +30,14 @@ export async function getRevenueProofs(params?: {
   if (params?.limit) searchParams.append('limit', params.limit.toString());
   
   try {
-    return await apiGet(`${API_BASE}?${searchParams.toString()}`);
+    return await apiGet<{
+      data: RevenueProof[];
+      pagination: {
+        page: number;
+        totalPages: number;
+        total: number;
+      };
+    }>(`${API_BASE}?${searchParams.toString()}`);
   } catch (error) {
     console.error('Revenue proofs fetch error:', error);
     throw error;
@@ -80,8 +94,30 @@ export async function toggleLike(proofId: string) {
 }
 
 // 댓글 작성
-export async function createComment(proofId: string, content: string) {
-  return await apiPost(`${API_BASE}/${proofId}/comment`, { content });
+export async function createComment(proofId: string, content: string): Promise<{
+  id: string;
+  proof_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  user?: {
+    id: string;
+    username: string;
+    avatar_url?: string;
+  };
+}> {
+  return await apiPost<{
+    id: string;
+    proof_id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
+    user?: {
+      id: string;
+      username: string;
+      avatar_url?: string;
+    };
+  }>(`${API_BASE}/${proofId}/comment`, { content });
 }
 
 // 신고하기
@@ -94,8 +130,26 @@ export async function reportProof(proofId: string, data: {
 }
 
 // 랭킹 조회
-export async function getRankings(period: 'daily' | 'weekly' | 'monthly' = 'monthly') {
-  return await apiGet(`${API_BASE}/ranking?period=${period}`);
+export async function getRankings(period: 'daily' | 'weekly' | 'monthly' = 'monthly'): Promise<{
+  rankings: Array<{
+    id: string;
+    user_id: string;
+    username: string;
+    avatar_url?: string;
+    total_amount: number;
+    rank: number;
+  }>;
+}> {
+  return await apiGet<{
+    rankings: Array<{
+      id: string;
+      user_id: string;
+      username: string;
+      avatar_url?: string;
+      total_amount: number;
+      rank: number;
+    }>;
+  }>(`${API_BASE}/ranking?period=${period}`);
 }
 
 // 내 인증 목록

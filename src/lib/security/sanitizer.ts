@@ -156,7 +156,7 @@ export function sanitizeFilename(filename: string): string {
  * JSON 데이터 sanitization
  * API 응답이나 저장할 JSON 데이터 정화
  */
-export function sanitizeJSON(obj: any): any {
+export function sanitizeJSON(obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return obj;
   }
@@ -170,12 +170,12 @@ export function sanitizeJSON(obj: any): any {
   }
 
   if (typeof obj === 'object') {
-    const cleaned: any = {};
+    const cleaned: Record<string, unknown> = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         // 키도 sanitize
         const cleanKey = sanitizePlainText(key);
-        cleaned[cleanKey] = sanitizeJSON(obj[key]);
+        cleaned[cleanKey] = sanitizeJSON((obj as Record<string, unknown>)[key]);
       }
     }
     return cleaned;
@@ -227,7 +227,7 @@ export function sanitizeMarkdown(markdown: string): string {
 /**
  * 객체의 모든 문자열 값을 sanitize
  */
-export function sanitizeObject<T extends Record<string, any>>(
+export function sanitizeObject<T extends Record<string, unknown>>(
   obj: T,
   sanitizer: (str: string) => string = sanitizeBasicHTML
 ): T {
@@ -238,11 +238,11 @@ export function sanitizeObject<T extends Record<string, any>>(
       const value = obj[key];
       
       if (typeof value === 'string') {
-        cleaned[key] = sanitizer(value) as any;
+        cleaned[key] = sanitizer(value) as T[Extract<keyof T, string>];
       } else if (typeof value === 'object' && value !== null) {
-        cleaned[key] = sanitizeObject(value, sanitizer);
+        cleaned[key] = sanitizeObject(value as Record<string, unknown>, sanitizer) as T[Extract<keyof T, string>];
       } else {
-        cleaned[key] = value;
+        cleaned[key] = value as T[Extract<keyof T, string>];
       }
     }
   }

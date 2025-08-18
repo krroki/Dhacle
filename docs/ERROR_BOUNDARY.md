@@ -363,6 +363,82 @@ if (process.env.NODE_ENV === 'production') {
 
 ---
 
+## 🔧 TypeScript 빌드 에러 처리 (2025-01-30 추가)
+
+### @typescript-eslint/no-explicit-any 에러
+**해결 전략:**
+1. **구체적 타입 정의**
+   ```typescript
+   // ❌ 금지
+   apiPost<any>('/api/endpoint')
+   
+   // ✅ 권장
+   interface ResponseType {
+     id: string;
+     data: DataType;
+   }
+   apiPost<ResponseType>('/api/endpoint')
+   ```
+
+2. **타입 추론 활용 (타입 제거)**
+   ```typescript
+   // 타입을 제거하고 TypeScript가 추론하도록
+   const result = await apiPost('/api/endpoint') // any 제거
+   ```
+
+3. **unknown + 타입 가드**
+   ```typescript
+   // ❌ 금지
+   const data: Record<string, any> = {}
+   
+   // ✅ 권장
+   const data: Record<string, unknown> = {}
+   if (typeof data.field === 'string') {
+     // 타입 가드 후 안전한 접근
+   }
+   ```
+
+4. **기존 타입 import 재사용**
+   ```typescript
+   import { ExistingType } from '@/types'
+   apiGet<{ success: boolean, data?: ExistingType }>()
+   ```
+
+### ZodError 처리
+```typescript
+// ❌ 잘못된 접근
+result.error.errors // ZodError.errors는 존재하지 않음
+
+// ✅ 올바른 접근  
+result.error.issues // ZodError.issues 사용
+```
+
+### 함수 반환 타입 누락
+```typescript
+// ❌ 반환 타입 없음
+export async function getData() {
+  // ...
+}
+
+// ✅ 명시적 반환 타입
+export async function getData(): Promise<DataType[]> {
+  // ...
+}
+```
+
+### unknown 타입 안전 처리
+```typescript
+// Extract 유틸리티 타입 활용
+cleaned[key] = value as T[Extract<keyof T, string>];
+
+// 타입 체크 후 접근
+if (obj && typeof obj === 'object' && 'property' in obj) {
+  // obj.property 안전하게 접근
+}
+```
+
+---
+
 ## 🚨 긴급 수정 필요 (Top 5)
 
 1. **YouTube Lens 401 에러** → 로그인 리다이렉트 ❌

@@ -65,17 +65,21 @@ created_at: timestamptz
 updated_at: timestamptz
 ```
 
-### API 매핑
+### API 매핑 (구현 상태)
 ```typescript
 // GET /api/user/profile
 const profile = {
-  userId: data.user_id,          // ✅
-  nickname: data.nickname,        // ✅
-  bio: data.bio,                  // ✅
-  socialLinks: data.social_links, // ❌ 파싱 필요
-  isVerified: data.is_verified    // ✅
+  userId: data.user_id,          // ✅ 구현됨
+  nickname: data.nickname,        // ✅ 구현됨
+  bio: data.bio,                  // ✅ 구현됨
+  socialLinks: data.social_links, // ⚠️ 파싱 함수 필요
+  isVerified: data.is_verified    // ✅ 구현됨
 }
 ```
+
+**변환 함수 상태**: 
+- ✅ snake_case → camelCase 변환 구현
+- ⚠️ socialLinks JSONB 파싱 미구현
 
 ---
 
@@ -115,23 +119,27 @@ tags: text[]
 created_at: timestamptz
 ```
 
-### API 매핑
+### API 매핑 (구현 상태)
 ```typescript
 // GET /api/youtube/popular
 const mapVideo = (data): Video => ({
-  id: data.video_id,              // ❌ 키 이름 다름
-  title: data.title,               // ✅
-  description: data.description,    // ✅
-  channelTitle: data.channel_name,  // ❌ 키 이름 다름
-  channelId: data.channel_id,       // ✅
-  thumbnailUrl: data.thumbnail_url,  // ✅
-  viewCount: Number(data.view_count), // ⚠️ 타입 변환
-  likeCount: Number(data.like_count), // ⚠️ 타입 변환
-  publishedAt: new Date(data.published_at), // ⚠️ 타입 변환
-  duration: data.duration,          // ✅
-  tags: data.tags || []            // ⚠️ null 처리
+  id: data.video_id,              // ⚠️ 키 이름 변환 필요
+  title: data.title,               // ✅ 구현됨
+  description: data.description,    // ✅ 구현됨
+  channelTitle: data.channel_name,  // ⚠️ 키 이름 변환 필요
+  channelId: data.channel_id,       // ✅ 구현됨
+  thumbnailUrl: data.thumbnail_url,  // ✅ 구현됨
+  viewCount: Number(data.view_count), // ⚠️ 타입 변환 함수 필요
+  likeCount: Number(data.like_count), // ⚠️ 타입 변환 함수 필요
+  publishedAt: new Date(data.published_at), // ⚠️ 타입 변환 함수 필요
+  duration: data.duration,          // ✅ 구현됨
+  tags: data.tags || []            // ✅ null 처리 구현
 })
 ```
+
+**변환 함수 상태**: 
+- ✅ snake_case → camelCase 변환 부분 구현
+- ⚠️ 타입 변환 함수 필요 (Number, Date)
 
 ---
 
@@ -173,24 +181,28 @@ is_published: boolean
 created_at: timestamptz
 ```
 
-### API 매핑
+### API 매핑 (구현 상태)
 ```typescript
 // GET /api/courses
 const mapCourse = (data): Course => ({
-  id: data.id,                      // ✅
-  title: data.title,                // ✅
-  description: data.description,     // ✅
-  instructor: data.instructor_name,  // ❌ JOIN 필요
-  price: data.price,                // ✅
-  thumbnailUrl: data.thumbnail_url,  // ✅
-  duration: data.duration_minutes,   // ❌ 키 이름 다름
-  level: data.level,                // ✅
-  category: data.category,          // ✅
-  enrollmentCount: data.enrollment_count, // ✅
-  rating: data.rating,              // ✅
-  isPublished: data.is_published    // ✅
+  id: data.id,                      // ✅ 구현됨
+  title: data.title,                // ✅ 구현됨
+  description: data.description,     // ✅ 구현됨
+  instructor: data.instructor_name,  // ⚠️ JOIN 처리 필요
+  price: data.price,                // ✅ 구현됨
+  thumbnailUrl: data.thumbnail_url,  // ✅ 구현됨
+  duration: data.duration_minutes,   // ⚠️ 키 이름 변환 필요
+  level: data.level,                // ✅ 구현됨
+  category: data.category,          // ✅ 구현됨
+  enrollmentCount: data.enrollment_count, // ✅ 구현됨
+  rating: data.rating,              // ✅ 구현됨
+  isPublished: data.is_published    // ✅ 구현됨
 })
 ```
+
+**변환 함수 상태**: 
+- ✅ 대부분 구현됨
+- ⚠️ instructor JOIN 처리 미구현
 
 ---
 
@@ -232,17 +244,17 @@ is_verified: boolean
 created_at: timestamptz
 ```
 
-### API 매핑
+### API 매핑 (구현 상태)
 ```typescript
 // GET /api/revenue-proof
 const mapRevenueProof = (data): RevenueProof => ({
-  id: data.id,                      // ✅
-  userId: data.user_id,             // ✅
-  userName: data.user_name,         // ❌ JOIN 필요
-  title: data.title,                // ✅
-  content: data.content,            // ✅
-  amount: Number(data.amount),      // ⚠️ bigint → number
-  currency: data.currency,          // ✅
+  id: data.id,                      // ✅ 구현됨
+  userId: data.user_id,             // ✅ 구현됨
+  userName: data.user_name,         // ⚠️ JOIN 처리 필요
+  title: data.title,                // ✅ 구현됨
+  content: data.content,            // ✅ 구현됨
+  amount: Number(data.amount),      // ⚠️ bigint → number 변환 필요
+  currency: data.currency,          // ✅ 구현됨
   proofImageUrl: data.proof_image_url, // ✅
   category: data.category,          // ✅
   likeCount: data.like_count,       // ✅
@@ -375,6 +387,69 @@ const parseDate = (date: string | Date): Date => {
 ```typescript
 const withDefaults = <T>(data: Partial<T>, defaults: T): T => {
   return { ...defaults, ...data }
+}
+```
+
+---
+
+## 📌 API 응답 타입 정의 패턴 (2025-01-30 추가)
+
+### API 함수 반환 타입 명시
+```typescript
+// API 함수는 반드시 반환 타입 명시
+export async function getApiData(): Promise<{
+  success: boolean;
+  data?: SpecificDataType;
+  error?: string;
+}> {
+  // ...
+}
+
+// 배열 반환 시
+export async function getList(): Promise<DataType[]> {
+  // ...
+}
+
+// 단일 객체 반환 시
+export async function getItem(id: string): Promise<DataType | null> {
+  // ...
+}
+```
+
+### Record 타입 안전 사용
+```typescript
+// ❌ 금지 - any 사용
+type UnsafeRecord = Record<string, any>;
+
+// ✅ 권장 - unknown 사용 후 타입 가드
+type SafeRecord = Record<string, unknown>;
+
+// 타입 가드로 안전한 접근
+function processRecord(data: SafeRecord) {
+  if (typeof data.field === 'string') {
+    // data.field는 이제 string 타입
+    console.log(data.field.toUpperCase());
+  }
+}
+```
+
+### 제네릭 타입 활용
+```typescript
+// API 응답 제네릭 타입
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+// 사용 예시
+async function fetchUser(): Promise<ApiResponse<User>> {
+  // ...
+}
+
+async function fetchPosts(): Promise<ApiResponse<Post[]>> {
+  // ...
 }
 ```
 

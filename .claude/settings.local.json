@@ -22,7 +22,10 @@
       "mcp__playwright-stealth__playwright_fill",
       "mcp__playwright-stealth__playwright_click",
       "mcp__playwright-stealth__playwright_get_visible_text",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

@@ -148,9 +148,9 @@ export async function GET_Search(request: NextRequest) {
  * 모든 보안 기능을 자동으로 적용
  */
 export function secureRouteHandler(
-  handler: (request: NextRequest, context?: any) => Promise<Response>
+  handler: (request: NextRequest, context?: { params?: Record<string, string | string[]> }) => Promise<Response>
 ) {
-  return async (request: NextRequest, context?: any) => {
+  return async (request: NextRequest, context?: { params?: Record<string, string | string[]> }) => {
     try {
       // Rate Limiting은 미들웨어에서 처리됨
       

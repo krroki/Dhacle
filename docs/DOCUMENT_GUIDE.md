@@ -7,7 +7,7 @@
 
 ## 🎯 문서 체계 개요
 
-프로젝트 문서는 **12개의 핵심 문서**로 구성되며, 각각 명확한 역할과 목적을 가집니다.
+프로젝트 문서는 **13개의 핵심 문서**로 구성되며, 각각 명확한 역할과 목적을 가집니다.
 
 * 문서 업데이트 시 반드시 각 문서의 용도와 역할에 맞는 내용만 업데이트 해야 합니다.
 
@@ -32,9 +32,25 @@
 
 ---
 
+
 ## 📋 각 문서의 역할과 용도
 
-### 1. CODEMAP.md - "프로젝트 지도" 🗺️
+### 1. CLAUDE.md - "AI 작업 지침서" 🤖
+**목적**: AI가 따라야 할 규칙과 프로세스
+**핵심 질문**: "AI는 어떻게 작업해야 해?"
+**주요 내용**:
+- 필수 행동 지침
+- 절대 금지 사항
+- 코드 작성 규칙
+- 보안 프로토콜
+- 문서 검증 프로토콜
+
+**업데이트 시점**:
+- 새로운 작업 패턴 발견 시
+- 새로운 금지사항 발생 시
+- 보안 정책 변경 시
+
+### 2. CODEMAP.md - "프로젝트 지도" 🗺️
 **목적**: 파일과 폴더 구조의 빠른 참조
 **핵심 질문**: "어디에 뭐가 있지?"
 **주요 내용**:
@@ -49,7 +65,7 @@
 - 주요 파일 위치 변경 시
 - 새 API 엔드포인트 추가 시
 
-### 2. PROJECT.md - "프로젝트 현황판" 📊
+### 3. PROJECT.md - "프로젝트 현황판" 📊
 **목적**: 현재 상태와 진행 상황 추적
 **핵심 질문**: "지금 프로젝트가 어떤 상태야?"
 **주요 내용**:
@@ -63,21 +79,6 @@
 - 주요 기능 완료 시
 - 새로운 이슈 발생 시
 - Phase 완료 시
-
-### 3. CLAUDE.md - "AI 작업 지침서" 🤖
-**목적**: AI가 따라야 할 규칙과 프로세스
-**핵심 질문**: "AI는 어떻게 작업해야 해?"
-**주요 내용**:
-- 필수 행동 지침
-- 절대 금지 사항
-- 코드 작성 규칙
-- 보안 프로토콜
-- 실패 사례와 안티패턴
-
-**업데이트 시점**:
-- 새로운 작업 패턴 발견 시
-- 새로운 금지사항 발생 시
-- 보안 정책 변경 시
 
 ### 4. CHECKLIST.md - "작업 검증 도구" ✅
 **목적**: 작업 완료 후 품질 검증
@@ -206,6 +207,19 @@
 - 새 에러 타입 추가 시
 - 처리 전략 변경 시
 
+### 14. TYPESCRIPT_ERROR_FIX_GUIDE.md - "TypeScript 에러 수정 가이드" 🔧
+**목적**: 빌드 에러 체계적 해결
+**핵심 질문**: "any 타입 에러 어떻게 고치지?"
+**주요 내용**:
+- ESLint 에러 패턴과 해결법
+- any 타입 제거 전략
+- 타입 정의 패턴
+- 빌드 테스트 체크리스트
+
+**업데이트 시점**:
+- 새로운 빌드 에러 패턴 발견 시
+- TypeScript 설정 변경 시
+
 ---
 
 ## 🎯 선택적 문서 업데이트 프로세스
@@ -231,6 +245,7 @@
 | **타입 정의 변경** | DATA_MODEL | - |
 | **파일/폴더 구조 변경** | CODEMAP | - |
 | **주요 기능 완료** | PROJECT | WIREFRAME (상태 변경) |
+| **TypeScript 에러 패턴** | TYPESCRIPT_ERROR_FIX_GUIDE | CLAUDE (규칙 추가 시) |
 
 #### 3단계: 업데이트 실행
 - 관련 문서만 선택적 업데이트
@@ -346,20 +361,40 @@
 
 ## 🔄 문서 간 참조 관계
 
-```mermaid
-graph TD
-    CLAUDE[CLAUDE.md<br/>AI 작업 지침] --> CODEMAP[CODEMAP.md<br/>프로젝트 구조]
-    CLAUDE --> PROJECT[PROJECT.md<br/>프로젝트 현황]
-    PROJECT --> CODEMAP
-    CHECKLIST[CHECKLIST.md<br/>검증 도구] --> CLAUDE
-    CHECKLIST --> PROJECT
-    GUIDE[DOCUMENT_GUIDE.md<br/>문서 가이드] --> ALL[모든 문서]
+### 참조 구조 규칙
+1. **단방향 참조 원칙**: 순환 참조 방지
+2. **계층적 구조**: 상위 → 하위 문서 참조
+3. **역할별 참조**: 필요한 정보만 참조
+
+### 문서 참조 맵
+```
+CLAUDE.md (AI 지침)
+├→ PROJECT.md (현황 확인용)
+├→ CODEMAP.md (구조 확인용)
+└→ CHECKLIST.md (검증용)
+
+PROJECT.md (현황)
+├→ CODEMAP.md (기술 스택 상세)
+└→ 다른 문서 참조 안 함
+
+CODEMAP.md (구조)
+└→ 다른 문서 참조 안 함
+
+WIREFRAME.md (UI-API)
+├→ COMPONENT_INVENTORY.md (컴포넌트 참조)
+└→ ROUTE_SPEC.md (라우트 참조)
+
+DATA_MODEL.md (타입)
+└→ 다른 문서 참조 안 함
+
+ERROR_BOUNDARY.md (에러)
+└→ FLOWMAP.md (리다이렉트 플로우)
 ```
 
 ### 참조 예시
-- CLAUDE.md → CODEMAP.md: "상세 구조는 `/docs/CODEMAP.md` 참조"
-- PROJECT.md → CLAUDE.md: "AI 작업 규칙은 `/CLAUDE.md` 참조"
-- 모든 문서 → CHECKLIST.md: "작업 완료 후 `/docs/CHECKLIST.md` 확인"
+- CLAUDE.md → PROJECT.md: "프로젝트 현황은 `/docs/PROJECT.md` 참조"
+- PROJECT.md → CODEMAP.md: "상세 기술 스택은 `/docs/CODEMAP.md` 참조"
+- WIREFRAME.md → COMPONENT_INVENTORY.md: "컴포넌트 상세는 `/docs/COMPONENT_INVENTORY.md` 참조"
 
 ---
 

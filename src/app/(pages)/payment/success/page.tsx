@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
+import { apiGet, apiPost, ApiError } from '@/lib/api-client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +35,16 @@ function PaymentSuccessContent() {
 
   const confirmPayment = async () => {
     try {
-      const data = await apiPost<any>('/api/payment/confirm', {
+      const data = await apiPost<{
+        success: boolean;
+        purchase?: {
+          id: string;
+          course_id: string;
+          amount: number;
+          status: string;
+        };
+        error?: string;
+      }>('/api/payment/confirm', {
           orderId,
           paymentKey,
           amount: parseInt(amount || '0'),

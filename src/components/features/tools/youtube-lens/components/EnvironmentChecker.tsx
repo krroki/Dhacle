@@ -90,7 +90,11 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     setIsChecking(true);
     
     try {
-      const data = await apiGet<any>('/api/youtube/auth/check-config');
+      const data = await apiGet<{ 
+        missingVars?: string[]; 
+        hasAllRequired: boolean; 
+        error?: string 
+      }>('/api/youtube/auth/check-config');
       
       // 변수 상태 업데이트
       const updatedVars = variables.map(v => ({
@@ -104,13 +108,13 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       const progress = (configuredCount / updatedVars.length) * 100;
       
       setCheckResult({
-        configured: data.configured,
+        configured: data.hasAllRequired,
         missingVars: data.missingVars || [],
-        warnings: data.warnings || [],
+        warnings: [],
         progress
       });
       
-      if (data.configured && onComplete) {
+      if (data.hasAllRequired && onComplete) {
         onComplete();
       }
     } catch (error) {

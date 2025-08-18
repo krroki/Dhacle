@@ -17,7 +17,7 @@ export function RevenueGalleryNew() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const result: any = await getRevenueProofs({
+        const result = await getRevenueProofs({
           limit: 12, // 더 많은 데이터 로드
           page: 1
         });

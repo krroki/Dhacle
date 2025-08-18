@@ -37,7 +37,31 @@
 - **타입**: TypeScript strict mode 준수, any 타입 절대 금지
 - **구조**: Server Component 기본, 필요시만 'use client'
 
-### 3. 🔐 보안 자동 적용 규칙 (필수)
+### 3. TypeScript 타입 작성 규칙 (2025-01-30 추가)
+- **API 호출 시**: 구체적 타입 정의 또는 타입 추론 활용
+  ```typescript
+  // ❌ 금지
+  apiPost<any>('/api/endpoint')
+  
+  // ✅ 권장
+  apiPost<SpecificType>('/api/endpoint')
+  apiPost('/api/endpoint') // 타입 추론
+  ```
+- **unknown 처리**: 타입 가드 후 접근
+  ```typescript
+  if (typeof value === 'string') {
+    // value는 이제 string 타입
+  }
+  ```
+- **ZodError**: `.issues` 사용 (`.errors` 아님)
+- **함수**: 반환 타입 명시적 선언
+  ```typescript
+  async function getData(): Promise<DataType> {
+    // ...
+  }
+  ```
+
+### 4. 🔐 보안 자동 적용 규칙 (필수)
 
 #### 새 API Route 생성 시
 ```typescript
@@ -325,7 +349,27 @@ npm run security:complete # RLS + TTL + 테스트
 3. 최소한의 수정으로 해결
 4. 부수 효과 확인
 
-### 3. 빌드 전 체크리스트
+### 3. 문서 검증 프로토콜
+**작업 시작 시 필수 체크**:
+- [ ] 13개 핵심 문서 확인 완료
+- [ ] 문서 역할 경계 준수
+  - CLAUDE.md: AI 지침만 (이슈 현황 ❌)
+  - PROJECT.md: 프로젝트 현황만 (상세 기술 스택 ❌)
+  - CODEMAP.md: 구조만 (구현 상태 ❌)
+  - WIREFRAME.md: UI-API 연결과 구현 상태 ✅
+
+**문서 업데이트 시**:
+- [ ] 적절한 문서 선택 (DOCUMENT_GUIDE.md 참조)
+- [ ] 중복 내용 방지
+- [ ] 역할 경계 침범 확인
+- [ ] 최신 7개만 유지 (PROJECT.md 변경사항)
+
+**문서 간 참조**:
+- [ ] 상세 내용은 해당 문서 참조 링크 사용
+- [ ] 순환 참조 방지
+- [ ] 원본 유지, 복사본 제거
+
+### 4. 빌드 전 체크리스트
 > 체크리스트는 `/docs/CHECKLIST.md` 참조
 
 ### 4. 데이터베이스 테이블 검증 (2025-01-29 추가)
@@ -411,23 +455,7 @@ PW: dhfl9909
 
 ## ⚠️ 주의사항
 
-### 알려진 이슈
-1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-2. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
-3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
-
-### 해결된 이슈 (2025-01-22)
-1. ✅ **API 키 Import 오류**: createServerClient 사용으로 통일
-2. ✅ **에러 메시지 불명확**: 상세한 에러 로깅 추가
-3. ✅ **saveSearchHistory 누락**: 함수 호출 주석 처리
-4. ✅ **YouTube Lens 인증 문제**: api-client 래퍼로 credentials 자동 포함
-5. ✅ **Wave 1 보안 강화**: 세션 검사 95%, api-client 100% 적용 완료
-6. ✅ **데이터베이스 테이블 검증**: 21개 테이블 100% 생성 확인 (2025-01-29)
-
-### 진행 중인 이슈 (2025-01-29)
-1. ⚠️ **YouTube Lens API 오류**: 400/404/500 에러 발생 (긴급)
-2. ⚠️ **보안 테스트 성공률**: 38% - Rate Limiting, XSS 방지 미작동
-3. ⚠️ **일부 컴포넌트 직접 fetch**: api-client 전환 필요 (15% 미적용)
+프로젝트 관련 이슈와 현황은 `/docs/PROJECT.md` 참조
 
 ---
 

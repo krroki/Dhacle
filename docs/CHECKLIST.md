@@ -57,6 +57,14 @@
 - [ ] 콘솔 에러 없음 확인
 - [ ] Network 탭 API 응답 확인
 
+### TypeScript 빌드 체크리스트 (2025-01-30 추가)
+- [ ] `any` 타입 사용 여부 검사
+- [ ] API 함수 반환 타입 명시 확인
+- [ ] ZodError.issues 사용 확인 (`.errors` 아님)
+- [ ] unknown 타입 적절한 처리 (타입 가드 사용)
+- [ ] npm run build 성공
+- [ ] npm run lint 에러 없음
+
 ### API 작업 후
 - [ ] 세션 검사 구현 (서버 라우트)
 - [ ] 401 에러 표준 형식: `{ error: 'User not authenticated' }`
