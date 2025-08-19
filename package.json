@@ -9,6 +9,7 @@
     "dev:no-verify": "next dev",
     "dev:turbo": "next dev --turbo",
     "build": "next build",
+    "build:local": "npm run verify && npm run build:no-verify",
     "build:clean": "npm run clean && next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",

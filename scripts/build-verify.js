@@ -449,7 +449,11 @@ try {
 // ==============================
 const skipBuild = process.argv.includes('--skip-build');
 
-if (!skipBuild) {
+// Vercel/CI 환경 감지 - 이중 빌드 방지
+const isVercel = process.env.VERCEL === '1';
+const isCI = process.env.CI === 'true';
+
+if (!skipBuild && !isVercel && !isCI) {
   console.log('\n🏗️ Build Test');
   console.log('-'.repeat(40));
   
@@ -492,7 +496,14 @@ if (!skipBuild) {
 } else {
   console.log('\n🏗️ Build Test (Skipped)');
   console.log('-'.repeat(40));
-  console.log('Build test skipped. Run without --skip-build flag to test build.');
+  
+  if (isVercel) {
+    console.log('ℹ️ Vercel environment detected - skipping build test to avoid infinite loop');
+  } else if (isCI) {
+    console.log('ℹ️ CI environment detected - skipping build test');
+  } else {
+    console.log('Build test skipped. Run without --skip-build flag to test build.');
+  }
 }
 
 // ==============================
