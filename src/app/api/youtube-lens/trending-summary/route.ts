@@ -24,7 +24,7 @@ export async function GET() {
       .select('category, subcategory')
       .eq('approval_status', 'approved');
 
-    const categoryStats = channels?.reduce((acc: any[], ch) => {
+    const categoryStats = channels?.reduce((acc: Array<{ category: string; channelCount: number; totalDelta: number; share: number }>, ch) => {
       const cat = ch.category || '기타';
       const existing = acc.find(s => s.category === cat);
       if (existing) {
@@ -74,13 +74,13 @@ export async function GET() {
       .limit(5);
 
     // 4. 트렌딩 키워드 (Phase 2 예정)
-    const trendingKeywords: any[] = [];
+    const trendingKeywords: Array<{ keyword: string; count: number }> = [];
 
     // 5. Top 쇼츠 (Phase 2 예정)
-    const topShorts: any[] = [];
+    const topShorts: Array<{ videoId: string; title: string; views: number }> = [];
 
     // 6. 팔로우 채널 (Phase 2 예정)
-    const followedChannels: any[] = [];
+    const followedChannels: Array<{ channelId: string; title: string }> = [];
 
     return NextResponse.json({
       success: true,
