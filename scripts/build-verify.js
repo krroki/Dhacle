@@ -31,6 +31,10 @@ const issues = {
   warnings: []
 };
 
+// Vercel/CI 환경 감지
+const isVercel = process.env.VERCEL === '1';
+const isCI = process.env.CI === 'true';
+
 console.log('\n🔍 Build Verification System v2.0\n');
 console.log('=' .repeat(50));
 
@@ -119,7 +123,7 @@ checkTypeScriptIssues();
 // Run tsc --noEmit
 console.log('\nRunning TypeScript compiler check...');
 try {
-  execSync('npx tsc --noEmit --exclude supabase/functions', { stdio: 'pipe' });
+  execSync('npx tsc --noEmit', { stdio: 'pipe' });
   console.log(`${colors.green}✅ TypeScript compilation successful${colors.reset}`);
 } catch (error) {
   console.log(`${colors.red}❌ TypeScript compilation failed${colors.reset}`);
@@ -134,6 +138,7 @@ try {
           issues.warnings.push(`TSC: ${line}`);
         } else {
           issues.errors.push(`TSC: ${line}`);
+        }
       }
     });
   }
@@ -556,9 +561,7 @@ if (fs.existsSync(path.join(process.cwd(), 'biome.json'))) {
 // ==============================
 const skipBuild = process.argv.includes('--skip-build');
 
-// Vercel/CI 환경 감지 - 이중 빌드 방지
-const isVercel = process.env.VERCEL === '1';
-const isCI = process.env.CI === 'true';
+// Vercel/CI 환경 감지 - 이중 빌드 방지 (상단으로 이동됨)
 
 if (!skipBuild && !isVercel && !isCI) {
   console.log('\n🏗️ Build Test');
