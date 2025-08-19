@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from 'next';
 import { getCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../../components/CourseGrid';
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 // 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
 export const dynamic = 'force-dynamic';
 
-export default async function BeginnerFreeCoursesPage() {
+export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Element> {
   // 입문자용 무료 강의 필터링
   const response = await getCourses({ is_free: true });
   const courses = response.courses.filter(course => 

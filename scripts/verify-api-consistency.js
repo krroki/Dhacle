@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * API 일치성 검증 스크립트
- * 모든 API Route에서 동일한 Supabase 클라이언트 생성 방식을 사용하는지 검증
+ * API 일치성 검증 스크립트 v2.0
  * 
- * 올바른 패턴: createRouteHandlerClient from '@supabase/auth-helpers-nextjs'
- * 올바른 인증: await supabase.auth.getUser()
+ * ✅ 올바른 패턴을 검증하고 구체적인 수정 지침을 제공합니다.
+ * ❌ 자동 수정은 하지 않습니다 - 각 파일의 컨텍스트를 고려한 수동 수정이 필요합니다.
+ * 
+ * 올바른 패턴:
+ * - Import: createRouteHandlerClient from '@supabase/auth-helpers-nextjs'
+ * - Client: createRouteHandlerClient({ cookies })
+ * - Auth: const { data: { user } } = await supabase.auth.getUser()
+ * - Guard: if (!user) return 401 with { error: 'User not authenticated' }
  */
 
 const fs = require('fs');
@@ -30,13 +35,33 @@ const CORRECT_PATTERNS = {
   auth: "await supabase.auth.getUser()"
 };
 
-// 잘못된 패턴들
+// 잘못된 패턴들과 해결 방법
 const INCORRECT_PATTERNS = [
-  { pattern: /createServerClient.*from.*['"]@\/lib\/supabase/, name: 'createServerClient from lib' },
-  { pattern: /createSupabaseRouteHandlerClient/, name: 'createSupabaseRouteHandlerClient' },
-  { pattern: /createSupabaseServerClient/, name: 'createSupabaseServerClient' },
-  { pattern: /createServerClient.*from.*['"]@supabase\/ssr/, name: 'createServerClient from @supabase/ssr' },
-  { pattern: /auth\.getSession\(\)/, name: 'getSession() instead of getUser()' }
+  { 
+    pattern: /createServerClient.*from.*['"]@\/lib\/supabase/, 
+    name: 'createServerClient from lib',
+    solution: `✅ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'`
+  },
+  { 
+    pattern: /createSupabaseRouteHandlerClient/, 
+    name: 'createSupabaseRouteHandlerClient',
+    solution: '✅ createRouteHandlerClient({ cookies }) 사용'
+  },
+  { 
+    pattern: /createSupabaseServerClient/, 
+    name: 'createSupabaseServerClient',
+    solution: '✅ createRouteHandlerClient({ cookies }) 사용'
+  },
+  { 
+    pattern: /createServerClient.*from.*['"]@supabase\/ssr/, 
+    name: 'createServerClient from @supabase/ssr',
+    solution: `✅ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'`
+  },
+  { 
+    pattern: /auth\.getSession\(\)/, 
+    name: 'getSession() instead of getUser()',
+    solution: '✅ getUser() 사용 + 변수명 확인: const { data: { user } } = ...'
+  }
 ];
 
 // Service Role 클라이언트 예외 (특수 목적용)
@@ -89,11 +114,12 @@ class APIConsistencyChecker {
     }
 
     // 잘못된 패턴 검사
-    for (const { pattern, name } of INCORRECT_PATTERNS) {
+    for (const { pattern, name, solution } of INCORRECT_PATTERNS) {
       if (pattern.test(content)) {
         issues.push({
           type: 'error',
           pattern: name,
+          solution: solution,
           line: this.findLineNumber(content, pattern)
         });
       }
@@ -135,12 +161,14 @@ class APIConsistencyChecker {
           this.errors.push({
             file: fileName,
             message: issue.pattern,
+            solution: issue.solution,
             line: issue.line
           });
         } else {
           this.warnings.push({
             file: fileName,
             message: issue.pattern,
+            solution: issue.solution,
             line: issue.line
           });
         }
@@ -209,7 +237,10 @@ class APIConsistencyChecker {
       this.log(`\n❌ 오류 (반드시 수정 필요):`, colors.red + colors.bold);
       this.errors.forEach(error => {
         this.log(`  ${error.file}:${error.line}`, colors.red);
-        this.log(`    → ${error.message}`, colors.red);
+        this.log(`    문제: ${error.message}`, colors.red);
+        if (error.solution) {
+          this.log(`    해결: ${error.solution}`, colors.green);
+        }
       });
     }
 
@@ -218,7 +249,10 @@ class APIConsistencyChecker {
       this.log(`\n⚠️  경고 (검토 필요):`, colors.yellow + colors.bold);
       this.warnings.forEach(warning => {
         this.log(`  ${warning.file}${warning.line ? ':' + warning.line : ''}`, colors.yellow);
-        this.log(`    → ${warning.message}`, colors.yellow);
+        this.log(`    문제: ${warning.message}`, colors.yellow);
+        if (warning.solution) {
+          this.log(`    해결: ${warning.solution}`, colors.green);
+        }
       });
     }
 
@@ -235,11 +269,18 @@ class APIConsistencyChecker {
 
     // 수정 가이드
     if (this.errors.length > 0) {
-      this.log(`\n🔧 수정 방법:`, colors.yellow + colors.bold);
-      this.log(`  1. 모든 API Route에서 위의 올바른 패턴 사용`, colors.yellow);
-      this.log(`  2. createServerClient → createRouteHandlerClient 변경`, colors.yellow);
-      this.log(`  3. getSession() → getUser() 변경`, colors.yellow);
-      this.log(`  4. 401 에러 응답 형식 통일`, colors.yellow);
+      this.log(`\n🔧 수정 가이드:`, colors.yellow + colors.bold);
+      this.log(`\n  ⚠️ 자동 수정 도구는 사용하지 마세요!`, colors.red);
+      this.log(`  각 파일을 개별적으로 확인하고 수정하세요.`, colors.yellow);
+      this.log(`\n  📌 수정 시 주의사항:`, colors.cyan);
+      this.log(`  1. 변수명 일치성 확인 - user 변수를 선언하고 참조하는지`, colors.yellow);
+      this.log(`  2. 스코프 확인 - 변수가 올바른 스코프에서 사용되는지`, colors.yellow);
+      this.log(`  3. 타입 안전성 - TypeScript 타입 체크 통과 확인`, colors.yellow);
+      this.log(`  4. 런타임 검증 - 실제로 작동하는지 테스트`, colors.yellow);
+      this.log(`\n  💡 명령어:`, colors.cyan);
+      this.log(`  • npm run type-check - TypeScript 타입 체크`, colors.green);
+      this.log(`  • npm run build - 빌드 테스트`, colors.green);
+      this.log(`  • npm run dev - 로컬 테스트`, colors.green);
     }
   }
 }

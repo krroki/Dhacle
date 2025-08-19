@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from 'next';
 import { getPopularCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../components/CourseGrid';
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 // 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
 export const dynamic = 'force-dynamic';
 
-export default async function PopularCoursesPage() {
+export default async function PopularCoursesPage(): Promise<React.JSX.Element> {
   const courses = await getPopularCourses();
 
   return (

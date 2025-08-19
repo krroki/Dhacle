@@ -4,6 +4,8 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Edge Runtime 대신 Node.js Runtime 사용
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { 
   saveUserApiKey, 
   getUserApiKey, 

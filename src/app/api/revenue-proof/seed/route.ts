@@ -117,20 +117,16 @@ export async function POST(request: NextRequest) {
 // GET: 시드 데이터 상태 확인
 export async function GET(request: NextRequest) {
   try {
-
-  // 세션 검사
-  const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser2 } } = await authSupabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-
-    const supabase = await createRouteHandlerClient({ cookies });
+        { status: 401 }
+      );
+    }
     
     // 데이터 개수 확인
     const { count, error } = await supabase

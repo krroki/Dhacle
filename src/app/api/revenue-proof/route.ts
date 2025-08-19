@@ -127,28 +127,16 @@ export async function GET(request: NextRequest) {
 
 // POST: 수익인증 생성 (일일 1회 제한)
 export async function POST(request: NextRequest) {
-  
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser2 } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
   try {
-    const supabase = await createRouteHandlerClient({ cookies });
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
     
-    // 인증 확인
-    const { data: { user: authUser3 } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401 });
+        { status: 401 }
+      );
     }
 
     // FormData 파싱

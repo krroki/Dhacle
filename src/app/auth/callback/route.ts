@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
   })
 
   if (code) {
-    const cookieStore = await cookies()
-    
     // Get environment variables - these must be set properly
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -45,35 +43,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Create a Supabase client with the cookie-based storage
-    const supabase = createServerClient<Database>(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch {
-              // The `set` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
-            }
-          },
-          remove(name: string) {
-            try {
-              cookieStore.delete(name)
-            } catch {
-              // The `delete` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
-            }
-          },
-        },
-      }
-    )
+    const supabase = createRouteHandlerClient<Database>({ cookies })
 
     try {
       console.log('[Auth Callback] Attempting to exchange code for session', {
@@ -130,7 +100,7 @@ export async function GET(request: NextRequest) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Cookie': cookieStore.toString()
+              'Cookie': request.headers.get('cookie') || ''
             }
           })
           
@@ -147,7 +117,7 @@ export async function GET(request: NextRequest) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Cookie': cookieStore.toString()
+              'Cookie': request.headers.get('cookie') || ''
             }
           })
           

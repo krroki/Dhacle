@@ -83,13 +83,9 @@ export default function OnboardingPage() {
   // 사용자명 자동 생성
   const generateUsername = async () => {
     try {
-      const response = await fetch('/api/user/generate-username', {
-        method: 'POST',
-        credentials: 'same-origin'
-      })
-      const data = await response.json()
+      const data = await apiPost<{ username: string }>('/api/user/generate-username', {})
       
-      if (response.ok && data.username) {
+      if (data.username) {
         setGeneratedUsername(data.username)
         return data.username
       }

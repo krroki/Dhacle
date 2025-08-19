@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from 'next';
 import { getCourses } from '@/lib/api/courses';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,7 +83,7 @@ const categories = [
   },
 ];
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage(): Promise<React.JSX.Element> {
   const response = await getCourses();
   const allCourses = response.courses;
 

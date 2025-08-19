@@ -23,6 +23,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { requestPayment, type PaymentMethod } from '@/lib/tosspayments/client';
 import { PaymentMethodSelector } from '@/components/features/payment/PaymentMethodSelector';
+import { apiPost } from '@/lib/api-client';
 import type { Course } from '@/types/course';
 
 interface PurchaseCardProps {
@@ -58,7 +59,7 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
   const finalPrice = course.discount_price || course.price;
   const discountedPrice = finalPrice - discount;
 
-  const handlePurchase = async () => {
+  const handlePurchase = async (): Promise<void> => {
     if (course.is_free || isEnrolled || isPurchased) {
       // 무료 강의나 이미 구매한 경우 바로 학습 페이지로
       // firstLessonId가 있으면 첫 번째 레슨으로, 없으면 강의 ID만으로 이동
@@ -73,40 +74,18 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
     setError(null);
     
     try {
-      // 1. 주문 정보 생성
-      const response = await fetch('/api/payment/create-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          courseId: course.id,
-          couponCode: appliedCoupon?.code || ''
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.error || '결제 준비 중 오류가 발생했습니다.';
-        
-        // 특정 에러에 대한 사용자 친화적 메시지
-        if (response.status === 401) {
-          throw new Error('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
-        } else if (response.status === 404) {
-          throw new Error('강의를 찾을 수 없습니다. 페이지를 새로고침 해주세요.');
-        } else if (response.status === 400 && errorData.error?.includes('이미 구매')) {
-          throw new Error('이미 구매한 강의입니다. 내 강의 페이지에서 확인해주세요.');
-        } else {
-          throw new Error(errorMessage);
-        }
-      }
-
-      const data = await response.json() as { 
+      // 1. 주문 정보 생성  
+      const data = await apiPost<{ 
         orderId: string; 
         amount: number; 
         orderName: string;
         customerName: string;
         customerEmail: string;
         purchaseId: string; 
-      };
+      }>('/api/payment/create-intent', {
+        courseId: course.id,
+        couponCode: appliedCoupon?.code || ''
+      });
 
       // 2. 주문 데이터 저장하고 결제 수단 선택 모달 열기
       setOrderData(data);
@@ -151,28 +130,25 @@ export function PurchaseCard({ course, isEnrolled, isPurchased, firstLessonId }:
     }
   };
 
-  const applyCoupon = async () => {
+  const applyCoupon = async (): Promise<void> => {
     if (!couponCode) return;
     
     setIsApplyingCoupon(true);
     try {
-      const response = await fetch('/api/coupons/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ couponCode, courseId: course.id })
+      const data = await apiPost<{
+        discount: { discountAmount: number };
+        coupon: { code: string; discount: number };
+      }>('/api/coupons/validate', { 
+        couponCode, 
+        courseId: course.id 
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDiscount(data.discount.discountAmount);
-        setAppliedCoupon(data.coupon);
-      } else {
-        const error = await response.json();
-        alert(error.error || '쿠폰 적용에 실패했습니다.');
-      }
+      
+      setDiscount(data.discount.discountAmount);
+      setAppliedCoupon(data.coupon);
     } catch (error) {
       console.error('쿠폰 적용 실패:', error);
-      alert('쿠폰 적용 중 오류가 발생했습니다.');
+      const errorMessage = error instanceof Error ? error.message : '쿠폰 적용 중 오류가 발생했습니다.';
+      alert(errorMessage);
     } finally {
       setIsApplyingCoupon(false);
     }

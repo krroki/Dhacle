@@ -3,13 +3,20 @@
 
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import type { RevenueProof } from '@/types/revenue-proof';
+
+// 타입 정의
+interface RevenueProofWithDetails extends RevenueProof {
+  is_today: boolean;
+  can_edit: boolean;
+  hours_remaining: number;
+}
 
 // GET: 내 인증 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     // 각 인증에 대한 추가 정보 조회
     const proofsWithDetails = await Promise.all(
-      (proofs || []).map(async (proof) => {
+      (proofs || []).map(async (proof: RevenueProof) => {
         // 오늘 작성 여부 확인
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -79,19 +86,19 @@ export async function GET(request: NextRequest) {
     // 통계 정보 계산
     const stats = {
       total_proofs: count || 0,
-      total_amount: proofsWithDetails.reduce((sum, p) => sum + p.amount, 0),
-      total_likes: proofsWithDetails.reduce((sum, p) => sum + p.likes_count, 0),
-      total_comments: proofsWithDetails.reduce((sum, p) => sum + p.comments_count, 0),
-      hidden_count: proofsWithDetails.filter(p => p.is_hidden).length,
+      total_amount: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.amount, 0),
+      total_likes: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.likes_count, 0),
+      total_comments: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.comments_count, 0),
+      hidden_count: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
       platforms: {
-        youtube: proofsWithDetails.filter(p => p.platform === 'youtube').length,
-        instagram: proofsWithDetails.filter(p => p.platform === 'instagram').length,
-        tiktok: proofsWithDetails.filter(p => p.platform === 'tiktok').length
+        youtube: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'youtube').length,
+        instagram: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'instagram').length,
+        tiktok: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'tiktok').length
       }
     };
 
     // 오늘 인증 여부 확인
-    const todayProof = proofsWithDetails.find(p => p.is_today);
+    const todayProof = proofsWithDetails.find((p: RevenueProofWithDetails) => p.is_today);
     const canCreateToday = !todayProof;
 
     // 다음 인증 가능 시간 계산
@@ -128,10 +135,10 @@ export async function GET(request: NextRequest) {
 // DELETE: 내 모든 인증 삭제 (위험한 작업)
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
-    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },

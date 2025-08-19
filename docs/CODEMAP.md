@@ -35,6 +35,9 @@ npm run lint                    # ESLint 검사
 
 # 🔧 자동 수정 명령어 (2025-01-30 추가)
 npm run fix:missing-apis       # 누락된 API 엔드포인트 자동 생성
+node scripts/verify-api-consistency.js  # API 일치성 검사 (빌드에 통합됨)
+node scripts/fix-api-consistency.js     # API 일치성 문제 자동 수정
+node scripts/fix-typescript-errors.js   # TypeScript 에러 자동 수정
 
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
@@ -206,8 +209,11 @@ export async function GET(request: Request) {
 │   │   ├── apply-rls-wave2.js    # Wave 2 RLS 적용 ✅ Wave 2
 │   │   └── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
 │   ├── dev-verify.js              # 개발 시 자동 검증 ✅ NEW (2025-01-30)
-│   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 ✅ NEW (2025-01-30)
+│   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 + API 일치성 ✅ NEW (2025-01-30)
 │   ├── fix-missing-apis.js        # 누락 API 자동 생성 ✅ NEW (2025-01-30)
+│   ├── verify-api-consistency.js  # API 일치성 검사 (35개 API 표준화) ✅ NEW (2025-01-30)
+│   ├── fix-api-consistency.js     # API 일치성 자동 수정 ✅ NEW (2025-01-30)
+│   ├── fix-typescript-errors.js   # TypeScript 에러 자동 수정 ✅ NEW (2025-01-30)
 │   ├── supabase-migration.js     # 기본 마이그레이션 자동화
 │   ├── auto-migrate.js           # 향상된 자동 마이그레이션
 │   ├── supabase-migrate-complete.js # Service Role Key 활용 완벽 실행 ✅

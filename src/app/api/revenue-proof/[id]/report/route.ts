@@ -2,7 +2,6 @@
 // 신고 처리 API (3회 신고 시 자동 숨김)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { reportSchema } from '@/lib/validations/revenue-proof';
@@ -14,7 +13,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;
 
     // 인증 확인
@@ -173,29 +172,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-
-  // 세션 검사
-  const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser2 } } = await authSupabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-
-    const supabase = createServerComponentClient({ cookies });
-    const { id: proofId } = await params;
-
-    // 인증 확인 (관리자 권한 체크는 추후 구현)
-    const { data: { user: authUser3 } } = await supabase.auth.getUser();
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
+    
     if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401 });
+        { status: 401 }
+      );
     }
+
+    const { id: proofId } = await params;
 
     // 신고 목록 조회
     const { data: reports, error } = await supabase

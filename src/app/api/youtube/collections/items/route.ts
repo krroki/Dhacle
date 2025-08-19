@@ -58,20 +58,17 @@ export async function GET(request: NextRequest) {
  * 컬렉션에 비디오 추가
  */
 export async function POST(request: NextRequest) {
-  
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser2 } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
   try {
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const { collectionId, videoId, notes, tags } = body;
 
@@ -111,20 +108,17 @@ export async function POST(request: NextRequest) {
  * 컬렉션에서 비디오 제거
  */
 export async function DELETE(request: NextRequest) {
-  
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser3 } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
   try {
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const collectionId = searchParams.get('collectionId');
     const videoId = searchParams.get('videoId');
@@ -163,20 +157,17 @@ export async function DELETE(request: NextRequest) {
  * 컬렉션 아이템 순서 변경
  */
 export async function PUT(request: NextRequest) {
-  
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser4 } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
   try {
+    // 세션 검사
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const { collectionId, items } = body;
 

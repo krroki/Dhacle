@@ -2,7 +2,6 @@
 // 댓글 작성 및 조회 API
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { commentSchema } from '@/lib/validations/revenue-proof';
@@ -27,7 +26,7 @@ export async function GET(
   }
 
 
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;
 
     // 댓글 조회
@@ -72,11 +71,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;
 
     // 인증 확인
-    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },
@@ -178,18 +177,15 @@ export async function DELETE(
   try {
 
   // 세션 검사
-  const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser3 } } = await authSupabase.auth.getUser();
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
     return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
     );
   }
-
-
-    const supabase = createServerComponentClient({ cookies });
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
 
@@ -198,14 +194,6 @@ export async function DELETE(
         { error: '댓글 ID가 필요합니다' },
         { status: 400 }
       );
-    }
-
-    // 인증 확인
-    const { data: { user: authUser4 } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
     }
 
     // 댓글 조회

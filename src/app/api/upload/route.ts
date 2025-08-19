@@ -3,7 +3,6 @@
 
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
 // 이미지 타입 검증
@@ -20,7 +19,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // POST: 이미지 업로드
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user } } = await supabase.auth.getUser();
@@ -129,10 +128,10 @@ export async function POST(request: NextRequest) {
 // DELETE: 이미지 삭제
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
-    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json(
         { error: 'User not authenticated' },

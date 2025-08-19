@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       return NextResponse.json(
@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user: authUser3 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       return NextResponse.json(
@@ -267,7 +267,7 @@ export async function DELETE(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user: authUser4 } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       return NextResponse.json(

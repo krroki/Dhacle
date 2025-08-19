@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user: authUser2 } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
     return new Response(

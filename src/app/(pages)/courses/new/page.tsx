@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from 'next';
 import { getNewCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../components/CourseGrid';
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 // 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
 export const dynamic = 'force-dynamic';
 
-export default async function NewCoursesPage() {
+export default async function NewCoursesPage(): Promise<React.JSX.Element> {
   const courses = await getNewCourses();
 
   // 최근 7일 이내 강의 체크

@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-export async function GET(request: NextRequest) {
+export async function GET() {
   console.log('Health check API called');
   
   try {
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           tableError: tableError?.message || null,
           authWorking: !authError,
           authError: authError?.message || null,
-          hasSession: !!session
+          hasSession: !!user
         },
         timestamp: new Date().toISOString()
       });

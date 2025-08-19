@@ -21,7 +21,7 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  const filterCourses = async () => {
+  const filterCourses = async (): Promise<void> => {
     setLoading(true);
     try {
       // 클라이언트 사이드 필터링

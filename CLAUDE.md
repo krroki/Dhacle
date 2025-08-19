@@ -400,18 +400,42 @@ npm run security:complete # RLS + TTL + 테스트
 ### 4. 빌드 전 체크리스트
 > 체크리스트는 `/docs/CHECKLIST.md` 참조
 
-#### 🔐 API 일치성 자동 검증 (필수)
+#### 🔐 코드 일관성 검증 시스템 v2.0 - 2025-01-31 완성
 ```bash
-# API 일치성 검증 실행 (빌드 전 필수)
-npm run verify:api
+# ⚡ 병렬 실행 (60-70% 속도 향상)
+npm run verify:parallel           # 모든 검증 병렬 실행
+npm run verify:parallel:critical  # 핵심 검증만 병렬
+npm run verify:parallel:quality   # 품질 검증 병렬
+npm run verify:parallel:security  # 보안 검증 병렬
 
-# 빌드 시 자동 검증 포함
-npm run build  # build-verify.js가 API 일치성도 검증
+# 📋 그룹별 검증
+npm run verify:all        # 모든 검증 (8개 스크립트)
+npm run verify:critical   # 핵심 검증 (API + Routes + Types)
+npm run verify:quick      # 빠른 검증 (API + Types)
+npm run verify:security   # 보안 검증 (Routes + Runtime + Deps)
+npm run verify:quality    # 품질 검증 (UI + Types + Imports)
+npm run verify:infra      # 인프라 검증 (DB + Deps)
 
-# 검증 실패 시:
-# - 모든 API Route는 createRouteHandlerClient 사용 필수
-# - getUser() 사용 (getSession() 금지)
-# - 401 응답 형식 통일 필수
+# 🔍 개별 검증 명령어
+npm run verify:api       # API 일치성 검증 (인증 방식 통일)
+npm run verify:ui        # UI 일관성 검증 (shadcn/ui, Tailwind)
+npm run verify:types     # TypeScript 타입 안정성 검증
+npm run verify:routes    # 라우트 보호 상태 검증
+npm run verify:runtime   # 런타임 설정 및 환경 변수 검증
+npm run verify:deps      # 의존성 취약점 및 사용 현황 검증 ✨ NEW
+npm run verify:db        # DB 스키마 일치성 검증 ✨ NEW
+npm run verify:imports   # Import 구조 및 순환 의존성 검증 ✨ NEW
+
+# 🎣 Pre-commit Hook (자동 실행)
+# .husky/pre-commit 설정됨
+# - 커밋 시 자동으로 verify:quick 실행
+# - staged 파일만 검증하여 성능 최적화
+# - --no-verify로 건너뛸 수 있음
+
+# 검증 실패 시 수정 가이드:
+# - 각 스크립트가 구체적인 수정 방법 제시
+# - 파일별 컨텍스트를 고려한 수동 수정 필요
+# - 자동 수정 스크립트 사용 금지 (런타임 오류 위험)
 ```
 
 ### 4. 데이터베이스 테이블 검증 (2025-01-29 추가)

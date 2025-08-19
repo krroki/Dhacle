@@ -1,4 +1,5 @@
 // Server Component - 강의 목록 페이지
+import React from 'react';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import { getCourses, getUniqueInstructors } from '@/lib/api/courses';
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 // 동적 렌더링 설정 (Supabase cookies 사용으로 인한 필수 설정)
 export const dynamic = 'force-dynamic';
 
-export default async function CoursesPage() {
+export default async function CoursesPage(): Promise<React.JSX.Element> {
   // 서버에서 데이터 가져오기
   const coursesData = await getCourses();
   const instructors = await getUniqueInstructors();
