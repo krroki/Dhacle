@@ -9,7 +9,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
 import { calculateMetrics } from '@/lib/youtube/metrics';
-import { createServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -20,11 +19,13 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // Parse query parameters
@@ -151,11 +152,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // Parse request body
@@ -260,7 +263,7 @@ export async function POST(request: NextRequest) {
  */
 async function saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     await supabase.from('saved_searches').insert({
       user_id: userId,
@@ -279,7 +282,7 @@ async function saveSearchHistory(userId: string, searchData: Record<string, unkn
  */
 async function saveToCollection(userId: string, collectionId: string, videos: unknown[]) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     const collectionItems = videos.map(video => {
       const videoData = video as { id: string };

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { YouTubeAPIClient } from '@/lib/youtube/api-client';
-import { createServerClient } from '@/lib/supabase/server-client';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import type { YouTubeSearchFilters } from '@/types/youtube';
 
@@ -10,14 +11,14 @@ import type { YouTubeSearchFilters } from '@/types/youtube';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 현재 사용자 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }

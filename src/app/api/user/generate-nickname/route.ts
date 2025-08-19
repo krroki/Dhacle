@@ -1,18 +1,21 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { generateRandomNickname, generateMultipleNicknames } from '@/lib/utils/nickname-generator';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient() as SupabaseClient<Database>;
+    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 이미 랜덤 닉네임이 있는지 확인
@@ -104,13 +107,15 @@ export async function POST(request: NextRequest) {
 // 닉네임 제안 목록 가져오기
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient() as SupabaseClient<Database>;
+    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 5개의 닉네임 제안 생성

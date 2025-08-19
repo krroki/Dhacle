@@ -15,9 +15,9 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -120,12 +120,12 @@ export async function GET(request: NextRequest) {
     // 스냅샷 저장 제거 (테이블 없음)
 
     // 현재 로그인 사용자의 순위 찾기
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user: authUser2 } } = await supabase.auth.getUser();
     let myRank = null;
     
-    if (session) {
+    if (user) {
       const myData = Object.values(userRevenues).find(
-        (item) => item.user_id === session.user.id
+        (item) => item.user_id === user.id
       );
       
       if (myData) {
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
         
         myRank = {
           rank: allRankings.findIndex((item) => 
-            item.user_id === session.user.id
+            item.user_id === user.id
           ) + 1,
           total_amount: myData.total_amount,
           proof_count: myData.proof_count

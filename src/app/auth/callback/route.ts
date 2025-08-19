@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value
           },
-          set(name: string, value: string, options: CookieOptions) {
+          set(name: string, value: string, options) {
             try {
               cookieStore.set({ name, value, ...options })
             } catch {

@@ -1,5 +1,6 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server-client';
+import { cookies } from 'next/headers';
 
 /**
  * GET /api/community/posts
@@ -7,7 +8,7 @@ import { createServerClient } from '@/lib/supabase/server-client';
  */
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     const searchParams = req.nextUrl.searchParams;
     const category = searchParams.get('category') || 'board';
     const page = parseInt(searchParams.get('page') || '1');
@@ -70,13 +71,15 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 요청 본문 파싱

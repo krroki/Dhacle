@@ -7,7 +7,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@/lib/supabase/server';
 import { calculateMetrics, calculateChannelMetrics } from '@/lib/youtube/metrics';
 import { YouTubeVideo } from '@/types/youtube-lens';
 
@@ -20,11 +19,13 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // Parse query parameters
@@ -102,11 +103,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // Parse request body
@@ -167,7 +170,7 @@ export async function POST(request: NextRequest) {
  * Helper: Get video metrics from database
  */
 async function getVideoMetrics(videoId: string, period: string) {
-  const supabase = await createServerClient();
+  const supabase = createRouteHandlerClient({ cookies });
   
   // Calculate date range
   const endDate = new Date();
@@ -259,7 +262,7 @@ async function getVideoMetrics(videoId: string, period: string) {
  * Helper: Get channel metrics
  */
 async function getChannelMetrics(channelId: string, period: string) {
-  const supabase = await createServerClient();
+  const supabase = createRouteHandlerClient({ cookies });
   
   // Get channel videos with stats
   const { data: videos, error } = await supabase
@@ -415,7 +418,7 @@ async function saveMetricsSnapshot(userId: string, videos: Array<YouTubeVideo & 
   }
 }>) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     const snapshots = videos.map(video => ({
       video_id: video.id,

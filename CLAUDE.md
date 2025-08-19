@@ -63,17 +63,36 @@
 
 ### 4. 🔐 보안 자동 적용 규칙 (필수)
 
-#### 새 API Route 생성 시
+#### 🚨 API Route 작성 필수 규칙 (일치성 강제)
 ```typescript
-// ⚡ 모든 API Route 최상단에 필수
-const supabase = createRouteHandlerClient({ cookies });
-const { data: { user } } = await supabase.auth.getUser();
-if (!user) {
-  return new Response(
-    JSON.stringify({ error: 'User not authenticated' }),
-    { status: 401 }
-  );
+// ✅ 올바른 패턴 - 반드시 이것만 사용!
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+
+export async function GET/POST/PUT/DELETE() {
+  // 1. Supabase 클라이언트 생성 (이 방식만 허용!)
+  const supabase = createRouteHandlerClient({ cookies });
+  
+  // 2. 인증 체크 (getUser() 사용 - getSession() 금지!)
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // 3. 401 응답 형식 (정확히 이 형식 유지!)
+  if (!user) {
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
+  
+  // 비즈니스 로직...
 }
+
+// ❌ 절대 금지 패턴들:
+// - createServerClient() 사용 금지
+// - createSupabaseRouteHandlerClient() 사용 금지
+// - @supabase/ssr에서 직접 import 금지
+// - getSession() 사용 금지
+// - 다른 형식의 401 응답 금지
 ```
 
 #### 새 테이블 생성 시
@@ -128,20 +147,29 @@ const safeContent = sanitizeRichHTML(userInput);
    - 기본 옵션: `credentials: 'same-origin'`, `Content-Type: application/json`
    - 직접 `fetch()` 호출 금지 (외부 API 제외)
 
-2. **서버 라우트는 세션 필수** ✅ Wave 1 95% 적용 (35/37 routes)
+2. **서버 라우트는 세션 필수** ✅ Wave 1 100% 적용 (38/38 routes) - 2025-01-30 검증 완료
    - Route Handler 진입 시 세션 검사 → 없으면 `401` + `{ error: 'User not authenticated' }`
    - `userId`는 쿼리스트링으로 받지 말고 세션에서 파생
-   - 세션 검사 템플릿:
+   - **올바른 패턴 (필수)**:
    ```typescript
+   import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+   import { cookies } from 'next/headers';
+   import { NextResponse } from 'next/server';
+   
    const supabase = createRouteHandlerClient({ cookies });
    const { data: { user } } = await supabase.auth.getUser();
    if (!user) {
-     return new Response(
-       JSON.stringify({ error: 'User not authenticated' }),
+     return NextResponse.json(
+       { error: 'User not authenticated' },
        { status: 401 }
      );
    }
    ```
+   - **금지 패턴**:
+     - ❌ `createServerClient` 사용 금지
+     - ❌ `createSupabaseRouteHandlerClient` 사용 금지
+     - ❌ `getSession()` 금지 → `getUser()` 사용
+     - ❌ `new Response()` 금지 → `NextResponse.json()` 사용
 
 3. **401 UX 처리**
    - 프론트는 401 수신 시 로그인 유도 (모달/리다이렉트)
@@ -371,6 +399,20 @@ npm run security:complete # RLS + TTL + 테스트
 
 ### 4. 빌드 전 체크리스트
 > 체크리스트는 `/docs/CHECKLIST.md` 참조
+
+#### 🔐 API 일치성 자동 검증 (필수)
+```bash
+# API 일치성 검증 실행 (빌드 전 필수)
+npm run verify:api
+
+# 빌드 시 자동 검증 포함
+npm run build  # build-verify.js가 API 일치성도 검증
+
+# 검증 실패 시:
+# - 모든 API Route는 createRouteHandlerClient 사용 필수
+# - getUser() 사용 (getSession() 금지)
+# - 401 응답 형식 통일 필수
+```
 
 ### 4. 데이터베이스 테이블 검증 (2025-01-29 추가)
 1. 테이블 상태 확인: `node scripts/verify-with-service-role.js`

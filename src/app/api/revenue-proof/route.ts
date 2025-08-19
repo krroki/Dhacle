@@ -4,7 +4,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 // 수익인증 메인 API Route (목록 조회, 생성)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { createProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
 
@@ -16,10 +15,9 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
@@ -27,7 +25,7 @@ export async function GET(request: NextRequest) {
   try {
     // Route Handler Client를 사용하여 공개 데이터를 가져옴
     // revenue_proofs 테이블은 공개 읽기 가능하므로 Service Role Key 불필요
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     const { searchParams } = new URL(request.url);
     
     // 쿼리 파라미터 파싱
@@ -132,24 +130,25 @@ export async function POST(request: NextRequest) {
   
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user: authUser2 } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
   }
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser3 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // FormData 파싱
@@ -177,7 +176,7 @@ export async function POST(request: NextRequest) {
     const { count: todayCount } = await supabase
       .from('revenue_proofs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .gte('created_at', todayKST.toISOString());
 
     if (todayCount && todayCount > 0) {
@@ -191,7 +190,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Supabase Storage에 이미지 업로드
-    const fileName = `${session.user.id}/${Date.now()}_${validatedData.screenshot.name}`;
+    const fileName = `${user.id}/${Date.now()}_${validatedData.screenshot.name}`;
     const arrayBuffer = await validatedData.screenshot.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
@@ -239,7 +238,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('revenue_proofs')
       .insert({
-        user_id: session.user.id,
+        user_id: user.id,
         title: validatedData.title,
         content: validatedData.content,
         amount: validatedData.amount,

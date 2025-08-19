@@ -1,6 +1,7 @@
 // upload/route.ts
 // 이미지 업로드 및 최적화 API
 
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
@@ -22,9 +23,11 @@ export async function POST(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // FormData 파싱
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
     // 파일명 생성 (사용자ID_타임스탬프_원본파일명)
     const timestamp = Date.now();
     const fileExt = file.name.split('.').pop();
-    const fileName = `${session.user.id}_${timestamp}.${fileExt}`;
+    const fileName = `${user.id}_${timestamp}.${fileExt}`;
     const filePath = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${fileName}`;
 
     // ArrayBuffer를 Uint8Array로 변환
@@ -129,9 +132,11 @@ export async function DELETE(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -146,7 +151,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 파일 경로에 사용자 ID가 포함되어 있는지 확인 (보안)
-    if (!path.includes(session.user.id)) {
+    if (!path.includes(user.id)) {
       return NextResponse.json(
         { error: '삭제 권한이 없습니다' },
         { status: 403 }

@@ -2,8 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-
 // 시드 데이터
 const sampleData = [
   {
@@ -53,12 +51,14 @@ const sampleData = [
 // POST: 시드 데이터 추가
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 시드 데이터 추가
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       const { data: result, error } = await supabase
         .from('revenue_proofs')
         .insert({
-          user_id: session.user.id,
+          user_id: user.id,
           ...data,
           signature_data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
           screenshot_blur: '',
@@ -120,17 +120,17 @@ export async function GET(request: NextRequest) {
 
   // 세션 검사
   const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await authSupabase.auth.getUser();
+  const { data: { user: authUser2 } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
 
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     
     // 데이터 개수 확인
     const { count, error } = await supabase

@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { createSupabaseServiceRoleClient, createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 import { z } from 'zod';
 
@@ -20,9 +20,9 @@ export async function GET(
   const { data: { user } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -56,9 +56,9 @@ export async function GET(
     // 숨김 처리된 인증은 작성자만 볼 수 있음
     if (proof.is_hidden) {
       // 인증 확인용 클라이언트 생성
-      const authClient = await createSupabaseRouteHandlerClient();
-      const { data: { session } } = await authClient.auth.getSession();
-      if (!session || session.user.id !== proof.user_id) {
+      const authClient = createRouteHandlerClient({ cookies });
+      const { data: { user: authUser2 } } = await authClient.auth.getUser();
+      if (!authUser2 || authUser2.id !== proof.user_id) {
         return NextResponse.json(
           { error: '접근 권한이 없습니다' },
           { status: 403 }
@@ -87,15 +87,15 @@ export async function GET(
       .order('created_at', { ascending: false });
 
     // 현재 사용자의 좋아요 여부 확인
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user: authUser3 } } = await supabase.auth.getUser();
     let isLiked = false;
     
-    if (session) {
+    if (authUser3) {
       const { data: likeData } = await supabase
         .from('proof_likes')
         .select('*')
         .eq('proof_id', id)
-        .eq('user_id', session.user.id)
+        .eq('user_id', authUser3.id)
         .single();
       
       isLiked = !!likeData;
@@ -126,13 +126,15 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     const { id } = await params;
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser4 } } = await supabase.auth.getUser();
+    if (!authUser4) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 기존 인증 조회
@@ -150,7 +152,7 @@ export async function PUT(
     }
 
     // 작성자 확인
-    if (existingProof.user_id !== session.user.id) {
+    if (existingProof.user_id !== authUser4.id) {
       return NextResponse.json(
         { error: '수정 권한이 없습니다' },
         { status: 403 }
@@ -227,13 +229,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createRouteHandlerClient({ cookies });
     const { id } = await params;
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser5 } } = await supabase.auth.getUser();
+    if (!authUser5) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 기존 인증 조회
@@ -251,7 +255,7 @@ export async function DELETE(
     }
 
     // 작성자 확인
-    if (existingProof.user_id !== session.user.id) {
+    if (existingProof.user_id !== authUser5.id) {
       return NextResponse.json(
         { error: '삭제 권한이 없습니다' },
         { status: 403 }

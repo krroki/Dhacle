@@ -3,8 +3,8 @@
  * Handles subscribing/unsubscribing to channel notifications
  */
 
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
 
 /**
@@ -12,13 +12,15 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
     
     // Get user's subscriptions
@@ -42,13 +44,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
     
     // Parse request body
@@ -106,13 +110,15 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
     
     // Get channel ID from query params
@@ -157,13 +163,15 @@ export async function DELETE(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
     
     // Parse request body

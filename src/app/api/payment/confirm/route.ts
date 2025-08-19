@@ -12,10 +12,9 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );

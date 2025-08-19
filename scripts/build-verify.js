@@ -421,7 +421,54 @@ function checkComponentAPIIntegration() {
 checkComponentAPIIntegration();
 
 // ==============================
-// 6. ESLint 검증
+// 6. API 일치성 검증 (Supabase Client Consistency)
+// ==============================
+console.log('\n🔐 API Consistency Verification');
+console.log('-'.repeat(40));
+
+try {
+  // Run API consistency check
+  execSync('node scripts/verify-api-consistency.js', { stdio: 'pipe' });
+  console.log(`${colors.green}✅ API consistency check passed${colors.reset}`);
+} catch (error) {
+  const output = error.stdout ? error.stdout.toString() : '';
+  const hasErrors = output.includes('❌');
+  
+  if (hasErrors) {
+    console.log(`${colors.red}❌ API consistency check failed${colors.reset}`);
+    errorCount += 5; // Critical issue
+    issues.critical.push('API routes using inconsistent Supabase client patterns');
+    
+    // Extract error details
+    const lines = output.split('\n');
+    lines.forEach(line => {
+      if (line.includes('→')) {
+        const errorMsg = line.split('→')[1]?.trim();
+        if (errorMsg) {
+          issues.errors.push(`API Pattern: ${errorMsg}`);
+        }
+      }
+    });
+  } else {
+    console.log(`${colors.yellow}⚠️ API consistency check has warnings${colors.reset}`);
+    warningCount += 2;
+    issues.warnings.push('Some API routes may need review');
+  }
+  
+  // Show summary from the check
+  const summaryStart = output.indexOf('📈 통계:');
+  if (summaryStart !== -1) {
+    const summaryLines = output.substring(summaryStart).split('\n').slice(0, 4);
+    summaryLines.forEach(line => {
+      if (line.trim()) {
+        console.log(`   ${line.trim()}`);
+      }
+    });
+  }
+}
+
+// ==============================
+// 7. ESLint 검증
 // ==============================
 console.log('\n🔍 ESLint Verification');
 console.log('-'.repeat(40));

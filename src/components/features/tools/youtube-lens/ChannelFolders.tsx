@@ -87,11 +87,21 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
     } catch (err) {
       console.error('[ChannelFolders] Fetch error:', err);
       
-      // Handle 401 errors - redirect to login
+      // Handle 401 errors - distinguish between auth and API key issues
       if (err && typeof err === 'object' && 'status' in err) {
-        const errorWithStatus = err as { status: number };
+        const errorWithStatus = err as { status: number; data?: { requiresApiKey?: boolean; errorCode?: string; error?: string } };
         if (errorWithStatus.status === 401) {
-          window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          // Check if it's an API key issue
+          const isApiKeyError = errorWithStatus.data?.requiresApiKey || 
+                                errorWithStatus.data?.errorCode === 'api_key_required' ||
+                                errorWithStatus.data?.error?.includes('API Key');
+          
+          if (isApiKeyError) {
+            setError('YouTube API Key 설정이 필요합니다');
+          } else {
+            // Real authentication issue - redirect to login
+            window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          }
           return;
         }
       }

@@ -14,8 +14,6 @@ import {
   YouTubeJobData 
 } from '@/lib/youtube/queue-manager';
 import { cacheManager } from '@/lib/youtube/cache';
-import { createServerClient } from '@/lib/supabase/server';
-
 // GET: 큐 및 쿼터 상태 조회
 export async function GET(request: NextRequest) {
   try {
@@ -25,9 +23,9 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -101,11 +99,13 @@ export async function GET(request: NextRequest) {
 // POST: 작업 추가
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user: authUser2 } } = await supabase.auth.getUser();
     
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     const body = await request.json();
@@ -179,11 +179,13 @@ export async function POST(request: NextRequest) {
 // PUT: 큐 제어 (일시정지, 재개, 재시도)
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user: authUser3 } } = await supabase.auth.getUser();
     
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     const body = await request.json();
@@ -231,11 +233,13 @@ export async function PUT(request: NextRequest) {
 // DELETE: 캐시 초기화
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user: authUser4 } } = await supabase.auth.getUser();
     
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);

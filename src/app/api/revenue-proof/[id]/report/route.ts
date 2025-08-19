@@ -18,9 +18,11 @@ export async function POST(
     const { id: proofId } = await params;
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 인증이 존재하는지 확인
@@ -38,7 +40,7 @@ export async function POST(
     }
 
     // 자기 자신의 인증은 신고 불가
-    if (proof.user_id === session.user.id) {
+    if (proof.user_id === user.id) {
       return NextResponse.json(
         { error: '자신의 인증은 신고할 수 없습니다' },
         { status: 400 }
@@ -58,7 +60,7 @@ export async function POST(
       .from('proof_reports')
       .select('id')
       .eq('proof_id', proofId)
-      .eq('reporter_id', session.user.id)
+      .eq('reporter_id', user.id)
       .single();
 
     if (existingReport) {
@@ -87,7 +89,7 @@ export async function POST(
       .from('proof_reports')
       .insert({
         proof_id: proofId,
-        reporter_id: session.user.id,
+        reporter_id: user.id,
         reason: validatedData.reason,
         details: validatedData.details || null
       });
@@ -174,12 +176,12 @@ export async function GET(
 
   // 세션 검사
   const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await authSupabase.auth.getUser();
+  const { data: { user: authUser2 } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -188,9 +190,11 @@ export async function GET(
     const { id: proofId } = await params;
 
     // 인증 확인 (관리자 권한 체크는 추후 구현)
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser3 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 신고 목록 조회

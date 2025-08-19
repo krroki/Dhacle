@@ -1,7 +1,7 @@
 // Health check API to test Supabase connection
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-
 export async function GET(request: NextRequest) {
   console.log('Health check API called');
   
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     let supabaseError = null;
     
     try {
-      const supabase = await createSupabaseRouteHandlerClient();
+      const supabase = await createRouteHandlerClient({ cookies });
       clientCreated = true;
       console.log('Supabase client created successfully');
       
@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
       });
       
       // Test 4: Check auth session
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       console.log('Auth check:', { 
-        hasSession: !!session, 
+        hasSession: !!user, 
         error: authError?.message 
       });
       

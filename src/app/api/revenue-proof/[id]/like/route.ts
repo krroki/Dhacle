@@ -16,9 +16,11 @@ export async function POST(
     const { id: proofId } = await params;
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 인증이 존재하는지 확인
@@ -48,7 +50,7 @@ export async function POST(
       .from('proof_likes')
       .select('*')
       .eq('proof_id', proofId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     let isLiked = false;
@@ -60,7 +62,7 @@ export async function POST(
         .from('proof_likes')
         .delete()
         .eq('proof_id', proofId)
-        .eq('user_id', session.user.id);
+        .eq('user_id', user.id);
 
       if (deleteError) {
         console.error('Like delete error:', deleteError);
@@ -87,7 +89,7 @@ export async function POST(
         .from('proof_likes')
         .insert({
           proof_id: proofId,
-          user_id: session.user.id
+          user_id: user.id
         });
 
       if (insertError) {

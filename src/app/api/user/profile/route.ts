@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { Database } from '@/types/database.types'
@@ -15,7 +15,7 @@ export async function GET() {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch {
@@ -38,7 +38,9 @@ export async function GET() {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 })
     }
 
     // Get user profile
@@ -77,7 +79,7 @@ export async function POST(request: Request) {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch {
@@ -100,7 +102,9 @@ export async function POST(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 })
     }
 
     // Parse request body
@@ -205,7 +209,7 @@ export async function PUT(request: Request) {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch {
@@ -228,7 +232,9 @@ export async function PUT(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 })
     }
 
     // Parse request body

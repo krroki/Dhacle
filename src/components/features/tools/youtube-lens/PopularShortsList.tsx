@@ -79,9 +79,21 @@ export default function PopularShortsList({
           return;
         }
 
-        // Handle 401 errors specially - redirect to login
+        // Handle 401 errors - distinguish between auth and API key issues
         if (err.status === 401) {
-          window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          // Check if it's an API key issue
+          const errorData = err.data as { requiresApiKey?: boolean; errorCode?: string; error?: string } | undefined;
+          const isApiKeyError = errorData?.requiresApiKey || 
+                                errorData?.errorCode === 'api_key_required' ||
+                                errorData?.error?.includes('API Key');
+          
+          if (isApiKeyError) {
+            setRequiresApiKey(true);
+            setError('YouTube API Key 설정이 필요합니다');
+          } else {
+            // Real authentication issue - redirect to login
+            window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          }
           return;
         } else {
           setError(err.message);

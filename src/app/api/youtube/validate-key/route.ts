@@ -1,9 +1,10 @@
 // Next.js App Router에서 환경 변수가 동적으로 로드되도록 설정
 export const dynamic = 'force-dynamic';
 
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { validateYouTubeApiKey } from '@/lib/api-keys';
-import { createServerClient } from '@/lib/supabase/server-client';
 
 /**
  * POST /api/youtube/validate-key
@@ -11,13 +12,15 @@ import { createServerClient } from '@/lib/supabase/server-client';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
     
     // 요청 본문 파싱

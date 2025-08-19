@@ -38,11 +38,21 @@ export default function CollectionBoard() {
     } catch (error) {
       console.error('[CollectionBoard] Fetch collections error:', error);
       
-      // Handle 401 errors - redirect to login
+      // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
-        const errorWithStatus = error as { status: number };
+        const errorWithStatus = error as { status: number; data?: { requiresApiKey?: boolean; errorCode?: string; error?: string } };
         if (errorWithStatus.status === 401) {
-          window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          // Check if it's an API key issue
+          const isApiKeyError = errorWithStatus.data?.requiresApiKey || 
+                                errorWithStatus.data?.errorCode === 'api_key_required' ||
+                                errorWithStatus.data?.error?.includes('API Key');
+          
+          if (isApiKeyError) {
+            toast.error('YouTube API Key \uc124\uc815\uc774 \ud544\uc694\ud569\ub2c8\ub2e4');
+          } else {
+            // Real authentication issue - redirect to login
+            window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          }
           return;
         }
       }

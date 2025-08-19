@@ -16,10 +16,9 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
@@ -62,13 +61,12 @@ export async function POST(request: NextRequest) {
   
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user: authUser2 } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
@@ -116,13 +114,12 @@ export async function DELETE(request: NextRequest) {
   
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user: authUser3 } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
@@ -169,13 +166,12 @@ export async function PUT(request: NextRequest) {
   
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user: authUser4 } } = await supabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { 
-        status: 401,
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );

@@ -1,3 +1,4 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server-client';
 
@@ -17,7 +18,7 @@ export async function PATCH(
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }
@@ -105,7 +106,7 @@ export async function DELETE(
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }
@@ -160,7 +161,7 @@ export async function GET(
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }

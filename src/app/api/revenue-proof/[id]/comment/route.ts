@@ -20,9 +20,9 @@ export async function GET(
   const { data: { user } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -76,9 +76,11 @@ export async function POST(
     const { id: proofId } = await params;
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 인증이 존재하는지 확인
@@ -114,7 +116,7 @@ export async function POST(
       .from('proof_comments')
       .insert({
         proof_id: proofId,
-        user_id: session.user.id,
+        user_id: user.id,
         content: validatedData.content
       })
       .select(`
@@ -177,12 +179,12 @@ export async function DELETE(
 
   // 세션 검사
   const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await authSupabase.auth.getUser();
+  const { data: { user: authUser3 } } = await authSupabase.auth.getUser();
   
   if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -199,9 +201,11 @@ export async function DELETE(
     }
 
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser4 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 댓글 조회
@@ -219,7 +223,7 @@ export async function DELETE(
     }
 
     // 작성자 확인
-    if (comment.user_id !== session.user.id) {
+    if (comment.user_id !== user.id) {
       return NextResponse.json(
         { error: '삭제 권한이 없습니다' },
         { status: 403 }

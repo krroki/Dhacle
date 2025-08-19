@@ -60,7 +60,9 @@
     "security:test": "node scripts/security/security-test.js",
     "security:test-verbose": "node scripts/security/security-test.js --verbose",
     "security:scan-secrets": "node scripts/security/scan-secrets.js",
-    "security:complete": "npm run security:apply-rls-all && npm run security:ttl && npm run security:test"
+    "security:complete": "npm run security:apply-rls-all && npm run security:ttl && npm run security:test",
+    "verify:api": "node scripts/verify-api-consistency.js",
+    "fix:api": "node scripts/fix-api-consistency.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

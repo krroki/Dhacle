@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Edge Runtime 대신 Node.js Runtime 사용
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server-client';
 import { 
   saveUserApiKey, 
   getUserApiKey, 
@@ -18,7 +17,7 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -93,7 +92,7 @@ export async function POST(request: NextRequest) {
   });
   
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -194,7 +193,7 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
+    const supabase = createRouteHandlerClient({ cookies });
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();

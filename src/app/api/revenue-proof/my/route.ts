@@ -1,6 +1,7 @@
 // revenue-proof/my/route.ts
 // 내 수익인증 목록 조회 API
 
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
@@ -11,9 +12,11 @@ export async function GET(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -31,7 +34,7 @@ export async function GET(request: NextRequest) {
         comments_count,
         reports_count
       `, { count: 'exact' })
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -128,9 +131,11 @@ export async function DELETE(request: NextRequest) {
     const supabase = createServerComponentClient({ cookies });
     
     // 인증 확인
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 확인 토큰 검증 (안전장치)
@@ -148,7 +153,7 @@ export async function DELETE(request: NextRequest) {
     const { error } = await supabase
       .from('revenue_proofs')
       .delete()
-      .eq('user_id', session.user.id);
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Delete all proofs error:', error);

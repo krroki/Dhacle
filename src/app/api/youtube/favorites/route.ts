@@ -1,3 +1,4 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server-client';
 import type { YouTubeVideo } from '@/types/youtube';
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }
@@ -170,7 +171,7 @@ export async function PUT(request: NextRequest) {
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }

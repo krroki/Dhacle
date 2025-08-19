@@ -1,5 +1,6 @@
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { isValidNaverCafeUrl, isDinoHighClassCafeUrl, DINOHIGHCLASS_CAFE } from '@/lib/utils/nickname-generator';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
@@ -7,13 +8,15 @@ import type { Database } from '@/types/database';
 // 네이버 카페 연동 상태 확인
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient() as SupabaseClient<Database>;
+    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 프로필 정보 가져오기
@@ -60,13 +63,15 @@ export async function GET(request: NextRequest) {
 // 네이버 카페 연동 요청
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient() as SupabaseClient<Database>;
+    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 요청 데이터 파싱
@@ -206,13 +211,15 @@ export async function POST(request: NextRequest) {
 // 네이버 카페 연동 해제
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createSupabaseRouteHandlerClient() as SupabaseClient<Database>;
+    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
     
     // 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 });
     }
 
     // 프로필 업데이트 (인증 해제만, 닉네임은 보존)
