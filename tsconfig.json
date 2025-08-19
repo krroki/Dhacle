@@ -30,6 +30,7 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "vitest.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "supabase/functions/**/*"
   ]
 }

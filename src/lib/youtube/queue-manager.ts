@@ -120,6 +120,7 @@ export class YouTubeQueueManager {
   private workers: Map<JobType, Worker>;
   private queueEvents: QueueEvents;
   private quotaManager: QuotaManager;
+  private concurrencyQueue: PQueue;
 
   private constructor() {
     this.queues = new Map();
