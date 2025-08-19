@@ -79,9 +79,10 @@ export default function PopularShortsList({
           return;
         }
 
-        // Handle 401 errors specially
+        // Handle 401 errors specially - redirect to login
         if (err.status === 401) {
-          setError('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+          window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          return;
         } else {
           setError(err.message);
         }

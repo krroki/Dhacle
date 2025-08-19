@@ -37,6 +37,13 @@ export default function CollectionBoard() {
       setCollections(data.collections || []);
     } catch (error) {
       console.error('[CollectionBoard] Fetch collections error:', error);
+      
+      // Handle 401 errors - redirect to login
+      if (error && typeof error === 'object' && 'status' in error && (error as any).status === 401) {
+        window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+        return;
+      }
+      
       const errorMessage = error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
       toast.error(errorMessage);
     } finally {

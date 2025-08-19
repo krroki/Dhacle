@@ -87,6 +87,13 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       setFolders(data.folders || []);
     } catch (err) {
       console.error('[ChannelFolders] Fetch error:', err);
+      
+      // Handle 401 errors - redirect to login
+      if (err && typeof err === 'object' && 'status' in err && (err as any).status === 401) {
+        window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+        return;
+      }
+      
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(errorMessage);
     } finally {
@@ -136,7 +143,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
 
   // Delete folder
   const handleDeleteFolder = async (folderId: string) => {
-    if (!confirm('Are you sure you want to delete this folder?')) return;
+    if (!confirm('정말로 이 폴더를 삭제하시겠습니까?')) return;
 
     try {
       await apiDelete(`/api/youtube/folders/${folderId}`);
@@ -196,15 +203,15 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500 text-white"><CheckCircle2 className="w-3 h-3 mr-1" />Active</Badge>;
+        return <Badge className="bg-green-500 text-white"><CheckCircle2 className="w-3 h-3 mr-1" />활성</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-500 text-white"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge className="bg-yellow-500 text-white"><Clock className="w-3 h-3 mr-1" />대기</Badge>;
       case 'overdue':
-        return <Badge className="bg-red-500 text-white"><AlertCircle className="w-3 h-3 mr-1" />Overdue</Badge>;
+        return <Badge className="bg-red-500 text-white"><AlertCircle className="w-3 h-3 mr-1" />지연</Badge>;
       case 'disabled':
-        return <Badge variant="outline"><BellOff className="w-3 h-3 mr-1" />Disabled</Badge>;
+        return <Badge variant="outline"><BellOff className="w-3 h-3 mr-1" />비활성</Badge>;
       default:
-        return <Badge variant="secondary">Never checked</Badge>;
+        return <Badge variant="secondary">확인 안함</Badge>;
     }
   };
 
@@ -215,47 +222,47 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Channel Folders</CardTitle>
+              <CardTitle>채널 폴더</CardTitle>
               <CardDescription>
-                Organize and monitor YouTube channels in folders
+                YouTube 채널을 폴더별로 정리하고 모니터링하세요
               </CardDescription>
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <FolderPlus className="w-4 h-4 mr-2" />
-                  New Folder
+                  새 폴더
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create New Folder</DialogTitle>
+                  <DialogTitle>새 폴더 만들기</DialogTitle>
                   <DialogDescription>
-                    Create a folder to organize YouTube channels for monitoring
+                    YouTube 채널 모니터링을 위한 폴더를 만들어보세요
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Folder Name</Label>
+                    <Label htmlFor="name">폴더 이름</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g., Gaming Channels"
+                      placeholder="예: 게임 채널"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">설명</Label>
                     <Textarea
                       id="description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Describe the purpose of this folder..."
+                      placeholder="이 폴더의 목적을 설명해주세요..."
                       rows={3}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="interval">Check Interval (hours)</Label>
+                    <Label htmlFor="interval">확인 간격 (시간)</Label>
                     <Input
                       id="interval"
                       type="number"
@@ -277,14 +284,14 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                         is_monitoring_enabled: checked 
                       })}
                     />
-                    <Label htmlFor="monitoring">Enable monitoring</Label>
+                    <Label htmlFor="monitoring">모니터링 활성화</Label>
                   </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
+                    취소
                   </Button>
-                  <Button onClick={handleCreateFolder}>Create Folder</Button>
+                  <Button onClick={handleCreateFolder}>폴더 생성</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -295,7 +302,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search folders..."
+              placeholder="폴더 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -340,7 +347,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuLabel>작업</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation();
@@ -354,7 +361,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                         setIsEditDialogOpen(true);
                       }}>
                         <Edit className="w-4 h-4 mr-2" />
-                        Edit
+                        편집
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation();
@@ -366,12 +373,12 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                         {folder.is_monitoring_enabled ? (
                           <>
                             <BellOff className="w-4 h-4 mr-2" />
-                            Disable Monitoring
+                            모니터링 비활성화
                           </>
                         ) : (
                           <>
                             <Bell className="w-4 h-4 mr-2" />
-                            Enable Monitoring
+                            모니터링 활성화
                           </>
                         )}
                       </DropdownMenuItem>
@@ -384,7 +391,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                         }}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
+                        삭제
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -403,21 +410,21 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      {channelCount} channel{channelCount !== 1 ? 's' : ''}
+                      채널 {channelCount}개
                     </span>
                     {getStatusBadge(status)}
                   </div>
 
                   {/* Check interval */}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Check every</span>
+                    <span className="text-muted-foreground">확인 주기</span>
                     <span>{folder.check_interval_hours}h</span>
                   </div>
 
                   {/* Last checked */}
                   {folder.last_checked_at && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Last check</span>
+                      <span className="text-muted-foreground">마지막 확인</span>
                       <span>{new Date(folder.last_checked_at).toLocaleString()}</span>
                     </div>
                   )}
@@ -434,7 +441,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                     onFolderSelect?.(folder);
                   }}
                 >
-                  View Channels
+                  채널 보기
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
@@ -447,13 +454,13 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
           <Card className="col-span-full">
             <CardContent className="text-center py-12">
               <Folder className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">No folders yet</h3>
+              <h3 className="text-lg font-semibold mb-2">아직 폴더가 없습니다</h3>
               <p className="text-muted-foreground mb-4">
-                Create your first folder to start organizing channels
+                첫 번째 폴더를 만들어 채널을 정리해보세요
               </p>
               <Button onClick={() => setIsCreateDialogOpen(true)}>
                 <FolderPlus className="w-4 h-4 mr-2" />
-                Create Folder
+                폴더 만들기
               </Button>
             </CardContent>
           </Card>
@@ -464,14 +471,14 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Folder</DialogTitle>
+            <DialogTitle>폴더 편집</DialogTitle>
             <DialogDescription>
-              Update folder settings and monitoring configuration
+              폴더 설정과 모니터링 구성을 수정하세요
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Folder Name</Label>
+              <Label htmlFor="edit-name">폴더 이름</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
@@ -479,7 +486,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
+              <Label htmlFor="edit-description">설명</Label>
               <Textarea
                 id="edit-description"
                 value={formData.description}
@@ -488,7 +495,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-interval">Check Interval (hours)</Label>
+              <Label htmlFor="edit-interval">확인 간격 (시간)</Label>
               <Input
                 id="edit-interval"
                 type="number"
@@ -510,14 +517,14 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
                   is_monitoring_enabled: checked 
                 })}
               />
-              <Label htmlFor="edit-monitoring">Enable monitoring</Label>
+              <Label htmlFor="edit-monitoring">모니터링 활성화</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              취소
             </Button>
-            <Button onClick={handleUpdateFolder}>Update Folder</Button>
+            <Button onClick={handleUpdateFolder}>폴더 업데이트</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

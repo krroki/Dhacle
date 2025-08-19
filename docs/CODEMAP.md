@@ -27,7 +27,9 @@
 # 개발 명령어
 npm run dev                     # 개발 서버 시작 (자동 검증 포함)
 npm run dev:no-verify          # 검증 없이 개발 서버 시작
-npm run build                   # 빌드 테스트
+npm run build                   # 빌드 (Vercel용, 환경 감지)
+npm run build:local            # 로컬 전체 테스트 (검증 + 빌드)
+npm run build:no-verify        # 검증 없이 빌드
 npx tsc --noEmit               # TypeScript 체크
 npm run lint                    # ESLint 검사
 
@@ -203,6 +205,9 @@ export async function GET(request: Request) {
 │   │   ├── scan-secrets.js       # 비밀키 스캔 도구 ✅ Wave 2
 │   │   ├── apply-rls-wave2.js    # Wave 2 RLS 적용 ✅ Wave 2
 │   │   └── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
+│   ├── dev-verify.js              # 개발 시 자동 검증 ✅ NEW (2025-01-30)
+│   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 ✅ NEW (2025-01-30)
+│   ├── fix-missing-apis.js        # 누락 API 자동 생성 ✅ NEW (2025-01-30)
 │   ├── supabase-migration.js     # 기본 마이그레이션 자동화
 │   ├── auto-migrate.js           # 향상된 자동 마이그레이션
 │   ├── supabase-migrate-complete.js # Service Role Key 활용 완벽 실행 ✅

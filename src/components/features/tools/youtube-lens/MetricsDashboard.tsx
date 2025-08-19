@@ -142,8 +142,8 @@ export function MetricsDashboard({
     const viralVideos = metrics.filter(m => (m.viral_score || 0) > 70).length;
     const topPerformers = metrics.filter(m => (m.views_per_hour || 0) > 1000).length;
 
-    // Calculate growth rate (mock data for demonstration)
-    const growthRate = 15.3;
+    // Calculate growth rate from trends data
+    const growthRate = trends.length > 0 && trends[0]?.growth_rate ? trends[0].growth_rate : 0;
 
     return {
       totalViews,
@@ -223,9 +223,9 @@ export function MetricsDashboard({
         <StatCard
           title="총 조회수"
           value={formatNumber(aggregateMetrics.totalViews)}
-          change={12.5}
+          change={aggregateMetrics.growthRate}
           icon={Eye}
-          trend="up"
+          trend={aggregateMetrics.growthRate > 0 ? "up" : aggregateMetrics.growthRate < 0 ? "down" : "neutral"}
           color="primary"
           description="지난 기간 대비"
         />
@@ -241,18 +241,18 @@ export function MetricsDashboard({
         <StatCard
           title="참여율"
           value={`${aggregateMetrics.avgEngagement}%`}
-          change={-2.3}
+          change={0}
           icon={Heart}
-          trend="down"
+          trend="neutral"
           color="accent"
           description="좋아요 + 댓글"
         />
         <StatCard
           title="바이럴 영상"
           value={aggregateMetrics.viralVideos}
-          change={25}
+          change={0}
           icon={Zap}
-          trend="up"
+          trend="neutral"
           color="success"
           description={`전체 ${aggregateMetrics.totalVideos}개 중`}
         />
@@ -362,31 +362,40 @@ export function MetricsDashboard({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">신규 영상</p>
-                    <p className="text-2xl font-bold text-yt-lens-primary">42</p>
+                    <p className="text-2xl font-bold text-yt-lens-primary">{aggregateMetrics.totalVideos}</p>
                     <Badge className="bg-yt-lens-accent/20 text-yt-lens-accent-dark">
                       <TrendingUp className="w-3 h-3 mr-1" />
-                      +18%
+                      {aggregateMetrics.growthRate > 0 ? '+' : ''}{aggregateMetrics.growthRate.toFixed(1)}%
                     </Badge>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">모니터링 채널</p>
-                    <p className="text-2xl font-bold text-yt-lens-secondary">128</p>
+                    <p className="text-2xl font-bold text-yt-lens-secondary">{trends.length}</p>
                     <Badge variant="outline">
-                      활성
+                      {trends.length > 0 ? '활성' : '대기'}
                     </Badge>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">알림 발생</p>
-                    <p className="text-2xl font-bold">7</p>
-                    <Badge className="bg-yellow-100 text-yellow-800">
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      주의
+                    <p className="text-2xl font-bold">{aggregateMetrics.viralVideos}</p>
+                    <Badge className={aggregateMetrics.viralVideos > 5 ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}>
+                      {aggregateMetrics.viralVideos > 5 ? (
+                        <>
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          주의
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          정상
+                        </>
+                      )}
                     </Badge>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">API 사용량</p>
-                    <p className="text-2xl font-bold">68%</p>
-                    <Progress value={68} className="h-2 mt-2" />
+                    <p className="text-2xl font-bold">{aggregateMetrics.avgEngagement}%</p>
+                    <Progress value={parseFloat(String(aggregateMetrics.avgEngagement))} className="h-2 mt-2" />
                   </div>
                 </div>
               </CardContent>

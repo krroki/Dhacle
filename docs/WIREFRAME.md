@@ -109,6 +109,9 @@
 | SearchBar | onSubmit | POST /api/youtube/search | VideoGrid 업데이트 | Toast 에러 | ✅ |
 | 인기 Shorts 버튼 | onClick | GET /api/youtube/popular | VideoGrid 업데이트 | 401→로그인 | ✅ |
 | VideoCard 좋아요 | onClick | POST /api/youtube/favorites | 아이콘 변경 | Toast | ✅ |
+| FolderManager | onMount | GET /api/youtube/folders | 폴더 목록 표시 | 스켈레톤 | ✅ |
+| 폴더 생성 | onSubmit | POST /api/youtube/folders | 목록 업데이트 | 검증 에러 | ✅ |
+| 폴더 수정/삭제 | onClick | PATCH/DELETE /api/youtube/folders/[id] | UI 업데이트 | Toast | ✅ |
 | CollectionManager | onMount | GET /api/youtube/collections | 컬렉션 목록 | 스켈레톤 | ✅ |
 | 컬렉션 생성 | onSubmit | POST /api/youtube/collections | 목록 업데이트 | 검증 에러 | ✅ |
 | QuotaStatus | onMount | GET /api/youtube/metrics | 할당량 표시 | - | ✅ |
