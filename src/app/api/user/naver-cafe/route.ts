@@ -10,7 +10,7 @@ import {
 import type { Database } from '@/types/database';
 
 // 네이버 카페 연동 상태 확인
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -54,8 +54,7 @@ export async function GET(request: NextRequest) {
       verifiedAt: profile?.naverCafeVerifiedAt || null,
       verificationHistory: verifications || [],
     });
-  } catch (error) {
-    console.error('Error fetching Naver Cafe status:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -184,14 +183,13 @@ export async function POST(request: NextRequest) {
       message: 'Verification request submitted. Please wait for admin approval.',
       verificationId: verification.id,
     });
-  } catch (error) {
-    console.error('Error verifying Naver Cafe:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // 네이버 카페 연동 해제
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -222,8 +220,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       message: 'Naver Cafe verification removed successfully',
     });
-  } catch (error) {
-    console.error('Error removing Naver Cafe verification:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

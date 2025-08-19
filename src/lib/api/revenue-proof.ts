@@ -24,24 +24,26 @@ export async function getRevenueProofs(params?: {
 }> {
   const searchParams = new URLSearchParams();
 
-  if (params?.platform) searchParams.append('platform', params.platform);
-  if (params?.filter) searchParams.append('filter', params.filter);
-  if (params?.page) searchParams.append('page', params.page.toString());
-  if (params?.limit) searchParams.append('limit', params.limit.toString());
-
-  try {
-    return await apiGet<{
-      data: RevenueProof[];
-      pagination: {
-        page: number;
-        totalPages: number;
-        total: number;
-      };
-    }>(`${API_BASE}?${searchParams.toString()}`);
-  } catch (error) {
-    console.error('Revenue proofs fetch error:', error);
-    throw error;
+  if (params?.platform) {
+    searchParams.append('platform', params.platform);
   }
+  if (params?.filter) {
+    searchParams.append('filter', params.filter);
+  }
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+  return await apiGet<{
+    data: RevenueProof[];
+    pagination: {
+      page: number;
+      totalPages: number;
+      total: number;
+    };
+  }>(`${API_BASE}?${searchParams.toString()}`);
 }
 
 // 인증 상세 조회

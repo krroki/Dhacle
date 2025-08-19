@@ -88,16 +88,24 @@ export function EntityRadar({
 
   // Calculate average confidence
   const avgConfidence = useMemo(() => {
-    if (entities.length === 0) return 0;
+    if (entities.length === 0) {
+      return 0;
+    }
     const sum = entities.reduce((acc, entity) => acc + entity.confidence, 0);
     return ((sum / entities.length) * 100).toFixed(1);
   }, [entities]);
 
   const getFrequencyColor = (frequency: number, max: number) => {
     const ratio = frequency / max;
-    if (ratio > 0.7) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (ratio > 0.4) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (ratio > 0.2) return 'bg-green-100 text-green-800 border-green-200';
+    if (ratio > 0.7) {
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    }
+    if (ratio > 0.4) {
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+    if (ratio > 0.2) {
+      return 'bg-green-100 text-green-800 border-green-200';
+    }
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 

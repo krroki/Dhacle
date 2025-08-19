@@ -52,7 +52,7 @@ const sampleData = [
 ];
 
 // POST: 시드 데이터 추가
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createRouteHandlerClient({ cookies });
 
@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error(`시드 데이터 ${index + 1} 추가 실패:`, error);
         results.push({
           success: false,
           title: data.title,
@@ -108,14 +107,13 @@ export async function POST(request: NextRequest) {
       total: sampleData.length,
       success: successCount,
     });
-  } catch (error) {
-    console.error('시드 데이터 추가 오류:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
 
 // GET: 시드 데이터 상태 확인
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -144,8 +142,7 @@ export async function GET(request: NextRequest) {
           ? '데이터가 없습니다. POST 요청으로 시드 데이터를 추가하세요.'
           : `현재 ${count}개의 수익 인증 데이터가 있습니다.`,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

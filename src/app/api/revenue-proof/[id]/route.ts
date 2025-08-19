@@ -9,7 +9,7 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 수익인증 상세 조회
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 세션 검사
     const authSupabase = createRouteHandlerClient({ cookies });
@@ -105,8 +105,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         isLiked: isLiked,
       },
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -172,7 +171,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (updateError) {
-      console.error('Update error:', updateError);
       return NextResponse.json({ error: '수정 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -181,8 +179,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       message: '수익 인증이 수정되었습니다',
     });
   } catch (error) {
-    console.error('API error:', error);
-
     // Zod 검증 에러
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -200,7 +196,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 // DELETE: 수익인증 삭제 (작성자만)
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -235,15 +231,13 @@ export async function DELETE(
     const { error: deleteError } = await supabase.from('revenue_proofs').delete().eq('id', id);
 
     if (deleteError) {
-      console.error('Delete error:', deleteError);
       return NextResponse.json({ error: '삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 
     return NextResponse.json({
       message: '수익 인증이 삭제되었습니다',
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

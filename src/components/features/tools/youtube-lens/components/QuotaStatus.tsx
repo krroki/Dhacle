@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Activity,
-  AlertCircle,
-  BarChart3,
-  Clock,
-  Info,
-  RefreshCw,
-  Search,
-  TrendingUp,
-  Video,
-  Zap,
-} from 'lucide-react';
+import { Activity, AlertCircle, Clock, Info, RefreshCw, Search, Video, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -32,28 +21,44 @@ interface QuotaStatusProps {
 
 // 색상 계산 함수
 function getQuotaColor(percentage: number): string {
-  if (percentage >= 95) return 'text-destructive';
-  if (percentage >= 80) return 'text-orange-500';
-  if (percentage >= 60) return 'text-yellow-500';
+  if (percentage >= 95) {
+    return 'text-destructive';
+  }
+  if (percentage >= 80) {
+    return 'text-orange-500';
+  }
+  if (percentage >= 60) {
+    return 'text-yellow-500';
+  }
   return 'text-green-500';
 }
 
 // 진행바 색상 계산
 function getProgressColor(percentage: number): string {
-  if (percentage >= 95) return 'bg-destructive';
-  if (percentage >= 80) return 'bg-orange-500';
-  if (percentage >= 60) return 'bg-yellow-500';
+  if (percentage >= 95) {
+    return 'bg-destructive';
+  }
+  if (percentage >= 80) {
+    return 'bg-orange-500';
+  }
+  if (percentage >= 60) {
+    return 'bg-yellow-500';
+  }
   return 'bg-green-500';
 }
 
 // 남은 시간 계산
 function formatTimeRemaining(resetTime?: number): string {
-  if (!resetTime) return '알 수 없음';
+  if (!resetTime) {
+    return '알 수 없음';
+  }
 
   const now = Date.now();
   const diff = resetTime - now;
 
-  if (diff <= 0) return '곧 초기화';
+  if (diff <= 0) {
+    return '곧 초기화';
+  }
 
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -76,7 +81,9 @@ export function QuotaStatus({
 
   // 남은 시간 업데이트
   useEffect(() => {
-    if (!quotaStatus?.resetTime) return;
+    if (!quotaStatus?.resetTime) {
+      return;
+    }
 
     const updateTime = () => {
       setTimeRemaining(formatTimeRemaining(quotaStatus.resetTime.getTime()));
@@ -90,7 +97,9 @@ export function QuotaStatus({
 
   // 새로고침 핸들러
   const handleRefresh = async () => {
-    if (!onRefresh || isRefreshing) return;
+    if (!onRefresh || isRefreshing) {
+      return;
+    }
 
     setIsRefreshing(true);
     try {

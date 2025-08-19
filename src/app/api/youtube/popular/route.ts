@@ -7,9 +7,8 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { calculateMetrics } from '@/lib/youtube/metrics';
-import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
 import { mapVideoStats } from '@/lib/utils/type-mappers';
+import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
 
 export const runtime = 'nodejs';
 
@@ -35,7 +34,7 @@ export async function GET(request: NextRequest) {
     const regionCode = searchParams.get('region') || 'KR';
     const period = searchParams.get('period') || '7d';
     const limit = Number.parseInt(searchParams.get('limit') || '50', 10);
-    const strategy = searchParams.get('strategy') || 'all';
+    const _strategy = searchParams.get('strategy') || 'all';
 
     // Validate parameters
     if (!['KR', 'US', 'JP', 'GB', 'FR', 'DE'].includes(regionCode)) {
@@ -111,12 +110,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[/api/youtube/popular] Error details:', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    });
-
     // Check if it's a quota error
     if (error instanceof Error && error.message.includes('quota')) {
       return NextResponse.json(
@@ -243,8 +236,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in advanced search:', error);
-
     return NextResponse.json(
       {
         error: 'Failed to perform advanced search',
@@ -258,7 +249,7 @@ export async function POST(request: NextRequest) {
 /**
  * Helper: Save search history
  */
-async function saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
+async function _saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -268,8 +259,7 @@ async function saveSearchHistory(userId: string, searchData: Record<string, unkn
       searchParams: searchData,
       created_at: new Date().toISOString(),
     });
-  } catch (error) {
-    console.error('Failed to save search history:', error);
+  } catch (_error) {
     // Non-critical error, don't throw
   }
 }
@@ -277,23 +267,18 @@ async function saveSearchHistory(userId: string, searchData: Record<string, unkn
 /**
  * Helper: Save videos to collection
  */
-async function saveToCollection(userId: string, collectionId: string, videos: unknown[]) {
-  try {
-    const supabase = createRouteHandlerClient({ cookies });
+async function saveToCollection(_userId: string, collectionId: string, videos: unknown[]) {
+  const supabase = createRouteHandlerClient({ cookies });
 
-    const collectionItems = videos.map((video) => {
-      const videoData = video as { id: string };
-      return {
-        collection_id: collectionId,
-        video_id: videoData.id,
-        addedAt: new Date().toISOString(),
-        itemData: video,
-      };
-    });
+  const collectionItems = videos.map((video) => {
+    const videoData = video as { id: string };
+    return {
+      collection_id: collectionId,
+      video_id: videoData.id,
+      addedAt: new Date().toISOString(),
+      itemData: video,
+    };
+  });
 
-    await supabase.from('collectionItems').insert(collectionItems);
-  } catch (error) {
-    console.error('Failed to save to collection:', error);
-    throw error;
-  }
+  await supabase.from('collectionItems').insert(collectionItems);
 }

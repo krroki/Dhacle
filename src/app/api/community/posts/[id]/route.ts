@@ -18,7 +18,7 @@ interface CommentWithProfile {
  * GET /api/community/posts/[id]
  * 게시글 상세 조회
  */
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: postId } = await params;
@@ -79,8 +79,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       success: true,
       post: formattedPost,
     });
-  } catch (error) {
-    console.error('Error in GET /api/community/posts/[id]:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -137,8 +136,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       success: true,
       post: data,
     });
-  } catch (error) {
-    console.error('Error in PUT /api/community/posts/[id]:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -147,7 +145,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
  * DELETE /api/community/posts/[id]
  * 게시글 삭제
  */
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: postId } = await params;
@@ -180,8 +178,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       success: true,
       message: '게시글이 삭제되었습니다',
     });
-  } catch (error) {
-    console.error('Error in DELETE /api/community/posts/[id]:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

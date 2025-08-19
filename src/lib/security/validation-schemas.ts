@@ -173,7 +173,7 @@ export async function validateRequestBody<T>(
       success: true,
       data: result.data,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       error: '유효하지 않은 JSON 형식입니다.',
@@ -192,7 +192,7 @@ export function validateQueryParams<T>(
 
   params.forEach((value, key) => {
     // 숫자로 변환 가능한 경우 변환
-    if (!isNaN(Number(value))) {
+    if (!Number.isNaN(Number(value))) {
       data[key] = Number(value);
     } else if (value === 'true' || value === 'false') {
       data[key] = value === 'true';

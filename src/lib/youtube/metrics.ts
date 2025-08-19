@@ -26,7 +26,9 @@ export function calculateVPH(
   const published = typeof publishedAt === 'string' ? new Date(publishedAt) : publishedAt;
   const hoursElapsed = (currentTime.getTime() - published.getTime()) / (1000 * 60 * 60);
 
-  if (hoursElapsed <= 0) return 0;
+  if (hoursElapsed <= 0) {
+    return 0;
+  }
 
   return viewCount / hoursElapsed;
 }
@@ -40,7 +42,9 @@ export function calculateEngagementRate(
   likeCount: number,
   commentCount: number
 ): number {
-  if (viewCount === 0) return 0;
+  if (viewCount === 0) {
+    return 0;
+  }
 
   return ((likeCount + commentCount) / viewCount) * 100;
 }
@@ -92,9 +96,15 @@ export function calculateViralScore(params: {
   score += momentumScore * 0.1;
 
   // Apply multipliers for exceptional performance
-  if (vph > 100000) score *= 1.5; // Extremely viral
-  if (engagementRate > 15) score *= 1.3; // Exceptional engagement
-  if (hoursElapsed < 6 && viewCount > 100000) score *= 1.4; // Instant viral
+  if (vph > 100000) {
+    score *= 1.5; // Extremely viral
+  }
+  if (engagementRate > 15) {
+    score *= 1.3; // Exceptional engagement
+  }
+  if (hoursElapsed < 6 && viewCount > 100000) {
+    score *= 1.4; // Instant viral
+  }
 
   return Math.min(Math.round(score), 100);
 }
@@ -128,7 +138,9 @@ function calculateEngagementScore(engagementRate: number): number {
  * Calculate reach score (views relative to channel size)
  */
 function calculateReachScore(viewCount: number, subscriberCount: number): number {
-  if (subscriberCount === 0) return 50; // Default for unknown
+  if (subscriberCount === 0) {
+    return 50; // Default for unknown
+  }
 
   const ratio = viewCount / subscriberCount;
 
@@ -144,7 +156,9 @@ function calculateReachScore(viewCount: number, subscriberCount: number): number
  * Calculate momentum score (recent performance)
  */
 function calculateMomentumScore(viewCount: number, hoursElapsed: number): number {
-  if (hoursElapsed > 168) return 0; // Older than a week
+  if (hoursElapsed > 168) {
+    return 0; // Older than a week
+  }
 
   // Score based on recency and view count
   const recencyFactor = (168 - hoursElapsed) / 168;
@@ -161,7 +175,9 @@ export function calculateGrowthRate(
   previousValue: number,
   hoursElapsed: number
 ): number {
-  if (previousValue === 0 || hoursElapsed === 0) return 0;
+  if (previousValue === 0 || hoursElapsed === 0) {
+    return 0;
+  }
 
   const growth = ((currentValue - previousValue) / previousValue) * 100;
   const hourlyGrowth = growth / hoursElapsed;
@@ -179,7 +195,7 @@ export function calculateChannelMetrics(
   // Calculate average views from recent videos
   const avgViews =
     recentVideos.length > 0
-      ? recentVideos.reduce((sum, v) => {
+      ? recentVideos.reduce((sum, _v) => {
           // This would need actual view data
           return sum;
         }, 0) / recentVideos.length
@@ -474,10 +490,10 @@ export function calculateTrend(dataPoints: { value: number; timestamp: Date }[])
 
   // Calculate linear regression
   const n = sorted.length;
-  let sumX = 0,
-    sumY = 0,
-    sumXY = 0,
-    sumX2 = 0;
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumX2 = 0;
 
   sorted.forEach((point, index) => {
     const x = index; // Use index as X for simplicity
@@ -497,8 +513,8 @@ export function calculateTrend(dataPoints: { value: number; timestamp: Date }[])
 
   // Calculate R-squared for strength
   const meanY = sumY / n;
-  let ssTotal = 0,
-    ssResidual = 0;
+  let ssTotal = 0;
+  let ssResidual = 0;
 
   sorted.forEach((point, index) => {
     const predicted = slope * index + (meanY - slope * (sumX / n));

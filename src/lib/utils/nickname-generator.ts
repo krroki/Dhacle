@@ -192,7 +192,9 @@ export function isDinoHighClassCafeUrl(url: string): boolean {
  * @returns 포맷된 닉네임
  */
 export function formatNickname(nickname: string, maxLength = 10): string {
-  if (!nickname) return '익명';
+  if (!nickname) {
+    return '익명';
+  }
 
   if (nickname.length <= maxLength) {
     return nickname;

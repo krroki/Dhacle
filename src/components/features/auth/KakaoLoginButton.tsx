@@ -31,11 +31,9 @@ export function KakaoLoginButton({
       });
 
       if (error) {
-        console.error('카카오 로그인 에러:', error);
         alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
-    } catch (error) {
-      console.error('예상치 못한 에러:', error);
+    } catch (_error) {
       alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };

@@ -28,7 +28,9 @@ const DEFAULT_CONFIG: AnalyticsConfig = {
  * Calculate median of an array of numbers
  */
 function median(values: number[]): number {
-  if (values.length === 0) return 0;
+  if (values.length === 0) {
+    return 0;
+  }
 
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
@@ -44,7 +46,9 @@ function median(values: number[]): number {
  * MAD is more robust to outliers than standard deviation
  */
 function calculateMAD(values: number[]): number {
-  if (values.length === 0) return 0;
+  if (values.length === 0) {
+    return 0;
+  }
 
   const med = median(values);
   const deviations = values.map((v) => Math.abs(v - med));
@@ -55,13 +59,17 @@ function calculateMAD(values: number[]): number {
  * Calculate z-score for each value
  */
 function calculateZScores(values: number[]): number[] {
-  if (values.length === 0) return [];
+  if (values.length === 0) {
+    return [];
+  }
 
   const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
   const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
   const stdDev = Math.sqrt(variance);
 
-  if (stdDev === 0) return values.map(() => 0);
+  if (stdDev === 0) {
+    return values.map(() => 0);
+  }
 
   return values.map((v) => (v - mean) / stdDev);
 }
@@ -70,13 +78,17 @@ function calculateZScores(values: number[]): number[] {
  * Calculate modified z-score using MAD
  * This is more robust to outliers than standard z-score
  */
-function calculateModifiedZScores(values: number[], madMultiplier = 2.5): number[] {
-  if (values.length === 0) return [];
+function calculateModifiedZScores(values: number[], _madMultiplier = 2.5): number[] {
+  if (values.length === 0) {
+    return [];
+  }
 
   const med = median(values);
   const mad = calculateMAD(values);
 
-  if (mad === 0) return values.map(() => 0);
+  if (mad === 0) {
+    return values.map(() => 0);
+  }
 
   // Modified z-score formula: 0.6745 * (x - median) / MAD
   // 0.6745 is the constant to make MAD consistent with standard deviation
@@ -87,7 +99,9 @@ function calculateModifiedZScores(values: number[], madMultiplier = 2.5): number
  * Calculate percentile rank for a value in a dataset
  */
 function calculatePercentile(value: number, values: number[]): number {
-  if (values.length === 0) return 50;
+  if (values.length === 0) {
+    return 50;
+  }
 
   const sorted = [...values].sort((a, b) => a - b);
   const count = sorted.filter((v) => v <= value).length;
@@ -245,8 +259,11 @@ export function analyzeOutlierTrends(
     const recentAvg = recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
     const earlyAvg = earlyScores.reduce((a, b) => a + b, 0) / earlyScores.length;
 
-    if (recentAvg > earlyAvg * 1.2) trend = 'improving';
-    else if (recentAvg < earlyAvg * 0.8) trend = 'declining';
+    if (recentAvg > earlyAvg * 1.2) {
+      trend = 'improving';
+    } else if (recentAvg < earlyAvg * 0.8) {
+      trend = 'declining';
+    }
   }
 
   return {

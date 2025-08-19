@@ -11,7 +11,9 @@ function AuthErrorContent() {
 
   // 에러 메시지 매핑
   const getErrorMessage = () => {
-    if (errorDescription) return errorDescription;
+    if (errorDescription) {
+      return errorDescription;
+    }
 
     switch (error) {
       case 'access_denied':

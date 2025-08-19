@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
 
     // Validate required parameters
     if (!mode || !topic || !challenge) {
-      console.error('Missing verification parameters:', { mode, topic, challenge });
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
@@ -46,10 +45,8 @@ export async function GET(request: NextRequest) {
         },
       });
     }
-    console.error('Webhook verification failed:', result.error);
     return NextResponse.json({ error: result.error || 'Verification failed' }, { status: 404 });
-  } catch (error) {
-    console.error('Webhook GET error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -62,7 +59,7 @@ export async function POST(request: NextRequest) {
   try {
     // Webhook endpoints must be public (no authentication required)
     // YouTube servers will call this without authentication
-    
+
     // Get the raw body
     const body = await request.text();
 
@@ -73,7 +70,6 @@ export async function POST(request: NextRequest) {
     const channelIdMatch = body.match(/<yt:channelId>([^<]+)<\/yt:channelId>/);
 
     if (!channelIdMatch) {
-      console.error('No channel ID found in notification');
       return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
     }
 
@@ -97,10 +93,8 @@ export async function POST(request: NextRequest) {
       // Hub expects 2xx response
       return NextResponse.json({ success: true }, { status: 200 });
     }
-    console.error('Notification processing failed:', result.error);
     return NextResponse.json({ error: result.error || 'Processing failed' }, { status: 400 });
-  } catch (error) {
-    console.error('Webhook POST error:', error);
+  } catch (_error) {
     // Return 200 to prevent hub from retrying
     // Log the error for debugging
     return NextResponse.json({ error: 'Internal server error' }, { status: 200 });
@@ -114,7 +108,7 @@ async function handleVideoUpdate(video: unknown) {
   try {
     // Import monitoring system dynamically to avoid circular dependencies
     const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
-    const scheduler = new MonitoringScheduler();
+    const _scheduler = new MonitoringScheduler();
 
     // Check if this video triggers any alerts
     // Note: Alert checking would be done through AlertRuleEngine
@@ -147,8 +141,7 @@ async function handleVideoUpdate(video: unknown) {
       // await supabase.from('videos').upsert({...})
       // await supabase.from('videoStats').insert({...})
     }
-  } catch (error) {
-    console.error('Error handling video update:', error);
+  } catch (_error) {
     // Don't throw - we don't want to fail the webhook response
   }
 }
@@ -156,7 +149,7 @@ async function handleVideoUpdate(video: unknown) {
 /**
  * OPTIONS handler for CORS preflight
  */
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {

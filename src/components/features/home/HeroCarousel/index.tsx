@@ -75,13 +75,17 @@ export function HeroCarousel() {
 
   // 다음 슬라이드로 이동
   const goToNext = useCallback(() => {
-    if (!api) return;
+    if (!api) {
+      return;
+    }
     api.scrollNext();
   }, [api]);
 
   // 이전 슬라이드로 이동
   const goToPrev = useCallback(() => {
-    if (!api) return;
+    if (!api) {
+      return;
+    }
     api.scrollPrev();
   }, [api]);
 
@@ -125,7 +129,7 @@ export function HeroCarousel() {
         autoplayTimeout.current = null;
       }
     };
-  }, [api, current, isAutoplayPaused, goToNext]);
+  }, [api, isAutoplayPaused, goToNext]);
 
   // 마우스 호버 시 자동재생 일시정지
   const handleMouseEnter = useCallback(() => {
@@ -139,7 +143,9 @@ export function HeroCarousel() {
   // 키보드 네비게이션
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!api) return;
+      if (!api) {
+        return;
+      }
 
       if (e.key === 'ArrowLeft') {
         e.preventDefault();

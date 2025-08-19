@@ -37,8 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ items: data });
-  } catch (error) {
-    console.error('Error in GET /api/youtube/collections/items:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -80,8 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ item: data }, { status: 201 });
-  } catch (error) {
-    console.error('Error in POST /api/youtube/collections/items:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -122,8 +120,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     return NextResponse.json({ success });
-  } catch (error) {
-    console.error('Error in DELETE /api/youtube/collections/items:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -160,8 +157,7 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json({ success });
-  } catch (error) {
-    console.error('Error in PUT /api/youtube/collections/items:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

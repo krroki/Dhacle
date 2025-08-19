@@ -124,8 +124,7 @@ export async function POST(req: NextRequest) {
           }
         : null,
     });
-  } catch (error) {
-    console.error('Payment intent creation error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

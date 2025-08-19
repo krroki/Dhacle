@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = Number.parseInt(searchParams.get('page') || '1');
-    const limit = Number.parseInt(searchParams.get('limit') || '10');
+    const page = Number.parseInt(searchParams.get('page') || '1', 10);
+    const limit = Number.parseInt(searchParams.get('limit') || '10', 10);
     const offset = (page - 1) * limit;
     const includeHidden = searchParams.get('includeHidden') === 'true';
 
@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
     const { data: proofs, error, count } = await query;
 
     if (error) {
-      console.error('My proofs query error:', error);
       return NextResponse.json(
         { error: '내 인증을 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -73,7 +72,7 @@ export async function GET(request: NextRequest) {
         const isToday = createdAt >= today;
 
         // 24시간 내 수정 가능 여부
-        const hoursSinceCreation = (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
         const canEdit = hoursSinceCreation <= 24;
 
         return {
@@ -137,8 +136,7 @@ export async function GET(request: NextRequest) {
       canCreateToday,
       nextAvailable,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -168,15 +166,13 @@ export async function DELETE(request: NextRequest) {
     const { error } = await supabase.from('revenue_proofs').delete().eq('user_id', user.id);
 
     if (error) {
-      console.error('Delete all proofs error:', error);
       return NextResponse.json({ error: '인증 삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 
     return NextResponse.json({
       message: '모든 인증이 삭제되었습니다',
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     // YouTube API 클라이언트 생성 (API Key 사용)
     const apiClient = new YouTubeAPIClient({
       apiKey: apiKey,
-      onQuotaUpdate: async (units) => {
+      onQuotaUpdate: async (_units) => {
         // 할당량 업데이트는 검색 완료 후 처리
       },
     });
@@ -144,8 +144,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Search API error:', error);
-
     // YouTube API 에러 처리
     if (error instanceof Error) {
       // API 할당량 초과

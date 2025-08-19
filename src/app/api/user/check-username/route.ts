@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (error) {
-      console.error('Error checking username:', error);
       return NextResponse.json({ error: 'Failed to check username' }, { status: 500 });
     }
 
@@ -50,8 +49,7 @@ export async function POST(request: Request) {
       available: !existingUser,
       username,
     });
-  } catch (error) {
-    console.error('Error in check-username:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

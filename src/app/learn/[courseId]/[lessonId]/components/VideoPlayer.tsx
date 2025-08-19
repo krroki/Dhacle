@@ -7,7 +7,6 @@ import {
   Maximize,
   Pause,
   Play,
-  Settings,
   SkipBack,
   SkipForward,
   Volume2,
@@ -17,7 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
+import { apiPost } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 
 interface VideoPlayerProps {
@@ -48,20 +47,22 @@ export function VideoPlayer({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [_isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1);
 
   // HLS 초기화
   useEffect(() => {
-    if (!videoRef.current || !streamUrl) return;
+    if (!videoRef.current || !streamUrl) {
+      return;
+    }
 
     const video = videoRef.current;
 
     if (Hls.isSupported()) {
       const hls = new Hls({
-        xhrSetup: (xhr, url) => {
+        xhrSetup: (xhr, _url) => {
           if (accessToken) {
             xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
           }
@@ -81,8 +82,7 @@ export function VideoPlayer({
         }
       });
 
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        console.error('HLS Error:', data);
+      hls.on(Hls.Events.ERROR, (_event, data) => {
         if (data.fatal) {
           setIsLoading(false);
         }
@@ -147,14 +147,14 @@ export function VideoPlayer({
           progress: Math.floor(time),
         });
         onProgress?.(time);
-      } catch (error) {
-        console.error('Failed to save progress:', error);
-      }
+      } catch (_error) {}
     }, 10000);
 
     const handleTimeUpdate = () => {
       const video = videoRef.current;
-      if (!video) return;
+      if (!video) {
+        return;
+      }
 
       const time = video.currentTime;
       setCurrentTime(time);
@@ -180,7 +180,9 @@ export function VideoPlayer({
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       const video = videoRef.current;
-      if (!video) return;
+      if (!video) {
+        return;
+      }
 
       switch (e.key) {
         case ' ':
@@ -216,7 +218,7 @@ export function VideoPlayer({
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  }, [toggleFullscreen, toggleMute, togglePlay]);
 
   // 컨트롤 자동 숨김
   useEffect(() => {
@@ -240,7 +242,9 @@ export function VideoPlayer({
     if (container) {
       container.addEventListener('mousemove', showControlsTemp);
       container.addEventListener('mouseleave', () => {
-        if (isPlaying) setShowControls(false);
+        if (isPlaying) {
+          setShowControls(false);
+        }
       });
     }
 
@@ -256,7 +260,9 @@ export function VideoPlayer({
 
   const togglePlay = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
 
     if (video.paused) {
       video.play();
@@ -269,7 +275,9 @@ export function VideoPlayer({
 
   const toggleMute = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
 
     video.muted = !video.muted;
     setIsMuted(video.muted);
@@ -277,7 +285,9 @@ export function VideoPlayer({
 
   const toggleFullscreen = () => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     if (!document.fullscreenElement) {
       container.requestFullscreen();
@@ -290,7 +300,9 @@ export function VideoPlayer({
 
   const handleSeek = (value: number[]) => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
 
     const time = (value[0] / 100) * duration;
     video.currentTime = time;
@@ -299,7 +311,9 @@ export function VideoPlayer({
 
   const handleVolumeChange = (value: number[]) => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
 
     const vol = value[0] / 100;
     video.volume = vol;
@@ -309,7 +323,9 @@ export function VideoPlayer({
 
   const changePlaybackRate = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
 
     const rates = [1, 1.25, 1.5, 1.75, 2];
     const currentIndex = rates.indexOf(playbackRate);

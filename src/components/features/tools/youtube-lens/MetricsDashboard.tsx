@@ -11,24 +11,17 @@ import {
   Activity,
   AlertCircle,
   BarChart3,
-  Calendar,
   CheckCircle,
   Clock,
   Download,
   Eye,
-  Filter,
   Globe,
-  Hash,
   Heart,
   LineChart,
-  MessageSquare,
   PieChart,
   RefreshCw,
-  Share2,
   TrendingDown,
   TrendingUp,
-  Users,
-  XCircle,
   Youtube,
   Zap,
 } from 'lucide-react';
@@ -46,7 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { mapTrendAnalysis, mapVideoStats } from '@/lib/utils/type-mappers';
+import { mapTrendAnalysis } from '@/lib/utils/type-mappers';
 import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtube-lens';
 import { EntityRadar } from './EntityRadar';
 import { TrendChart } from './TrendChart';
@@ -98,8 +91,12 @@ function StatCard({
   };
 
   const getTrendIcon = () => {
-    if (trend === 'up') return <TrendingUp className="w-4 h-4 text-yt-lens-accent" />;
-    if (trend === 'down') return <TrendingDown className="w-4 h-4 text-yt-lens-secondary" />;
+    if (trend === 'up') {
+      return <TrendingUp className="w-4 h-4 text-yt-lens-accent" />;
+    }
+    if (trend === 'down') {
+      return <TrendingDown className="w-4 h-4 text-yt-lens-secondary" />;
+    }
     return <Activity className="w-4 h-4 text-gray-400" />;
   };
 
@@ -175,7 +172,8 @@ export function MetricsDashboard({
 
     // Calculate growth rate from trends data
     const mappedTrends = trends.map(mapTrendAnalysis);
-  const growthRate = mappedTrends.length > 0 && mappedTrends[0]?.growthRate ? mappedTrends[0].growthRate : 0;
+    const growthRate =
+      mappedTrends.length > 0 && mappedTrends[0]?.growthRate ? mappedTrends[0].growthRate : 0;
 
     return {
       totalViews,
@@ -187,12 +185,16 @@ export function MetricsDashboard({
       topPerformers,
       growthRate,
     };
-  }, [metrics]);
+  }, [metrics, trends.map]);
 
   // Format large numbers
   const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
     return num.toString();
   };
 
@@ -201,8 +203,7 @@ export function MetricsDashboard({
     const distribution = {
       excellent: metrics.filter((m) => (m.viralScore || 0) > 80).length,
       good: metrics.filter((m) => (m.viralScore || 0) > 60 && (m.viralScore || 0) <= 80).length,
-      average: metrics.filter((m) => (m.viralScore || 0) > 40 && (m.viralScore || 0) <= 60)
-        .length,
+      average: metrics.filter((m) => (m.viralScore || 0) > 40 && (m.viralScore || 0) <= 60).length,
       poor: metrics.filter((m) => (m.viralScore || 0) <= 40).length,
     };
     return distribution;

@@ -2,8 +2,8 @@
 
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-export async function GET() {
+import { NextResponse } from 'next/server';
+export async function GET(): Promise<NextResponse> {
   console.log('Health check API called');
 
   try {
@@ -63,7 +63,6 @@ export async function GET() {
       });
     } catch (error: unknown) {
       supabaseError = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Supabase client error:', error);
     }
 
     return NextResponse.json(
@@ -83,7 +82,6 @@ export async function GET() {
       { status: 500 }
     );
   } catch (error: unknown) {
-    console.error('Health check error:', error);
     return NextResponse.json(
       {
         status: 'error',

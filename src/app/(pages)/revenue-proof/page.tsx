@@ -21,7 +21,7 @@ export default function RevenueProofGallery() {
   const [platform, setPlatform] = useState<'all' | 'youtube' | 'instagram' | 'tiktok'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [_hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // 데이터 로드 (실제 API만 사용)
@@ -46,8 +46,7 @@ export default function RevenueProofGallery() {
         }
         setHasMore(result.pagination.page < result.pagination.totalPages);
       }
-    } catch (error) {
-      console.error('Failed to load revenue proofs:', error);
+    } catch (_error) {
       setError('수익 인증을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 
       // API 오류 시 빈 배열로 설정 (더미 데이터 사용하지 않음)
@@ -63,20 +62,26 @@ export default function RevenueProofGallery() {
   useEffect(() => {
     setPage(1);
     loadData();
-  }, [filter, platform]);
+  }, [loadData]);
 
   // 페이지 변경 시 추가 로드
   useEffect(() => {
     if (page > 1) {
       loadData();
     }
-  }, [page]);
+  }, [page, loadData]);
 
   // Masonry 컬럼 계산
   const getColumnCount = () => {
-    if (!windowWidth) return 3;
-    if (windowWidth < 768) return 2;
-    if (windowWidth < 1024) return 3;
+    if (!windowWidth) {
+      return 3;
+    }
+    if (windowWidth < 768) {
+      return 2;
+    }
+    if (windowWidth < 1024) {
+      return 3;
+    }
     return 4;
   };
 

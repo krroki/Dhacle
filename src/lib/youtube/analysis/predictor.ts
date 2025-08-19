@@ -326,7 +326,7 @@ export async function predictVideoPerformance(
   )[0];
 
   const currentViews = latestStats?.view_count || 0;
-  const currentLikes = latestStats?.like_count || 0;
+  const _currentLikes = latestStats?.like_count || 0;
 
   // Predict future metrics
   const predictedViews = predictViews(currentViews, trajectory, features, horizonDays);

@@ -7,7 +7,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { calculateChannelMetrics, calculateMetrics } from '@/lib/youtube/metrics';
+import { calculateMetrics } from '@/lib/youtube/metrics';
 import type { YouTubeVideo } from '@/types/youtube-lens';
 
 export const runtime = 'nodejs';
@@ -71,12 +71,6 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ error: 'Invalid type. Use "video" or "channel"' }, { status: 400 });
   } catch (error) {
-    console.error('[/api/youtube/metrics] Error details:', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    });
-
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to fetch metrics',
@@ -138,12 +132,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[/api/youtube/metrics/batch] Error details:', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    });
-
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to calculate batch metrics',
@@ -188,7 +176,9 @@ async function getVideoMetrics(videoId: string, period: string) {
     .lte('snapshotAt', endDate.toISOString())
     .order('snapshotAt', { ascending: true });
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   if (!stats || stats.length === 0) {
     return {
@@ -252,7 +242,7 @@ async function getVideoMetrics(videoId: string, period: string) {
 /**
  * Helper: Get channel metrics
  */
-async function getChannelMetrics(channelId: string, period: string) {
+async function getChannelMetrics(channelId: string, _period: string) {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Get channel videos with stats
@@ -270,7 +260,9 @@ async function getChannelMetrics(channelId: string, period: string) {
     .order('published_at', { ascending: false })
     .limit(50);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   if (!videos || videos.length === 0) {
     return {
@@ -404,7 +396,7 @@ function calculateAggregateStats(
  * Helper: Save metrics snapshot
  */
 async function saveMetricsSnapshot(
-  userId: string,
+  _userId: string,
   videos: Array<
     YouTubeVideo & {
       metrics?: {
@@ -430,8 +422,7 @@ async function saveMetricsSnapshot(
     }));
 
     await supabase.from('videoStats').insert(snapshots);
-  } catch (error) {
-    console.error('Failed to save metrics snapshot:', error);
+  } catch (_error) {
     // Non-critical error, don't throw
   }
 }

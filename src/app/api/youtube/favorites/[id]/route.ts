@@ -1,6 +1,6 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server-client';
 
 /**
  * 즐겨찾기 업데이트
@@ -8,7 +8,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server-client';
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -63,7 +63,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .single();
 
     if (updateError) {
-      console.error('Failed to update favorite:', updateError);
       return NextResponse.json({ error: 'Failed to update favorite' }, { status: 500 });
     }
 
@@ -71,8 +70,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       success: true,
       data: updated,
     });
-  } catch (error: unknown) {
-    console.error('Favorite PATCH error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -82,11 +80,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
  * DELETE /api/youtube/favorites/[id]
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -119,8 +117,7 @@ export async function DELETE(
       message: 'Favorite deleted successfully',
       data: deleted,
     });
-  } catch (error: unknown) {
-    console.error('Favorite DELETE error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -129,9 +126,9 @@ export async function DELETE(
  * 즐겨찾기 단일 항목 조회
  * GET /api/youtube/favorites/[id]
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -162,8 +159,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       success: true,
       data: favorite,
     });
-  } catch (error: unknown) {
-    console.error('Favorite GET error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

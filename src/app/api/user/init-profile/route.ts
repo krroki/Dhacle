@@ -9,7 +9,7 @@ import type { Database } from '@/types/database';
  * 신규 회원가입 시 프로필 초기화
  * Kakao OAuth 콜백 후 자동 호출됨
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (createError) {
-        console.error('Error creating profile:', createError);
         return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
       }
 
@@ -123,7 +122,6 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (updateError) {
-        console.error('Error updating profile:', updateError);
         return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
       }
 
@@ -140,14 +138,13 @@ export async function POST(request: NextRequest) {
       profile: existingProfile,
       isNew: false,
     });
-  } catch (error) {
-    console.error('Error initializing profile:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // 프로필 상태 확인
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -187,8 +184,7 @@ export async function GET(request: NextRequest) {
         displayNickname: profile.displayNickname,
       },
     });
-  } catch (error) {
-    console.error('Error checking profile status:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

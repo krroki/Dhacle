@@ -24,7 +24,7 @@ export default async function NewCoursesPage(): Promise<React.JSX.Element> {
   const courses = await getNewCourses();
 
   // 최근 7일 이내 강의 체크
-  const isRecentlyAdded = (date: string) => {
+  const _isRecentlyAdded = (date: string) => {
     const courseDate = new Date(date);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);

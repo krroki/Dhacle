@@ -1,22 +1,9 @@
 'use client';
 
-import {
-  AlertCircle,
-  CheckCircle2,
-  Copy,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Info,
-  Key,
-  RefreshCw,
-  ShieldCheck,
-  Trash2,
-  Zap,
-} from 'lucide-react';
+import { ExternalLink, Eye, EyeOff, Key, RefreshCw, ShieldCheck, Trash2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -54,14 +41,7 @@ export default function ApiKeysPage() {
   const [currentKey, setCurrentKey] = useState<ApiKeyData | null>(null);
   const [fetchingKey, setFetchingKey] = useState(true);
 
-  // 현재 API Key 조회
-  useEffect(() => {
-    if (user) {
-      fetchCurrentKey();
-    }
-  }, [user]);
-
-  const fetchCurrentKey = async () => {
+  const fetchCurrentKey = useCallback(async () => {
     try {
       setFetchingKey(true);
       const data = await apiGet<{ success: boolean; data?: ApiKeyData }>(
@@ -71,12 +51,18 @@ export default function ApiKeysPage() {
       if (data.success && data.data) {
         setCurrentKey(data.data);
       }
-    } catch (error) {
-      console.error('Failed to fetch API key:', error);
+    } catch (_error) {
     } finally {
       setFetchingKey(false);
     }
-  };
+  }, []);
+
+  // 현재 API Key 조회
+  useEffect(() => {
+    if (user) {
+      fetchCurrentKey();
+    }
+  }, [user, fetchCurrentKey]);
 
   // API Key 유효성 검증
   const handleValidate = async () => {
@@ -98,7 +84,7 @@ export default function ApiKeysPage() {
       }
       toast.error(data.error || '유효하지 않은 API Key입니다');
       return false;
-    } catch (error) {
+    } catch (_error) {
       toast.error('검증 중 오류가 발생했습니다');
       return false;
     } finally {
@@ -139,7 +125,7 @@ export default function ApiKeysPage() {
       } else {
         toast.error(data.error || '저장 실패');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('저장 중 오류가 발생했습니다');
     } finally {
       setLoading(false);
@@ -163,7 +149,7 @@ export default function ApiKeysPage() {
       } else {
         toast.error(data.error || '삭제 실패');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('삭제 중 오류가 발생했습니다');
     }
   };

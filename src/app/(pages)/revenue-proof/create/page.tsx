@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import SignatureCanvas from 'react-signature-canvas';
-import { ApiError, apiDelete, apiGet, apiPost, apiPut, apiUpload } from '@/lib/api-client';
+import { ApiError, apiUpload } from '@/lib/api-client';
 import 'react-image-crop/dist/ReactCrop.css';
 import { AlertTriangle, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -115,11 +115,14 @@ export default function CreateRevenueProof() {
 
       // API 호출 (FormData는 apiUpload 사용)
       try {
-        const result = await apiUpload<{ message?: string; id?: string }>('/api/revenue-proof', formData);
-        
+        const result = await apiUpload<{ message?: string; id?: string }>(
+          '/api/revenue-proof',
+          formData
+        );
+
         // 성공 메시지
         alert(result?.message || '수익 인증이 성공적으로 작성되었습니다!');
-        
+
         // 갤러리로 이동
         router.push('/revenue-proof');
       } catch (error) {
@@ -132,7 +135,6 @@ export default function CreateRevenueProof() {
             alert(error.message || '인증 작성 중 오류가 발생했습니다.');
           }
         } else {
-          console.error('Submit error:', error);
           alert('인증 작성 중 오류가 발생했습니다.');
         }
         return;

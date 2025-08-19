@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
     const CUSTOMER_SUBDOMAIN = process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN;
 
     if (!ACCOUNT_ID || !STREAM_TOKEN) {
-      console.error('Cloudflare Stream 환경 변수가 설정되지 않았습니다.');
       return NextResponse.json(
         { error: 'Cloudflare Stream이 설정되지 않았습니다.' },
         { status: 500 }
@@ -103,8 +102,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Cloudflare Stream 업로드 실패:', errorText);
+      const _errorText = await response.text();
       return NextResponse.json(
         { error: 'Cloudflare Stream 업로드에 실패했습니다.' },
         { status: response.status }
@@ -114,7 +112,6 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
 
     if (!data.success || !data.result) {
-      console.error('Cloudflare Stream 응답 오류:', data);
       return NextResponse.json({ error: '비디오 업로드 처리에 실패했습니다.' }, { status: 500 });
     }
 
@@ -142,7 +139,6 @@ export async function POST(req: NextRequest) {
         .eq('id', lessonId);
 
       if (updateError) {
-        console.error('레슨 정보 업데이트 실패:', updateError);
         // 업로드는 성공했으므로 에러를 반환하지 않고 경고만 포함
       }
     }
@@ -158,8 +154,7 @@ export async function POST(req: NextRequest) {
       status: videoInfo.status,
       message: '비디오 업로드가 완료되었습니다.',
     });
-  } catch (error) {
-    console.error('비디오 업로드 에러:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '비디오 업로드 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
@@ -219,8 +214,7 @@ export async function GET(req: NextRequest) {
         thumbnail: `https://videodelivery.net/${data.result.uid}/thumbnails/thumbnail.jpg`,
       },
     });
-  } catch (error) {
-    console.error('비디오 상태 확인 에러:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: '비디오 상태 확인 중 오류가 발생했습니다.' },
       { status: 500 }

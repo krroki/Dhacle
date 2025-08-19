@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { commentSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 댓글 목록 조회
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 세션 검사
     const authSupabase = createRouteHandlerClient({ cookies });
@@ -41,7 +41,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Comments fetch error:', error);
       return NextResponse.json(
         { error: '댓글을 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -52,8 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       data: comments || [],
       count: comments?.length || 0,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -113,7 +111,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (insertError) {
-      console.error('Comment insert error:', insertError);
       return NextResponse.json({ error: '댓글 작성 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -133,8 +130,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       { status: 201 }
     );
   } catch (error) {
-    console.error('API error:', error);
-
     // Zod 검증 에러
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -192,7 +187,6 @@ export async function DELETE(request: NextRequest) {
       .eq('id', commentId);
 
     if (deleteError) {
-      console.error('Comment delete error:', deleteError);
       return NextResponse.json({ error: '댓글 삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -215,8 +209,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       message: '댓글이 삭제되었습니다',
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

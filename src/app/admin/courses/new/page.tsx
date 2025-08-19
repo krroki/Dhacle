@@ -40,8 +40,7 @@ export default function NewCoursePage() {
 
       // 성공 시 강의 관리 페이지로 이동
       router.push('/admin/courses');
-    } catch (error) {
-      console.error('Error creating course:', error);
+    } catch (_error) {
       alert('강의 생성 중 오류가 발생했습니다.');
     } finally {
       setIsSaving(false);

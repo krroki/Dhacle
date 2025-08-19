@@ -35,59 +35,55 @@ export async function getPopularShortsWithoutKeyword(
     minVPH = 100,
     limit = 50,
   } = params;
+  // Try multiple strategies in parallel for better coverage
+  const strategies = [SearchStrategy.WHITESPACE, SearchStrategy.CATEGORY, SearchStrategy.HASHTAG];
 
-  try {
-    // Try multiple strategies in parallel for better coverage
-    const strategies = [SearchStrategy.WHITESPACE, SearchStrategy.CATEGORY, SearchStrategy.HASHTAG];
+  const searchPromises = strategies.map((strategy) =>
+    executeSearchStrategy(strategy, {
+      regionCode,
+      categoryId,
+      maxResults: Math.ceil(limit / strategies.length),
+      userId: params.userId,
+    })
+  );
 
-    const searchPromises = strategies.map((strategy) =>
-      executeSearchStrategy(strategy, {
-        regionCode,
-        categoryId,
-        maxResults: Math.ceil(limit / strategies.length),
-        userId: params.userId,
-      })
-    );
+  const results = await Promise.allSettled(searchPromises);
 
-    const results = await Promise.allSettled(searchPromises);
+  // Combine successful results
+  let allVideos: youtube_v3.Schema$Video[] = [];
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value) {
+      allVideos = allVideos.concat(result.value);
+    }
+  }
 
-    // Combine successful results
-    let allVideos: youtube_v3.Schema$Video[] = [];
-    for (const result of results) {
-      if (result.status === 'fulfilled' && result.value) {
-        allVideos = allVideos.concat(result.value);
-      }
+  // Filter for Shorts (duration < 60 seconds)
+  const shorts = filterShorts(allVideos);
+
+  // Calculate metrics and filter by thresholds
+  const videosWithMetrics = await enrichWithMetrics(shorts, period);
+
+  // Apply filters
+  const filtered = videosWithMetrics.filter((video) => {
+    const stats = video.stats;
+    if (!stats) {
+      return false;
     }
 
-    // Filter for Shorts (duration < 60 seconds)
-    const shorts = filterShorts(allVideos);
+    return stats.view_count >= minViews && (stats.viewsPerHour || 0) >= minVPH;
+  });
 
-    // Calculate metrics and filter by thresholds
-    const videosWithMetrics = await enrichWithMetrics(shorts, period);
+  // Sort by viral score (highest first)
+  filtered.sort((a, b) => {
+    const scoreA = a.stats?.viralScore || 0;
+    const scoreB = b.stats?.viralScore || 0;
+    return scoreB - scoreA;
+  });
 
-    // Apply filters
-    const filtered = videosWithMetrics.filter((video) => {
-      const stats = video.stats;
-      if (!stats) return false;
+  // Store in database for caching
+  await storeVideosInDatabase(filtered);
 
-      return stats.view_count >= minViews && (stats.viewsPerHour || 0) >= minVPH;
-    });
-
-    // Sort by viral score (highest first)
-    filtered.sort((a, b) => {
-      const scoreA = a.stats?.viralScore || 0;
-      const scoreB = b.stats?.viralScore || 0;
-      return scoreB - scoreA;
-    });
-
-    // Store in database for caching
-    await storeVideosInDatabase(filtered);
-
-    return filtered.slice(0, limit);
-  } catch (error) {
-    console.error('Error fetching popular shorts:', error);
-    throw error;
-  }
+  return filtered.slice(0, limit);
 }
 
 /**
@@ -174,14 +170,7 @@ async function executeSearchStrategy(
     });
 
     return videosResponse.data.items || [];
-  } catch (error: unknown) {
-    console.error(`[executeSearchStrategy] Strategy ${strategy} failed:`, {
-      error: error instanceof Error ? error.message : String(error),
-      strategy,
-      options,
-      searchParams,
-      timestamp: new Date().toISOString(),
-    });
+  } catch (_error: unknown) {
     return [];
   }
 }
@@ -192,7 +181,9 @@ async function executeSearchStrategy(
 function filterShorts(videos: youtube_v3.Schema$Video[]): youtube_v3.Schema$Video[] {
   return videos.filter((video) => {
     const duration = video.contentDetails?.duration;
-    if (!duration) return false;
+    if (!duration) {
+      return false;
+    }
 
     // Parse ISO 8601 duration (e.g., "PT58S", "PT1M30S")
     const seconds = parseDuration(duration);
@@ -205,10 +196,12 @@ function filterShorts(videos: youtube_v3.Schema$Video[]): youtube_v3.Schema$Vide
  */
 function parseDuration(duration: string): number {
   const match = duration.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return 0;
+  if (!match) {
+    return 0;
+  }
 
-  const minutes = Number.parseInt(match[1] || '0');
-  const seconds = Number.parseInt(match[2] || '0');
+  const minutes = Number.parseInt(match[1] || '0', 10);
+  const seconds = Number.parseInt(match[2] || '0', 10);
 
   return minutes * 60 + seconds;
 }
@@ -218,20 +211,22 @@ function parseDuration(duration: string): number {
  */
 async function enrichWithMetrics(
   videos: youtube_v3.Schema$Video[],
-  period: string
+  _period: string
 ): Promise<VideoWithStats[]> {
   const enriched: VideoWithStats[] = [];
 
   for (const video of videos) {
-    if (!video.id || !video.snippet || !video.statistics) continue;
+    if (!video.id || !video.snippet || !video.statistics) {
+      continue;
+    }
 
     const publishedAt = new Date(video.snippet.publishedAt || '');
     const now = new Date();
     const hoursElapsed = (now.getTime() - publishedAt.getTime()) / (1000 * 60 * 60);
 
-    const viewCount = Number.parseInt(video.statistics.viewCount || '0');
-    const likeCount = Number.parseInt(video.statistics.likeCount || '0');
-    const commentCount = Number.parseInt(video.statistics.commentCount || '0');
+    const viewCount = Number.parseInt(video.statistics.viewCount || '0', 10);
+    const likeCount = Number.parseInt(video.statistics.likeCount || '0', 10);
+    const commentCount = Number.parseInt(video.statistics.commentCount || '0', 10);
 
     // Calculate metrics
     const vph = hoursElapsed > 0 ? viewCount / hoursElapsed : 0;
@@ -319,9 +314,15 @@ function calculateViralScore(metrics: {
   score = vphScore + engagementScore + viewScore + recencyScore;
 
   // Apply multipliers for exceptional metrics
-  if (vph > 10000) score *= 1.5;
-  if (engagementRate > 10) score *= 1.3;
-  if (hoursElapsed < 24 && viewCount > 50000) score *= 1.4;
+  if (vph > 10000) {
+    score *= 1.5;
+  }
+  if (engagementRate > 10) {
+    score *= 1.3;
+  }
+  if (hoursElapsed < 24 && viewCount > 50000) {
+    score *= 1.4;
+  }
 
   return Math.min(score, 100); // Cap at 100
 }
@@ -349,7 +350,9 @@ function getTimeframeDate(period: string): string {
  * Store videos in database for caching and history
  */
 async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
-  if (videos.length === 0) return;
+  if (videos.length === 0) {
+    return;
+  }
 
   try {
     // Store videos
@@ -373,7 +376,6 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
       .upsert(videoData, { onConflict: 'video_id' });
 
     if (videoError) {
-      console.error('Error storing videos:', videoError);
     }
 
     // Store stats
@@ -381,25 +383,22 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
       .filter((v) => v.stats)
       .map((v) => ({
         video_id: v.video_id,
-        view_count: v.stats!.view_count,
-        like_count: v.stats!.like_count,
-        comment_count: v.stats!.comment_count,
-        viewsPerHour: v.stats!.viewsPerHour,
-        engagementRate: v.stats!.engagementRate,
-        viralScore: v.stats!.viralScore,
-        viewDelta: v.stats!.viewDelta,
-        likeDelta: v.stats!.likeDelta,
-        commentDelta: v.stats!.commentDelta,
+        view_count: v.stats?.view_count,
+        like_count: v.stats?.like_count,
+        comment_count: v.stats?.comment_count,
+        viewsPerHour: v.stats?.viewsPerHour,
+        engagementRate: v.stats?.engagementRate,
+        viralScore: v.stats?.viralScore,
+        viewDelta: v.stats?.viewDelta,
+        likeDelta: v.stats?.likeDelta,
+        commentDelta: v.stats?.commentDelta,
       }));
 
     const { error: statsError } = await supabase.from('videoStats').insert(statsData);
 
     if (statsError) {
-      console.error('Error storing stats:', statsError);
     }
-  } catch (error) {
-    console.error('Error storing videos in database:', error);
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -427,7 +426,6 @@ export async function getCachedPopularShorts(
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching cached shorts:', error);
       return [];
     }
 
@@ -438,8 +436,7 @@ export async function getCachedPopularShorts(
     }));
 
     return videosWithStats;
-  } catch (error) {
-    console.error('Error fetching cached shorts:', error);
+  } catch (_error) {
     return [];
   }
 }

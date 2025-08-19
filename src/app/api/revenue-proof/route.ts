@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
     // 쿼리 파라미터 파싱
     const platform = searchParams.get('platform') || 'all';
     const filter = searchParams.get('filter') || 'all';
-    const page = Number.parseInt(searchParams.get('page') || '1');
-    const limit = Number.parseInt(searchParams.get('limit') || '20');
+    const page = Number.parseInt(searchParams.get('page') || '1', 10);
+    const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
     const offset = (page - 1) * limit;
 
     // 기본 쿼리 구성 (단순화)
@@ -63,7 +63,6 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('Database query error:', error);
       return NextResponse.json(
         { error: '데이터를 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -104,8 +103,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('API error:', error);
-
     // 개발 환경에서는 상세한 에러 메시지 제공
     const errorMessage =
       process.env.NODE_ENV === 'development'
@@ -143,7 +140,7 @@ export async function POST(request: NextRequest) {
     // FormData를 객체로 변환
     const body = {
       title: formData.get('title') as string,
-      amount: Number.parseInt(formData.get('amount') as string),
+      amount: Number.parseInt(formData.get('amount') as string, 10),
       platform: formData.get('platform') as string,
       content: formData.get('content') as string,
       signature: formData.get('signature') as string,
@@ -189,8 +186,6 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-
       // Storage 버킷이 없는 경우 안내
       if (uploadError.message.includes('bucket') || uploadError.message.includes('not found')) {
         return NextResponse.json(
@@ -245,8 +240,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database insert error:', error);
-
       // RLS 정책 위반 (일일 제한)
       if (error.code === '42501' && error.message.includes('revenueProofsInsertCheck')) {
         return NextResponse.json(
@@ -266,8 +259,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('API error:', error);
-
     // Zod 검증 에러
     if (error instanceof z.ZodError) {
       return NextResponse.json(

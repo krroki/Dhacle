@@ -8,7 +8,6 @@ export class CryptoUtil {
   private static getEncryptionKey(): string {
     const key = process.env.ENCRYPTION_KEY;
     if (!key) {
-      console.error('ENCRYPTION_KEY environment variable is missing');
       throw new Error(
         '암호화 키가 설정되지 않았습니다. ' +
           'ENCRYPTION_KEY 환경 변수를 설정해주세요. ' +
@@ -16,7 +15,6 @@ export class CryptoUtil {
       );
     }
     if (key.length < 32) {
-      console.error(`ENCRYPTION_KEY is too short: ${key.length} characters (minimum: 32)`);
       throw new Error(
         `암호화 키가 너무 짧습니다. 현재 길이: ${key.length}자, 최소 길이: 32자. ` +
           '더 긴 암호화 키를 생성해주세요.'
@@ -36,8 +34,7 @@ export class CryptoUtil {
         padding: CryptoJS.pad.Pkcs7,
       });
       return encrypted.toString();
-    } catch (error) {
-      console.error('Encryption failed:', error);
+    } catch (_error) {
       throw new Error('Failed to encrypt data');
     }
   }
@@ -59,8 +56,7 @@ export class CryptoUtil {
       }
 
       return decryptedText;
-    } catch (error) {
-      console.error('Decryption failed:', error);
+    } catch (_error) {
       throw new Error('Failed to decrypt data');
     }
   }
@@ -139,13 +135,11 @@ export class CryptoUtil {
       const payload = CryptoUtil.decryptObject<{ data: T; expiresAt: number }>(token);
 
       if (Date.now() > payload.expiresAt) {
-        console.warn('Token has expired');
         return null;
       }
 
       return payload.data;
-    } catch (error) {
-      console.error('Token verification failed:', error);
+    } catch (_error) {
       return null;
     }
   }

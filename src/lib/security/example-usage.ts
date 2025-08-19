@@ -153,9 +153,7 @@ export function secureRouteHandler(
       }
 
       return response;
-    } catch (error) {
-      console.error('API Error:', error);
-
+    } catch (_error) {
       return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
     }
   };

@@ -1,7 +1,7 @@
 'use client';
 
 import { AlertTriangle, Bug, CheckCircle, Copy, Home, RefreshCw } from 'lucide-react';
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -51,8 +51,7 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('YouTube Lens Error:', error, errorInfo);
+  componentDidCatch(_error: Error, errorInfo: ErrorInfo) {
     this.setState({ errorInfo });
 
     // 에러 리포팅 (프로덕션 환경에서)

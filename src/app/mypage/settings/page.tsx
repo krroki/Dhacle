@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, Bell, Check, Eye, Loader2, LogOut, Shield, Trash2 } from 'lucide-react';
+import { AlertCircle, Bell, Eye, Loader2, LogOut, Shield, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,11 +18,12 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       router.push('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
+    } catch (_error) {
       setMessage('로그아웃 중 오류가 발생했습니다');
     } finally {
       setLoading(false);
@@ -42,8 +43,7 @@ export default function SettingsPage() {
     try {
       // TODO: 계정 삭제 API 구현
       setMessage('계정 삭제 기능은 준비 중입니다. 고객센터로 문의해주세요.');
-    } catch (error) {
-      console.error('Error deleting account:', error);
+    } catch (_error) {
       setMessage('계정 삭제 중 오류가 발생했습니다');
     } finally {
       setLoading(false);

@@ -6,6 +6,8 @@
  * 메모리 저장소를 사용하여 간단하게 구현되었습니다.
  */
 
+import { NextResponse } from 'next/server';
+
 interface RateLimitEntry {
   count: number;
   resetTime: number;
@@ -136,10 +138,10 @@ export function getClientIp(request: Request): string {
 }
 
 // Rate limit 응답 생성 헬퍼
-export function createRateLimitResponse(resetTime: number): Response {
+export function createRateLimitResponse(resetTime: number): NextResponse {
   const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
 
-  return new Response(
+  return new NextResponse(
     JSON.stringify({
       error: 'Too many requests. Please try again later.',
       retryAfter,

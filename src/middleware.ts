@@ -1,13 +1,13 @@
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '@/types/database.types';
 import {
   apiRateLimiter,
   authRateLimiter,
   createRateLimitResponse,
   getClientIp,
 } from '@/lib/security/rate-limiter';
+import type { Database } from '@/types/database.types';
 
 /**
  * 🔐 보안 미들웨어
@@ -43,28 +43,28 @@ const PUBLIC_ROUTES = [
   '/api/youtube/popular', // 인기 Shorts는 캐싱 가능
 ];
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
-  
+
   // Create response early to be modified
   const res = NextResponse.next();
 
   // Wave 1: Supabase 세션 자동 새로고침 - 모든 경로에 적용
   try {
     const supabase = createMiddlewareClient<Database>({ req: request, res });
-    
+
     // 세션 자동 새로고침 - createMiddlewareClient가 자동으로 쿠키 업데이트 처리
     await supabase.auth.getSession();
-    
+
     if (process.env.NODE_ENV === 'development') {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         console.log('[Middleware] Session refreshed for user:', user.id);
       }
     }
-  } catch (error) {
-    console.error('[Middleware] Error refreshing session:', error);
-  }
+  } catch (_error) {}
 
   // 개발 환경에서 미들웨어 작동 확인
   if (process.env.NODE_ENV === 'development') {

@@ -43,7 +43,95 @@
 - **타입**: TypeScript strict mode 준수, any 타입 절대 금지
 - **구조**: Server Component 기본, 필요시만 'use client'
 
-### 3. TypeScript 타입 작성 규칙 (2025-01-30 추가)
+### 3. TypeScript 타입 관리 시스템 (2025-02-01 업데이트)
+
+#### 🎯 Single Source of Truth 타입 시스템
+- **원칙**: Supabase DB가 유일한 타입 소스
+- **자동 생성**: `npm run types:generate`로 DB에서 타입 추출
+- **자동 변환**: snake_case (DB) ↔ camelCase (Frontend) 자동 변환
+
+#### 타입 사용 가이드
+```typescript
+// ✅ 올바른 사용법
+import { User, Course, snakeToCamelCase } from '@/types';
+
+// API Route에서
+const dbData = await supabase.from('users').select();
+return NextResponse.json(snakeToCamelCase(dbData.data));
+
+// Frontend에서
+const user: User = await apiGet('/api/user'); // 이미 camelCase
+
+// DB 저장 시
+import { camelToSnakeCase } from '@/types';
+await supabase.from('users').insert(camelToSnakeCase(userData));
+```
+
+#### 타입 생성 명령어
+```bash
+# 프로덕션 DB에서 타입 생성
+npm run types:generate
+
+# 로컬 DB에서 타입 생성
+npm run types:generate:local
+
+# 타입 체크
+npm run types:check
+```
+
+#### DB 스키마 변경 시 프로세스
+1. DB 마이그레이션 실행
+2. `npm run types:generate` 실행
+3. 타입 오류 확인 및 수정
+4. 커밋 전 `npm run types:check` 확인
+
+### 3-2. 🤖 Claude Code 전용 타입 자동 관리 시스템 (2025-02-01 추가)
+
+#### 개발 지식 없어도 OK! Claude Code가 알아서 해결
+
+**사용자가 할 일:**
+```
+"타입 오류 해결해줘" → Claude Code가 자동 처리
+```
+
+**Claude Code 자동 처리 프로세스:**
+1. `npm run types:auto-fix` 실행 → 오류 자동 분석
+2. 해결 가능한 것은 자동 수정
+3. DB 변경 필요시 안내 제공
+4. 완료!
+
+#### 상황별 Claude Code 명령어
+
+| 사용자 요청 | Claude Code 실행 명령 | 결과 |
+|------------|-------------------|------|
+| "타입 오류 있어" | `npm run types:auto-fix` | 자동 분석 및 수정 |
+| "DB 바뀐 것 같아" | `npm run types:sync` | DB와 타입 동기화 |
+| "새 테이블 추가했어" | `npm run types:generate` | 새 타입 생성 |
+| "타입 괜찮은지 확인해줘" | `npm run types:check` | 오류 확인 |
+
+#### AI 자동 타입 추가 체크리스트
+```typescript
+// Claude Code가 새 기능 추가 시 자동 체크
+□ 새 테이블이 필요한가? → Supabase에 추가 후 types:generate
+□ 새 필드가 필요한가? → DB 수정 후 types:generate
+□ 타입 오류가 있는가? → types:auto-fix 실행
+□ import 오류가 있는가? → import { Type } from '@/types' 추가
+```
+
+#### 완전 자동화 예시
+```bash
+# 사용자: "회원가입 기능에 전화번호 추가해줘"
+# Claude Code 자동 실행:
+1. Supabase users 테이블에 phone_number 컬럼 추가 안내
+2. npm run types:generate  # 타입 재생성
+3. 코드에서 user.phoneNumber 사용  # 자동 camelCase
+4. npm run types:check  # 검증
+5. 완료! 
+```
+
+**🎯 핵심: 사용자는 그냥 "해줘"라고만 하면 됨!**
+
+#### 기존 타입 작성 규칙
 - **API 호출 시**: 구체적 타입 정의 또는 타입 추론 활용
   ```typescript
   // ❌ 금지
@@ -55,16 +143,32 @@
   ```
 - **unknown 처리**: 타입 가드 후 접근
   ```typescript
-  if (typeof value === 'string') {
-    // value는 이제 string 타입
+  // ✅ 올바른 패턴
+  catch (error) {
+    console.error(error instanceof Error ? error.message : String(error))
   }
   ```
 - **ZodError**: `.issues` 사용 (`.errors` 아님)
+  ```typescript
+  if (error instanceof ZodError) {
+    error.issues.forEach(issue => { /* ... */ })
+  }
+  ```
 - **함수**: 반환 타입 명시적 선언
   ```typescript
-  async function getData(): Promise<DataType> {
-    // ...
-  }
+  async function fetchData(): Promise<Data> { /* ... */ }
+  ```
+- **Union 타입**: 유연한 타입 매핑을 위한 Union 타입 활용
+  ```typescript
+  function mapCourse(dbCourse: DBCourse | Course): Course { /* ... */ }
+  ```
+- **연산자 우선순위**: nullish coalescing과 OR 연산자 혼용 시 괄호 필수
+  ```typescript
+  // ❌ 금지
+  obj.video_id ?? stats.video_id || ''
+  
+  // ✅ 권장
+  (obj.video_id ?? stats.video_id) || ''
   ```
 
 ### 4. 🔐 보안 자동 적용 규칙 (필수)
@@ -138,7 +242,7 @@ const safeContent = sanitizeRichHTML(userInput);
 
 ### 4. 🎯 코드 품질 자동화 도구 (필수 사용)
 
-#### Biome - 코드 포맷팅 및 린팅
+#### Biome - 코드 포맷팅 및 린팅 (2025-08-19 업데이트)
 - **자동 활성화**: 모든 TypeScript/JavaScript 파일 작업 시
 - **실행 명령**: 
   ```bash
@@ -147,12 +251,17 @@ const safeContent = sanitizeRichHTML(userInput);
   
   # 자동 수정
   npm run lint:biome:fix
+  
+  # Unsafe 수정 포함 (필요시)
+  npm run lint:biome:fix -- --unsafe
   ```
 - **Pre-commit**: 자동으로 staged 파일 검사 및 수정
+- **개선 현황**: 2,426개 → 801개 오류 (67% 감소) 달성
 - **주요 규칙**:
   - Import 자동 정렬
   - 불필요한 코드 제거
   - 일관된 포맷팅
+  - 예외 처리 설정 완료 (JSON-LD, DB 타입 등)
 
 #### Semgrep 보안 스캔
 - **정기 실행**: 보안 관련 작업 후

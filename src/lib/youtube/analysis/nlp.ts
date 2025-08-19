@@ -191,11 +191,17 @@ function detectLanguage(text: string): 'ko' | 'en' | 'mixed' {
   const englishChars = (text.match(/[a-zA-Z]/g) || []).length;
   const total = koreanChars + englishChars;
 
-  if (total === 0) return 'en';
+  if (total === 0) {
+    return 'en';
+  }
 
   const koreanRatio = koreanChars / total;
-  if (koreanRatio > 0.7) return 'ko';
-  if (koreanRatio < 0.3) return 'en';
+  if (koreanRatio > 0.7) {
+    return 'ko';
+  }
+  if (koreanRatio < 0.3) {
+    return 'en';
+  }
   return 'mixed';
 }
 
@@ -329,18 +335,26 @@ function analyzeSentiment(text: string): {
 
   // Check positive keywords
   SENTIMENT_KEYWORDS.positive.korean.forEach((keyword) => {
-    if (text.includes(keyword)) positiveScore += 2;
+    if (text.includes(keyword)) {
+      positiveScore += 2;
+    }
   });
   SENTIMENT_KEYWORDS.positive.english.forEach((keyword) => {
-    if (lowerText.includes(keyword)) positiveScore += 1;
+    if (lowerText.includes(keyword)) {
+      positiveScore += 1;
+    }
   });
 
   // Check negative keywords
   SENTIMENT_KEYWORDS.negative.korean.forEach((keyword) => {
-    if (text.includes(keyword)) negativeScore += 2;
+    if (text.includes(keyword)) {
+      negativeScore += 2;
+    }
   });
   SENTIMENT_KEYWORDS.negative.english.forEach((keyword) => {
-    if (lowerText.includes(keyword)) negativeScore += 1;
+    if (lowerText.includes(keyword)) {
+      negativeScore += 1;
+    }
   });
 
   // Calculate sentiment
@@ -430,7 +444,9 @@ function calculateConfidence(
 ): number {
   const totalEntities = keywords.length + brands.length + people.length + locations.length;
 
-  if (totalEntities === 0) return 0;
+  if (totalEntities === 0) {
+    return 0;
+  }
 
   // Base confidence on entity diversity and count
   let confidence = Math.min(totalEntities / 20, 1) * 0.5;
@@ -482,8 +498,12 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
         existing.count++;
         existing.videos.push(video.video_id);
         existing.sentiments.push(sentiment);
-        if (videoDate < existing.firstSeen) existing.firstSeen = videoDate;
-        if (videoDate > existing.lastSeen) existing.lastSeen = videoDate;
+        if (videoDate < existing.firstSeen) {
+          existing.firstSeen = videoDate;
+        }
+        if (videoDate > existing.lastSeen) {
+          existing.lastSeen = videoDate;
+        }
       } else {
         allKeywords.set(keyword, {
           count: 1,

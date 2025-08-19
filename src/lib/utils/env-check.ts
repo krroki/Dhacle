@@ -98,18 +98,15 @@ export function logEnvDebugInfo(): void {
   console.log(`Status: ${result.isValid ? '✅ Valid' : '❌ Invalid'}`);
 
   if (result.missing.length > 0) {
-    console.error('Missing required variables:', result.missing);
   }
 
   if (result.warnings.length > 0) {
-    console.warn('Warnings:', result.warnings);
   }
 
   // Supabase URL 형식 체크
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (supabaseUrl) {
     if (!supabaseUrl.includes('.supabase.co')) {
-      console.warn('⚠️ NEXT_PUBLIC_SUPABASE_URL does not look like a valid Supabase URL');
     }
   }
 

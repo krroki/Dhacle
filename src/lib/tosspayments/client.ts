@@ -4,8 +4,6 @@ import { loadTossPayments, type TossPaymentsInstance } from '@tosspayments/payme
 const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
 if (!tossClientKey) {
-  console.warn('⚠️ 토스페이먼츠 클라이언트 키가 설정되지 않았습니다.');
-  console.warn('   .env.local 파일에 NEXT_PUBLIC_TOSS_CLIENT_KEY를 설정하세요.');
 }
 
 // 토스페이먼츠 Promise (싱글톤)
@@ -149,7 +147,7 @@ export const requestPayment = async (method: PaymentMethod, options: TossPayment
 };
 
 // 결제 위젯 헬퍼 함수 (더 간단한 UI를 원할 경우)
-export const createPaymentWidget = async (elementId: string) => {
+export const createPaymentWidget = async (_elementId: string) => {
   const tossPayments = await getTossPayments();
 
   if (!tossPayments) {

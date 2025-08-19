@@ -10,7 +10,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 캐시 체크
   const cacheKey = 'sitemap-data';
   const cached = getCachedData<MetadataRoute.Sitemap>(cacheKey, siteConfig.sitemap.cacheTime);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const supabase = await createClient();
 

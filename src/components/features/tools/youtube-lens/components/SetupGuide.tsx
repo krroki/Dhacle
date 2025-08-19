@@ -6,7 +6,6 @@ import {
   Copy,
   ExternalLink,
   FileText,
-  Key,
   Settings,
   Terminal,
 } from 'lucide-react';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Clock, Filter, Loader2, Search, TrendingUp, X } from 'lucide-react';
+import { Clock, Filter, Loader2, Search, TrendingUp, X } from 'lucide-react';
 import { type KeyboardEvent, useCallback, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type { YouTubeSearchFilters } from '@/types/youtube';
 
@@ -50,7 +49,9 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
   // 검색 실행
   const handleSearch = useCallback(async () => {
     const trimmedQuery = searchQuery.trim();
-    if (!trimmedQuery || isLoading || disabled) return;
+    if (!trimmedQuery || isLoading || disabled) {
+      return;
+    }
 
     // 검색 기록에 추가
     addToSearchHistory(trimmedQuery);
@@ -230,7 +231,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   <Select
                     value={searchFilters.maxResults?.toString() || '50'}
                     onValueChange={(value) =>
-                      setSearchFilters({ maxResults: Number.parseInt(value) })
+                      setSearchFilters({ maxResults: Number.parseInt(value, 10) })
                     }
                   >
                     <SelectTrigger>

@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -40,7 +39,7 @@ export default function LearnPage() {
 
   useEffect(() => {
     loadCourseData();
-  }, [courseId, lessonId]);
+  }, [loadCourseData]);
 
   const loadCourseData = async () => {
     setLoading(true);
@@ -95,8 +94,7 @@ export default function LearnPage() {
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to load course data:', error);
+    } catch (_error) {
     } finally {
       setLoading(false);
     }
@@ -109,7 +107,9 @@ export default function LearnPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user || !currentLesson) return;
+      if (!user || !currentLesson) {
+        return;
+      }
 
       // 진도 업데이트
       const { error } = await supabase.from('courseProgressExtended').upsert(
@@ -127,11 +127,8 @@ export default function LearnPage() {
       );
 
       if (error) {
-        console.error('Failed to update progress:', error);
       }
-    } catch (error) {
-      console.error('Failed to update progress:', error);
-    }
+    } catch (_error) {}
   };
 
   const handleNoteSave = async () => {
@@ -141,7 +138,9 @@ export default function LearnPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       const { error } = await supabase.from('courseProgressExtended').upsert(
         {
@@ -157,11 +156,8 @@ export default function LearnPage() {
       );
 
       if (error) {
-        console.error('Failed to save notes:', error);
       }
-    } catch (error) {
-      console.error('Failed to save notes:', error);
-    }
+    } catch (_error) {}
   };
 
   const navigateToLesson = (lesson: Lesson) => {
@@ -172,7 +168,9 @@ export default function LearnPage() {
     const lessonProgress = progress.find((p) => p.lesson_id === lessonId);
     const lesson = lessons.find((l) => l.id === lessonId);
 
-    if (!lessonProgress || !lesson) return 0;
+    if (!lessonProgress || !lesson) {
+      return 0;
+    }
 
     return Math.min(100, Math.round((lessonProgress.progress / lesson.duration) * 100));
   };
@@ -183,7 +181,9 @@ export default function LearnPage() {
   };
 
   const getCourseCompletionRate = (): number => {
-    if (lessons.length === 0) return 0;
+    if (lessons.length === 0) {
+      return 0;
+    }
 
     const completedCount = lessons.filter((l) => isLessonCompleted(l.id)).length;
 

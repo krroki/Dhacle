@@ -114,9 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Main Layout with proper padding */}
-          <div
-            className="flex min-h-screen transition-all duration-300 pt-[calc(var(--top-banner-height)+var(--header-height))]"
-          >
+          <div className="flex min-h-screen transition-all duration-300 pt-[calc(var(--top-banner-height)+var(--header-height))]">
             {/* Sidebar */}
             <Sidebar />
 

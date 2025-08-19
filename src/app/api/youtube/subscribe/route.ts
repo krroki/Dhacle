@@ -11,7 +11,7 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
 /**
  * GET - Get user's active subscriptions
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -32,8 +32,7 @@ export async function GET(request: NextRequest) {
       success: true,
       subscriptions,
     });
-  } catch (error) {
-    console.error('Get subscriptions error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
   }
 }
@@ -93,8 +92,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 400 }
     );
-  } catch (error) {
-    console.error('Subscribe error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to subscribe to channel' }, { status: 500 });
   }
 }
@@ -140,8 +138,7 @@ export async function DELETE(request: NextRequest) {
       },
       { status: 400 }
     );
-  } catch (error) {
-    console.error('Unsubscribe error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to unsubscribe from channel' }, { status: 500 });
   }
 }
@@ -211,8 +208,7 @@ export async function PATCH(request: NextRequest) {
       },
       { status: 400 }
     );
-  } catch (error) {
-    console.error('Renew subscription error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to renew subscription' }, { status: 500 });
   }
 }

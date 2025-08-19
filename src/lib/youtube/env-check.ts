@@ -89,7 +89,9 @@ export function isDevelopment(): boolean {
  */
 export function validateOAuthRedirectUri(): boolean {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) return false;
+  if (!siteUrl) {
+    return false;
+  }
 
   try {
     const url = new URL(siteUrl);

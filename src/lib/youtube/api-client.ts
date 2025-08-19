@@ -308,9 +308,9 @@ export class YouTubeAPIClient {
         channelTitle: String(snippet?.channelTitle || ''),
         publishedAt: String(snippet?.publishedAt || ''),
         duration: this.parseDuration(String(contentDetails?.duration || '')),
-        viewCount: Number.parseInt(String(statistics?.viewCount || '0')),
-        likeCount: Number.parseInt(String(statistics?.likeCount || '0')),
-        commentCount: Number.parseInt(String(statistics?.commentCount || '0')),
+        viewCount: Number.parseInt(String(statistics?.viewCount || '0'), 10),
+        likeCount: Number.parseInt(String(statistics?.likeCount || '0'), 10),
+        commentCount: Number.parseInt(String(statistics?.commentCount || '0'), 10),
         tags: Array.isArray(snippet?.tags) ? (snippet.tags as string[]) : [],
         categoryId: String(snippet?.categoryId || ''),
         defaultLanguage: String(snippet?.defaultLanguage || ''),
@@ -432,7 +432,9 @@ export class YouTubeAPIClient {
     // 비디오 ID 추출
     const videoIds = response.items
       .map((item: unknown) => {
-        if (!item || typeof item !== 'object') return null;
+        if (!item || typeof item !== 'object') {
+          return null;
+        }
         const playlistItem = item as Record<string, unknown>;
         const snippet = playlistItem.snippet as Record<string, unknown> | undefined;
         const resourceId = snippet?.resourceId as Record<string, unknown> | undefined;
@@ -463,14 +465,18 @@ export class YouTubeAPIClient {
    * ISO 8601 duration을 초 단위로 변환
    */
   private parseDuration(duration?: string): number {
-    if (!duration) return 0;
+    if (!duration) {
+      return 0;
+    }
 
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!match) return 0;
+    if (!match) {
+      return 0;
+    }
 
-    const hours = Number.parseInt(match[1] || '0');
-    const minutes = Number.parseInt(match[2] || '0');
-    const seconds = Number.parseInt(match[3] || '0');
+    const hours = Number.parseInt(match[1] || '0', 10);
+    const minutes = Number.parseInt(match[2] || '0', 10);
+    const seconds = Number.parseInt(match[3] || '0', 10);
 
     return hours * 3600 + minutes * 60 + seconds;
   }

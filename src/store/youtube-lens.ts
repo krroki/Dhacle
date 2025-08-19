@@ -210,7 +210,9 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
 
         updateQuotaUsage: (units) =>
           set((state) => {
-            if (!state.quotaStatus) return {};
+            if (!state.quotaStatus) {
+              return {};
+            }
 
             const newUsed = state.quotaStatus.used + units;
             const newRemaining = 10000 - newUsed; // 기본 할당량 10000

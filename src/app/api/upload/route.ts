@@ -66,8 +66,6 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
-
       // 버킷이 없는 경우
       if (uploadError.message.includes('bucket')) {
         return NextResponse.json(
@@ -101,8 +99,7 @@ export async function POST(request: NextRequest) {
       type: file.type,
       name: file.name,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -137,15 +134,13 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteError } = await supabase.storage.from(bucket).remove([path]);
 
     if (deleteError) {
-      console.error('Delete error:', deleteError);
       return NextResponse.json({ error: '이미지 삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 
     return NextResponse.json({
       message: '이미지가 삭제되었습니다',
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

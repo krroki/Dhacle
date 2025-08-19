@@ -1,12 +1,12 @@
 'use client';
 
 import confetti from 'canvas-confetti';
-import { ArrowRight, BookOpen, CheckCircle, Download } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ApiError, apiGet, apiPost } from '@/lib/api-client';
+import { apiPost } from '@/lib/api-client';
 import { createClient } from '@/lib/supabase/browser-client';
 import type { Course } from '@/types/course';
 
@@ -23,17 +23,16 @@ function PaymentSuccessContent() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!orderId || !paymentKey || !amount) {
-      setError('결제 정보가 올바르지 않습니다.');
-      setIsProcessing(false);
-      return;
+  const loadCourseData = useCallback(async (courseId: string) => {
+    const supabase = createClient();
+    const { data } = await supabase.from('courses').select('*').eq('id', courseId).single();
+
+    if (data) {
+      setCourse(data);
     }
+  }, []);
 
-    confirmPayment();
-  }, [orderId, paymentKey, amount]);
-
-  const confirmPayment = async () => {
+  const confirmPayment = useCallback(async () => {
     try {
       const data = await apiPost<{
         success: boolean;
@@ -47,7 +46,7 @@ function PaymentSuccessContent() {
       }>('/api/payment/confirm', {
         orderId,
         paymentKey,
-        amount: Number.parseInt(amount || '0'),
+        amount: Number.parseInt(amount || '0', 10),
       });
 
       // 축하 애니메이션
@@ -63,21 +62,21 @@ function PaymentSuccessContent() {
         loadCourseData(data.purchase.course_id);
       }
     } catch (error) {
-      console.error('Payment confirmation error:', error);
       setError(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [orderId, paymentKey, amount, loadCourseData]);
 
-  const loadCourseData = async (courseId: string) => {
-    const supabase = createClient();
-    const { data } = await supabase.from('courses').select('*').eq('id', courseId).single();
-
-    if (data) {
-      setCourse(data);
+  useEffect(() => {
+    if (!orderId || !paymentKey || !amount) {
+      setError('결제 정보가 올바르지 않습니다.');
+      setIsProcessing(false);
+      return;
     }
-  };
+
+    confirmPayment();
+  }, [orderId, paymentKey, amount, confirmPayment]);
 
   if (isProcessing) {
     return (

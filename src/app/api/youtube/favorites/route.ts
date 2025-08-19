@@ -1,7 +1,6 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server-client';
-import type { YouTubeVideo } from '@/types/youtube';
 
 /**
  * 즐겨찾기 목록 조회
@@ -9,7 +8,7 @@ import type { YouTubeVideo } from '@/types/youtube';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -23,8 +22,8 @@ export async function GET(request: NextRequest) {
 
     // 쿼리 파라미터 파싱
     const searchParams = request.nextUrl.searchParams;
-    const page = Number.parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(Number.parseInt(searchParams.get('limit') || '50'), 100);
+    const page = Number.parseInt(searchParams.get('page') || '1', 10);
+    const limit = Math.min(Number.parseInt(searchParams.get('limit') || '50', 10), 100);
     const tags = searchParams.get('tags')?.split(',').filter(Boolean);
     const sortBy = searchParams.get('sortBy') || 'created_at';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
@@ -51,7 +50,6 @@ export async function GET(request: NextRequest) {
     const { data: favorites, error, count } = await query;
 
     if (error) {
-      console.error('Failed to fetch favorites:', error);
       return NextResponse.json({ error: 'Failed to fetch favorites' }, { status: 500 });
     }
 
@@ -65,8 +63,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil((count || 0) / limit),
       },
     });
-  } catch (error: unknown) {
-    console.error('Favorites GET error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -77,7 +74,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -124,7 +121,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Failed to add favorite:', insertError);
       return NextResponse.json({ error: 'Failed to add favorite' }, { status: 500 });
     }
 
@@ -135,8 +131,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('Favorites POST error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -147,7 +142,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
@@ -193,7 +188,9 @@ export async function PUT(request: NextRequest) {
     // 새로운 항목만 필터링
     const newFavorites = body.videos
       .filter((v: unknown) => {
-        if (!v || typeof v !== 'object') return false;
+        if (!v || typeof v !== 'object') {
+          return false;
+        }
         const video = v as Record<string, unknown>;
         return !existingIds.has(String(video.video_id || ''));
       })
@@ -229,7 +226,6 @@ export async function PUT(request: NextRequest) {
       .select();
 
     if (insertError) {
-      console.error('Failed to add favorites:', insertError);
       return NextResponse.json({ error: 'Failed to add favorites' }, { status: 500 });
     }
 
@@ -240,8 +236,7 @@ export async function PUT(request: NextRequest) {
       skipped: existingIds.size,
       data: added,
     });
-  } catch (error: unknown) {
-    console.error('Favorites batch PUT error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

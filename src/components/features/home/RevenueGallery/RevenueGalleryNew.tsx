@@ -28,8 +28,7 @@ export function RevenueGalleryNew() {
           // 데이터가 없을 때도 로딩 상태를 false로 설정
           setItems([]);
         }
-      } catch (error) {
-        console.error('Failed to load revenue proofs:', error);
+      } catch (_error) {
         // 오류 발생 시 빈 배열로 설정
         setItems([]);
       } finally {

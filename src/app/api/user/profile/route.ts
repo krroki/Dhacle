@@ -30,8 +30,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ profile });
-  } catch (error) {
-    console.error('Error fetching profile:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -53,8 +52,7 @@ export async function POST(request: Request) {
 
     // Parse request body
     const body = await request.json();
-    const { username, workType, jobCategory, currentIncome, targetIncome, experienceLevel } =
-      body;
+    const { username, workType, jobCategory, currentIncome, targetIncome, experienceLevel } = body;
 
     // Validate username format
     if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
@@ -106,8 +104,6 @@ export async function POST(request: Request) {
     }
 
     if (result.error) {
-      console.error('Error saving profile:', result.error);
-
       // Check for unique constraint violation
       if (result.error.code === '23505' && result.error.message.includes('username')) {
         return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
@@ -117,8 +113,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ profile: result.data });
-  } catch (error) {
-    console.error('Error saving profile:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -177,8 +172,6 @@ export async function PUT(request: Request) {
       .single();
 
     if (updateError) {
-      console.error('Error updating profile:', updateError);
-
       // Check for unique constraint violation
       if (updateError.code === '23505' && updateError.message.includes('username')) {
         return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
@@ -188,8 +181,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ profile: updatedProfile });
-  } catch (error) {
-    console.error('Error updating profile:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

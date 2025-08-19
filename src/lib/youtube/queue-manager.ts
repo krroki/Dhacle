@@ -10,7 +10,7 @@ import PQueue from 'p-queue';
 // Redis 연결 설정
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
-  port: Number.parseInt(process.env.REDIS_PORT || '6379'),
+  port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });
@@ -104,8 +104,12 @@ export class QuotaManager {
     const used = await connection.get('youtube:quota:used');
     const resetTime = await connection.get('youtube:quota:resetTime');
 
-    if (used) this.usedQuota = Number.parseInt(used);
-    if (resetTime) this.resetTime = new Date(resetTime);
+    if (used) {
+      this.usedQuota = Number.parseInt(used, 10);
+    }
+    if (resetTime) {
+      this.resetTime = new Date(resetTime);
+    }
   }
 }
 
@@ -116,7 +120,6 @@ export class YouTubeQueueManager {
   private workers: Map<JobType, Worker>;
   private queueEvents: QueueEvents;
   private quotaManager: QuotaManager;
-  private concurrencyQueue: PQueue;
 
   private constructor() {
     this.queues = new Map();
@@ -199,9 +202,7 @@ export class YouTubeQueueManager {
       try {
         const job = await this.addJob(jobData);
         results.push(job);
-      } catch (error) {
-        console.error(`Failed to add job: ${error}`);
-      }
+      } catch (_error) {}
     }
 
     return results;
@@ -210,7 +211,9 @@ export class YouTubeQueueManager {
   // 작업 상태 조회
   async getJobStatus(jobId: string, jobType: JobType): Promise<Job | undefined> {
     const queue = this.queues.get(jobType);
-    if (!queue) return undefined;
+    if (!queue) {
+      return undefined;
+    }
 
     return queue.getJob(jobId);
   }
@@ -218,7 +221,9 @@ export class YouTubeQueueManager {
   // 큐 상태 조회
   async getQueueStatus(jobType: JobType) {
     const queue = this.queues.get(jobType);
-    if (!queue) return null;
+    if (!queue) {
+      return null;
+    }
 
     const [waiting, active, completed, failed, delayed] = await Promise.all([
       queue.getWaitingCount(),
@@ -284,7 +289,9 @@ export class YouTubeQueueManager {
   // 실패한 작업 재시도
   async retryFailedJobs(jobType: JobType): Promise<void> {
     const queue = this.queues.get(jobType);
-    if (!queue) return;
+    if (!queue) {
+      return;
+    }
 
     const failed = await queue.getFailed();
     for (const job of failed) {
@@ -300,9 +307,7 @@ export class YouTubeQueueManager {
       console.log(`Job ${jobId} completed with result:`, returnvalue);
     });
 
-    this.queueEvents.on('failed', async ({ jobId, failedReason }) => {
-      console.error(`Job ${jobId} failed:`, failedReason);
-    });
+    this.queueEvents.on('failed', async ({ jobId, failedReason }) => {});
 
     this.queueEvents.on('progress', async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress:`, data);
@@ -324,7 +329,9 @@ export class YouTubeQueueManager {
 
   // 지연 시간 계산
   private calculateDelay(priority?: JobPriority): number {
-    if (!priority) return 0;
+    if (!priority) {
+      return 0;
+    }
 
     const delays: Record<JobPriority, number> = {
       [JobPriority.CRITICAL]: 0,

@@ -4,7 +4,6 @@ import {
   Award,
   ChevronRight,
   Clock,
-  CreditCard,
   FileText,
   Loader2,
   PlayCircle,
@@ -18,7 +17,7 @@ import { PaymentMethodSelector } from '@/components/features/payment/PaymentMeth
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -29,7 +28,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { apiPost } from '@/lib/api-client';
-import { type PaymentMethod, requestPayment } from '@/lib/tosspayments/client';
 import type { Course } from '@/types/course';
 
 interface PurchaseCardProps {
@@ -65,7 +63,9 @@ export function PurchaseCard({
   const [error, setError] = useState<string | null>(null);
 
   const formatPrice = (price: number): string => {
-    if (price === 0) return '무료';
+    if (price === 0) {
+      return '무료';
+    }
     return `₩${price.toLocaleString()}`;
   };
 
@@ -104,15 +104,15 @@ export function PurchaseCard({
       setOrderData(data);
       setShowPaymentModal(true);
       setError(null);
-    } catch (err) {
-      console.error('Payment error:', err);
-      const errorMessage = err instanceof Error ? err.message : '결제 처리 중 오류가 발생했습니다.';
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.';
       setError(errorMessage);
 
       // 로그인 필요 시 로그인 페이지로 리다이렉트
       if (errorMessage.includes('로그인이 필요')) {
         setTimeout(() => {
-          router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
+          router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
         }, 2000);
       }
     } finally {
@@ -143,7 +143,9 @@ export function PurchaseCard({
   };
 
   const applyCoupon = async (): Promise<void> => {
-    if (!couponCode) return;
+    if (!couponCode) {
+      return;
+    }
 
     setIsApplyingCoupon(true);
     try {
@@ -158,7 +160,6 @@ export function PurchaseCard({
       setDiscount(data.discount.discountAmount);
       setAppliedCoupon(data.coupon);
     } catch (error) {
-      console.error('쿠폰 적용 실패:', error);
       const errorMessage =
         error instanceof Error ? error.message : '쿠폰 적용 중 오류가 발생했습니다.';
       alert(errorMessage);
@@ -168,8 +169,12 @@ export function PurchaseCard({
   };
 
   const getButtonText = () => {
-    if (isPurchased || isEnrolled) return '학습하기';
-    if (course.isFree) return '무료로 시작하기';
+    if (isPurchased || isEnrolled) {
+      return '학습하기';
+    }
+    if (course.isFree) {
+      return '무료로 시작하기';
+    }
     return '수강 신청하기';
   };
 

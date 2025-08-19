@@ -77,7 +77,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (insertError) {
-      console.error('Report insert error:', insertError);
       return NextResponse.json({ error: '신고 처리 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -94,7 +93,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .eq('id', proofId);
 
     if (updateError) {
-      console.error('Update reports count error:', updateError);
     }
 
     // 3회 신고 도달 시 관리자 알림 (추후 구현)
@@ -113,7 +111,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       });
 
       if (notificationError) {
-        console.error('Admin notification error:', notificationError);
       }
     }
 
@@ -123,8 +120,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       reportsCount: newReportsCount,
     });
   } catch (error) {
-    console.error('API error:', error);
-
     // Zod 검증 에러
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -141,7 +136,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 // GET: 신고 사유 목록 조회 (관리자용)
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -169,7 +164,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Reports fetch error:', error);
       return NextResponse.json(
         { error: '신고 목록을 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -190,8 +184,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       count: reports?.length || 0,
       reasonCounts,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

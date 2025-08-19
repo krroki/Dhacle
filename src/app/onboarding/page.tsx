@@ -82,7 +82,7 @@ export default function OnboardingPage() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [generatedUsername, setGeneratedUsername] = useState('');
+  const [_generatedUsername, setGeneratedUsername] = useState('');
   const [data, setData] = useState<OnboardingData>({
     workType: '',
     jobCategory: '',
@@ -109,8 +109,7 @@ export default function OnboardingPage() {
       }
 
       throw new Error('Failed to generate username');
-    } catch (error) {
-      console.error('Username generation error:', error);
+    } catch (_error) {
       // 폴백: 클라이언트에서 생성
       const fallbackUsername = `creator_${Math.random().toString(36).substring(2, 10)}`;
       setGeneratedUsername(fallbackUsername);
@@ -149,7 +148,9 @@ export default function OnboardingPage() {
 
   // 온보딩 완료 처리
   const completeOnboarding = async () => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     setLoading(true);
     try {
@@ -168,8 +169,7 @@ export default function OnboardingPage() {
 
       // 메인 페이지로 이동
       router.push('/');
-    } catch (error) {
-      console.error('온보딩 에러:', error);
+    } catch (_error) {
       alert('프로필 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);

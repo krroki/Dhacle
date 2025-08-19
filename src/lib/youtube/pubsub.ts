@@ -3,7 +3,7 @@
  * Handles real-time webhook subscriptions for YouTube channels
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { createClient } from '@/lib/supabase/client';
 
 // PubSubHubbub Hub URL
@@ -131,7 +131,9 @@ export class PubSubHubbubManager {
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          throw insertError;
+        }
         subscriptionId = newSub.id;
       }
 
@@ -157,7 +159,6 @@ export class PubSubHubbubManager {
       await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.FAILED);
       return { success: false, error: 'Failed to subscribe to hub' };
     } catch (error) {
-      console.error('Subscribe error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -206,7 +207,6 @@ export class PubSubHubbubManager {
       }
       return { success: false, error: 'Failed to unsubscribe from hub' };
     } catch (error) {
-      console.error('Unsubscribe error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -243,8 +243,7 @@ export class PubSubHubbubManager {
 
       // Hub returns 202 Accepted for async verification
       return response.status === 202 || response.status === 204;
-    } catch (error) {
-      console.error('Hub request error:', error);
+    } catch (_error) {
       return false;
     }
   }
@@ -281,14 +280,14 @@ export class PubSubHubbubManager {
       // Update subscription status
       if (mode === 'subscribe') {
         const expiresAt = leaseSeconds
-          ? new Date(Date.now() + Number.parseInt(leaseSeconds) * 1000).toISOString()
+          ? new Date(Date.now() + Number.parseInt(leaseSeconds, 10) * 1000).toISOString()
           : new Date(Date.now() + 432000 * 1000).toISOString(); // Default 5 days
 
         await this.supabase
           .from('channelSubscriptions')
           .update({
             status: SubscriptionStatus.ACTIVE,
-            leaseSeconds: leaseSeconds ? Number.parseInt(leaseSeconds) : 432000,
+            leaseSeconds: leaseSeconds ? Number.parseInt(leaseSeconds, 10) : 432000,
             expiresAt: expiresAt,
             updated_at: new Date().toISOString(),
           })
@@ -309,7 +308,6 @@ export class PubSubHubbubManager {
 
       return { success: true, challenge };
     } catch (error) {
-      console.error('Verify callback error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -380,7 +378,6 @@ export class PubSubHubbubManager {
 
       return { success: true, video: videoData };
     } catch (error) {
-      console.error('Process notification error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -415,8 +412,7 @@ export class PubSubHubbubManager {
         updatedAt: updatedMatch ? updatedMatch[1] : undefined,
         deleted: isDeleted,
       };
-    } catch (error) {
-      console.error('Parse notification error:', error);
+    } catch (_error) {
       return null;
     }
   }
@@ -431,7 +427,9 @@ export class PubSubHubbubManager {
         'getSubscriptionsNeedingRenewal'
       );
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       for (const sub of subscriptions || []) {
         await this.sendHubRequest(
@@ -443,9 +441,7 @@ export class PubSubHubbubManager {
 
         await this.logSubscriptionAction(sub.id, 'renew', SubscriptionStatus.PENDING);
       }
-    } catch (error) {
-      console.error('Renew subscriptions error:', error);
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -454,9 +450,7 @@ export class PubSubHubbubManager {
   async cleanupExpiredSubscriptions(): Promise<void> {
     try {
       await this.supabase.rpc('cleanupExpiredSubscriptions');
-    } catch (error) {
-      console.error('Cleanup error:', error);
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -479,9 +473,7 @@ export class PubSubHubbubManager {
         responseData: responseData,
         error,
       });
-    } catch (err) {
-      console.error('Log action error:', err);
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -496,10 +488,11 @@ export class PubSubHubbubManager {
         .in('status', [SubscriptionStatus.ACTIVE, SubscriptionStatus.VERIFIED])
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       return data || [];
-    } catch (error) {
-      console.error('Get subscriptions error:', error);
+    } catch (_error) {
       return [];
     }
   }
@@ -523,10 +516,11 @@ export class PubSubHubbubManager {
         .order('created_at', { ascending: false })
         .limit(limit);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       return data || [];
-    } catch (error) {
-      console.error('Get events error:', error);
+    } catch (_error) {
       return [];
     }
   }

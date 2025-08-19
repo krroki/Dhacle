@@ -69,7 +69,9 @@ export const getYouTubeThumbnail = (
 
 // 이미지 프리로드 헬퍼 함수
 export const preloadImages = (items: CarouselItem[]) => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {
+    return;
+  }
 
   items.forEach((item) => {
     const img = new Image();

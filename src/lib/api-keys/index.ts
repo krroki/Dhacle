@@ -45,94 +45,76 @@ export async function saveUserApiKey({
   serviceName = 'youtube',
   metadata = {},
 }: SaveApiKeyParams): Promise<UserApiKey> {
-  try {
-    console.log('[saveUserApiKey] Starting...', { userId, serviceName });
+  console.log('[saveUserApiKey] Starting...', { userId, serviceName });
 
-    // API Key 형식 검증
-    if (!validateApiKeyFormat(apiKey, serviceName)) {
-      console.error('[saveUserApiKey] Invalid API key format');
-      throw new Error('Invalid API key format');
-    }
+  // API Key 형식 검증
+  if (!validateApiKeyFormat(apiKey, serviceName)) {
+    throw new Error('Invalid API key format');
+  }
 
-    // 암호화
-    const encryptedKey = encryptApiKey(apiKey);
-    const maskedKey = maskApiKey(apiKey);
-    console.log('[saveUserApiKey] Encryption successful');
+  // 암호화
+  const encryptedKey = encryptApiKey(apiKey);
+  const maskedKey = maskApiKey(apiKey);
+  console.log('[saveUserApiKey] Encryption successful');
 
-    // Service Role Client 사용 (RLS 우회)
-    const supabase = await createSupabaseServiceRoleClient();
-    console.log('[saveUserApiKey] Service Role Client created');
+  // Service Role Client 사용 (RLS 우회)
+  const supabase = await createSupabaseServiceRoleClient();
+  console.log('[saveUserApiKey] Service Role Client created');
 
-    // 기존 키가 있는지 확인
-    const { data: existingKey } = await supabase
+  // 기존 키가 있는지 확인
+  const { data: existingKey } = await supabase
+    .from('userApiKeys')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('serviceName', serviceName)
+    .single();
+
+  let result;
+
+  if (existingKey) {
+    // 업데이트
+    const { data, error } = await supabase
       .from('userApiKeys')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('serviceName', serviceName)
+      .update({
+        apiKeyMasked: maskedKey,
+        encryptedKey: encryptedKey,
+        is_active: true,
+        isValid: true,
+        validationError: null,
+        metadata,
+      })
+      .eq('id', existingKey.id)
+      .select()
       .single();
 
-    let result;
-
-    if (existingKey) {
-      // 업데이트
-      const { data, error } = await supabase
-        .from('userApiKeys')
-        .update({
-          apiKeyMasked: maskedKey,
-          encryptedKey: encryptedKey,
-          is_active: true,
-          isValid: true,
-          validationError: null,
-          metadata,
-        })
-        .eq('id', existingKey.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[saveUserApiKey] Update error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-        });
-        throw error;
-      }
-      console.log('[saveUserApiKey] Updated existing key');
-      result = data;
-    } else {
-      // 새로 생성
-      const { data, error } = await supabase
-        .from('userApiKeys')
-        .insert({
-          user_id: userId,
-          serviceName: serviceName,
-          apiKeyMasked: maskedKey,
-          encryptedKey: encryptedKey,
-          metadata,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[saveUserApiKey] Insert error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-        });
-        throw error;
-      }
-      console.log('[saveUserApiKey] Inserted new key');
-      result = data;
+    if (error) {
+      throw error;
     }
+    console.log('[saveUserApiKey] Updated existing key');
+    result = data;
+  } else {
+    // 새로 생성
+    const { data, error } = await supabase
+      .from('userApiKeys')
+      .insert({
+        user_id: userId,
+        serviceName: serviceName,
+        apiKeyMasked: maskedKey,
+        encryptedKey: encryptedKey,
+        metadata,
+      })
+      .select()
+      .single();
 
-    console.log('[saveUserApiKey] Success:', { id: result?.id });
-    return result as UserApiKey;
-  } catch (error) {
-    console.error('[saveUserApiKey] Final error:', error);
-    throw error;
+    if (error) {
+      throw error;
+    }
+    console.log('[saveUserApiKey] Inserted new key');
+    result = data;
   }
+
+  console.log('[saveUserApiKey] Success:', { id: result?.id });
+  return result as UserApiKey;
 }
 
 /**
@@ -162,8 +144,7 @@ export async function getUserApiKey(
     }
 
     return data as UserApiKey;
-  } catch (error) {
-    console.error('Error fetching API key:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -186,8 +167,7 @@ export async function getDecryptedApiKey(
     await incrementUsage(apiKeyData.id);
 
     return decryptApiKey(apiKeyData.encryptedKey);
-  } catch (error) {
-    console.error('Error decrypting API key:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -205,11 +185,12 @@ export async function deleteUserApiKey(userId: string, serviceName = 'youtube'):
       .eq('user_id', userId)
       .eq('serviceName', serviceName);
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     return true;
-  } catch (error) {
-    console.error('Error deleting API key:', error);
+  } catch (_error) {
     return false;
   }
 }
@@ -234,9 +215,10 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
       return {
         isValid: true,
         quotaInfo: {
-          used: Number.parseInt(quotaUsed || '0'),
-          limit: Number.parseInt(quotaUser || '10000'),
-          remaining: Number.parseInt(quotaUser || '10000') - Number.parseInt(quotaUsed || '0'),
+          used: Number.parseInt(quotaUsed || '0', 10),
+          limit: Number.parseInt(quotaUser || '10000', 10),
+          remaining:
+            Number.parseInt(quotaUser || '10000', 10) - Number.parseInt(quotaUsed || '0', 10),
         },
       };
     }
@@ -266,8 +248,7 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
       isValid: false,
       error: error.error?.message || 'Validation failed',
     };
-  } catch (error) {
-    console.error('Error validating YouTube API key:', error);
+  } catch (_error) {
     return {
       isValid: false,
       error: 'Network error during validation',
@@ -290,7 +271,6 @@ async function incrementUsage(apiKeyId: string): Promise<void> {
       .single();
 
     if (fetchError || !keyData) {
-      console.error('Error fetching key data for usage increment:', fetchError);
       return;
     }
 
@@ -301,11 +281,8 @@ async function incrementUsage(apiKeyId: string): Promise<void> {
     });
 
     if (rpcError) {
-      console.error('Error calling incrementApiKeyUsage:', rpcError);
     }
-  } catch (error) {
-    console.error('Error incrementing usage:', error);
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -328,9 +305,7 @@ export async function updateApiKeyValidity(
       })
       .eq('user_id', userId)
       .eq('serviceName', serviceName);
-  } catch (error) {
-    console.error('Error updating API key validity:', error);
-  }
+  } catch (_error) {}
 }
 
 // Re-export crypto functions

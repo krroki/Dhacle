@@ -6,7 +6,7 @@ import { generateRandomUsername } from '@/lib/utils/username-generator';
 import type { Database } from '@/types/database';
 
 // POST: Generate unique username
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -72,8 +72,7 @@ export async function POST(request: NextRequest) {
       username: username,
       message: 'Username generated successfully',
     });
-  } catch (error) {
-    console.error('Error generating username:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

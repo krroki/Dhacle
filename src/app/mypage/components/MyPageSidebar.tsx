@@ -111,9 +111,7 @@ export function MyPageSidebar({ profile }: MyPageSidebarProps) {
               <p className="text-xs text-gray-500 mt-1">카페 연동 시 변경 가능</p>
             </div>
           )}
-          <p className="text-xs font-medium text-gray-700 mt-2">
-            현재: {profile?.displayNickname}
-          </p>
+          <p className="text-xs font-medium text-gray-700 mt-2">현재: {profile?.displayNickname}</p>
         </div>
       </div>
     </aside>

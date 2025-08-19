@@ -47,13 +47,6 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('[Server] Error fetching courses:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        filters,
-      });
       return { courses: [], total: 0, page: 1, pageSize: 20 };
     }
 
@@ -63,11 +56,7 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
       page: 1,
       pageSize: 20,
     };
-  } catch (error) {
-    console.error('[Server] Unexpected error in getCourses:', {
-      error: error instanceof Error ? error.message : String(error),
-      filters,
-    });
+  } catch (_error) {
     return { courses: [], total: 0, page: 1, pageSize: 20 };
   }
 }
@@ -87,11 +76,6 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
       .single();
 
     if (courseError || !course) {
-      console.error('[Server] Error fetching course detail:', {
-        message: courseError?.message,
-        code: courseError?.code,
-        courseId,
-      });
       return null;
     }
 
@@ -153,11 +137,7 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
       isPurchased,
       progress,
     };
-  } catch (error) {
-    console.error('[Server] Unexpected error in getCourseDetail:', {
-      error: error instanceof Error ? error.message : String(error),
-      courseId,
-    });
+  } catch (_error) {
     return null;
   }
 }
@@ -176,7 +156,6 @@ export async function getCoursesByInstructor(instructorName: string): Promise<Co
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching courses by instructor:', error);
     return [];
   }
 
@@ -199,18 +178,11 @@ export async function getFreeCourses(): Promise<Course[]> {
       .limit(8);
 
     if (error) {
-      console.error('[Server] Error fetching free courses:', {
-        message: error.message,
-        code: error.code,
-      });
       return [];
     }
 
     return data || [];
-  } catch (error) {
-    console.error('[Server] Unexpected error in getFreeCourses:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+  } catch (_error) {
     return [];
   }
 }
@@ -230,18 +202,11 @@ export async function getPopularCourses(): Promise<Course[]> {
       .limit(8);
 
     if (error) {
-      console.error('[Server] Error fetching popular courses:', {
-        message: error.message,
-        code: error.code,
-      });
       return [];
     }
 
     return data || [];
-  } catch (error) {
-    console.error('[Server] Unexpected error in getPopularCourses:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+  } catch (_error) {
     return [];
   }
 }
@@ -261,18 +226,11 @@ export async function getNewCourses(): Promise<Course[]> {
       .limit(4);
 
     if (error) {
-      console.error('[Server] Error fetching new courses:', {
-        message: error.message,
-        code: error.code,
-      });
       return [];
     }
 
     return data || [];
-  } catch (error) {
-    console.error('[Server] Unexpected error in getNewCourses:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+  } catch (_error) {
     return [];
   }
 }
@@ -292,7 +250,6 @@ export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
     .eq('status', 'completed');
 
   if (error) {
-    console.error('Error fetching purchased courses:', error);
     return [];
   }
 
@@ -322,7 +279,6 @@ export async function getMyActiveCourses(userId: string): Promise<Course[]> {
     .is('completedAt', null);
 
   if (error) {
-    console.error('Error fetching active courses:', error);
     return [];
   }
 
@@ -356,7 +312,9 @@ export async function getCourseProgress(userId: string, courseId: string): Promi
     .eq('course_id', courseId)
     .eq('completed', true);
 
-  if (!totalLessons || totalLessons === 0) return 0;
+  if (!totalLessons || totalLessons === 0) {
+    return 0;
+  }
 
   return Math.round(((completedLessons || 0) / totalLessons) * 100);
 }
@@ -373,7 +331,6 @@ export async function getUniqueInstructors(): Promise<string[]> {
     .eq('status', 'active');
 
   if (error) {
-    console.error('Error fetching instructors:', error);
     return [];
   }
 

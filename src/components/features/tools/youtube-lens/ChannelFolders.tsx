@@ -17,13 +17,11 @@ import {
   Folder,
   FolderPlus,
   MoreVertical,
-  Plus,
   Search,
-  Settings,
   Trash2,
   Users,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,11 +46,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api-client';
 import { mapSourceFolder } from '@/lib/utils/type-mappers';
-import { type SourceFolder, YouTubeChannel } from '@/types/youtube-lens';
+import type { SourceFolder } from '@/types/youtube-lens';
 
 interface ChannelFoldersProps {
   onFolderSelect?: (folder: SourceFolder) => void;
@@ -85,12 +82,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
 
       console.log('[ChannelFolders] API Response:', data);
       setFolders((data.folders || []).map(mapSourceFolder));
-    } catch (err) {
-      console.error('[ChannelFolders] Fetch error:', err);
-
+    } catch (error) {
       // Handle 401 errors - distinguish between auth and API key issues
-      if (err && typeof err === 'object' && 'status' in err) {
-        const errorWithStatus = err as {
+      if (error && typeof error === 'object' && 'status' in error) {
+        const errorWithStatus = error as {
           status: number;
           data?: { requiresApiKey?: boolean; errorCode?: string; error?: string };
         };
@@ -111,7 +106,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
         }
       }
 
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -121,7 +116,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
   // Initial fetch
   useEffect(() => {
     fetchFolders();
-  }, []);
+  }, [fetchFolders]);
 
   // Create folder
   const handleCreateFolder = async () => {
@@ -132,16 +127,17 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       setFolders([mapSourceFolder(data.folder), ...folders]);
       setIsCreateDialogOpen(false);
       resetForm();
-    } catch (err) {
-      console.error('[ChannelFolders] Create folder error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create folder';
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder';
       setError(errorMessage);
     }
   };
 
   // Update folder
   const handleUpdateFolder = async () => {
-    if (!selectedFolder) return;
+    if (!selectedFolder) {
+      return;
+    }
 
     try {
       const data = await apiPatch<{ folder: SourceFolder }>(
@@ -152,23 +148,23 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       setFolders(folders.map((f) => (f.id === data.folder.id ? mapSourceFolder(data.folder) : f)));
       setIsEditDialogOpen(false);
       resetForm();
-    } catch (err) {
-      console.error('[ChannelFolders] Update folder error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to update folder');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to update folder');
     }
   };
 
   // Delete folder
   const handleDeleteFolder = async (folderId: string) => {
-    if (!confirm('정말로 이 폴더를 삭제하시겠습니까?')) return;
+    if (!confirm('정말로 이 폴더를 삭제하시겠습니까?')) {
+      return;
+    }
 
     try {
       await apiDelete(`/api/youtube/folders/${folderId}`);
 
       setFolders(folders.filter((f) => f.id !== folderId));
-    } catch (err) {
-      console.error('[ChannelFolders] Delete folder error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete folder');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to delete folder');
     }
   };
 
@@ -180,9 +176,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       setFolders(
         folders.map((f) => (f.id === folderId ? { ...f, isMonitoringEnabled: enabled } : f))
       );
-    } catch (err) {
-      console.error('[ChannelFolders] Toggle monitoring error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to update monitoring');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to update monitoring');
     }
   };
 
@@ -206,14 +201,22 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
 
   // Get monitoring status
   const getMonitoringStatus = (folder: SourceFolder) => {
-    if (!folder.isMonitoringEnabled) return 'disabled';
-    if (!folder.lastCheckedAt) return 'never';
+    if (!folder.isMonitoringEnabled) {
+      return 'disabled';
+    }
+    if (!folder.lastCheckedAt) {
+      return 'never';
+    }
 
     const lastCheck = new Date(folder.lastCheckedAt);
     const hoursSince = (Date.now() - lastCheck.getTime()) / (1000 * 60 * 60);
 
-    if (hoursSince < folder.checkIntervalHours) return 'active';
-    if (hoursSince < folder.checkIntervalHours * 2) return 'pending';
+    if (hoursSince < folder.checkIntervalHours) {
+      return 'active';
+    }
+    if (hoursSince < folder.checkIntervalHours * 2) {
+      return 'pending';
+    }
     return 'overdue';
   };
 
@@ -307,7 +310,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          checkIntervalHours: Number.parseInt(e.target.value) || 1,
+                          checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
                         })
                       }
                     />
@@ -543,7 +546,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    checkIntervalHours: Number.parseInt(e.target.value) || 1,
+                    checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
                   })
                 }
               />

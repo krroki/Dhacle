@@ -2,7 +2,6 @@
 
 import {
   Calendar,
-  Clock,
   Copy,
   Download,
   ExternalLink,
@@ -27,7 +26,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { FlattenedYouTubeVideo } from '@/types/youtube';
 
@@ -44,7 +42,9 @@ interface VideoCardProps {
 
 // 시간 포맷팅 함수 (초 단위를 시간 형태로 변환)
 function formatDuration(seconds: number): string {
-  if (!seconds) return '0:00';
+  if (!seconds) {
+    return '0:00';
+  }
 
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -77,11 +77,21 @@ function formatDate(dateString: string): string {
   const diff = now.getTime() - date.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (days === 0) return '오늘';
-  if (days === 1) return '어제';
-  if (days < 7) return `${days}일 전`;
-  if (days < 30) return `${Math.floor(days / 7)}주 전`;
-  if (days < 365) return `${Math.floor(days / 30)}개월 전`;
+  if (days === 0) {
+    return '오늘';
+  }
+  if (days === 1) {
+    return '어제';
+  }
+  if (days < 7) {
+    return `${days}일 전`;
+  }
+  if (days < 30) {
+    return `${Math.floor(days / 7)}주 전`;
+  }
+  if (days < 365) {
+    return `${Math.floor(days / 30)}개월 전`;
+  }
   return `${Math.floor(days / 365)}년 전`;
 }
 

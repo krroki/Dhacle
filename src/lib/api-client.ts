@@ -52,7 +52,7 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
     if (!response.ok) {
       // 401 Unauthorized 특별 처리
       if (response.status === 401) {
-        const errorMessage =
+        const _errorMessage =
           typeof data === 'object' && data && 'error' in data
             ? (data as { error: string }).error
             : 'User not authenticated';

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 // 암호화 키 검증 및 가져오기
 function getEncryptionKey(): Buffer {
@@ -6,7 +6,6 @@ function getEncryptionKey(): Buffer {
 
   // 최소한의 디버깅 정보만 남김
   if (!key) {
-    console.error('[crypto] ENCRYPTION_KEY not found in environment');
     throw new Error(
       'ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.'
     );
@@ -27,7 +26,6 @@ function getEncryptionKey(): Buffer {
   try {
     return Buffer.from(key, 'hex');
   } catch (error) {
-    console.error('[DEBUG] Buffer conversion error:', error);
     throw new Error(`Failed to convert ENCRYPTION_KEY to buffer: ${error}`);
   }
 }
@@ -47,14 +45,10 @@ export function encryptApiKey(apiKey: string): string {
     encrypted = Buffer.concat([encrypted, cipher.final()]);
 
     // IV와 암호화된 데이터를 콜론으로 구분하여 저장
-    const result = iv.toString('hex') + ':' + encrypted.toString('hex');
+    const result = `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 
     return result;
   } catch (error) {
-    console.error(
-      '[crypto] Encryption error:',
-      error instanceof Error ? error.message : 'Unknown error'
-    );
     throw new Error(
       `Failed to encrypt API key: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
@@ -84,8 +78,7 @@ export function decryptApiKey(encryptedKey: string): string {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
     return decrypted.toString('utf8');
-  } catch (error) {
-    console.error('Decryption error:', error);
+  } catch (_error) {
     throw new Error('Failed to decrypt API key');
   }
 }
@@ -104,10 +97,10 @@ export function maskApiKey(apiKey: string): string {
   const visibleEnd = 3;
 
   if (apiKey.length <= visibleStart + visibleEnd) {
-    return apiKey.substring(0, visibleStart) + '...';
+    return `${apiKey.substring(0, visibleStart)}...`;
   }
 
-  return apiKey.substring(0, visibleStart) + '...' + apiKey.substring(apiKey.length - visibleEnd);
+  return `${apiKey.substring(0, visibleStart)}...${apiKey.substring(apiKey.length - visibleEnd)}`;
 }
 
 /**

@@ -12,7 +12,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { Database } from '@/types/database';

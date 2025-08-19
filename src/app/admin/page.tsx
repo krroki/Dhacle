@@ -21,7 +21,12 @@ async function getStats() {
     supabase.from('purchases').select('finalAmount').eq('status', 'completed'),
   ]);
 
-  const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.finalAmount || 0), 0) || 0;
+  interface RevenueItem {
+    finalAmount?: number;
+  }
+
+  const totalRevenue =
+    revenueData?.reduce((sum: number, p: RevenueItem) => sum + (p.finalAmount || 0), 0) || 0;
 
   return {
     totalCourses: totalCourses || 0,

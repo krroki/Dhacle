@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { generateMultipleNicknames, generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { Database } from '@/types/database';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -86,14 +86,13 @@ export async function POST(request: NextRequest) {
       nickname: nickname,
       message: 'Random nickname generated successfully',
     });
-  } catch (error) {
-    console.error('Error generating nickname:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // 닉네임 제안 목록 가져오기
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -141,8 +140,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       suggestions: availableSuggestions.slice(0, 5),
     });
-  } catch (error) {
-    console.error('Error getting nickname suggestions:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

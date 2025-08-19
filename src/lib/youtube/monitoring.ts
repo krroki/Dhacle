@@ -27,7 +27,9 @@ export class ChannelFolderManager {
   ): Promise<SourceFolder> {
     const { data, error } = await supabase.from('sourceFolders').insert(folder).select().single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     return data;
   }
 
@@ -42,7 +44,9 @@ export class ChannelFolderManager {
 
     const { error } = await supabase.from('folderChannels').insert(folderChannels);
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
   }
 
   /**
@@ -61,7 +65,9 @@ export class ChannelFolderManager {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     return data || [];
   }
 
@@ -76,7 +82,9 @@ export class ChannelFolderManager {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     return data;
   }
 
@@ -86,7 +94,9 @@ export class ChannelFolderManager {
   async deleteFolder(folderId: string): Promise<void> {
     const { error } = await supabase.from('sourceFolders').delete().eq('id', folderId);
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
   }
 }
 
@@ -100,7 +110,9 @@ export class AlertRuleEngine {
   async createRule(rule: Omit<AlertRule, 'id' | 'created_at' | 'updated_at'>): Promise<AlertRule> {
     const { data, error } = await supabase.from('alertRules').insert(rule).select().single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     return data;
   }
 
@@ -115,7 +127,9 @@ export class AlertRuleEngine {
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     return data || [];
   }
 
@@ -124,7 +138,7 @@ export class AlertRuleEngine {
    */
   async checkVideoAgainstRules(video: YouTubeVideo, rules: AlertRule[]): Promise<Alert[]> {
     const alerts: Alert[] = [];
-    const metrics = calculateMetrics([video])[0];
+    const _metrics = calculateMetrics([video])[0];
 
     for (const rule of rules) {
       let triggered = false;
@@ -246,7 +260,9 @@ export class AlertRuleEngine {
       .order('snapshotAt', { ascending: false })
       .limit(2);
 
-    if (error || !data || data.length < 2) return null;
+    if (error || !data || data.length < 2) {
+      return null;
+    }
 
     const [recent, previous] = data;
     const viewDiff = recent.view_count - previous.view_count;
@@ -254,7 +270,9 @@ export class AlertRuleEngine {
       new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);
 
-    if (hoursDiff === 0) return 0;
+    if (hoursDiff === 0) {
+      return 0;
+    }
     return ((viewDiff / previous.view_count) * 100) / hoursDiff; // Growth rate per hour as percentage
   }
 
@@ -262,11 +280,15 @@ export class AlertRuleEngine {
    * Save alerts to database
    */
   async saveAlerts(alerts: Alert[]): Promise<void> {
-    if (alerts.length === 0) return;
+    if (alerts.length === 0) {
+      return;
+    }
 
     const { error } = await supabase.from('alerts').insert(alerts);
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
   }
 }
 
@@ -360,9 +382,7 @@ export class MonitoringScheduler {
 
       // Update last check timestamp
       await this.updateLastCheckTime(userId);
-    } catch (error) {
-      console.error('Monitoring check failed:', error);
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -387,7 +407,6 @@ export class MonitoringScheduler {
       .eq('id', userId);
 
     if (error) {
-      console.error('Failed to update last check time:', error);
     }
   }
 }
@@ -418,9 +437,15 @@ export const monitoringUtils = {
 
     // Define severity based on metric value ranges
     // This is customizable based on requirements
-    if (metricValue > 1000000) return 'critical';
-    if (metricValue > 100000) return 'high';
-    if (metricValue > 10000) return 'medium';
+    if (metricValue > 1000000) {
+      return 'critical';
+    }
+    if (metricValue > 100000) {
+      return 'high';
+    }
+    if (metricValue > 10000) {
+      return 'medium';
+    }
     return 'low';
   },
 

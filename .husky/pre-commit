@@ -24,6 +24,11 @@ if [ -n "$STAGED_TS_FILES" ]; then
   # TypeScript 컴파일 체크
   npx tsc --noEmit --skipLibCheck || {
     echo "❌ TypeScript 컴파일 오류!"
+    echo ""
+    echo "💡 해결 방법:"
+    echo "  1. 자동 수정 시도: npm run types:auto-fix"
+    echo "  2. DB 변경 시: npm run types:generate"
+    echo "  3. 타입 확인: npm run types:check"
     exit 1
   }
 fi

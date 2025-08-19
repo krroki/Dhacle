@@ -30,7 +30,7 @@ export function SubscriptionManager() {
   // Fetch subscriptions on mount
   useEffect(() => {
     fetchSubscriptions();
-  }, []);
+  }, [fetchSubscriptions]);
 
   const fetchSubscriptions = async () => {
     try {
@@ -45,7 +45,6 @@ export function SubscriptionManager() {
         toast.error('Failed to fetch subscriptions');
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
       if (error instanceof ApiError && error.status === 401) {
         toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
       } else {
@@ -87,7 +86,6 @@ export function SubscriptionManager() {
         toast.error(data.error || 'Failed to subscribe');
       }
     } catch (error) {
-      console.error('Subscribe error:', error);
       if (error instanceof ApiError) {
         if (error.status === 401) {
           toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
@@ -115,7 +113,6 @@ export function SubscriptionManager() {
         toast.error(data.error || 'Failed to unsubscribe');
       }
     } catch (error) {
-      console.error('Unsubscribe error:', error);
       if (error instanceof ApiError) {
         if (error.status === 401) {
           toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
@@ -141,7 +138,6 @@ export function SubscriptionManager() {
         toast.error(data.error || 'Failed to renew');
       }
     } catch (error) {
-      console.error('Renew error:', error);
       if (error instanceof ApiError) {
         if (error.status === 401) {
           toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
@@ -247,8 +243,7 @@ export function SubscriptionManager() {
                     )}
                     {sub.expiresAt && (
                       <span>
-                        Expires:{' '}
-                        {formatDistanceToNow(new Date(sub.expiresAt), { addSuffix: true })}
+                        Expires: {formatDistanceToNow(new Date(sub.expiresAt), { addSuffix: true })}
                       </span>
                     )}
                   </div>

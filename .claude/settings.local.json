@@ -33,7 +33,13 @@
       "Bash(chmod:*)",
       "Bash(git rm:*)",
       "Bash(npm run security:test:*)",
-      "Bash(npm run verify:quick:*)"
+      "Bash(npm run verify:quick:*)",
+      "Bash(npm run types:*)",
+      "Bash(node:*)",
+      "Bash(npm run verify:types:*)",
+      "Bash(npm run verify:parallel:quality:*)",
+      "Bash(node:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": [],

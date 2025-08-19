@@ -103,8 +103,6 @@ export function PaymentMethodSelector({
 
       onSuccess?.();
     } catch (error) {
-      console.error('Payment error:', error);
-
       // 사용자가 취소한 경우는 에러로 처리하지 않음
       if (error instanceof Error && !error.message.includes('사용자가 결제를 취소')) {
         onError?.(error);

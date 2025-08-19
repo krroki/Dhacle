@@ -38,7 +38,6 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching folders:', error);
       return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
     }
 
@@ -53,8 +52,7 @@ export async function GET() {
       success: true,
       folders: foldersWithCount,
     });
-  } catch (error) {
-    console.error('[/api/youtube/folders] GET Error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -115,7 +113,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating folder:', error);
       return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
     }
 
@@ -126,8 +123,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('[/api/youtube/folders] POST Error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -215,7 +211,6 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error updating folder:', error);
       return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
     }
 
@@ -223,8 +218,7 @@ export async function PUT(request: NextRequest) {
       success: true,
       folder: updatedFolder,
     });
-  } catch (error) {
-    console.error('[/api/youtube/folders] PUT Error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -273,7 +267,6 @@ export async function DELETE(request: NextRequest) {
       .eq('folder_id', folderId);
 
     if (channelError) {
-      console.error('Error deleting folder channels:', channelError);
       return NextResponse.json({ error: 'Failed to delete folder channels' }, { status: 500 });
     }
 
@@ -285,7 +278,6 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', user.id);
 
     if (error) {
-      console.error('Error deleting folder:', error);
       return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });
     }
 
@@ -293,8 +285,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Folder deleted successfully',
     });
-  } catch (error) {
-    console.error('[/api/youtube/folders] DELETE Error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

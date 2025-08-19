@@ -1,14 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  Award,
-  BookOpen,
-  Calendar,
-  ChartBar,
-  Clock,
-  Target,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
+import { Award, BookOpen, Clock, Target, TrendingUp, Users } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -148,7 +139,9 @@ export default async function MyPageDashboard() {
             <div className="space-y-4">
               {recentCourses.map((enrollment) => {
                 const course = enrollment.courses;
-                if (!course) return null;
+                if (!course) {
+                  return null;
+                }
 
                 const progressPercent = course.totalLessons
                   ? (enrollment.completedLessons / course.totalLessons) * 100

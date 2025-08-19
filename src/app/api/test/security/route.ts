@@ -14,23 +14,20 @@ export async function GET(request: Request) {
       cacheControl: request.headers.get('cache-control'),
       xFrameOptions: request.headers.get('x-frame-options'),
       xContentTypeOptions: request.headers.get('x-content-type-options'),
-    }
+    },
   });
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // XSS 테스트를 위한 응답
     return NextResponse.json({
       echo: body,
       processed: true,
     });
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Invalid request body' },
-      { status: 400 }
-    );
+  } catch (_error) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 }

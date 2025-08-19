@@ -3,7 +3,7 @@
  * 2-레벨 캐싱: 메모리(LRU) + Redis
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import Redis from 'ioredis';
 import { LRUCache } from 'lru-cache';
 
@@ -15,7 +15,7 @@ if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
   try {
     redis = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
-      port: Number.parseInt(process.env.REDIS_PORT || '6379'),
+      port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       lazyConnect: true,
@@ -27,7 +27,7 @@ if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
       console.log('Redis connection failed, using memory cache only:', err.message);
       redis = null;
     });
-  } catch (error) {
+  } catch (_error) {
     console.log('Redis initialization skipped, using memory cache only');
     redis = null;
   }
@@ -108,7 +108,7 @@ export class CacheManager {
       await redis.connect();
       this.redisConnected = true;
       console.log('Redis connected for caching');
-    } catch (error) {
+    } catch (_error) {
       console.log('Redis connection failed, using memory cache only');
       this.redisConnected = false;
       redis = null; // Redis 비활성화
@@ -129,7 +129,9 @@ export class CacheManager {
 
   // 파라미터 정규화
   private normalizeParams(params: unknown): Record<string, unknown> {
-    if (!params || typeof params !== 'object' || params === null) return {};
+    if (!params || typeof params !== 'object' || params === null) {
+      return {};
+    }
 
     // Type assertion after type guard
     const paramsObj = params as Record<string, unknown>;
@@ -179,9 +181,7 @@ export class CacheManager {
           // 만료된 항목 삭제
           await redis.del(key);
         }
-      } catch (error) {
-        console.error('Redis get error:', error);
-      }
+      } catch (_error) {}
     }
 
     this.stats.misses++;
@@ -205,9 +205,7 @@ export class CacheManager {
     if (this.redisConnected && redis) {
       try {
         await redis.setex(key, Math.floor(ttl / 1000), JSON.stringify(item));
-      } catch (error) {
-        console.error('Redis set error:', error);
-      }
+      } catch (_error) {}
     }
 
     this.stats.sets++;
@@ -223,9 +221,7 @@ export class CacheManager {
     if (this.redisConnected && redis) {
       try {
         await redis.del(key);
-      } catch (error) {
-        console.error('Redis delete error:', error);
-      }
+      } catch (_error) {}
     }
 
     this.stats.deletes++;
@@ -250,9 +246,7 @@ export class CacheManager {
           await redis.del(...keys);
           this.stats.deletes += keys.length;
         }
-      } catch (error) {
-        console.error('Redis pattern delete error:', error);
-      }
+      } catch (_error) {}
     }
 
     console.log(`Cache pattern deleted: ${pattern}`);
@@ -270,9 +264,7 @@ export class CacheManager {
         if (keys.length > 0) {
           await redis.del(...keys);
         }
-      } catch (error) {
-        console.error('Redis clear error:', error);
-      }
+      } catch (_error) {}
     }
 
     // 통계 초기화
@@ -351,7 +343,9 @@ export class CacheManager {
     const responseObj = response as { error?: unknown; items?: unknown[] };
 
     // 에러 응답은 캐시하지 않음
-    if (responseObj.error) return false;
+    if (responseObj.error) {
+      return false;
+    }
 
     // 빈 결과는 짧게 캐시
     if (!responseObj.items || !Array.isArray(responseObj.items) || responseObj.items.length === 0) {

@@ -12,7 +12,7 @@ import { JobType, quotaManager, type YouTubeJobData } from '../queue-manager';
 // Redis 연결
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
-  port: Number.parseInt(process.env.REDIS_PORT || '6379'),
+  port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });
@@ -62,9 +62,7 @@ export class YouTubeBatchProcessor {
       console.log(`Worker completed job ${job.id} of type ${jobType}`);
     });
 
-    worker.on('failed', (job, err) => {
-      console.error(`Worker failed job ${job?.id} of type ${jobType}:`, err);
-    });
+    worker.on('failed', (_job, _err) => {});
 
     this.workers.set(jobType, worker);
     return worker;
@@ -104,47 +102,41 @@ export class YouTubeBatchProcessor {
     if (!hasQuota) {
       throw new Error('Daily quota exceeded');
     }
+    // 진행 상황 업데이트
+    await job.updateProgress(10);
 
-    try {
-      // 진행 상황 업데이트
-      await job.updateProgress(10);
-
-      // API 호출 처리
-      let result: unknown;
-      switch (type) {
-        case JobType.SEARCH:
-          result = await this.processSearch(youtube, params);
-          break;
-        case JobType.VIDEO_DETAILS:
-          result = await this.processVideoDetails(youtube, params);
-          break;
-        case JobType.CHANNEL_DETAILS:
-          result = await this.processChannelDetails(youtube, params);
-          break;
-        case JobType.PLAYLIST_ITEMS:
-          result = await this.processPlaylistItems(youtube, params);
-          break;
-        case JobType.VIDEO_STATS:
-          result = await this.processVideoStats(youtube, params);
-          break;
-        default:
-          throw new Error(`Unknown job type: ${type}`);
-      }
-
-      // 쿼터 사용 기록
-      await quotaManager.useQuota(quotaCost);
-
-      // 결과 캐싱
-      await cacheManager.set(cacheKey, result, this.getCacheTTL(type));
-
-      // 진행 상황 완료
-      await job.updateProgress(100);
-
-      return result;
-    } catch (error) {
-      console.error(`Error processing job ${job.id}:`, error);
-      throw error;
+    // API 호출 처리
+    let result: unknown;
+    switch (type) {
+      case JobType.SEARCH:
+        result = await this.processSearch(youtube, params);
+        break;
+      case JobType.VIDEO_DETAILS:
+        result = await this.processVideoDetails(youtube, params);
+        break;
+      case JobType.CHANNEL_DETAILS:
+        result = await this.processChannelDetails(youtube, params);
+        break;
+      case JobType.PLAYLIST_ITEMS:
+        result = await this.processPlaylistItems(youtube, params);
+        break;
+      case JobType.VIDEO_STATS:
+        result = await this.processVideoStats(youtube, params);
+        break;
+      default:
+        throw new Error(`Unknown job type: ${type}`);
     }
+
+    // 쿼터 사용 기록
+    await quotaManager.useQuota(quotaCost);
+
+    // 결과 캐싱
+    await cacheManager.set(cacheKey, result, this.getCacheTTL(type));
+
+    // 진행 상황 완료
+    await job.updateProgress(100);
+
+    return result;
   }
 
   // 검색 처리
@@ -247,7 +239,9 @@ export class YouTubeBatchProcessor {
 
   // 사용자 API 키 가져오기
   private async getUserApiKey(userId?: string): Promise<string | null> {
-    if (!userId) return null;
+    if (!userId) {
+      return null;
+    }
 
     // Supabase에서 암호화된 API 키 가져오기
     // TODO: 실제 구현 필요

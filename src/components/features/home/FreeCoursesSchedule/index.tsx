@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui';
-import type { CourseSchedule } from '@/lib/dummy-data/home';
 import { dummyCourseSchedules } from '@/lib/dummy-data/home';
 import { SectionTitle } from '../shared/SectionTitle';
 
@@ -212,20 +211,20 @@ export function FreeCoursesSchedule() {
               ) : (
                 monthSchedules.map((schedule) => {
                   const { day, dayOfWeek, dayName } = formatScheduleDate(schedule.date);
-                  const isSelected = selectedDate === Number.parseInt(day);
+                  const isSelected = selectedDate === Number.parseInt(day, 10);
                   const { instructor, title } = formatCourseName(schedule.courseName);
 
                   return (
                     <button
                       key={schedule.id}
-                      onMouseEnter={() => setHoveredDate(Number.parseInt(day))}
+                      onMouseEnter={() => setHoveredDate(Number.parseInt(day, 10))}
                       onMouseLeave={() => setHoveredDate(null)}
                       onClick={() => handleCourseClick(schedule.courseId)}
                       className={`
                         w-full text-left px-4 py-3 rounded-lg border transition-all
                         hover:border-primary hover:bg-primary/10 hover:shadow-md
                         ${isSelected ? 'border-primary bg-primary/5' : 'border-border'}
-                        ${hoveredDate === Number.parseInt(day) ? 'transform scale-[1.02]' : ''}
+                        ${hoveredDate === Number.parseInt(day, 10) ? 'transform scale-[1.02]' : ''}
                       `}
                     >
                       <div className="flex items-center justify-between">
@@ -250,7 +249,7 @@ export function FreeCoursesSchedule() {
                         <ChevronRight
                           className={`
                           h-4 w-4 text-muted-foreground transition-transform
-                          ${hoveredDate === Number.parseInt(day) ? 'translate-x-1' : ''}
+                          ${hoveredDate === Number.parseInt(day, 10) ? 'translate-x-1' : ''}
                         `}
                         />
                       </div>

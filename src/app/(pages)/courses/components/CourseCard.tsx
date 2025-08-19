@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Course } from '@/types/course';
 import { safeAccess } from '@/lib/utils/type-mappers';
+import type { Course } from '@/types/course';
 
 interface CourseCardProps {
   course: Course;
@@ -23,7 +23,9 @@ export function CourseCard({ course }: CourseCardProps) {
   };
 
   const formatPrice = (price: number): string => {
-    if (price === 0) return '무료';
+    if (price === 0) {
+      return '무료';
+    }
     return `₩${price.toLocaleString()}`;
   };
 
@@ -50,15 +52,21 @@ export function CourseCard({ course }: CourseCardProps) {
 
           {/* 뱃지 오버레이 */}
           <div className="absolute top-2 left-2 flex gap-2">
-            {safeAccess(course, 'is_free', 'isFree', false) && <Badge className="bg-green-500 text-white">무료</Badge>}
-            {safeAccess(course, 'is_premium', 'isPremium', false) && <Badge className="bg-purple-500 text-white">프리미엄</Badge>}
+            {safeAccess(course, 'is_free', 'isFree', false) && (
+              <Badge className="bg-green-500 text-white">무료</Badge>
+            )}
+            {safeAccess(course, 'is_premium', 'isPremium', false) && (
+              <Badge className="bg-purple-500 text-white">프리미엄</Badge>
+            )}
             {course.status === 'upcoming' && <Badge variant="secondary">예정</Badge>}
           </div>
         </div>
 
         <CardContent className="p-4 space-y-3">
           {/* 강사명 */}
-          <div className="text-sm text-muted-foreground">{safeAccess(course, 'instructor_name', 'instructorName', '')}</div>
+          <div className="text-sm text-muted-foreground">
+            {safeAccess(course, 'instructor_name', 'instructorName', '')}
+          </div>
 
           {/* 제목 */}
           <h3 className="font-semibold text-lg line-clamp-2 min-h-[3.5rem]">{course.title}</h3>

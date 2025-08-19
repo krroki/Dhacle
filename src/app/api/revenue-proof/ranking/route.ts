@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     // 기간 파라미터 (daily, weekly, monthly)
     const period = searchParams.get('period') || 'monthly';
-    const limit = Number.parseInt(searchParams.get('limit') || '10');
+    const limit = Number.parseInt(searchParams.get('limit') || '10', 10);
 
     // 기간별 날짜 계산
     const now = new Date();
@@ -41,7 +41,6 @@ export async function GET(request: NextRequest) {
       case 'weekly':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
-      case 'monthly':
       default:
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         break;
@@ -57,7 +56,6 @@ export async function GET(request: NextRequest) {
       .gte('created_at', startDate.toISOString());
 
     if (error) {
-      console.error('Rankings query error:', error);
       return NextResponse.json(
         { error: '랭킹을 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -65,9 +63,28 @@ export async function GET(request: NextRequest) {
     }
 
     // 사용자별 수익 집계
+    interface ProofData {
+      user_id: string;
+      amount: number;
+      platform: string;
+    }
+
     const userRevenues = (proofs || []).reduce(
-      (acc, proof) => {
-        if (!proof.user_id) return acc;
+      (
+        acc: Record<
+          string,
+          {
+            user_id: string;
+            total_amount: number;
+            proof_count: number;
+            platforms: Set<string>;
+          }
+        >,
+        proof: ProofData
+      ) => {
+        if (!proof.user_id) {
+          return acc;
+        }
 
         if (!acc[proof.user_id]) {
           acc[proof.user_id] = {
@@ -102,18 +119,33 @@ export async function GET(request: NextRequest) {
       .select('id, username, avatar_url')
       .in('id', userIds);
 
+    interface ProfileData {
+      id: string;
+      username?: string;
+      avatar_url?: string;
+    }
+
     const profileMap = (profiles || []).reduce(
-      (acc, profile) => {
+      (acc: Record<string, ProfileData>, profile: ProfileData) => {
         acc[profile.id] = profile;
         return acc;
       },
-      {} as Record<string, { id: string; username?: string; avatar_url?: string }>
+      {} as Record<string, ProfileData>
     );
 
     // 배열로 변환하고 정렬
-    const rankings = Object.values(userRevenues)
+    const userRevenueValues = Object.values(userRevenues) as Array<{
+      user_id: string;
+      total_amount: number;
+      proof_count: number;
+      platforms: Set<string>;
+    }>;
+
+    const rankings = userRevenueValues
       .map((item) => ({
-        ...item,
+        user_id: item.user_id,
+        total_amount: item.total_amount,
+        proof_count: item.proof_count,
         username: profileMap[item.user_id]?.username || 'Anonymous',
         avatar_url: profileMap[item.user_id]?.avatar_url || null,
         platforms: Array.from(item.platforms),
@@ -135,12 +167,10 @@ export async function GET(request: NextRequest) {
     let myRank = null;
 
     if (user) {
-      const myData = Object.values(userRevenues).find((item) => item.user_id === user.id);
+      const myData = userRevenueValues.find((item) => item.user_id === user.id);
 
       if (myData) {
-        const allRankings = Object.values(userRevenues).sort(
-          (a, b) => b.total_amount - a.total_amount
-        );
+        const allRankings = userRevenueValues.sort((a, b) => b.total_amount - a.total_amount);
 
         myRank = {
           rank: allRankings.findIndex((item) => item.user_id === user.id) + 1,
@@ -156,8 +186,7 @@ export async function GET(request: NextRequest) {
       myRank,
       cached: false,
     });
-  } catch (error: unknown) {
-    console.error('API error:', error);
+  } catch (_error: unknown) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

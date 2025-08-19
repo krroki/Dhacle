@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
@@ -45,8 +44,6 @@ export default function CollectionBoard() {
       console.log('[CollectionBoard] API Response:', data);
       setCollections((data.collections || []).map(mapCollection));
     } catch (error) {
-      console.error('[CollectionBoard] Fetch collections error:', error);
-
       // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
         const errorWithStatus = error as {
@@ -80,7 +77,7 @@ export default function CollectionBoard() {
 
   useEffect(() => {
     fetchCollections();
-  }, []);
+  }, [fetchCollections]);
 
   // 새 컬렉션 생성
   const handleCreateCollection = async () => {
@@ -102,8 +99,7 @@ export default function CollectionBoard() {
       setCollections([mapCollection(data.collection), ...collections]);
       setIsCreateDialogOpen(false);
       resetForm();
-    } catch (error) {
-      console.error('Error creating collection:', error);
+    } catch (_error) {
       toast.error('컬렉션 생성에 실패했습니다');
     }
   };
@@ -125,11 +121,12 @@ export default function CollectionBoard() {
       });
 
       toast.success('컬렉션이 업데이트되었습니다');
-      setCollections(collections.map((c) => (c.id === editingCollection.id ? mapCollection(data.collection) : c)));
+      setCollections(
+        collections.map((c) => (c.id === editingCollection.id ? mapCollection(data.collection) : c))
+      );
       setEditingCollection(null);
       resetForm();
-    } catch (error) {
-      console.error('Error updating collection:', error);
+    } catch (_error) {
       toast.error('컬렉션 업데이트에 실패했습니다');
     }
   };
@@ -145,8 +142,7 @@ export default function CollectionBoard() {
 
       toast.success('컬렉션이 삭제되었습니다');
       setCollections(collections.filter((c) => c.id !== collectionId));
-    } catch (error) {
-      console.error('Error deleting collection:', error);
+    } catch (_error) {
       toast.error('컬렉션 삭제에 실패했습니다');
     }
   };

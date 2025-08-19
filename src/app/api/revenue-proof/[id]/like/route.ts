@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // POST: 좋아요 토글
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;
@@ -55,7 +55,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         .eq('user_id', user.id);
 
       if (deleteError) {
-        console.error('Like delete error:', deleteError);
         return NextResponse.json({ error: '좋아요 취소 중 오류가 발생했습니다' }, { status: 500 });
       }
 
@@ -77,7 +76,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       });
 
       if (insertError) {
-        console.error('Like insert error:', insertError);
         return NextResponse.json({ error: '좋아요 중 오류가 발생했습니다' }, { status: 500 });
       }
 
@@ -104,8 +102,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       likesCount: likesCount || 0,
       message,
     });
-  } catch (error) {
-    console.error('API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

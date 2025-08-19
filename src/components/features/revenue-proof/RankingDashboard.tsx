@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Award,
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -16,7 +15,6 @@ import {
   Trophy,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import { useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -66,10 +64,14 @@ export function RankingDashboard({
   const [selectedTab, setSelectedTab] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   // 순위 변동 아이콘 (더미 데이터 - 실제로는 이전 순위와 비교)
-  const getRankChangeIcon = (rank: number) => {
+  const getRankChangeIcon = (_rank: number) => {
     const random = Math.random();
-    if (random < 0.3) return <ChevronUp className="h-4 w-4 text-green-500" />;
-    if (random < 0.6) return <ChevronDown className="h-4 w-4 text-red-500" />;
+    if (random < 0.3) {
+      return <ChevronUp className="h-4 w-4 text-green-500" />;
+    }
+    if (random < 0.6) {
+      return <ChevronDown className="h-4 w-4 text-red-500" />;
+    }
     return <Minus className="h-4 w-4 text-gray-400" />;
   };
 

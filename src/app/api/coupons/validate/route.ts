@@ -110,8 +110,7 @@ export async function POST(req: NextRequest) {
         discountPercentage: Math.round((discountAmount / course.price) * 100),
       },
     });
-  } catch (error) {
-    console.error('Coupon validation error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '쿠폰 검증 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

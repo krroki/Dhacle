@@ -8,7 +8,7 @@ import { google, type youtube_v3 } from 'googleapis';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
 
-let cachedClient: youtube_v3.Youtube | null = null;
+let _cachedClient: youtube_v3.Youtube | null = null;
 
 /**
  * Get or create YouTube API client
@@ -27,11 +27,6 @@ export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Yout
   }
 
   if (!apiKey) {
-    console.error('[getYouTubeClient] API key not found:', {
-      userId,
-      hasUserId: !!userId,
-      hasEnvKey: !!process.env.YOUTUBE_API_KEY,
-    });
     throw new Error('YouTube API key not configured. Please add your API key in settings.');
   }
 
@@ -48,7 +43,7 @@ export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Yout
  * Clear cached client (useful when API key changes)
  */
 export function clearYouTubeClient(): void {
-  cachedClient = null;
+  _cachedClient = null;
 }
 
 /**
@@ -93,13 +88,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
         });
       }
     }
-  } catch (error) {
-    console.error('[trackQuotaUsage] Error:', {
-      error: error instanceof Error ? error.message : String(error),
-      operation,
-      units,
-    });
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -146,8 +135,7 @@ export async function getRemainingQuota(): Promise<{
       limit,
       remaining: Math.max(0, limit - used),
     };
-  } catch (error) {
-    console.error('Error getting remaining quota:', error);
+  } catch (_error) {
     return { used: 0, limit: 1000, remaining: 1000 };
   }
 }

@@ -3,7 +3,6 @@
 import {
   AlertTriangle,
   CheckCircle2,
-  Database,
   Globe,
   Key,
   Loader2,
@@ -18,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
+import { apiGet } from '@/lib/api-client';
 
 interface EnvironmentVariable {
   name: string;
@@ -119,8 +118,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       if (data.hasAllRequired && onComplete) {
         onComplete();
       }
-    } catch (error) {
-      console.error('Environment check failed:', error);
+    } catch (_error) {
       setCheckResult({
         configured: false,
         missingVars: variables.map((v) => v.name),
@@ -136,7 +134,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     if (autoCheck) {
       checkEnvironment();
     }
-  }, [autoCheck]);
+  }, [autoCheck, checkEnvironment]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {

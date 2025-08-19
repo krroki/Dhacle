@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (!tossSecretKey) {
-      console.error('토스페이먼츠 시크릿 키가 설정되지 않았습니다.');
       return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
     }
 
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${tossSecretKey}:`).toString('base64')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -48,7 +47,6 @@ export async function POST(req: NextRequest) {
     const paymentData = await response.json();
 
     if (!response.ok) {
-      console.error('토스페이먼츠 결제 승인 실패:', paymentData);
       return NextResponse.json(
         {
           error: paymentData.message || '결제 승인에 실패했습니다.',
@@ -74,12 +72,11 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('구매 상태 업데이트 실패:', updateError);
       // 토스페이먼츠 결제 취소 API 호출 (보상 트랜잭션)
       await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
+          Authorization: `Basic ${Buffer.from(`${tossSecretKey}:`).toString('base64')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -133,8 +130,7 @@ export async function POST(req: NextRequest) {
         receipt: paymentData.receipt,
       },
     });
-  } catch (error) {
-    console.error('결제 승인 처리 중 오류:', error);
+  } catch (_error) {
     return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

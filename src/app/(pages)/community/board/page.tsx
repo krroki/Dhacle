@@ -2,11 +2,11 @@
 
 import { AlertCircle, ArrowLeft, Eye, Heart, Loader2, MessageSquare, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ApiError, apiGet, apiPost } from '@/lib/api-client';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 interface Post {
   id: string;
@@ -43,11 +43,7 @@ export default function CommunityBoardPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [page]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await apiGet<{ posts: Post[]; totalPages: number }>(
@@ -55,13 +51,16 @@ export default function CommunityBoardPage() {
       );
       setPosts(data.posts || []);
       setTotalPages(data.totalPages || 1);
-    } catch (error) {
-      console.error('게시글 로딩 실패:', error);
+    } catch (_error) {
       setError('게시글을 불러오는데 실패했습니다');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const handleSubmit = async () => {
     if (!newPost.title.trim() || !newPost.content.trim()) {

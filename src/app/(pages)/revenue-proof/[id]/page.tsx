@@ -77,7 +77,7 @@ export default async function RevenueProofDetailPage({ params }: PageProps) {
 }
 
 // 메타데이터 생성
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<unknown> {
   const { id } = await params;
   const supabase = createServerComponentClient({ cookies });
 

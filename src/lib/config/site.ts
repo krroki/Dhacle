@@ -136,7 +136,9 @@ const cache = new Map<string, { data: unknown; timestamp: number }>();
 
 export function getCachedData<T>(key: string, ttl = 3600): T | null {
   const cached = cache.get(key);
-  if (!cached) return null;
+  if (!cached) {
+    return null;
+  }
 
   const now = Date.now();
   if (now - cached.timestamp > ttl * 1000) {

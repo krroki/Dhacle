@@ -1,5 +1,25 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { createServerClient } from '@/lib/supabase/server-client';
+
+// Type definition for UserApiKey
+interface UserApiKey {
+  id: string;
+  user_id: string;
+  serviceName: string;
+  encryptedKey: string;
+  encryptionIv: string;
+  apiKeyMasked?: string;
+  is_active: boolean;
+  isValid?: boolean;
+  metadata?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+  lastUsedAt?: string | null;
+  usageCount?: number;
+  usageToday?: number;
+  usageDate?: string;
+  validationError?: string | null;
+}
 
 const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
@@ -20,11 +40,6 @@ export async function getDecryptedApiKey(
       .single();
 
     if (error || !data) {
-      console.error('[getDecryptedApiKey] No API key found:', {
-        userId,
-        serviceName,
-        error: error?.message || 'No key in database',
-      });
       return null;
     }
 
@@ -39,12 +54,7 @@ export async function getDecryptedApiKey(
     decrypted += decipher.final('utf8');
 
     return decrypted;
-  } catch (error) {
-    console.error('[getDecryptedApiKey] Decryption failed:', {
-      error: error instanceof Error ? error.message : String(error),
-      userId,
-      serviceName,
-    });
+  } catch (_error) {
     return null;
   }
 }
@@ -62,7 +72,11 @@ export async function encryptApiKey(apiKey: string): Promise<{ encrypted: string
   };
 }
 
-export async function saveApiKey(userId: string, serviceName: string, apiKey: string) {
+export async function saveApiKey(
+  userId: string,
+  serviceName: string,
+  apiKey: string
+): Promise<boolean> {
   const supabase = await createServerClient();
   const { encrypted, iv } = await encryptApiKey(apiKey);
 
@@ -82,7 +96,9 @@ export async function saveApiKey(userId: string, serviceName: string, apiKey: st
     is_active: true,
   });
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
   return true;
 }
 
@@ -103,7 +119,7 @@ export async function validateYouTubeApiKey(
     }
 
     return { isValid: true };
-  } catch (error) {
+  } catch (_error) {
     return {
       isValid: false,
       error: 'Failed to validate API key',
@@ -116,7 +132,7 @@ export async function saveUserApiKey(params: {
   apiKey: string;
   serviceName: string;
   metadata?: Record<string, unknown>;
-}) {
+}): Promise<UserApiKey> {
   const { userId, apiKey, serviceName, metadata = {} } = params;
   const supabase = await createServerClient();
   const { encrypted, iv } = await encryptApiKey(apiKey);
@@ -147,11 +163,16 @@ export async function saveUserApiKey(params: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
   return data;
 }
 
-export async function getUserApiKey(userId: string, serviceName: string) {
+export async function getUserApiKey(
+  userId: string,
+  serviceName: string
+): Promise<UserApiKey | null> {
   const supabase = await createServerClient();
 
   const { data, error } = await supabase
@@ -162,11 +183,13 @@ export async function getUserApiKey(userId: string, serviceName: string) {
     .eq('is_active', true)
     .single();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    return null;
+  }
   return data;
 }
 
-export async function deleteUserApiKey(userId: string, serviceName: string) {
+export async function deleteUserApiKey(userId: string, serviceName: string): Promise<boolean> {
   const supabase = await createServerClient();
 
   const { error } = await supabase

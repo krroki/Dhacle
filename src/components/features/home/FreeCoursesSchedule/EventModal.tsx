@@ -14,7 +14,9 @@ interface EventModalProps {
 }
 
 export function EventModal({ events, date, isOpen, onClose }: EventModalProps) {
-  if (events.length === 0) return null;
+  if (events.length === 0) {
+    return null;
+  }
 
   const formattedDate = new Date(date).toLocaleDateString('ko-KR', {
     year: 'numeric',

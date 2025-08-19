@@ -22,9 +22,6 @@ export function createBrowserClient() {
       }
     }
 
-    // Development mode - return mock client
-    console.warn('Supabase environment variables not set. Using mock client for development.');
-
     // Return a mock object that mimics the Supabase client interface
     return {
       auth: {

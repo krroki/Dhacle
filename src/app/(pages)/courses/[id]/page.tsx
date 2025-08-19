@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import type React from 'react';
 import { getCourseDetail } from '@/lib/api/courses';
-import { mapCourse } from '@/lib/utils/type-mappers';
 import { siteConfig } from '@/lib/config/site';
+import { mapCourse } from '@/lib/utils/type-mappers';
 import { CourseDetailClient } from './components/CourseDetailClient';
 
 interface PageProps {

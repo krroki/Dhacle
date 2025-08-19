@@ -126,7 +126,9 @@ export function Sidebar() {
   const sidebarItems = getSidebarItems();
 
   // Don't show sidebar on mypage (has its own sidebar) or if no matching data
-  if (pathname.startsWith('/mypage') || !sidebarItems) return null;
+  if (pathname.startsWith('/mypage') || !sidebarItems) {
+    return null;
+  }
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) =>
@@ -190,7 +192,7 @@ export function Sidebar() {
               className="overflow-hidden"
             >
               <div className="mt-1">
-                {item.children!.map((child) => renderSidebarItem(child, depth + 1))}
+                {item.children?.map((child) => renderSidebarItem(child, depth + 1))}
               </div>
             </motion.div>
           )}
@@ -200,10 +202,12 @@ export function Sidebar() {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all"
-                style={{
-                  '--progress-width': `${item.progress}%`,
-                  width: 'var(--progress-width)'
-                } as React.CSSProperties}
+                style={
+                  {
+                    '--progress-width': `${item.progress}%`,
+                    width: 'var(--progress-width)',
+                  } as React.CSSProperties
+                }
               />
             </div>
           </div>
@@ -215,9 +219,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside
-        className="hidden lg:block fixed left-0 bottom-0 bg-background border-r overflow-y-auto top-[128px] w-64"
-      >
+      <aside className="hidden lg:block fixed left-0 bottom-0 bg-background border-r overflow-y-auto top-[128px] w-64">
         <div className="p-4">
           <h2 className="mb-4 text-lg font-semibold">
             {pathname.startsWith('/courses') && '강의 목차'}
@@ -236,9 +238,7 @@ export function Sidebar() {
             className="lg:hidden fixed inset-0 bg-black/50 z-[1099]"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside
-            className="lg:hidden fixed left-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn top-[128px] w-[80vw] max-w-[256px]"
-          >
+          <aside className="lg:hidden fixed left-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn top-[128px] w-[80vw] max-w-[256px]">
             <div className="p-4">
               <h2 className="mb-4 text-lg font-semibold">
                 {pathname.startsWith('/courses') && '강의 목차'}

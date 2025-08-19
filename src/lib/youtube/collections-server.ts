@@ -45,13 +45,11 @@ export class ServerCollectionManager {
         .single();
 
       if (error) {
-        console.error('Error creating collection:', error);
         return { data: null, error };
       }
 
       return { data: collection, error: null };
     } catch (error) {
-      console.error('Error in createCollection:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -78,13 +76,11 @@ export class ServerCollectionManager {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching collections:', error);
         return { data: null, error };
       }
 
       return { data: collections, error: null };
     } catch (error) {
-      console.error('Error in getCollections:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -114,13 +110,11 @@ export class ServerCollectionManager {
         .single();
 
       if (error) {
-        console.error('Error fetching collection:', error);
         return { data: null, error };
       }
 
       return { data: collection, error: null };
     } catch (error) {
-      console.error('Error in getCollection:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -188,7 +182,6 @@ export class ServerCollectionManager {
         .single();
 
       if (error) {
-        console.error('Error adding video to collection:', error);
         return { data: null, error };
       }
 
@@ -203,7 +196,6 @@ export class ServerCollectionManager {
 
       return { data: item, error: null };
     } catch (error) {
-      console.error('Error in addVideoToCollection:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -239,7 +231,6 @@ export class ServerCollectionManager {
         .eq('video_id', videoId);
 
       if (error) {
-        console.error('Error removing video from collection:', error);
         return { success: false, error };
       }
 
@@ -254,7 +245,6 @@ export class ServerCollectionManager {
 
       return { success: true, error: null };
     } catch (error) {
-      console.error('Error in removeVideoFromCollection:', error);
       return { success: false, error: error as Error };
     }
   }
@@ -292,13 +282,11 @@ export class ServerCollectionManager {
         .order('position', { ascending: true });
 
       if (error) {
-        console.error('Error fetching collection videos:', error);
         return { data: null, error };
       }
 
       return { data: items, error: null };
     } catch (error) {
-      console.error('Error in getCollectionVideos:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -344,13 +332,11 @@ export class ServerCollectionManager {
         .single();
 
       if (error) {
-        console.error('Error updating collection:', error);
         return { data: null, error };
       }
 
       return { data: collection, error: null };
     } catch (error) {
-      console.error('Error in updateCollection:', error);
       return { data: null, error: error as Error };
     }
   }
@@ -386,13 +372,11 @@ export class ServerCollectionManager {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error deleting collection:', error);
         return { success: false, error };
       }
 
       return { success: true, error: null };
     } catch (error) {
-      console.error('Error in deleteCollection:', error);
       return { success: false, error: error as Error };
     }
   }
@@ -444,7 +428,6 @@ export class ServerCollectionManager {
 
       return { success: true, error: null };
     } catch (error) {
-      console.error('Error in reorderCollectionItems:', error);
       return { success: false, error: error as Error };
     }
   }

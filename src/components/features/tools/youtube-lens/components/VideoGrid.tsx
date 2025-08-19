@@ -61,7 +61,9 @@ const GridCell = memo(function GridCell({
   const index = rowIndex * data.columns + columnIndex;
   const video = data.videos[index];
 
-  if (!video) return null;
+  if (!video) {
+    return null;
+  }
 
   return (
     <div style={style} className="p-2">
@@ -97,7 +99,9 @@ const ListRow = memo(function ListRow({
 }) {
   const video = data.videos[index];
 
-  if (!video) return null;
+  if (!video) {
+    return null;
+  }
 
   return (
     <div style={style} className="px-4 py-2">
@@ -189,7 +193,6 @@ export function VideoGrid({
         return b.viewCount - a.viewCount;
       case 'likes':
         return b.likeCount - a.likeCount;
-      case 'date':
       default:
         return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
     }
@@ -265,9 +268,15 @@ export function VideoGrid({
 
   // 그리드 뷰 컬럼 계산
   const getColumnCount = (width: number) => {
-    if (width < 640) return 2;
-    if (width < 1024) return 3;
-    if (width < 1280) return 4;
+    if (width < 640) {
+      return 2;
+    }
+    if (width < 1024) {
+      return 3;
+    }
+    if (width < 1280) {
+      return 4;
+    }
     return 5;
   };
 
@@ -462,7 +471,9 @@ export function VideoGrid({
                             data: typeof itemData;
                           }) => {
                             const video = data.videos[index];
-                            if (!video) return null;
+                            if (!video) {
+                              return null;
+                            }
 
                             return (
                               <div style={style} className="px-4 py-1">

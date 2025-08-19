@@ -3,7 +3,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { RankingDashboard } from '@/components/features/revenue-proof/RankingDashboard';
-import type { MonthlyRanking } from '@/types/revenue-proof';
 
 export const metadata = {
   title: '수익 랭킹',
@@ -83,7 +82,9 @@ export default async function RankingPage() {
         }[]
       | null
   ) => {
-    if (!proofs) return [];
+    if (!proofs) {
+      return [];
+    }
 
     const userMap = new Map();
 

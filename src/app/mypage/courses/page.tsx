@@ -1,19 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  Award,
-  BarChart3,
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  Clock,
-  PlayCircle,
-  TrendingUp,
-} from 'lucide-react';
+import { BookOpen, Calendar, CheckCircle, Clock, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
@@ -85,7 +76,7 @@ export default async function MyCoursesPage() {
     return sum + hours * progress;
   }, 0);
 
-  const averageProgress =
+  const _averageProgress =
     allCourses.length > 0
       ? allCourses.reduce((sum: number, e: CourseEnrollment) => sum + e.progressPercentage, 0) /
         allCourses.length
@@ -212,7 +203,9 @@ export default async function MyCoursesPage() {
 
 function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
   const course = enrollment.courses;
-  if (!course) return null;
+  if (!course) {
+    return null;
+  }
 
   const progressPercent = enrollment.progressPercentage || 0;
   const isCompleted = enrollment.status === 'completed';

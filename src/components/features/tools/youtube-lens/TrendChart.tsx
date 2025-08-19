@@ -8,7 +8,7 @@
  */
 
 import { Activity, AlertCircle, BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -55,8 +55,12 @@ export function TrendChart({
   };
 
   const getGrowthIcon = (rate: number) => {
-    if (rate > 0) return <TrendingUp className="w-4 h-4 text-green-600" />;
-    if (rate < 0) return <TrendingDown className="w-4 h-4 text-red-600" />;
+    if (rate > 0) {
+      return <TrendingUp className="w-4 h-4 text-green-600" />;
+    }
+    if (rate < 0) {
+      return <TrendingDown className="w-4 h-4 text-red-600" />;
+    }
     return <Activity className="w-4 h-4 text-gray-600" />;
   };
 
@@ -252,7 +256,9 @@ export function TrendChart({
                       .slice(0, 3)
                       .map((t) => t.keyword);
 
-                    if (keywords.length === 0) return null;
+                    if (keywords.length === 0) {
+                      return null;
+                    }
 
                     return (
                       <div key={sentiment} className="flex items-center gap-2">

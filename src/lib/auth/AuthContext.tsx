@@ -29,8 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
-      } catch (error) {
-        console.error('Error getting session:', error);
+      } catch (_error) {
       } finally {
         setLoading(false);
       }
@@ -41,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -55,9 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
       setUser(null);
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    } catch (_error) {}
   };
 
   return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>;

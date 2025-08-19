@@ -62,37 +62,32 @@ interface ApiKeyStatusResponse {
 
 // API 함수들
 const fetchApiKeyStatus = async () => {
-  try {
-    const data = await apiGet<ApiKeyStatusResponse>('/api/user/api-keys?service=youtube');
+  const data = await apiGet<ApiKeyStatusResponse>('/api/user/api-keys?service=youtube');
 
-    // QuotaStatus 타입에 맞게 구성
-    const used = data.data?.usageToday || 0;
-    const limit = 10000;
-    const remaining = limit - used;
-    const percentage = (used / limit) * 100;
+  // QuotaStatus 타입에 맞게 구성
+  const used = data.data?.usageToday || 0;
+  const limit = 10000;
+  const remaining = limit - used;
+  const percentage = (used / limit) * 100;
 
-    return {
-      success: data.success,
-      hasApiKey: !!data.data,
-      apiKeyData: data.data,
-      quota: data.data
-        ? {
-            used,
-            limit,
-            remaining,
-            percentage,
-            resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
-            warning: percentage >= 80,
-            critical: percentage >= 95,
-            searchCount: 0,
-            videoCount: 0,
-          }
-        : null,
-    };
-  } catch (error) {
-    console.error('API Key status fetch error:', error);
-    throw error;
-  }
+  return {
+    success: data.success,
+    hasApiKey: !!data.data,
+    apiKeyData: data.data,
+    quota: data.data
+      ? {
+          used,
+          limit,
+          remaining,
+          percentage,
+          resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
+          warning: percentage >= 80,
+          critical: percentage >= 95,
+          searchCount: 0,
+          videoCount: 0,
+        }
+      : null,
+  };
 };
 
 interface SearchResponse {
@@ -112,13 +107,8 @@ interface SearchResponse {
 }
 
 const searchVideos = async (filters: YouTubeSearchFilters) => {
-  try {
-    const result = await apiPost<SearchResponse>('/api/youtube/search', filters);
-    return result;
-  } catch (error) {
-    console.error('Search error:', error);
-    throw error;
-  }
+  const result = await apiPost<SearchResponse>('/api/youtube/search', filters);
+  return result;
 };
 
 interface FavoritesResponse {
@@ -132,41 +122,26 @@ interface AddFavoriteResponse {
 }
 
 const fetchFavorites = async () => {
-  try {
-    const result = await apiGet<FavoritesResponse>('/api/youtube/favorites');
-    return result;
-  } catch (error) {
-    console.error('Favorites fetch error:', error);
-    throw error;
-  }
+  const result = await apiGet<FavoritesResponse>('/api/youtube/favorites');
+  return result;
 };
 
 const addFavorite = async (video: FlattenedYouTubeVideo) => {
-  try {
-    const result = await apiPost<AddFavoriteResponse>('/api/youtube/favorites', {
-      video_id: video.id,
-      videoData: video,
-    });
-    return result;
-  } catch (error) {
-    console.error('Add favorite error:', error);
-    throw error;
-  }
+  const result = await apiPost<AddFavoriteResponse>('/api/youtube/favorites', {
+    video_id: video.id,
+    videoData: video,
+  });
+  return result;
 };
 
 const removeFavorite = async (favoriteId: string) => {
-  try {
-    const result = await apiDelete<{ success: boolean }>(`/api/youtube/favorites/${favoriteId}`);
-    return result;
-  } catch (error) {
-    console.error('Remove favorite error:', error);
-    throw error;
-  }
+  const result = await apiDelete<{ success: boolean }>(`/api/youtube/favorites/${favoriteId}`);
+  return result;
 };
 
 function YouTubeLensContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const _searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
 
   const {
@@ -227,7 +202,7 @@ function YouTubeLensContent() {
   });
 
   // 즐겨찾기 추가 뮤테이션
-  const addFavoriteMutation = useMutation({
+  const _addFavoriteMutation = useMutation({
     mutationFn: addFavorite,
     onSuccess: () => {
       toast.success('즐겨찾기에 추가되었습니다');
@@ -239,7 +214,7 @@ function YouTubeLensContent() {
   });
 
   // 즐겨찾기 제거 뮤테이션
-  const removeFavoriteMutation = useMutation({
+  const _removeFavoriteMutation = useMutation({
     mutationFn: removeFavorite,
     onSuccess: () => {
       toast.success('즐겨찾기에서 제거되었습니다');
@@ -281,7 +256,7 @@ function YouTubeLensContent() {
 
   // 검색 실행
   const handleSearch = useCallback(
-    async (query: string, filters: YouTubeSearchFilters) => {
+    async (_query: string, filters: YouTubeSearchFilters) => {
       if (!hasApiKey) {
         toast.error('API Key를 먼저 등록해주세요');
         router.push('/settings/api-keys');

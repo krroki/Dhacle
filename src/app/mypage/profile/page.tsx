@@ -9,7 +9,6 @@ import {
   Link2,
   Loader2,
   Mail,
-  RefreshCw,
   Shield,
   User,
   X,
@@ -60,7 +59,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const fetchProfile = async () => {
     try {
@@ -78,7 +77,9 @@ export default function ProfilePage() {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setProfile(data);
       if (data.naverCafeNickname) {
@@ -87,8 +88,7 @@ export default function ProfilePage() {
       if (data.naverCafeMemberUrl) {
         setCafeMemberUrl(data.naverCafeMemberUrl);
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch (_error) {
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,9 @@ export default function ProfilePage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       // 인증 요청 생성
       const { data: verification, error: verificationError } = await supabase
@@ -132,7 +134,9 @@ export default function ProfilePage() {
         .select()
         .single();
 
-      if (verificationError) throw verificationError;
+      if (verificationError) {
+        throw verificationError;
+      }
 
       // 임시로 자동 승인 (실제로는 관리자가 수동 검증)
       // TODO: 관리자 검증 시스템 구현
@@ -146,7 +150,9 @@ export default function ProfilePage() {
         })
         .eq('id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        throw updateError;
+      }
 
       // 검증 상태 업데이트
       await supabase
@@ -159,8 +165,7 @@ export default function ProfilePage() {
 
       setVerificationStatus('success');
       await fetchProfile();
-    } catch (error) {
-      console.error('Error verifying Naver Cafe:', error);
+    } catch (_error) {
       setErrorMessage('네이버 카페 연동 중 오류가 발생했습니다');
       setVerificationStatus('error');
     } finally {
@@ -178,7 +183,9 @@ export default function ProfilePage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -188,12 +195,13 @@ export default function ProfilePage() {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setVerificationStatus('idle');
       await fetchProfile();
-    } catch (error) {
-      console.error('Error removing Naver Cafe:', error);
+    } catch (_error) {
       setErrorMessage('네이버 카페 연동 해제 중 오류가 발생했습니다');
     } finally {
       setSaving(false);

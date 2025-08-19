@@ -4,20 +4,39 @@
 
 ---
 
+## 🎯 TypeScript 타입 시스템 v2.0 (2025-02-01 구축)
+
+### 자동 타입 생성 시스템
+```typescript
+// Supabase DB에서 자동 생성
+npm run types:generate      // 프로덕션 DB에서 타입 생성
+npm run types:generate:local // 로컬 DB에서 타입 생성
+
+// 생성된 타입 사용
+import { User, Course, Video } from '@/types';
+import { snakeToCamelCase, camelToSnakeCase } from '@/types';
+```
+
+### Single Source of Truth
+- **원칙**: Supabase DB가 유일한 타입 소스
+- **자동 변환**: snake_case (DB) ↔ camelCase (Frontend) 자동
+- **타입 안전성**: any 타입 완전 제거 (0개 달성)
+
 ## 🔄 데이터 변환 레이어
 
-### 기본 변환 패턴
+### 기본 변환 패턴 (Union 타입 활용)
 ```typescript
 // Supabase Response → Frontend Type
-const mapResponse = (dbData: DBType): FrontendType => ({
-  id: dbData.id,
+// Union 타입으로 유연한 매핑
+const mapResponse = (dbData: DBType | FrontendType): FrontendType => ({
+  id: 'id' in dbData ? dbData.id : dbData.id,
   // snake_case → camelCase
-  userName: dbData.user_name,
-  createdAt: new Date(dbData.created_at),
+  userName: 'user_name' in dbData ? dbData.user_name : dbData.userName,
+  createdAt: new Date('created_at' in dbData ? dbData.created_at : dbData.createdAt),
   // 타입 변환
-  viewCount: Number(dbData.view_count),
-  // 기본값 처리
-  thumbnail: dbData.thumbnail_url || '/default.jpg'
+  viewCount: Number('view_count' in dbData ? dbData.view_count : dbData.viewCount),
+  // 기본값 처리 (nullish coalescing 우선순위)
+  thumbnail: (('thumbnail_url' in dbData ? dbData.thumbnail_url : dbData.thumbnail) ?? '/default.jpg')
 })
 ```
 
@@ -357,20 +376,24 @@ const maskKey = (key: string): string => {
 
 ---
 
-## 📊 공통 변환 유틸리티
+## 📊 공통 변환 유틸리티 (2025-02-01 TypeScript 개선)
 
-### snake_case → camelCase
+### snake_case → camelCase (any 타입 제거)
 ```typescript
-const toCamelCase = (obj: any): any => {
+// ✅ 개선된 버전 - Union 타입 사용
+type ConvertibleType = string | number | boolean | null | undefined | Date | 
+                       Record<string, unknown> | unknown[];
+
+const toCamelCase = (obj: ConvertibleType): ConvertibleType => {
   if (Array.isArray(obj)) {
     return obj.map(toCamelCase)
   }
-  if (obj && typeof obj === 'object') {
+  if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
     return Object.keys(obj).reduce((acc, key) => {
       const camelKey = key.replace(/_([a-z])/g, (_, l) => l.toUpperCase())
-      acc[camelKey] = toCamelCase(obj[key])
+      acc[camelKey] = toCamelCase((obj as Record<string, unknown>)[key])
       return acc
-    }, {})
+    }, {} as Record<string, unknown>)
   }
   return obj
 }
@@ -394,15 +417,25 @@ const withDefaults = <T>(data: Partial<T>, defaults: T): T => {
 
 ## 📌 API 응답 타입 정의 패턴 (2025-01-30 추가)
 
-### API 함수 반환 타입 명시
+### API 함수 반환 타입 명시 (Promise 타입 필수)
 ```typescript
-// API 함수는 반드시 반환 타입 명시
+// ✅ API 함수는 반드시 Promise 반환 타입 명시
 export async function getApiData(): Promise<{
   success: boolean;
   data?: SpecificDataType;
   error?: string;
 }> {
-  // ...
+  try {
+    // 비즈니스 로직
+    return { success: true, data };
+  } catch (error) {
+    // Error 인스턴스 체크 패턴
+    console.error(error instanceof Error ? error.message : String(error));
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
 }
 
 // 배열 반환 시

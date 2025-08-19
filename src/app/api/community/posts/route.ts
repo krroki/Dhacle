@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const supabase = createRouteHandlerClient({ cookies });
     const searchParams = req.nextUrl.searchParams;
     const category = searchParams.get('category') || 'board';
-    const page = Number.parseInt(searchParams.get('page') || '1');
+    const page = Number.parseInt(searchParams.get('page') || '1', 10);
     const limit = 20;
     const offset = (page - 1) * limit;
 
@@ -37,7 +37,6 @@ export async function GET(req: NextRequest) {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      console.error('Error fetching posts:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -57,8 +56,7 @@ export async function GET(req: NextRequest) {
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit),
     });
-  } catch (error) {
-    console.error('Error in GET /api/community/posts:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -128,7 +126,6 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating post:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -141,8 +138,7 @@ export async function POST(req: NextRequest) {
         like_count: 0,
       },
     });
-  } catch (error) {
-    console.error('Error in POST /api/community/posts:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -5,7 +5,7 @@
  * Analyzes trends, patterns, and viral trajectories in YouTube content
  */
 
-import type { TrendAnalysis, Video, VideoStats } from '@/types/youtube-lens';
+import type { Video, VideoStats } from '@/types/youtube-lens';
 
 /**
  * Time series data point
@@ -61,7 +61,7 @@ function movingAverage(data: number[], window: number): number[] {
 /**
  * Calculate exponential moving average (EMA)
  */
-function exponentialMovingAverage(data: number[], period: number): number[] {
+function _exponentialMovingAverage(data: number[], period: number): number[] {
   const multiplier = 2 / (period + 1);
   const ema: number[] = [data[0]];
 
@@ -82,7 +82,9 @@ function linearRegression(data: TimeSeriesPoint[]): {
   r2: number;
 } {
   const n = data.length;
-  if (n === 0) return { slope: 0, intercept: 0, r2: 0 };
+  if (n === 0) {
+    return { slope: 0, intercept: 0, r2: 0 };
+  }
 
   // Convert timestamps to numeric values (hours from first point)
   const firstTime = data[0].timestamp.getTime();
@@ -93,7 +95,7 @@ function linearRegression(data: TimeSeriesPoint[]): {
   const sumY = y.reduce((a, b) => a + b, 0);
   const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
   const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
-  const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+  const _sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
 
   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
@@ -161,7 +163,7 @@ export function detectTrend(data: TimeSeriesPoint[]): TrendDetectionResult {
   const nextValue = regression.slope * nextTime + regression.intercept;
 
   // Calculate confidence interval based on standard error
-  const predictions = data.map((d, i) => {
+  const predictions = data.map((d, _i) => {
     const x = (d.timestamp.getTime() - data[0].timestamp.getTime()) / (1000 * 60 * 60);
     return regression.slope * x + regression.intercept;
   });
@@ -212,7 +214,7 @@ export function analyzePatterns(
     if (!hourlyAverages.has(d.hour)) {
       hourlyAverages.set(d.hour, []);
     }
-    hourlyAverages.get(d.hour)!.push(d.value);
+    hourlyAverages.get(d.hour)?.push(d.value);
   });
 
   // Calculate variance in hourly patterns
@@ -280,7 +282,9 @@ export function findViralMoments(
   };
   durationHours: number;
 }> {
-  if (stats.length < 2) return [];
+  if (stats.length < 2) {
+    return [];
+  }
 
   const viralMoments = [];
 
@@ -293,16 +297,19 @@ export function findViralMoments(
       (new Date(curr.snapshotAt).getTime() - new Date(prev.snapshotAt).getTime()) /
       (1000 * 60 * 60); // hours
 
-    if (timeDiff === 0) continue;
+    if (timeDiff === 0) {
+      continue;
+    }
 
     const viewGrowth = (curr.view_count - prev.view_count) / timeDiff;
     const avgGrowth =
       stats.reduce((sum, s, idx) => {
-        if (idx === 0) return sum;
+        if (idx === 0) {
+          return sum;
+        }
         const p = stats[idx - 1];
         const td =
-          (new Date(s.snapshotAt).getTime() - new Date(p.snapshotAt).getTime()) /
-          (1000 * 60 * 60);
+          (new Date(s.snapshotAt).getTime() - new Date(p.snapshotAt).getTime()) / (1000 * 60 * 60);
         return sum + (td > 0 ? (s.view_count - p.view_count) / td : 0);
       }, 0) /
       (stats.length - 1);
@@ -315,15 +322,15 @@ export function findViralMoments(
       while (j < stats.length) {
         const nextGrowth =
           (stats[j].view_count - stats[j - 1].view_count) /
-          ((new Date(stats[j].snapshotAt).getTime() -
-            new Date(stats[j - 1].snapshotAt).getTime()) /
+          ((new Date(stats[j].snapshotAt).getTime() - new Date(stats[j - 1].snapshotAt).getTime()) /
             (1000 * 60 * 60));
 
-        if (nextGrowth < avgGrowth * threshold) break;
+        if (nextGrowth < avgGrowth * threshold) {
+          break;
+        }
 
         duration +=
-          (new Date(stats[j].snapshotAt).getTime() -
-            new Date(stats[j - 1].snapshotAt).getTime()) /
+          (new Date(stats[j].snapshotAt).getTime() - new Date(stats[j - 1].snapshotAt).getTime()) /
           (1000 * 60 * 60);
         j++;
       }
@@ -382,11 +389,21 @@ export function compareToBenchmark(
 
   // Calculate percentiles
   function getPercentile(value: number, benchmarks: typeof categoryBenchmarks.percentiles): number {
-    if (value >= benchmarks.p95) return 95;
-    if (value >= benchmarks.p90) return 90;
-    if (value >= benchmarks.p75) return 75;
-    if (value >= benchmarks.p50) return 50;
-    if (value >= benchmarks.p25) return 25;
+    if (value >= benchmarks.p95) {
+      return 95;
+    }
+    if (value >= benchmarks.p90) {
+      return 90;
+    }
+    if (value >= benchmarks.p75) {
+      return 75;
+    }
+    if (value >= benchmarks.p50) {
+      return 50;
+    }
+    if (value >= benchmarks.p25) {
+      return 25;
+    }
     return 10;
   }
 
@@ -400,11 +417,17 @@ export function compareToBenchmark(
 
   // Determine category rank
   let categoryRank: 'top_5' | 'top_10' | 'top_25' | 'above_average' | 'below_average';
-  if (viewPercentile >= 95) categoryRank = 'top_5';
-  else if (viewPercentile >= 90) categoryRank = 'top_10';
-  else if (viewPercentile >= 75) categoryRank = 'top_25';
-  else if (viewPercentile >= 50) categoryRank = 'above_average';
-  else categoryRank = 'below_average';
+  if (viewPercentile >= 95) {
+    categoryRank = 'top_5';
+  } else if (viewPercentile >= 90) {
+    categoryRank = 'top_10';
+  } else if (viewPercentile >= 75) {
+    categoryRank = 'top_25';
+  } else if (viewPercentile >= 50) {
+    categoryRank = 'above_average';
+  } else {
+    categoryRank = 'below_average';
+  }
 
   return {
     performanceIndex: Math.round(performanceIndex),

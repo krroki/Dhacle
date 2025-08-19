@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   Calendar,
   Check,
-  Copy,
   DollarSign,
   Edit,
   Heart,
@@ -16,7 +15,6 @@ import {
   MessageCircle,
   Share2,
   Trash2,
-  User,
   Youtube,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -46,7 +44,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -69,7 +66,7 @@ interface RevenueProofDetailProps {
 
 export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofDetailProps) {
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const [proof, setProof] = useState(initialData);
   const [isLiked, setIsLiked] = useState(initialData.isLiked);
   const [commentContent, setCommentContent] = useState('');
@@ -168,7 +165,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
         title: editTitle,
         content: editContent,
       }),
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       setProof((prev) => ({
         ...prev,
         title: editTitle,
@@ -192,7 +189,9 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
 
   // 24시간 내 수정 가능 여부 체크
   const canEdit = () => {
-    if (!currentUserId || proof.user_id !== currentUserId) return false;
+    if (!currentUserId || proof.user_id !== currentUserId) {
+      return false;
+    }
     const createdAt = new Date(proof.created_at);
     const now = new Date();
     const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);

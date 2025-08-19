@@ -46,9 +46,13 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
     return `${minutes}분`;
   };
 
-  const getLessonIcon = (lesson: (typeof lessons)[0], index: number) => {
-    if (lesson.isFree) return <PlayCircle className="w-4 h-4 text-green-600" />;
-    if (isPurchased || isEnrolled) return <CheckCircle className="w-4 h-4 text-primary" />;
+  const getLessonIcon = (lesson: (typeof lessons)[0], _index: number) => {
+    if (lesson.isFree) {
+      return <PlayCircle className="w-4 h-4 text-green-600" />;
+    }
+    if (isPurchased || isEnrolled) {
+      return <CheckCircle className="w-4 h-4 text-primary" />;
+    }
     return <Lock className="w-4 h-4 text-gray-400" />;
   };
 
@@ -258,7 +262,9 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                     <div className="flex items-start gap-4">
                       <div className="w-20 h-20 rounded-full bg-gray-200" />
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{course.instructorName || 'Anonymous'}</h3>
+                        <h3 className="font-semibold text-lg">
+                          {course.instructorName || 'Anonymous'}
+                        </h3>
                         <p className="text-muted-foreground mt-2">
                           YouTube Shorts 전문 크리에이터로 100만 구독자를 보유하고 있습니다. 5년간의
                           콘텐츠 제작 경험을 바탕으로 실전 노하우를 전달합니다.

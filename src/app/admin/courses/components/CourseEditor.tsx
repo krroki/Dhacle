@@ -119,7 +119,9 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
   };
 
   const MenuBar = () => {
-    if (!editor) return null;
+    if (!editor) {
+      return null;
+    }
 
     return (
       <div className="border rounded-lg p-2 flex flex-wrap gap-1 mb-4">

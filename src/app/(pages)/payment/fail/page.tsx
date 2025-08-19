@@ -2,7 +2,7 @@
 
 import { ArrowLeft, RefreshCw, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiPost } from '@/lib/api-client';
@@ -15,26 +15,24 @@ function PaymentFailContent() {
   const code = searchParams.get('code');
   const message = searchParams.get('message');
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, _setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    if (orderId) {
-      // 서버에 결제 실패 상태 업데이트
-      updateFailureStatus();
-    }
-  }, [orderId]);
-
-  const updateFailureStatus = async () => {
+  const updateFailureStatus = useCallback(async () => {
     try {
       await apiPost('/api/payment/fail', {
         orderId,
         code,
         message,
       });
-    } catch (error) {
-      console.error('Failed to update payment status:', error);
+    } catch (_error) {}
+  }, [orderId, code, message]);
+
+  useEffect(() => {
+    if (orderId) {
+      // 서버에 결제 실패 상태 업데이트
+      updateFailureStatus();
     }
-  };
+  }, [orderId, updateFailureStatus]);
 
   const handleRetry = () => {
     // 이전 페이지로 돌아가서 다시 시도
@@ -42,9 +40,15 @@ function PaymentFailContent() {
   };
 
   const getErrorMessage = () => {
-    if (message) return message;
-    if (code === 'USER_CANCEL') return '결제를 취소하셨습니다.';
-    if (code === 'PAYMENT_TIMEOUT') return '결제 시간이 초과되었습니다.';
+    if (message) {
+      return message;
+    }
+    if (code === 'USER_CANCEL') {
+      return '결제를 취소하셨습니다.';
+    }
+    if (code === 'PAYMENT_TIMEOUT') {
+      return '결제 시간이 초과되었습니다.';
+    }
     return '결제 처리 중 오류가 발생했습니다.';
   };
 

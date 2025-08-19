@@ -8,6 +8,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { mapOutlierDetectionResult } from '@/lib/utils/type-mappers';
 import { analyzeTrends, extractEntities, generateNLPReport } from '@/lib/youtube/analysis/nlp';
 import { detectOutliers, generateOutlierReport } from '@/lib/youtube/analysis/outlier';
 import {
@@ -16,8 +17,7 @@ import {
   predictVideoPerformance,
 } from '@/lib/youtube/analysis/predictor';
 import { generateTrendReport } from '@/lib/youtube/analysis/trends';
-import { mapOutlierDetectionResult } from '@/lib/utils/type-mappers';
-import type { AnalyticsConfig, BatchAnalysisResult, Video, VideoStats } from '@/types/youtube-lens';
+import type { BatchAnalysisResult, Video, VideoStats } from '@/types/youtube-lens';
 
 /**
  * POST /api/youtube/analysis
@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
     const { data: videos, error: videosError } = await videosQuery.limit(100);
 
     if (videosError) {
-      console.error('Error fetching videos:', videosError);
       return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
     }
 
@@ -85,7 +84,6 @@ export async function POST(request: NextRequest) {
       .order('snapshotAt', { ascending: false });
 
     if (statsError) {
-      console.error('Error fetching stats:', statsError);
       return NextResponse.json({ error: 'Failed to fetch video statistics' }, { status: 500 });
     }
 
@@ -227,8 +225,7 @@ export async function POST(request: NextRequest) {
       processingTimeMs: Date.now() - startTime,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
-    console.error('Analytics API error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -257,7 +254,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'summary';
     const videoId = searchParams.get('video_id');
-    const limit = Number.parseInt(searchParams.get('limit') || '10');
+    const limit = Number.parseInt(searchParams.get('limit') || '10', 10);
 
     let result: Record<string, unknown> = {};
 
@@ -303,7 +300,10 @@ export async function GET(request: NextRequest) {
 
           result = {
             type: 'outliers',
-            outliers: outliers.map(mapOutlierDetectionResult).filter((o) => o.isOutlier).slice(0, limit),
+            outliers: outliers
+              .map(mapOutlierDetectionResult)
+              .filter((o) => o.isOutlier)
+              .slice(0, limit),
           };
         }
         break;
@@ -338,8 +338,7 @@ export async function GET(request: NextRequest) {
       ...result,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
-    console.error('Analytics API GET error:', error);
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

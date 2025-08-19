@@ -19,7 +19,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import Image from 'next/image';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ApiError, apiGet } from '@/lib/api-client';
-import { mapVideo, mapVideoToYouTubeVideo } from '@/lib/utils/type-mappers';
 import type { YouTubeVideo } from '@/types/youtube-lens';
 import ApiKeySetup from './ApiKeySetup';
 
@@ -71,25 +70,19 @@ export default function PopularShortsList({
         };
       }>(`/api/youtube/popular?region=${region}&period=${period}`);
 
-      setVideos((data.data.videos || []).map(mapVideoToYouTubeVideo));
-    } catch (err) {
-      console.error('[PopularShortsList] Fetch error:', {
-        error: err,
-        region,
-        period,
-      });
-
-      if (err instanceof ApiError) {
+      setVideos(data.data.videos || []);
+    } catch (error) {
+      if (error instanceof ApiError) {
         // Check if API key is required
-        if (err.data && typeof err.data === 'object' && 'requiresApiKey' in err.data) {
+        if (error.data && typeof error.data === 'object' && 'requiresApiKey' in error.data) {
           setRequiresApiKey(true);
           return;
         }
 
         // Handle 401 errors - distinguish between auth and API key issues
-        if (err.status === 401) {
+        if (error.status === 401) {
           // Check if it's an API key issue
-          const errorData = err.data as
+          const errorData = error.data as
             | { requiresApiKey?: boolean; errorCode?: string; error?: string }
             | undefined;
           const isApiKeyError =
@@ -106,9 +99,10 @@ export default function PopularShortsList({
           }
           return;
         }
-        setError(err.message);
+        setError(error.message);
       } else {
-        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+        const errorMessage =
+          error instanceof Error ? error.message : 'An unexpected error occurred';
         setError(errorMessage);
       }
     } finally {
@@ -136,7 +130,7 @@ export default function PopularShortsList({
   const formatDuration = (duration: string): string => {
     const match = duration.match(/PT(\d+)S/);
     if (match) {
-      const seconds = Number.parseInt(match[1]);
+      const seconds = Number.parseInt(match[1], 10);
       return `${seconds}s`;
     }
     return duration;
@@ -144,19 +138,35 @@ export default function PopularShortsList({
 
   // Get tier badge color
   const getTierColor = (score: number): string => {
-    if (score >= 80) return 'bg-red-500'; // Viral
-    if (score >= 60) return 'bg-orange-500'; // Trending
-    if (score >= 40) return 'bg-yellow-500'; // Growing
-    if (score >= 20) return 'bg-green-500'; // Steady
+    if (score >= 80) {
+      return 'bg-red-500'; // Viral
+    }
+    if (score >= 60) {
+      return 'bg-orange-500'; // Trending
+    }
+    if (score >= 40) {
+      return 'bg-yellow-500'; // Growing
+    }
+    if (score >= 20) {
+      return 'bg-green-500'; // Steady
+    }
     return 'bg-gray-500'; // Low
   };
 
   // Get tier name
   const getTierName = (score: number): string => {
-    if (score >= 80) return 'Viral';
-    if (score >= 60) return 'Trending';
-    if (score >= 40) return 'Growing';
-    if (score >= 20) return 'Steady';
+    if (score >= 80) {
+      return 'Viral';
+    }
+    if (score >= 60) {
+      return 'Trending';
+    }
+    if (score >= 40) {
+      return 'Growing';
+    }
+    if (score >= 20) {
+      return 'Steady';
+    }
     return 'Low';
   };
 

@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
 
     // Validate environment variables
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('[Auth Callback] Missing required environment variables');
       const errorUrl = new URL('/auth/error', requestUrl.origin);
       errorUrl.searchParams.set('error', 'configurationError');
       errorUrl.searchParams.set(
@@ -42,7 +41,6 @@ export async function GET(request: NextRequest) {
       supabaseAnonKey.includes('placeholder') ||
       supabaseAnonKey === 'your-anon-key-here'
     ) {
-      console.error('[Auth Callback] Invalid environment variables detected');
       const errorUrl = new URL('/auth/error', requestUrl.origin);
       errorUrl.searchParams.set('error', 'configurationError');
       errorUrl.searchParams.set(
@@ -57,24 +55,15 @@ export async function GET(request: NextRequest) {
 
     try {
       console.log('[Auth Callback] Attempting to exchange code for session', {
-        supabaseUrl: supabaseUrl.substring(0, 30) + '...',
+        supabaseUrl: `${supabaseUrl.substring(0, 30)}...`,
         hasAnonKey: !!supabaseAnonKey,
-        code: code.substring(0, 10) + '...',
+        code: `${code.substring(0, 10)}...`,
       });
 
       // Exchange code for session
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (error) {
-        console.error('[Auth Callback] Error exchanging code for session:', {
-          error,
-          code: error.code,
-          message: error.message,
-          status: error.status,
-          name: error.name,
-          cause: error.cause,
-          fullError: JSON.stringify(error, null, 2),
-        });
         const errorUrl = new URL('/auth/error', requestUrl.origin);
         errorUrl.searchParams.set('error', error.code || 'unknownError');
         errorUrl.searchParams.set(
@@ -120,7 +109,6 @@ export async function GET(request: NextRequest) {
           });
 
           if (!initResponse.ok) {
-            console.error('[Auth Callback] Failed to initialize profile');
           } else {
             console.log('[Auth Callback] Profile initialized successfully');
           }
@@ -137,18 +125,10 @@ export async function GET(request: NextRequest) {
           });
 
           if (!initResponse.ok) {
-            console.error('[Auth Callback] Failed to add random nickname');
           }
         }
       }
     } catch (error) {
-      console.error('[Auth Callback] Caught error during authentication:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        supabaseUrl: supabaseUrl?.substring(0, 30) + '...',
-      });
-
       const errorUrl = new URL('/auth/error', requestUrl.origin);
       errorUrl.searchParams.set('error', 'serverError');
 

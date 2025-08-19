@@ -20,10 +20,8 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { mapAlertCondition } from '@/lib/utils/type-mappers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,7 +35,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase/client';
 import type { AlertCondition, AlertMetric, AlertRule, AlertRuleType } from '@/types/youtube-lens';
 
@@ -51,7 +48,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
   const [rules, setRules] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
-  const [editingRule, setEditingRule] = useState<string | null>(null);
+  const [_editingRule, setEditingRule] = useState<string | null>(null);
 
   // Form state for new rule
   const [newRule, setNewRule] = useState<{
@@ -79,7 +76,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
   // Load existing rules
   useEffect(() => {
     loadRules();
-  }, [folderId, channelId]);
+  }, [loadRules]);
 
   const loadRules = async () => {
     try {
@@ -87,7 +84,9 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       let query = supabase
         .from('alertRules')
@@ -104,10 +103,11 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       setRules(data || []);
-    } catch (error) {
-      console.error('Error loading alert rules:', error);
+    } catch (_error) {
       toast.error('알림 규칙을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
@@ -119,7 +119,9 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       const { data, error } = await supabase
         .from('alertRules')
@@ -148,7 +150,9 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       const rule = data;
 
       setRules([rule, ...rules]);
@@ -167,8 +171,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
 
       toast.success('새로운 알림 규칙이 생성되었습니다.');
       onRuleCreated?.(rule);
-    } catch (error) {
-      console.error('Error creating rule:', error);
+    } catch (_error) {
       toast.error('알림 규칙 생성에 실패했습니다.');
     }
   };
@@ -182,14 +185,15 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setRules(rules.map((r) => (r.id === ruleId ? data : r)));
       setEditingRule(null);
 
       toast.success('알림 규칙이 수정되었습니다.');
-    } catch (error) {
-      console.error('Error updating rule:', error);
+    } catch (_error) {
       toast.error('알림 규칙 수정에 실패했습니다.');
     }
   };
@@ -198,13 +202,14 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
     try {
       const { error } = await supabase.from('alertRules').delete().eq('id', ruleId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setRules(rules.filter((r) => r.id !== ruleId));
 
       toast.success('알림 규칙이 삭제되었습니다.');
-    } catch (error) {
-      console.error('Error deleting rule:', error);
+    } catch (_error) {
       toast.error('알림 규칙 삭제에 실패했습니다.');
     }
   };
@@ -352,7 +357,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
                   onChange={(e) =>
                     setNewRule({
                       ...newRule,
-                      thresholdValue: Number.parseInt(e.target.value) || 0,
+                      thresholdValue: Number.parseInt(e.target.value, 10) || 0,
                     })
                   }
                 />
@@ -370,7 +375,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
                   onChange={(e) =>
                     setNewRule({
                       ...newRule,
-                      cooldownHours: Number.parseInt(e.target.value) || 1,
+                      cooldownHours: Number.parseInt(e.target.value, 10) || 1,
                     })
                   }
                 />

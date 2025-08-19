@@ -22,12 +22,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
 import { ApiError, apiDelete, apiGet } from '@/lib/api-client';
 import { mapVideo } from '@/lib/utils/type-mappers';
-import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
+import type { CollectionItem, Video } from '@/types/youtube-lens';
 
 interface CollectionViewerProps {
   collectionId: string;
@@ -43,8 +40,8 @@ export default function CollectionViewer({
   const [items, setItems] = useState<(CollectionItem & { video: Video })[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [editingItem, setEditingItem] = useState<CollectionItem | null>(null);
-  const [notes, setNotes] = useState('');
+  const [_editingItem, _setEditingItem] = useState<CollectionItem | null>(null);
+  const [_notes, _setNotes] = useState('');
 
   // 컬렉션 비디오 목록 조회
   const fetchCollectionVideos = async () => {
@@ -53,12 +50,13 @@ export default function CollectionViewer({
       const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
         `/api/youtube/collections/items?collectionId=${collectionId}`
       );
-      setItems((data.items || []).map(item => ({
-        ...item,
-        video: mapVideo(item.video)
-      })));
+      setItems(
+        (data.items || []).map((item) => ({
+          ...item,
+          video: mapVideo(item.video),
+        }))
+      );
     } catch (error) {
-      console.error('Error fetching collection videos:', error);
       if (error instanceof ApiError) {
         if (error.status === 401) {
           toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
@@ -75,7 +73,7 @@ export default function CollectionViewer({
 
   useEffect(() => {
     fetchCollectionVideos();
-  }, [collectionId]);
+  }, [fetchCollectionVideos]);
 
   // 컬렉션에서 비디오 제거
   const handleRemoveVideo = async (videoId: string) => {
@@ -90,7 +88,6 @@ export default function CollectionViewer({
       toast.success('비디오가 제거되었습니다');
       setItems(items.filter((item) => item.video_id !== videoId));
     } catch (error) {
-      console.error('Error removing video:', error);
       if (error instanceof ApiError) {
         if (error.status === 401) {
           toast.error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
@@ -131,11 +128,21 @@ export default function CollectionViewer({
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 1) return '오늘';
-    if (diffDays < 2) return '어제';
-    if (diffDays < 7) return `${diffDays}일 전`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월 전`;
+    if (diffDays < 1) {
+      return '오늘';
+    }
+    if (diffDays < 2) {
+      return '어제';
+    }
+    if (diffDays < 7) {
+      return `${diffDays}일 전`;
+    }
+    if (diffDays < 30) {
+      return `${Math.floor(diffDays / 7)}주 전`;
+    }
+    if (diffDays < 365) {
+      return `${Math.floor(diffDays / 30)}개월 전`;
+    }
     return `${Math.floor(diffDays / 365)}년 전`;
   };
 

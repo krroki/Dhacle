@@ -2,7 +2,6 @@
 
 import { AlertCircle, CheckCircle2, Loader2, Upload } from 'lucide-react';
 import { useState } from 'react';
-import { apiUpload, ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { apiUpload } from '@/lib/api-client';
 
 export default function VideoUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -69,7 +69,7 @@ export default function VideoUploadPage() {
       }, 500);
 
       // FormData 업로드는 apiUpload 사용
-      const result = await apiUpload('/api/admin/video/upload', formData);
+      const _result = await apiUpload('/api/admin/video/upload', formData);
 
       clearInterval(progressInterval);
       setProgress(100);
@@ -84,8 +84,8 @@ export default function VideoUploadPage() {
         setProgress(0);
         setSuccess(false);
       }, 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '비디오 업로드 중 오류가 발생했습니다');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '비디오 업로드 중 오류가 발생했습니다');
       setProgress(0);
     } finally {
       setUploading(false);

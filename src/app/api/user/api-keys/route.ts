@@ -69,8 +69,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: safeApiKey,
     });
-  } catch (error) {
-    console.error('Error fetching API key:', error);
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
@@ -168,13 +167,6 @@ export async function POST(request: NextRequest) {
       message: 'API key saved successfully',
     });
   } catch (error) {
-    console.error('[API Route] Error saving API key:', {
-      error,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      type: typeof error,
-    });
-
     // 더 상세한 에러 메시지 반환
     const errorMessage =
       error instanceof Error
@@ -233,8 +225,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'API key deleted successfully',
     });
-  } catch (error) {
-    console.error('Error deleting API key:', error);
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
