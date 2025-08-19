@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { AlertCircle, Bell, BellOff, CheckCircle, Clock, Loader2, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,12 +27,8 @@ export function SubscriptionManager() {
   const [channelInput, setChannelInput] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
-  // Fetch subscriptions on mount
-  useEffect(() => {
-    fetchSubscriptions();
-  }, [fetchSubscriptions]);
-
-  const fetchSubscriptions = async () => {
+  // Fetch subscriptions function
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       const data = await apiGet<{ success: boolean; subscriptions: Subscription[] }>(
@@ -53,7 +49,12 @@ export function SubscriptionManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch subscriptions on mount
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   const handleSubscribe = async () => {
     if (!channelInput.trim()) {

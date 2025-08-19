@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -57,11 +57,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const supabase = createBrowserClient();
 
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const {
         data: { user },
@@ -92,7 +88,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, supabase]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleNaverCafeVerification = async () => {
     if (!cafeNickname.trim()) {

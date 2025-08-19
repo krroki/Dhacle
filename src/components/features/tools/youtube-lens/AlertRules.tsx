@@ -20,7 +20,7 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -74,11 +74,7 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
   });
 
   // Load existing rules
-  useEffect(() => {
-    loadRules();
-  }, [loadRules]);
-
-  const loadRules = async () => {
+  const loadRules = useCallback(async () => {
     try {
       setLoading(true);
       const {
@@ -112,7 +108,11 @@ export default function AlertRules({ folderId, channelId, onRuleCreated }: Alert
     } finally {
       setLoading(false);
     }
-  };
+  }, [folderId, channelId]);
+
+  useEffect(() => {
+    loadRules();
+  }, [loadRules]);
 
   const createRule = async () => {
     try {

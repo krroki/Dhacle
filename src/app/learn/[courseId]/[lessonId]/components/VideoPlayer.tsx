@@ -12,7 +12,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -176,6 +176,47 @@ export function VideoPlayer({
     };
   }, [lessonId, onProgress]);
 
+  // 컨트롤 함수들
+  const togglePlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    if (!document.fullscreenElement) {
+      container.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
   // 키보드 단축키
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -257,46 +298,6 @@ export function VideoPlayer({
       }
     };
   }, [isPlaying]);
-
-  const togglePlay = () => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleMute = () => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    video.muted = !video.muted;
-    setIsMuted(video.muted);
-  };
-
-  const toggleFullscreen = () => {
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-
-    if (!document.fullscreenElement) {
-      container.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
 
   const handleSeek = (value: number[]) => {
     const video = videoRef.current;

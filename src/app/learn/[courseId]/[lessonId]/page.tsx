@@ -11,7 +11,7 @@ import {
   PlayCircle,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -37,11 +37,7 @@ export default function LearnPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userId, setUserId] = useState<string>('');
 
-  useEffect(() => {
-    loadCourseData();
-  }, [loadCourseData]);
-
-  const loadCourseData = async () => {
+  const loadCourseData = useCallback(async () => {
     setLoading(true);
     try {
       const supabase = createClient();
@@ -98,7 +94,11 @@ export default function LearnPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, lessonId]);
+
+  useEffect(() => {
+    loadCourseData();
+  }, [loadCourseData]);
 
   const handleProgressUpdate = async (time: number) => {
     try {
