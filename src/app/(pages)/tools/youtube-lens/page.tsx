@@ -20,12 +20,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
-  MetricsDashboard,
   QuotaStatus,
   SearchBar,
   VideoGrid,
   YouTubeLensErrorBoundary,
 } from '@/components/features/tools/youtube-lens';
+import { DeltaDashboard } from '@/components/features/tools/youtube-lens/DeltaDashboard';
 import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
 import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
@@ -486,13 +486,7 @@ function YouTubeLensContent() {
 
         {/* 대시보드 탭 */}
         <TabsContent value="dashboard" className="space-y-4">
-          <MetricsDashboard
-            metrics={metricsData?.metrics}
-            trends={metricsData?.trends}
-            entities={metricsData?.entities}
-            onRefresh={() => refetchMetrics()}
-            isLoading={isLoadingMetrics}
-          />
+          <DeltaDashboard />
         </TabsContent>
 
         {/* 인기 Shorts 탭 */}

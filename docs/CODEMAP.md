@@ -461,9 +461,9 @@ Build & Deploy:
 
 ## 🎨 주요 컴포넌트
 
-### shadcn/ui 컴포넌트 (28개)
+### shadcn/ui 컴포넌트 (29개)
 
-Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Carousel, Checkbox, Dialog, DropdownMenu, Input, Label, NavigationMenu, Popover, Progress, RadioGroup, ScrollArea, Select, Separator, Skeleton, Slider, Sonner, Switch, Tabs, Textarea, TiptapEditor, Tooltip
+Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Carousel, Checkbox, Dialog, DropdownMenu, Input, Label, NavigationMenu, Popover, Progress, RadioGroup, ScrollArea, Select, Separator, Skeleton, Slider, Sonner, Switch, Tabs, Textarea, TiptapEditor, Toast, Tooltip, useToast
 
 ### 레이아웃 컴포넌트
 

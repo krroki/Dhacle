@@ -54,6 +54,8 @@
 | **Tooltip** | `/src/components/ui/tooltip.tsx` | 툴팁 | 도움말 | ✅ 완료 |
 | **TipTap Editor** | `/src/components/ui/tiptap-editor.tsx` | 리치 텍스트 에디터 | 게시글 작성 | ✅ 완료 |
 | **Sonner** | `/src/components/ui/sonner.tsx` | 토스트 알림 | 시스템 알림 | ✅ 완료 |
+| **Toast** | `/src/components/ui/toast.tsx` | 토스트 컴포넌트 | 알림 표시 | ✅ 완료 |
+| **useToast** | `/src/components/ui/use-toast.tsx` | 토스트 훅 | 토스트 제어 | ✅ 완료 |
 
 ---
 

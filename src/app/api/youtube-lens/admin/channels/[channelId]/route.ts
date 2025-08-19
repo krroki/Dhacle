@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // PUT: 채널 정보 수정 (관리자 전용)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { channelId: string } }
+  { params }: { params: Promise<{ channelId: string }> }
 ) {
+  const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
   
   // 인증 체크
@@ -31,7 +32,7 @@ export async function PUT(
     const body = await request.json();
     const { status, notes, category, subcategory, dominantFormat } = body;
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
@@ -54,7 +55,7 @@ export async function PUT(
     const { data, error } = await supabase
       .from('yl_channels')
       .update(updateData)
-      .eq('channel_id', params.channelId)
+      .eq('channel_id', channelId)
       .select()
       .single();
 
@@ -68,10 +69,10 @@ export async function PUT(
         updatedAt: data.updated_at,
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Admin channel PUT error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to update channel' },
+      { error: error instanceof Error ? error.message : 'Failed to update channel' },
       { status: 500 }
     );
   }
@@ -80,8 +81,9 @@ export async function PUT(
 // DELETE: 채널 삭제 (관리자 전용)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { channelId: string } }
+  { params }: { params: Promise<{ channelId: string }> }
 ) {
+  const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
   
   // 인증 체크
@@ -107,7 +109,7 @@ export async function DELETE(
     await supabase
       .from('yl_approval_logs')
       .insert({
-        channel_id: params.channelId,
+        channel_id: channelId,
         action: 'delete',
         actor_id: user.id,
         notes: 'Channel deleted by admin',
@@ -118,7 +120,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('yl_channels')
       .delete()
-      .eq('channel_id', params.channelId);
+      .eq('channel_id', channelId);
 
     if (error) throw error;
 
@@ -126,10 +128,10 @@ export async function DELETE(
       success: true,
       message: 'Channel deleted successfully'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Admin channel DELETE error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to delete channel' },
+      { error: error instanceof Error ? error.message : 'Failed to delete channel' },
       { status: 500 }
     );
   }

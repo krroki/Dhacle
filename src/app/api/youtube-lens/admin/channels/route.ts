@@ -78,10 +78,10 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json({ data: camelCaseData || [] });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Admin channels GET error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch channels' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch channels' },
       { status: 500 }
     );
   }
@@ -181,10 +181,10 @@ export async function POST(request: NextRequest) {
         subscriberCount: data.subscriber_count,
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Admin channel POST error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to add channel' },
+      { error: error instanceof Error ? error.message : 'Failed to add channel' },
       { status: 500 }
     );
   }

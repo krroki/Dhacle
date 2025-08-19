@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { channelId: string } }
+  { params }: { params: Promise<{ channelId: string }> }
 ) {
+  const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
   
   // 인증 체크
@@ -40,7 +41,7 @@ export async function GET(
         notes,
         created_at
       `)
-      .eq('channel_id', params.channelId)
+      .eq('channel_id', channelId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -58,10 +59,10 @@ export async function GET(
     }));
 
     return NextResponse.json({ data: camelCaseData || [] });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Approval logs GET error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch approval logs' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch approval logs' },
       { status: 500 }
     );
   }

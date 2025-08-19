@@ -135,10 +135,10 @@ export function ChannelApprovalConsole() {
       setEditingChannel(null);
       setNewChannelId('');
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: '오류 발생',
-        description: error.message || '채널 처리 중 오류가 발생했습니다.',
+        description: error instanceof Error ? error.message : '채널 처리 중 오류가 발생했습니다.',
         variant: 'destructive',
       });
     },
