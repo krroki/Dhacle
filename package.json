@@ -47,6 +47,7 @@
     "security:standardize-errors": "node scripts/security/standardize-errors.js",
     "security:apply-rls-wave0": "node scripts/security/apply-rls.js",
     "security:apply-rls-psql": "psql $DATABASE_URL -f scripts/security/apply-rls-wave0.sql",
+    "prepare": "husky || true",
     "security:verify-sessions": "node scripts/security/verify-session-checks.js",
     "test:security:wave0": "npm run type-check && npm run lint && npm run build",
     "security:wave0": "npm run security:standardize-errors && npm run security:apply-rls-wave0 && npm run security:verify-sessions && npm run test:security:wave0",
@@ -80,7 +81,30 @@
     "verify:parallel:quality": "node scripts/verify-parallel.js quality",
     "verify:parallel:security": "node scripts/verify-parallel.js security",
     "fix:api:DEPRECATED": "echo '⚠️ 자동 수정 도구는 비활성화되었습니다. 수동으로 수정하세요.'",
-    "fix:api:OLD": "node scripts/fix-api-consistency.js"
+    "fix:api:OLD": "node scripts/fix-api-consistency.js",
+    "lint:biome": "biome check ./src",
+    "lint:biome:fix": "biome check --write ./src",
+    "format:biome": "biome format --write ./src",
+    "biome:ci": "biome ci ./src",
+    "security:semgrep": "echo 'Semgrep requires separate installation. Run: pip install semgrep && semgrep --config=.semgrep.yml ./src'",
+    "verify:complete": "npm run verify:parallel && npm run lint:biome",
+    "fix:all": "npm run lint:biome:fix && npm run format:biome && npm run lint:fix",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:debug": "playwright test --debug",
+    "e2e:chromium": "playwright test --project=chromium",
+    "e2e:firefox": "playwright test --project=firefox",
+    "e2e:webkit": "playwright test --project=webkit",
+    "e2e:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "e2e:headed": "playwright test --headed",
+    "e2e:install": "playwright install",
+    "verify:test": "vitest run --passWithNoTests",
+    "verify:with-test": "npm run verify:quick && npm run verify:test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -159,20 +183,36 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@playwright/test": "^1.54.2",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-window": "^1.8.8",
     "@types/react-window-infinite-loader": "^1.0.9",
+    "@vitejs/plugin-react": "^5.0.1",
+    "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
+    "msw": "^2.10.5",
     "postcss": "^8",
     "rimraf": "^6.0.1",
     "sharp": "^0.34.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

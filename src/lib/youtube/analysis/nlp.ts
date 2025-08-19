@@ -1,33 +1,112 @@
 /**
  * YouTube Lens - NLP Entity Radar System
  * Phase 4: Advanced Analytics
- * 
+ *
  * Natural Language Processing for Korean and English content
  * Extracts keywords, entities, topics, and sentiment from video metadata
  */
 
-import type { 
-  Video,
-  EntityExtraction,
-  TrendAnalysis 
-} from '@/types/youtube-lens';
+import type { EntityExtraction, TrendAnalysis, Video } from '@/types/youtube-lens';
 
 /**
  * Korean language patterns and stopwords
  */
 const KOREAN_STOPWORDS = [
-  '의', '가', '이', '은', '들', '는', '좀', '잘', '걍', '과', '도', '를', '으로', '자', '에', '와', '한', '하다',
-  '그', '저', '것', '수', '등', '년', '월', '일', '때', '더', '대', '및', '제', '할', '만', '또', '못', '그리고',
-  '아니', '위', '까지', '따라', '때문', '만큼', '관련', '같', '모든', '각', '또는', '이런', '저런', '어떤'
+  '의',
+  '가',
+  '이',
+  '은',
+  '들',
+  '는',
+  '좀',
+  '잘',
+  '걍',
+  '과',
+  '도',
+  '를',
+  '으로',
+  '자',
+  '에',
+  '와',
+  '한',
+  '하다',
+  '그',
+  '저',
+  '것',
+  '수',
+  '등',
+  '년',
+  '월',
+  '일',
+  '때',
+  '더',
+  '대',
+  '및',
+  '제',
+  '할',
+  '만',
+  '또',
+  '못',
+  '그리고',
+  '아니',
+  '위',
+  '까지',
+  '따라',
+  '때문',
+  '만큼',
+  '관련',
+  '같',
+  '모든',
+  '각',
+  '또는',
+  '이런',
+  '저런',
+  '어떤',
 ];
 
 /**
  * English stopwords
  */
 const ENGLISH_STOPWORDS = [
-  'the', 'is', 'at', 'which', 'on', 'a', 'an', 'as', 'are', 'was', 'were', 'be', 'been', 'being',
-  'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall', 'should', 'may', 'might',
-  'can', 'could', 'must', 'ought', 'to', 'for', 'of', 'with', 'in', 'out', 'up', 'down', 'about'
+  'the',
+  'is',
+  'at',
+  'which',
+  'on',
+  'a',
+  'an',
+  'as',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'have',
+  'has',
+  'had',
+  'do',
+  'does',
+  'did',
+  'will',
+  'would',
+  'shall',
+  'should',
+  'may',
+  'might',
+  'can',
+  'could',
+  'must',
+  'ought',
+  'to',
+  'for',
+  'of',
+  'with',
+  'in',
+  'out',
+  'up',
+  'down',
+  'about',
 ];
 
 /**
@@ -43,18 +122,18 @@ const BRAND_PATTERNS = [
   /youtube|유튜브/gi,
   /instagram|인스타그램/gi,
   /tiktok|틱톡/gi,
-  
+
   // Korean brands
   /카카오|kakao/gi,
   /네이버|naver/gi,
   /쿠팡|coupang/gi,
   /배민|배달의민족/gi,
-  
+
   // Fashion/Beauty
   /nike|나이키/gi,
   /adidas|아디다스/gi,
   /chanel|샤넬/gi,
-  /gucci|구찌/gi
+  /gucci|구찌/gi,
 ];
 
 /**
@@ -62,13 +141,46 @@ const BRAND_PATTERNS = [
  */
 const SENTIMENT_KEYWORDS = {
   positive: {
-    korean: ['좋아', '최고', '대박', '멋지', '예쁘', '귀엽', '완벽', '추천', '사랑', '행복', '웃긴', '재밌'],
-    english: ['love', 'amazing', 'awesome', 'great', 'perfect', 'excellent', 'wonderful', 'fantastic', 'best']
+    korean: [
+      '좋아',
+      '최고',
+      '대박',
+      '멋지',
+      '예쁘',
+      '귀엽',
+      '완벽',
+      '추천',
+      '사랑',
+      '행복',
+      '웃긴',
+      '재밌',
+    ],
+    english: [
+      'love',
+      'amazing',
+      'awesome',
+      'great',
+      'perfect',
+      'excellent',
+      'wonderful',
+      'fantastic',
+      'best',
+    ],
   },
   negative: {
     korean: ['싫어', '최악', '별로', '나쁘', '실망', '화나', '짜증', '망했', '슬프', '무서'],
-    english: ['hate', 'terrible', 'awful', 'worst', 'bad', 'horrible', 'disgusting', 'fail', 'boring']
-  }
+    english: [
+      'hate',
+      'terrible',
+      'awful',
+      'worst',
+      'bad',
+      'horrible',
+      'disgusting',
+      'fail',
+      'boring',
+    ],
+  },
 };
 
 /**
@@ -78,9 +190,9 @@ function detectLanguage(text: string): 'ko' | 'en' | 'mixed' {
   const koreanChars = (text.match(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g) || []).length;
   const englishChars = (text.match(/[a-zA-Z]/g) || []).length;
   const total = koreanChars + englishChars;
-  
+
   if (total === 0) return 'en';
-  
+
   const koreanRatio = koreanChars / total;
   if (koreanRatio > 0.7) return 'ko';
   if (koreanRatio < 0.3) return 'en';
@@ -95,8 +207,8 @@ function tokenizeKorean(text: string): string[] {
   // In production, you'd use a proper Korean tokenizer like mecab-ko
   return text
     .split(/[\s,.\-!?()[\]{}'"]/g)
-    .filter(token => token.length > 0)
-    .filter(token => !KOREAN_STOPWORDS.includes(token));
+    .filter((token) => token.length > 0)
+    .filter((token) => !KOREAN_STOPWORDS.includes(token));
 }
 
 /**
@@ -106,25 +218,23 @@ function tokenizeEnglish(text: string): string[] {
   return text
     .toLowerCase()
     .split(/[\s,.\-!?()[\]{}'"]/g)
-    .filter(token => token.length > 1)
-    .filter(token => !ENGLISH_STOPWORDS.includes(token));
+    .filter((token) => token.length > 1)
+    .filter((token) => !ENGLISH_STOPWORDS.includes(token));
 }
 
 /**
  * Extract keywords using TF-IDF approach
  */
-function extractKeywords(text: string, limit: number = 10): string[] {
+function extractKeywords(text: string, limit = 10): string[] {
   const language = detectLanguage(text);
-  const tokens = language === 'ko' 
-    ? tokenizeKorean(text)
-    : tokenizeEnglish(text);
-  
+  const tokens = language === 'ko' ? tokenizeKorean(text) : tokenizeEnglish(text);
+
   // Calculate term frequency
   const termFreq = new Map<string, number>();
-  tokens.forEach(token => {
+  tokens.forEach((token) => {
     termFreq.set(token, (termFreq.get(token) || 0) + 1);
   });
-  
+
   // Sort by frequency and return top keywords
   return Array.from(termFreq.entries())
     .sort((a, b) => b[1] - a[1])
@@ -137,14 +247,14 @@ function extractKeywords(text: string, limit: number = 10): string[] {
  */
 function extractBrands(text: string): string[] {
   const brands = new Set<string>();
-  
-  BRAND_PATTERNS.forEach(pattern => {
+
+  BRAND_PATTERNS.forEach((pattern) => {
     const matches = text.match(pattern);
     if (matches) {
-      matches.forEach(match => brands.add(match));
+      matches.forEach((match) => brands.add(match));
     }
   });
-  
+
   return Array.from(brands);
 }
 
@@ -153,19 +263,19 @@ function extractBrands(text: string): string[] {
  */
 function extractPeople(text: string): string[] {
   const people = new Set<string>();
-  
+
   // Korean name patterns (성 + 이름)
   const koreanNames = text.match(/[김이박최정강조윤장임][가-힣]{1,2}/g) || [];
-  koreanNames.forEach(name => {
+  koreanNames.forEach((name) => {
     if (name.length >= 2 && name.length <= 4) {
       people.add(name);
     }
   });
-  
+
   // English name patterns (Capitalized words)
   const englishNames = text.match(/[A-Z][a-z]+ [A-Z][a-z]+/g) || [];
-  englishNames.forEach(name => people.add(name));
-  
+  englishNames.forEach((name) => people.add(name));
+
   return Array.from(people);
 }
 
@@ -174,7 +284,7 @@ function extractPeople(text: string): string[] {
  */
 function extractLocations(text: string): string[] {
   const locations = new Set<string>();
-  
+
   // Common location patterns
   const locationPatterns = [
     /서울|seoul/gi,
@@ -193,16 +303,16 @@ function extractLocations(text: string): string[] {
     /los angeles|LA|엘에이/gi,
     /tokyo|도쿄|동경/gi,
     /paris|파리/gi,
-    /london|런던/gi
+    /london|런던/gi,
   ];
-  
-  locationPatterns.forEach(pattern => {
+
+  locationPatterns.forEach((pattern) => {
     const matches = text.match(pattern);
     if (matches) {
-      matches.forEach(match => locations.add(match));
+      matches.forEach((match) => locations.add(match));
     }
   });
-  
+
   return Array.from(locations);
 }
 
@@ -216,38 +326,38 @@ function analyzeSentiment(text: string): {
   const lowerText = text.toLowerCase();
   let positiveScore = 0;
   let negativeScore = 0;
-  
+
   // Check positive keywords
-  SENTIMENT_KEYWORDS.positive.korean.forEach(keyword => {
+  SENTIMENT_KEYWORDS.positive.korean.forEach((keyword) => {
     if (text.includes(keyword)) positiveScore += 2;
   });
-  SENTIMENT_KEYWORDS.positive.english.forEach(keyword => {
+  SENTIMENT_KEYWORDS.positive.english.forEach((keyword) => {
     if (lowerText.includes(keyword)) positiveScore += 1;
   });
-  
+
   // Check negative keywords
-  SENTIMENT_KEYWORDS.negative.korean.forEach(keyword => {
+  SENTIMENT_KEYWORDS.negative.korean.forEach((keyword) => {
     if (text.includes(keyword)) negativeScore += 2;
   });
-  SENTIMENT_KEYWORDS.negative.english.forEach(keyword => {
+  SENTIMENT_KEYWORDS.negative.english.forEach((keyword) => {
     if (lowerText.includes(keyword)) negativeScore += 1;
   });
-  
+
   // Calculate sentiment
   const total = positiveScore + negativeScore;
   if (total === 0) {
     return { sentiment: 'neutral', confidence: 0.5 };
   }
-  
+
   const confidence = Math.max(positiveScore, negativeScore) / total;
-  
+
   if (positiveScore > negativeScore) {
     return { sentiment: 'positive', confidence };
-  } else if (negativeScore > positiveScore) {
-    return { sentiment: 'negative', confidence };
-  } else {
-    return { sentiment: 'neutral', confidence: 0.5 };
   }
+  if (negativeScore > positiveScore) {
+    return { sentiment: 'negative', confidence };
+  }
+  return { sentiment: 'neutral', confidence: 0.5 };
 }
 
 /**
@@ -256,26 +366,26 @@ function analyzeSentiment(text: string): {
 export async function extractEntities(video: Video): Promise<EntityExtraction> {
   const text = `${video.title} ${video.description || ''} ${(video.tags || []).join(' ')}`;
   const language = detectLanguage(text);
-  
+
   const keywords = extractKeywords(text, 20);
   const brands = extractBrands(text);
   const people = extractPeople(text);
   const locations = extractLocations(text);
-  
+
   // Extract topics (group related keywords)
   const topics = extractTopics(keywords);
-  
+
   return {
     entities: {
       keywords: keywords.slice(0, 10),
       topics,
       brands,
       people,
-      locations
+      locations,
     },
     language: language === 'ko' ? 'Korean' : language === 'en' ? 'English' : 'Mixed',
     confidence: calculateConfidence(keywords, brands, people, locations),
-    processed_at: new Date().toISOString()
+    processedAt: new Date().toISOString(),
   };
 }
 
@@ -284,28 +394,28 @@ export async function extractEntities(video: Video): Promise<EntityExtraction> {
  */
 function extractTopics(keywords: string[]): string[] {
   const topicPatterns = {
-    'Technology': /tech|코딩|프로그래밍|개발|ai|인공지능|computer|소프트웨어/i,
-    'Gaming': /game|게임|플레이|play|스트림|stream|e-?sports/i,
-    'Beauty': /뷰티|beauty|화장|makeup|cosmetic|skincare|스킨케어/i,
-    'Fashion': /패션|fashion|옷|clothes|스타일|style|outfit|코디/i,
-    'Food': /음식|food|먹방|mukbang|요리|cooking|recipe|레시피/i,
-    'Music': /음악|music|노래|song|커버|cover|dance|댄스/i,
-    'Education': /교육|education|강의|lecture|tutorial|튜토리얼|학습|study/i,
-    'Travel': /여행|travel|trip|tour|관광|vlog|브이로그/i,
-    'Fitness': /운동|fitness|health|헬스|다이어트|diet|workout/i,
-    'Entertainment': /예능|entertainment|comedy|코미디|funny|재미/i
+    Technology: /tech|코딩|프로그래밍|개발|ai|인공지능|computer|소프트웨어/i,
+    Gaming: /game|게임|플레이|play|스트림|stream|e-?sports/i,
+    Beauty: /뷰티|beauty|화장|makeup|cosmetic|skincare|스킨케어/i,
+    Fashion: /패션|fashion|옷|clothes|스타일|style|outfit|코디/i,
+    Food: /음식|food|먹방|mukbang|요리|cooking|recipe|레시피/i,
+    Music: /음악|music|노래|song|커버|cover|dance|댄스/i,
+    Education: /교육|education|강의|lecture|tutorial|튜토리얼|학습|study/i,
+    Travel: /여행|travel|trip|tour|관광|vlog|브이로그/i,
+    Fitness: /운동|fitness|health|헬스|다이어트|diet|workout/i,
+    Entertainment: /예능|entertainment|comedy|코미디|funny|재미/i,
   };
-  
+
   const detectedTopics = new Set<string>();
-  
-  keywords.forEach(keyword => {
+
+  keywords.forEach((keyword) => {
     Object.entries(topicPatterns).forEach(([topic, pattern]) => {
       if (pattern.test(keyword)) {
         detectedTopics.add(topic);
       }
     });
   });
-  
+
   return Array.from(detectedTopics);
 }
 
@@ -319,56 +429,54 @@ function calculateConfidence(
   locations: string[]
 ): number {
   const totalEntities = keywords.length + brands.length + people.length + locations.length;
-  
+
   if (totalEntities === 0) return 0;
-  
+
   // Base confidence on entity diversity and count
   let confidence = Math.min(totalEntities / 20, 1) * 0.5;
-  
+
   // Boost confidence if multiple entity types are found
   const typesFound = [
     keywords.length > 0,
     brands.length > 0,
     people.length > 0,
-    locations.length > 0
+    locations.length > 0,
   ].filter(Boolean).length;
-  
+
   confidence += (typesFound / 4) * 0.5;
-  
+
   return Math.min(confidence, 0.95);
 }
 
 /**
  * Analyze trends from multiple videos
  */
-export async function analyzeTrends(
-  videos: Video[],
-  timeWindowDays: number = 7
-): Promise<TrendAnalysis[]> {
+export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promise<TrendAnalysis[]> {
   const now = new Date();
   const windowStart = new Date(now.getTime() - timeWindowDays * 24 * 60 * 60 * 1000);
-  
+
   // Filter videos within time window
-  const recentVideos = videos.filter(v => 
-    new Date(v.published_at) >= windowStart
-  );
-  
+  const recentVideos = videos.filter((v) => new Date(v.published_at) >= windowStart);
+
   // Extract all keywords from recent videos
-  const allKeywords = new Map<string, {
-    count: number;
-    videos: string[];
-    firstSeen: Date;
-    lastSeen: Date;
-    sentiments: Array<'positive' | 'negative' | 'neutral'>;
-  }>();
-  
+  const allKeywords = new Map<
+    string,
+    {
+      count: number;
+      videos: string[];
+      firstSeen: Date;
+      lastSeen: Date;
+      sentiments: Array<'positive' | 'negative' | 'neutral'>;
+    }
+  >();
+
   for (const video of recentVideos) {
     const text = `${video.title} ${video.description || ''}`;
     const keywords = extractKeywords(text, 10);
     const { sentiment } = analyzeSentiment(text);
     const videoDate = new Date(video.published_at);
-    
-    keywords.forEach(keyword => {
+
+    keywords.forEach((keyword) => {
       const existing = allKeywords.get(keyword);
       if (existing) {
         existing.count++;
@@ -382,44 +490,47 @@ export async function analyzeTrends(
           videos: [video.video_id],
           firstSeen: videoDate,
           lastSeen: videoDate,
-          sentiments: [sentiment]
+          sentiments: [sentiment],
         });
       }
     });
   }
-  
+
   // Calculate trends
   const trends: TrendAnalysis[] = [];
-  
+
   allKeywords.forEach((data, keyword) => {
-    if (data.count >= 2) { // Minimum frequency threshold
+    if (data.count >= 2) {
+      // Minimum frequency threshold
       const daysDiff = Math.max(
         1,
         (data.lastSeen.getTime() - data.firstSeen.getTime()) / (24 * 60 * 60 * 1000)
       );
       const growthRate = data.count / daysDiff;
-      
+
       // Calculate dominant sentiment
       const sentimentCounts = { positive: 0, negative: 0, neutral: 0 };
-      data.sentiments.forEach(s => sentimentCounts[s]++);
-      const dominantSentiment = Object.entries(sentimentCounts)
-        .sort((a, b) => b[1] - a[1])[0][0] as 'positive' | 'negative' | 'neutral';
-      
+      data.sentiments.forEach((s) => sentimentCounts[s]++);
+      const dominantSentiment = Object.entries(sentimentCounts).sort((a, b) => b[1] - a[1])[0][0] as
+        | 'positive'
+        | 'negative'
+        | 'neutral';
+
       trends.push({
         keyword,
         frequency: data.count,
-        growth_rate: growthRate,
-        first_seen: data.firstSeen.toISOString(),
-        last_seen: data.lastSeen.toISOString(),
-        related_videos: data.videos.slice(0, 10),
+        growthRate: growthRate,
+        firstSeen: data.firstSeen.toISOString(),
+        lastSeen: data.lastSeen.toISOString(),
+        relatedVideos: data.videos.slice(0, 10),
         sentiment: dominantSentiment,
-        confidence: Math.min(data.count / 10, 0.95)
+        confidence: Math.min(data.count / 10, 0.95),
       });
     }
   });
-  
+
   // Sort by growth rate
-  return trends.sort((a, b) => b.growth_rate - a.growth_rate);
+  return trends.sort((a, b) => b.growthRate - a.growthRate);
 }
 
 /**
@@ -429,13 +540,13 @@ export function generateNLPReport(
   entityExtractions: EntityExtraction[],
   trends: TrendAnalysis[]
 ): {
-  total_processed: number;
-  language_distribution: Record<string, number>;
-  top_keywords: Array<{ keyword: string; count: number }>;
-  top_topics: Array<{ topic: string; count: number }>;
-  top_brands: Array<{ brand: string; count: number }>;
-  trending_keywords: TrendAnalysis[];
-  sentiment_distribution: {
+  totalProcessed: number;
+  languageDistribution: Record<string, number>;
+  topKeywords: Array<{ keyword: string; count: number }>;
+  topTopics: Array<{ topic: string; count: number }>;
+  topBrands: Array<{ brand: string; count: number }>;
+  trendingKeywords: TrendAnalysis[];
+  sentimentDistribution: {
     positive: number;
     negative: number;
     neutral: number;
@@ -445,57 +556,57 @@ export function generateNLPReport(
   const keywordCounts = new Map<string, number>();
   const topicCounts = new Map<string, number>();
   const brandCounts = new Map<string, number>();
-  
-  entityExtractions.forEach(extraction => {
+
+  entityExtractions.forEach((extraction) => {
     // Language distribution
     languageCounts[extraction.language] = (languageCounts[extraction.language] || 0) + 1;
-    
+
     // Aggregate keywords
-    extraction.entities.keywords.forEach(keyword => {
+    extraction.entities.keywords.forEach((keyword) => {
       keywordCounts.set(keyword, (keywordCounts.get(keyword) || 0) + 1);
     });
-    
+
     // Aggregate topics
-    extraction.entities.topics.forEach(topic => {
+    extraction.entities.topics.forEach((topic) => {
       topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
     });
-    
+
     // Aggregate brands
-    extraction.entities.brands.forEach(brand => {
+    extraction.entities.brands.forEach((brand) => {
       brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
     });
   });
-  
+
   // Calculate sentiment distribution from trends
   const sentimentDist = { positive: 0, negative: 0, neutral: 0 };
-  trends.forEach(trend => {
+  trends.forEach((trend) => {
     sentimentDist[trend.sentiment]++;
   });
-  
+
   return {
-    total_processed: entityExtractions.length,
-    language_distribution: languageCounts,
-    top_keywords: Array.from(keywordCounts.entries())
+    totalProcessed: entityExtractions.length,
+    languageDistribution: languageCounts,
+    topKeywords: Array.from(keywordCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
       .map(([keyword, count]) => ({ keyword, count })),
-    top_topics: Array.from(topicCounts.entries())
+    topTopics: Array.from(topicCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([topic, count]) => ({ topic, count })),
-    top_brands: Array.from(brandCounts.entries())
+    topBrands: Array.from(brandCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([brand, count]) => ({ brand, count })),
-    trending_keywords: trends.slice(0, 10),
-    sentiment_distribution: sentimentDist
+    trendingKeywords: trends.slice(0, 10),
+    sentimentDistribution: sentimentDist,
   };
 }
 
 const nlpAnalysis = {
   extractEntities,
   analyzeTrends,
-  generateNLPReport
+  generateNLPReport,
 };
 
 export default nlpAnalysis;

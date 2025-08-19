@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowRight, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { SectionTitle } from '../shared/SectionTitle';
+import { useEffect, useState } from 'react';
 import { RevenueProofCard } from '@/components/features/revenue-proof/RevenueProofCard';
+import { Button } from '@/components/ui/button';
 import { getRevenueProofs } from '@/lib/api/revenue-proof';
 import type { RevenueProof } from '@/types/revenue-proof';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp } from 'lucide-react';
+import { SectionTitle } from '../shared/SectionTitle';
 
 export function RevenueGalleryNew() {
   const [items, setItems] = useState<RevenueProof[]>([]);
@@ -19,9 +19,9 @@ export function RevenueGalleryNew() {
       try {
         const result = await getRevenueProofs({
           limit: 12, // 더 많은 데이터 로드
-          page: 1
+          page: 1,
         });
-        
+
         if (result.data && result.data.length > 0) {
           setItems(result.data);
         } else {
@@ -76,9 +76,7 @@ export function RevenueGalleryNew() {
           <div className="text-center py-12">
             <div className="mx-auto max-w-md">
               <TrendingUp className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                첫 수익 인증을 기다리고 있어요!
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">첫 수익 인증을 기다리고 있어요!</h3>
               <p className="text-muted-foreground mb-6">
                 크리에이터들의 실제 수익 인증이 곧 시작됩니다
               </p>
@@ -114,7 +112,7 @@ export function RevenueGalleryNew() {
       </div>
 
       {/* Revenue Cards Container - Custom max-width and padding for precise control */}
-      <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1280px' }}>
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-screen-xl">
         <div className="relative overflow-hidden">
           <motion.div
             className="flex gap-4"
@@ -123,7 +121,7 @@ export function RevenueGalleryNew() {
             }}
             transition={{
               x: {
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 repeatType: 'loop',
                 duration: items.length * 3, // 개수에 따라 속도 조절
                 ease: 'linear',
@@ -131,10 +129,7 @@ export function RevenueGalleryNew() {
             }}
           >
             {duplicatedItems.map((item, index) => (
-              <div 
-                key={`${item.id}-${index}`} 
-                className="flex-shrink-0 w-[280px]"
-              >
+              <div key={`${item.id}-${index}`} className="flex-shrink-0 w-[280px]">
                 <Link href={`/revenue-proof/${item.id}`}>
                   <div className="transform transition-transform hover:scale-105">
                     <RevenueProofCard data={item} />
@@ -157,14 +152,10 @@ export function RevenueGalleryNew() {
         </p>
         <div className="flex gap-3 justify-center">
           <Link href="/revenue-proof">
-            <Button variant="default">
-              갤러리 둘러보기
-            </Button>
+            <Button variant="default">갤러리 둘러보기</Button>
           </Link>
           <Link href="/revenue-proof/create">
-            <Button variant="outline">
-              내 수익 인증하기
-            </Button>
+            <Button variant="outline">내 수익 인증하기</Button>
           </Link>
         </div>
       </div>

@@ -11,11 +11,11 @@
 export function generateRandomUsername(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let randomString = '';
-  
+
   for (let i = 0; i < 8; i++) {
     randomString += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  
+
   return `creator_${randomString}`;
 }
 
@@ -24,13 +24,13 @@ export function generateRandomUsername(): string {
  * @param count 생성할 개수
  * @returns 생성된 사용자명 배열
  */
-export function generateMultipleUsernames(count: number = 5): string[] {
+export function generateMultipleUsernames(count = 5): string[] {
   const usernames = new Set<string>();
-  
+
   while (usernames.size < count) {
     usernames.add(generateRandomUsername());
   }
-  
+
   return Array.from(usernames);
 }
 
@@ -44,7 +44,7 @@ export function isValidUsername(username: string): boolean {
   if (username.length < 3 || username.length > 20) {
     return false;
   }
-  
+
   // 영문, 숫자, 언더스코어만 허용
   const validPattern = /^[a-zA-Z0-9_]+$/;
   return validPattern.test(username);

@@ -16,13 +16,13 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
     switch (block.type) {
       case 'text':
         return (
-          <div 
+          <div
             className="prose prose-lg max-w-none"
             dangerouslySetInnerHTML={{ __html: block.content as string }}
           />
         );
 
-      case 'image':
+      case 'image': {
         const imageContent = block.content as { url: string; alt?: string; caption?: string };
         return (
           <figure className="my-8">
@@ -30,7 +30,7 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
               <Image
                 src={imageContent.url}
                 alt={imageContent.alt || ''}
-                fill
+                fill={true}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 66vw"
               />
@@ -42,8 +42,9 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
             )}
           </figure>
         );
+      }
 
-      case 'video':
+      case 'video': {
         const videoContent = block.content as { url: string; title?: string };
         return (
           <div className="my-8">
@@ -52,26 +53,26 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
                 src={videoContent.url}
                 title={videoContent.title}
                 className="w-full h-full"
-                allowFullScreen
+                allowFullScreen={true}
               />
             </div>
           </div>
         );
+      }
 
-      case 'quote':
+      case 'quote': {
         const quoteContent = block.content as { text: string; author?: string };
         return (
           <blockquote className="border-l-4 border-primary pl-6 py-4 my-8 italic">
             <p className="text-lg mb-2">{quoteContent.text}</p>
             {quoteContent.author && (
-              <footer className="text-sm text-muted-foreground">
-                — {quoteContent.author}
-              </footer>
+              <footer className="text-sm text-muted-foreground">— {quoteContent.author}</footer>
             )}
           </blockquote>
         );
+      }
 
-      case 'list':
+      case 'list': {
         const listContent = block.content as { items: string[]; ordered?: boolean };
         const ListTag = listContent.ordered ? 'ol' : 'ul';
         return (
@@ -86,8 +87,9 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
             ))}
           </ListTag>
         );
+      }
 
-      case 'code':
+      case 'code': {
         const codeContent = block.content as { code: string; language?: string };
         return (
           <pre className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto my-6">
@@ -96,6 +98,7 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
             </code>
           </pre>
         );
+      }
 
       default:
         return null;

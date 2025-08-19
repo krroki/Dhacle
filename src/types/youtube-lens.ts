@@ -15,8 +15,8 @@ export interface Video {
   description: string | null;
   channel_id: string;
   published_at: string;
-  duration_seconds: number | null;
-  is_short: boolean;
+  durationSeconds: number | null;
+  isShort: boolean;
   thumbnails: {
     default?: { url: string; width: number; height: number };
     medium?: { url: string; width: number; height: number };
@@ -25,11 +25,11 @@ export interface Video {
     maxres?: { url: string; width: number; height: number };
   } | null;
   tags: string[] | null;
-  category_id: string | null;
-  language_code: string | null;
-  region_code: string | null;
-  first_seen_at: string;
-  last_updated_at: string;
+  categoryId: string | null;
+  languageCode: string | null;
+  regionCode: string | null;
+  firstSeenAt: string;
+  lastUpdatedAt: string;
   created_at: string;
   deleted_at: string | null;
 }
@@ -40,13 +40,13 @@ export interface VideoStats {
   view_count: number;
   like_count: number;
   comment_count: number;
-  views_per_hour: number | null;
-  engagement_rate: number | null;
-  viral_score: number | null;
-  view_delta: number;
-  like_delta: number;
-  comment_delta: number;
-  snapshot_at: string;
+  viewsPerHour: number | null;
+  engagementRate: number | null;
+  viralScore: number | null;
+  viewDelta: number;
+  likeDelta: number;
+  commentDelta: number;
+  snapshotAt: string;
   created_at: string;
 }
 
@@ -55,7 +55,7 @@ export interface Channel {
   channel_id: string;
   title: string;
   description: string | null;
-  custom_url: string | null;
+  customUrl: string | null;
   subscriber_count: number;
   video_count: number;
   view_count: number;
@@ -66,9 +66,9 @@ export interface Channel {
     medium?: { url: string; width: number; height: number };
     high?: { url: string; width: number; height: number };
   } | null;
-  is_monitored: boolean;
-  monitor_frequency_hours: number;
-  last_checked_at: string | null;
+  isMonitored: boolean;
+  monitorFrequencyHours: number;
+  lastCheckedAt: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -81,13 +81,13 @@ export interface SourceFolder {
   description: string | null;
   color: string | null;
   icon: string | null;
-  auto_monitor: boolean;
-  monitor_frequency_hours: number;
-  channel_count: number;
-  is_monitoring_enabled: boolean;
-  check_interval_hours: number;
-  last_checked_at: string | null;
-  folder_channels?: FolderChannel[];
+  autoMonitor: boolean;
+  monitorFrequencyHours: number;
+  channelCount: number;
+  isMonitoringEnabled: boolean;
+  checkIntervalHours: number;
+  lastCheckedAt: string | null;
+  folderChannels?: FolderChannel[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -97,13 +97,13 @@ export interface FolderChannel {
   id: string;
   folder_id: string;
   channel_id: string;
-  custom_frequency_hours: number | null;
+  customFrequencyHours: number | null;
   notes: string | null;
-  added_at: string;
+  addedAt: string;
 }
 
 export type AlertRuleType = 'threshold' | 'trend' | 'anomaly';
-export type AlertMetric = 'views' | 'vph' | 'engagement' | 'viral_score';
+export type AlertMetric = 'views' | 'vph' | 'engagement' | 'viralScore';
 export type AlertCondition = 'greater_than' | 'less_than' | 'change_percent';
 export type AlertScope = 'video' | 'channel' | 'folder';
 export type AlertSeverity = 'info' | 'warning' | 'critical';
@@ -113,40 +113,40 @@ export interface AlertRule {
   user_id: string;
   name: string;
   description: string | null;
-  rule_type: AlertRuleType;
+  ruleType: AlertRuleType;
   metric: AlertMetric;
-  metric_type?: 'view_count' | 'vph' | 'engagement_rate' | 'viral_score' | 'growth_rate';
+  metricType?: 'view_count' | 'vph' | 'engagementRate' | 'viralScore' | 'growthRate';
   condition: AlertCondition;
-  comparison_operator?: '>' | '>=' | '<' | '<=' | '=' | '!=';
-  threshold_value: number;
+  comparisonOperator?: '>' | '>=' | '<' | '<=' | '=' | '!=';
+  thresholdValue: number;
   scope: AlertScope;
-  scope_id: string | null;
+  scopeId: string | null;
   is_active: boolean;
-  cooldown_hours: number;
-  notify_email: boolean;
-  notify_app: boolean;
+  cooldownHours: number;
+  notifyEmail: boolean;
+  notifyApp: boolean;
   created_at: string;
   updated_at: string;
-  last_triggered_at: string | null;
-  trigger_count: number;
+  lastTriggeredAt: string | null;
+  triggerCount: number;
 }
 
 export interface Alert {
   id: string;
-  rule_id: string;
+  ruleId: string;
   user_id: string;
   video_id?: string;
   channel_id?: string;
-  alert_type: string;
+  alertType: string;
   title: string;
   message: string;
   severity: AlertSeverity;
-  metric_value?: number;
-  triggered_at?: string;
-  context_data: Record<string, unknown> | null;
-  is_read: boolean;
-  read_at: string | null;
-  is_archived: boolean;
+  metricValue?: number;
+  triggeredAt?: string;
+  contextData: Record<string, unknown> | null;
+  isRead: boolean;
+  readAt: string | null;
+  isArchived: boolean;
   created_at: string;
 }
 
@@ -156,9 +156,9 @@ export interface Collection {
   name: string;
   description: string | null;
   is_public: boolean;
-  cover_image: string | null;
+  coverImage: string | null;
   tags: string[] | null;
-  item_count: number;
+  itemCount: number;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -171,8 +171,8 @@ export interface CollectionItem {
   notes: string | null;
   tags: string[] | null;
   position: number;
-  added_at: string;
-  added_by: string | null;
+  addedAt: string;
+  addedBy: string | null;
 }
 
 export type SearchType = 'keyword' | 'popular' | 'channel' | 'trending';
@@ -182,7 +182,7 @@ export interface SavedSearch {
   user_id: string;
   name: string;
   description: string | null;
-  search_params: {
+  searchParams: {
     query?: string;
     regionCode?: string;
     categoryId?: string;
@@ -194,13 +194,13 @@ export interface SavedSearch {
     channelId?: string;
     [key: string]: string | number | boolean | undefined;
   };
-  search_type: SearchType;
-  auto_run: boolean;
-  run_frequency_hours: number;
-  last_run_at: string | null;
+  searchType: SearchType;
+  autoRun: boolean;
+  runFrequencyHours: number;
+  lastRunAt: string | null;
   created_at: string;
   updated_at: string;
-  use_count: number;
+  useCount: number;
 }
 
 export type PlanType = 'free' | 'pro' | 'team';
@@ -211,21 +211,21 @@ export type BillingCycle = 'monthly' | 'yearly';
 export interface Subscription {
   id: string;
   user_id: string;
-  plan_type: PlanType;
+  planType: PlanType;
   status: SubscriptionStatus;
-  api_quota_daily: number;
-  max_monitors: number;
-  max_alerts: number;
-  max_collections: number;
-  max_saved_searches: number;
-  team_id: string | null;
-  team_role: TeamRole | null;
-  billing_cycle: BillingCycle | null;
-  current_period_start: string | null;
-  current_period_end: string | null;
+  apiQuotaDaily: number;
+  maxMonitors: number;
+  maxAlerts: number;
+  maxCollections: number;
+  maxSavedSearches: number;
+  teamId: string | null;
+  teamRole: TeamRole | null;
+  billingCycle: BillingCycle | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
   created_at: string;
   updated_at: string;
-  cancelled_at: string | null;
+  cancelledAt: string | null;
 }
 
 // ============================================
@@ -302,11 +302,11 @@ export interface VideoWithStats extends Video {
 }
 
 export interface ChannelWithVideos extends Channel {
-  recent_videos?: Video[];
-  latest_stats?: {
-    total_views: number;
-    total_videos: number;
-    avg_views_per_video: number;
+  recentVideos?: Video[];
+  latestStats?: {
+    totalViews: number;
+    totalVideos: number;
+    avgViewsPerVideo: number;
   };
 }
 
@@ -367,18 +367,18 @@ export interface MonitoringConfig {
 
 export interface VideoMetrics {
   vph: number; // Views Per Hour
-  engagement_rate: number; // (likes + comments) / views * 100
-  viral_score: number; // Custom algorithm
-  growth_rate: number; // View growth percentage
+  engagementRate: number; // (likes + comments) / views * 100
+  viralScore: number; // Custom algorithm
+  growthRate: number; // View growth percentage
   velocity: number; // Rate of change in views
 }
 
 export interface ChannelMetrics {
-  avg_views: number;
-  avg_engagement: number;
-  upload_frequency: number; // Videos per day
-  subscriber_growth: number; // Percentage
-  performance_score: number; // Overall channel health
+  avgViews: number;
+  avgEngagement: number;
+  uploadFrequency: number; // Videos per day
+  subscriberGrowth: number; // Percentage
+  performanceScore: number; // Overall channel health
 }
 
 // ============================================
@@ -393,7 +393,7 @@ export interface YouTubeLensState {
   isSearching: boolean;
   searchError: string | null;
 
-  // Popular shorts state  
+  // Popular shorts state
   popularShorts: VideoWithStats[];
   isLoadingPopular: boolean;
   popularError: string | null;
@@ -468,7 +468,7 @@ export class QuotaExceededError extends Error {
 }
 
 export class APIKeyMissingError extends Error {
-  constructor(message: string = 'YouTube API key is not configured') {
+  constructor(message = 'YouTube API key is not configured') {
     super(message);
     this.name = 'APIKeyMissingError';
   }
@@ -496,15 +496,15 @@ export const YOUTUBE_CATEGORIES = {
 } as const;
 
 export const REGION_CODES = {
-  'US': 'United States',
-  'KR': 'South Korea',
-  'JP': 'Japan',
-  'GB': 'United Kingdom',
-  'DE': 'Germany',
-  'FR': 'France',
-  'BR': 'Brazil',
-  'IN': 'India',
-  'ID': 'Indonesia',
+  US: 'United States',
+  KR: 'South Korea',
+  JP: 'Japan',
+  GB: 'United Kingdom',
+  DE: 'Germany',
+  FR: 'France',
+  BR: 'Brazil',
+  IN: 'India',
+  ID: 'Indonesia',
 } as const;
 
 // ============================================
@@ -513,11 +513,11 @@ export const REGION_CODES = {
 
 export interface OutlierDetectionResult {
   video_id: string;
-  z_score: number;
-  mad_score: number;
-  combined_score: number;
-  is_outlier: boolean;
-  outlier_type: 'positive' | 'negative' | null;
+  zScore: number;
+  madScore: number;
+  combinedScore: number;
+  isOutlier: boolean;
+  outlierType: 'positive' | 'negative' | null;
   metrics: {
     view_count: number;
     like_count: number;
@@ -531,10 +531,10 @@ export interface OutlierDetectionResult {
 export interface TrendAnalysis {
   keyword: string;
   frequency: number;
-  growth_rate: number;
-  first_seen: string;
-  last_seen: string;
-  related_videos: string[];
+  growthRate: number;
+  firstSeen: string;
+  lastSeen: string;
+  relatedVideos: string[];
   sentiment: 'positive' | 'negative' | 'neutral';
   confidence: number;
 }
@@ -549,61 +549,61 @@ export interface EntityExtraction {
   };
   language: string;
   confidence: number;
-  processed_at: string;
+  processedAt: string;
 }
 
 export interface PredictionModel {
   video_id: string;
-  predicted_views: number;
-  predicted_likes: number;
-  confidence_interval: {
+  predictedViews: number;
+  predictedLikes: number;
+  confidenceInterval: {
     lower: number;
     upper: number;
   };
-  viral_probability: number;
-  growth_trajectory: 'exponential' | 'linear' | 'logarithmic' | 'plateau' | 'declining';
-  prediction_date: string;
-  model_version: string;
+  viralProbability: number;
+  growthTrajectory: 'exponential' | 'linear' | 'logarithmic' | 'plateau' | 'declining';
+  predictionDate: string;
+  modelVersion: string;
 }
 
 export interface AnalyticsConfig {
-  outlier_threshold: number; // Default: 3 (z-score)
-  mad_multiplier: number; // Default: 2.5
-  trend_window_days: number; // Default: 7
-  prediction_horizon_days: number; // Default: 30
-  nlp_confidence_threshold: number; // Default: 0.7
-  batch_size: number; // Default: 100
+  outlierThreshold: number; // Default: 3 (z-score)
+  madMultiplier: number; // Default: 2.5
+  trendWindowDays: number; // Default: 7
+  predictionHorizonDays: number; // Default: 30
+  nlpConfidenceThreshold: number; // Default: 0.7
+  batchSize: number; // Default: 100
 }
 
 export interface BatchAnalysisResult {
   outliers: OutlierDetectionResult[];
   trends: TrendAnalysis[];
   predictions: PredictionModel[];
-  processing_time_ms: number;
-  total_videos_analyzed: number;
+  processingTimeMs: number;
+  totalVideosAnalyzed: number;
   timestamp: string;
 }
 
 export const DEFAULT_LIMITS = {
   FREE: {
-    api_quota_daily: 1000,
-    max_monitors: 10,
-    max_alerts: 5,
-    max_collections: 3,
-    max_saved_searches: 10,
+    apiQuotaDaily: 1000,
+    maxMonitors: 10,
+    maxAlerts: 5,
+    maxCollections: 3,
+    maxSavedSearches: 10,
   },
   PRO: {
-    api_quota_daily: 10000,
-    max_monitors: 100,
-    max_alerts: 50,
-    max_collections: 20,
-    max_saved_searches: 100,
+    apiQuotaDaily: 10000,
+    maxMonitors: 100,
+    maxAlerts: 50,
+    maxCollections: 20,
+    maxSavedSearches: 100,
   },
   TEAM: {
-    api_quota_daily: 50000,
-    max_monitors: 500,
-    max_alerts: 200,
-    max_collections: 100,
-    max_saved_searches: 500,
+    apiQuotaDaily: 50000,
+    maxMonitors: 500,
+    maxAlerts: 200,
+    maxCollections: 100,
+    maxSavedSearches: 500,
   },
 } as const;

@@ -1,19 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Folder, Trash2, Edit2, Globe, Lock } from 'lucide-react';
+import { Edit2, Folder, Globe, Lock, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
+import { mapCollection } from '@/lib/utils/type-mappers';
 import type { Collection } from '@/types/youtube-lens';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
 
 export default function CollectionBoard() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -24,7 +33,7 @@ export default function CollectionBoard() {
     name: '',
     description: '',
     is_public: false,
-    tags: ''
+    tags: '',
   });
 
   // 컬렉션 목록 조회
@@ -32,21 +41,25 @@ export default function CollectionBoard() {
     setLoading(true);
     try {
       const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
-      
+
       console.log('[CollectionBoard] API Response:', data);
-      setCollections(data.collections || []);
+      setCollections((data.collections || []).map(mapCollection));
     } catch (error) {
       console.error('[CollectionBoard] Fetch collections error:', error);
-      
+
       // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
-        const errorWithStatus = error as { status: number; data?: { requiresApiKey?: boolean; errorCode?: string; error?: string } };
+        const errorWithStatus = error as {
+          status: number;
+          data?: { requiresApiKey?: boolean; errorCode?: string; error?: string };
+        };
         if (errorWithStatus.status === 401) {
           // Check if it's an API key issue
-          const isApiKeyError = errorWithStatus.data?.requiresApiKey || 
-                                errorWithStatus.data?.errorCode === 'api_key_required' ||
-                                errorWithStatus.data?.error?.includes('API Key');
-          
+          const isApiKeyError =
+            errorWithStatus.data?.requiresApiKey ||
+            errorWithStatus.data?.errorCode === 'api_key_required' ||
+            errorWithStatus.data?.error?.includes('API Key');
+
           if (isApiKeyError) {
             toast.error('YouTube API Key \uc124\uc815\uc774 \ud544\uc694\ud569\ub2c8\ub2e4');
           } else {
@@ -56,8 +69,9 @@ export default function CollectionBoard() {
           return;
         }
       }
-      
-      const errorMessage = error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
+
+      const errorMessage =
+        error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -80,12 +94,12 @@ export default function CollectionBoard() {
         name: formData.name,
         description: formData.description,
         is_public: formData.is_public,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
+        tags: formData.tags ? formData.tags.split(',').map((tag) => tag.trim()) : [],
       });
-      
+
       console.log('[CollectionBoard] Create response:', data);
       toast.success('컬렉션이 생성되었습니다');
-      setCollections([data.collection, ...collections]);
+      setCollections([mapCollection(data.collection), ...collections]);
       setIsCreateDialogOpen(false);
       resetForm();
     } catch (error) {
@@ -107,13 +121,11 @@ export default function CollectionBoard() {
         name: formData.name,
         description: formData.description,
         is_public: formData.is_public,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
+        tags: formData.tags ? formData.tags.split(',').map((tag) => tag.trim()) : [],
       });
-      
+
       toast.success('컬렉션이 업데이트되었습니다');
-      setCollections(collections.map(c => 
-        c.id === editingCollection.id ? data.collection : c
-      ));
+      setCollections(collections.map((c) => (c.id === editingCollection.id ? mapCollection(data.collection) : c)));
       setEditingCollection(null);
       resetForm();
     } catch (error) {
@@ -130,9 +142,9 @@ export default function CollectionBoard() {
 
     try {
       await apiDelete(`/api/youtube/collections?id=${collectionId}`);
-      
+
       toast.success('컬렉션이 삭제되었습니다');
-      setCollections(collections.filter(c => c.id !== collectionId));
+      setCollections(collections.filter((c) => c.id !== collectionId));
     } catch (error) {
       console.error('Error deleting collection:', error);
       toast.error('컬렉션 삭제에 실패했습니다');
@@ -146,7 +158,7 @@ export default function CollectionBoard() {
       name: collection.name,
       description: collection.description || '',
       is_public: collection.is_public,
-      tags: collection.tags?.join(', ') || ''
+      tags: collection.tags?.join(', ') || '',
     });
   };
 
@@ -156,7 +168,7 @@ export default function CollectionBoard() {
       name: '',
       description: '',
       is_public: false,
-      tags: ''
+      tags: '',
     });
   };
 
@@ -177,15 +189,12 @@ export default function CollectionBoard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">내 컬렉션</h2>
-          <p className="text-muted-foreground">
-            관심있는 YouTube 동영상을 컬렉션으로 관리하세요
-          </p>
+          <p className="text-muted-foreground">관심있는 YouTube 동영상을 컬렉션으로 관리하세요</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger asChild={true}>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              새 컬렉션
+              <Plus className="mr-2 h-4 w-4" />새 컬렉션
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -234,15 +243,16 @@ export default function CollectionBoard() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setIsCreateDialogOpen(false);
-                resetForm();
-              }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsCreateDialogOpen(false);
+                  resetForm();
+                }}
+              >
                 취소
               </Button>
-              <Button onClick={handleCreateCollection}>
-                컬렉션 만들기
-              </Button>
+              <Button onClick={handleCreateCollection}>컬렉션 만들기</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -258,8 +268,7 @@ export default function CollectionBoard() {
               첫 번째 컬렉션을 만들어 YouTube 동영상을 저장해보세요
             </p>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              첫 컬렉션 만들기
+              <Plus className="mr-2 h-4 w-4" />첫 컬렉션 만들기
             </Button>
           </CardContent>
         </Card>
@@ -279,17 +288,11 @@ export default function CollectionBoard() {
                       )}
                     </CardTitle>
                     {collection.description && (
-                      <CardDescription className="mt-1">
-                        {collection.description}
-                      </CardDescription>
+                      <CardDescription className="mt-1">{collection.description}</CardDescription>
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => startEdit(collection)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => startEdit(collection)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
@@ -305,7 +308,7 @@ export default function CollectionBoard() {
               <CardContent>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-muted-foreground">
-                    {collection.item_count} 개의 동영상
+                    {collection.itemCount} 개의 동영상
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {new Date(collection.created_at).toLocaleDateString()}
@@ -332,13 +335,14 @@ export default function CollectionBoard() {
       )}
 
       {/* 편집 다이얼로그 */}
-      <Dialog open={!!editingCollection} onOpenChange={(open) => !open && setEditingCollection(null)}>
+      <Dialog
+        open={!!editingCollection}
+        onOpenChange={(open) => !open && setEditingCollection(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>컬렉션 편집</DialogTitle>
-            <DialogDescription>
-              컬렉션 정보를 수정하세요
-            </DialogDescription>
+            <DialogDescription>컬렉션 정보를 수정하세요</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -376,15 +380,16 @@ export default function CollectionBoard() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setEditingCollection(null);
-              resetForm();
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditingCollection(null);
+                resetForm();
+              }}
+            >
               취소
             </Button>
-            <Button onClick={handleUpdateCollection}>
-              저장
-            </Button>
+            <Button onClick={handleUpdateCollection}>저장</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

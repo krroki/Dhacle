@@ -1,34 +1,34 @@
 // revenue-proof/ranking/route.ts
 // 랭킹 조회 API
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 
 // GET: 랭킹 조회
 export async function GET(request: NextRequest) {
   try {
+    // 세션 검사
+    const authSupabase = createRouteHandlerClient({ cookies });
+    const {
+      data: { user },
+    } = await authSupabase.auth.getUser();
 
-  // 세션 검사
-  const authSupabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await authSupabase.auth.getUser();
-  
-  if (!user) {
-    return NextResponse.json(
+    if (!user) {
+      return NextResponse.json(
         { error: 'User not authenticated' },
         { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
+      );
+    }
 
     // Service Role Client를 사용하여 RLS를 우회하고 공개 데이터를 가져옴
     const supabase = await createSupabaseServiceRoleClient();
     const { searchParams } = new URL(request.url);
-    
+
     // 기간 파라미터 (daily, weekly, monthly)
     const period = searchParams.get('period') || 'monthly';
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = Number.parseInt(searchParams.get('limit') || '10');
 
     // 기간별 날짜 계산
     const now = new Date();
@@ -65,29 +65,35 @@ export async function GET(request: NextRequest) {
     }
 
     // 사용자별 수익 집계
-    const userRevenues = (proofs || []).reduce((acc, proof) => {
-      if (!proof.user_id) return acc;
-      
-      if (!acc[proof.user_id]) {
-        acc[proof.user_id] = {
-          user_id: proof.user_id,
-          total_amount: 0,
-          proof_count: 0,
-          platforms: new Set()
-        };
-      }
-      
-      acc[proof.user_id].total_amount += proof.amount;
-      acc[proof.user_id].proof_count += 1;
-      acc[proof.user_id].platforms.add(proof.platform);
-      
-      return acc;
-    }, {} as Record<string, {
-      user_id: string;
-      total_amount: number;
-      proof_count: number;
-      platforms: Set<string>;
-    }>);
+    const userRevenues = (proofs || []).reduce(
+      (acc, proof) => {
+        if (!proof.user_id) return acc;
+
+        if (!acc[proof.user_id]) {
+          acc[proof.user_id] = {
+            user_id: proof.user_id,
+            total_amount: 0,
+            proof_count: 0,
+            platforms: new Set(),
+          };
+        }
+
+        acc[proof.user_id].total_amount += proof.amount;
+        acc[proof.user_id].proof_count += 1;
+        acc[proof.user_id].platforms.add(proof.platform);
+
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          user_id: string;
+          total_amount: number;
+          proof_count: number;
+          platforms: Set<string>;
+        }
+      >
+    );
 
     // 사용자 정보 조회 및 정렬
     const userIds = Object.keys(userRevenues);
@@ -96,10 +102,13 @@ export async function GET(request: NextRequest) {
       .select('id, username, avatar_url')
       .in('id', userIds);
 
-    const profileMap = (profiles || []).reduce((acc, profile) => {
-      acc[profile.id] = profile;
-      return acc;
-    }, {} as Record<string, { id: string; username?: string; avatar_url?: string; }>);
+    const profileMap = (profiles || []).reduce(
+      (acc, profile) => {
+        acc[profile.id] = profile;
+        return acc;
+      },
+      {} as Record<string, { id: string; username?: string; avatar_url?: string }>
+    );
 
     // 배열로 변환하고 정렬
     const rankings = Object.values(userRevenues)
@@ -108,36 +117,35 @@ export async function GET(request: NextRequest) {
         username: profileMap[item.user_id]?.username || 'Anonymous',
         avatar_url: profileMap[item.user_id]?.avatar_url || null,
         platforms: Array.from(item.platforms),
-        rank: 0 // 정렬 후 순위 부여
+        rank: 0, // 정렬 후 순위 부여
       }))
       .sort((a, b) => b.total_amount - a.total_amount)
       .slice(0, limit)
       .map((item, index) => ({
         ...item,
-        rank: index + 1
+        rank: index + 1,
       }));
 
     // 스냅샷 저장 제거 (테이블 없음)
 
     // 현재 로그인 사용자의 순위 찾기
-    const { data: { user: authUser2 } } = await supabase.auth.getUser();
+    const {
+      data: { user: authUser2 },
+    } = await supabase.auth.getUser();
     let myRank = null;
-    
+
     if (user) {
-      const myData = Object.values(userRevenues).find(
-        (item) => item.user_id === user.id
-      );
-      
+      const myData = Object.values(userRevenues).find((item) => item.user_id === user.id);
+
       if (myData) {
-        const allRankings = Object.values(userRevenues)
-          .sort((a, b) => b.total_amount - a.total_amount);
-        
+        const allRankings = Object.values(userRevenues).sort(
+          (a, b) => b.total_amount - a.total_amount
+        );
+
         myRank = {
-          rank: allRankings.findIndex((item) => 
-            item.user_id === user.id
-          ) + 1,
+          rank: allRankings.findIndex((item) => item.user_id === user.id) + 1,
           total_amount: myData.total_amount,
-          proof_count: myData.proof_count
+          proof_count: myData.proof_count,
         };
       }
     }
@@ -146,14 +154,10 @@ export async function GET(request: NextRequest) {
       rankings: rankings, // 프론트엔드에서 기대하는 형식
       period,
       myRank,
-      cached: false
+      cached: false,
     });
-
   } catch (error: unknown) {
     console.error('API error:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

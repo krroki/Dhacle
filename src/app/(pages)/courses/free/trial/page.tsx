@@ -1,10 +1,11 @@
-import React from 'react';
-import { Metadata } from 'next';
-import { getCourses } from '@/lib/api/courses';
-import { CourseGrid } from '../../components/CourseGrid';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, PlayCircle } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
+import { getCourses } from '@/lib/api/courses';
+import { mapCourse } from '@/lib/utils/type-mappers';
+import { CourseGrid } from '../../components/CourseGrid';
 
 export const metadata: Metadata = {
   title: '무료 체험 강의 | 디하클',
@@ -17,14 +18,17 @@ export const dynamic = 'force-dynamic';
 export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
   // 무료 체험이 가능한 강의 필터링 (유료 강의 중 미리보기 제공)
   const response = await getCourses();
-  const courses = response.courses.filter(course => 
-    !course.is_free && (
-      course.tags?.includes('trial') || 
-      course.tags?.includes('체험') ||
-      course.tags?.includes('미리보기') ||
-      course.preview_enabled === true
-    )
-  );
+  const rawCourses = response.courses;
+  const courses = rawCourses
+    .map(mapCourse)
+    .filter(
+      (course) =>
+        !course.isFree &&
+        (course.tags?.includes('trial') ||
+          course.tags?.includes('체험') ||
+          course.tags?.includes('미리보기') ||
+          course.previewEnabled === true)
+    );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -44,8 +48,7 @@ export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
           </div>
           <h1 className="text-4xl font-bold mb-4">무료 체험 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            프리미엄 강의를 구매하기 전에 무료로 체험해보세요.
-            일부 레슨을 미리 들어볼 수 있습니다.
+            프리미엄 강의를 구매하기 전에 무료로 체험해보세요. 일부 레슨을 미리 들어볼 수 있습니다.
           </p>
         </div>
 
@@ -71,9 +74,7 @@ export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
                 </div>
                 <h4 className="font-medium">강의 퀄리티 확인</h4>
               </div>
-              <p className="text-sm text-muted-foreground pl-10">
-                강사의 강의 스타일과 내용 확인
-              </p>
+              <p className="text-sm text-muted-foreground pl-10">강사의 강의 스타일과 내용 확인</p>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -115,7 +116,8 @@ export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 체험 가능 강의
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 체험
+              가능 강의
             </p>
             <div className="text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -139,7 +141,9 @@ export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
                 <Button className="w-full">전체 강의 둘러보기</Button>
               </Link>
               <Link href="/courses/free">
-                <Button variant="outline" className="w-full">무료 강의 보기</Button>
+                <Button variant="outline" className="w-full">
+                  무료 강의 보기
+                </Button>
               </Link>
             </div>
           </div>

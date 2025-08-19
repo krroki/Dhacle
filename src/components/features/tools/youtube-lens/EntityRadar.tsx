@@ -3,24 +3,17 @@
 /**
  * YouTube Lens - Entity Radar Component
  * Phase 4: UI Component
- * 
+ *
  * Visualizes extracted entities (keywords, topics, brands, people, locations)
  */
 
-import React, { useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, Building2, Globe, Hash, MapPin, Tag, Users } from 'lucide-react';
+import type React from 'react';
+import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Hash, 
-  Tag, 
-  Building2, 
-  Users, 
-  MapPin, 
-  Globe,
-  AlertCircle
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { EntityExtraction } from '@/types/youtube-lens';
 
 interface EntityRadarProps {
@@ -29,12 +22,11 @@ interface EntityRadarProps {
   description?: string;
 }
 
-export function EntityRadar({ 
-  entities, 
+export function EntityRadar({
+  entities,
   title = '엔티티 레이더',
-  description = 'NLP 기반 키워드 및 엔티티 추출 결과'
+  description = 'NLP 기반 키워드 및 엔티티 추출 결과',
 }: EntityRadarProps) {
-  
   // Aggregate all entities
   const aggregatedEntities = useMemo(() => {
     const keywords = new Map<string, number>();
@@ -44,29 +36,29 @@ export function EntityRadar({
     const locations = new Map<string, number>();
     const languages = new Map<string, number>();
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       // Keywords
-      entity.entities.keywords.forEach(keyword => {
+      entity.entities.keywords.forEach((keyword) => {
         keywords.set(keyword, (keywords.get(keyword) || 0) + 1);
       });
 
       // Topics
-      entity.entities.topics.forEach(topic => {
+      entity.entities.topics.forEach((topic) => {
         topics.set(topic, (topics.get(topic) || 0) + 1);
       });
 
       // Brands
-      entity.entities.brands.forEach(brand => {
+      entity.entities.brands.forEach((brand) => {
         brands.set(brand, (brands.get(brand) || 0) + 1);
       });
 
       // People
-      entity.entities.people.forEach(person => {
+      entity.entities.people.forEach((person) => {
         people.set(person, (people.get(person) || 0) + 1);
       });
 
       // Locations
-      entity.entities.locations.forEach(location => {
+      entity.entities.locations.forEach((location) => {
         locations.set(location, (locations.get(location) || 0) + 1);
       });
 
@@ -90,8 +82,7 @@ export function EntityRadar({
       locations: Array.from(locations.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10),
-      languages: Array.from(languages.entries())
-        .sort((a, b) => b[1] - a[1])
+      languages: Array.from(languages.entries()).sort((a, b) => b[1] - a[1]),
     };
   }, [entities]);
 
@@ -99,7 +90,7 @@ export function EntityRadar({
   const avgConfidence = useMemo(() => {
     if (entities.length === 0) return 0;
     const sum = entities.reduce((acc, entity) => acc + entity.confidence, 0);
-    return (sum / entities.length * 100).toFixed(1);
+    return ((sum / entities.length) * 100).toFixed(1);
   }, [entities]);
 
   const getFrequencyColor = (frequency: number, max: number) => {
@@ -110,14 +101,14 @@ export function EntityRadar({
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  const EntityList = ({ 
-    items, 
-    icon: Icon, 
-    emptyMessage 
-  }: { 
-    items: [string, number][], 
-    icon: React.ElementType,
-    emptyMessage: string 
+  const EntityList = ({
+    items,
+    icon: Icon,
+    emptyMessage,
+  }: {
+    items: [string, number][];
+    icon: React.ElementType;
+    emptyMessage: string;
   }) => {
     if (items.length === 0) {
       return (
@@ -142,10 +133,7 @@ export function EntityRadar({
                 <Icon className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium">{item}</span>
               </div>
-              <Badge 
-                variant="outline" 
-                className={getFrequencyColor(frequency, maxFreq)}
-              >
+              <Badge variant="outline" className={getFrequencyColor(frequency, maxFreq)}>
                 {frequency}
               </Badge>
             </div>
@@ -184,12 +172,8 @@ export function EntityRadar({
             <CardDescription>{description}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline">
-              {entities.length}개 비디오 분석
-            </Badge>
-            <Badge variant="secondary">
-              신뢰도 {avgConfidence}%
-            </Badge>
+            <Badge variant="outline">{entities.length}개 비디오 분석</Badge>
+            <Badge variant="secondary">신뢰도 {avgConfidence}%</Badge>
           </div>
         </div>
       </CardHeader>
@@ -219,7 +203,7 @@ export function EntityRadar({
                   </div>
                 )}
               </div>
-              <EntityList 
+              <EntityList
                 items={aggregatedEntities.keywords}
                 icon={Hash}
                 emptyMessage="추출된 키워드가 없습니다"
@@ -230,11 +214,11 @@ export function EntityRadar({
           <TabsContent value="topics" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.topics.length > 0 
+                {aggregatedEntities.topics.length > 0
                   ? `${aggregatedEntities.topics.length}개 토픽 감지됨`
                   : '토픽 분석 중'}
               </p>
-              <EntityList 
+              <EntityList
                 items={aggregatedEntities.topics}
                 icon={Tag}
                 emptyMessage="감지된 토픽이 없습니다"
@@ -245,11 +229,11 @@ export function EntityRadar({
           <TabsContent value="brands" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.brands.length > 0 
+                {aggregatedEntities.brands.length > 0
                   ? `${aggregatedEntities.brands.length}개 브랜드 언급됨`
                   : '브랜드 분석 중'}
               </p>
-              <EntityList 
+              <EntityList
                 items={aggregatedEntities.brands}
                 icon={Building2}
                 emptyMessage="언급된 브랜드가 없습니다"
@@ -260,11 +244,11 @@ export function EntityRadar({
           <TabsContent value="people" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.people.length > 0 
+                {aggregatedEntities.people.length > 0
                   ? `${aggregatedEntities.people.length}명 인물 감지됨`
                   : '인물 분석 중'}
               </p>
-              <EntityList 
+              <EntityList
                 items={aggregatedEntities.people}
                 icon={Users}
                 emptyMessage="감지된 인물이 없습니다"
@@ -275,11 +259,11 @@ export function EntityRadar({
           <TabsContent value="locations" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.locations.length > 0 
+                {aggregatedEntities.locations.length > 0
                   ? `${aggregatedEntities.locations.length}개 장소 언급됨`
                   : '장소 분석 중'}
               </p>
-              <EntityList 
+              <EntityList
                 items={aggregatedEntities.locations}
                 icon={MapPin}
                 emptyMessage="언급된 장소가 없습니다"

@@ -1,58 +1,60 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server-client';
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
-import { 
+import {
   Award,
-  Trophy,
+  BookOpen,
+  CheckCircle,
+  Clock,
   Star,
   Target,
-  Zap,
   TrendingUp,
+  Trophy,
   Users,
-  BookOpen,
-  Clock,
-  CheckCircle
+  Zap,
 } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+import type { Database } from '@/types/database';
 
 // 뱃지 아이콘 매핑
 const badgeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  'first_course': BookOpen,
-  'five_courses': Target,
-  'ten_courses': Trophy,
-  'first_revenue': TrendingUp,
-  'community_contributor': Users,
-  'fast_learner': Zap,
-  'dedication': Clock,
-  'achiever': Star,
-  'master': Award,
-  'default': Award,
+  firstCourse: BookOpen,
+  fiveCourses: Target,
+  tenCourses: Trophy,
+  firstRevenue: TrendingUp,
+  communityContributor: Users,
+  fastLearner: Zap,
+  dedication: Clock,
+  achiever: Star,
+  master: Award,
+  default: Award,
 };
 
 // 뱃지 색상 매핑
 const badgeColors: { [key: string]: string } = {
-  'bronze': 'bg-orange-100 text-orange-700 border-orange-300',
-  'silver': 'bg-gray-100 text-gray-700 border-gray-300',
-  'gold': 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'platinum': 'bg-purple-100 text-purple-700 border-purple-300',
-  'default': 'bg-blue-100 text-blue-700 border-blue-300',
+  bronze: 'bg-orange-100 text-orange-700 border-orange-300',
+  silver: 'bg-gray-100 text-gray-700 border-gray-300',
+  gold: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+  platinum: 'bg-purple-100 text-purple-700 border-purple-300',
+  default: 'bg-blue-100 text-blue-700 border-blue-300',
 };
 
 interface UserBadge {
   id: string;
   user_id: string;
-  badge_type: string;
-  badge_level: string;
-  earned_at: string;
+  badgeType: string;
+  badgeLevel: string;
+  earnedAt: string;
   title: string;
   description: string;
 }
 
 export default async function MyBadgesPage() {
-  const supabase = await createSupabaseServerClient() as SupabaseClient<Database>;
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/auth/login');
@@ -63,49 +65,49 @@ export default async function MyBadgesPage() {
     .from('badges')
     .select('*')
     .eq('user_id', user.id)
-    .order('earned_at', { ascending: false });
+    .order('earnedAt', { ascending: false });
 
   const badges = userBadges || [];
 
   // 획득 가능한 뱃지 목록 (더미 데이터)
   const availableBadges = [
     {
-      type: 'first_course',
+      type: 'firstCourse',
       title: '첫 강의 수강',
       description: '첫 번째 강의를 수강했습니다',
       condition: '강의 1개 수강',
       level: 'bronze',
     },
     {
-      type: 'five_courses',
+      type: 'fiveCourses',
       title: '열정적인 학습자',
       description: '5개의 강의를 수강했습니다',
       condition: '강의 5개 수강',
       level: 'silver',
     },
     {
-      type: 'ten_courses',
+      type: 'tenCourses',
       title: '지식 탐험가',
       description: '10개의 강의를 수강했습니다',
       condition: '강의 10개 수강',
       level: 'gold',
     },
     {
-      type: 'first_revenue',
+      type: 'firstRevenue',
       title: '첫 수익 달성',
       description: '첫 수익을 인증했습니다',
       condition: '수익 인증 1회',
       level: 'bronze',
     },
     {
-      type: 'community_contributor',
+      type: 'communityContributor',
       title: '커뮤니티 기여자',
       description: '커뮤니티 활동에 적극 참여했습니다',
       condition: '게시글 10개 작성',
       level: 'silver',
     },
     {
-      type: 'fast_learner',
+      type: 'fastLearner',
       title: '빠른 학습자',
       description: '일주일 내 강의를 완료했습니다',
       condition: '7일 내 강의 완료',
@@ -135,15 +137,13 @@ export default async function MyBadgesPage() {
   ];
 
   // 획득한 뱃지 타입 목록
-  const earnedBadgeTypes = new Set(badges.map((b: UserBadge) => b.badge_type));
+  const earnedBadgeTypes = new Set(badges.map((b: UserBadge) => b.badgeType));
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">획득 뱃지</h2>
-        <p className="mt-1 text-gray-600">
-          학습 성과와 활동으로 획득한 뱃지를 확인하세요
-        </p>
+        <p className="mt-1 text-gray-600">학습 성과와 활동으로 획득한 뱃지를 확인하세요</p>
       </div>
 
       {/* 뱃지 통계 */}
@@ -180,8 +180,8 @@ export default async function MyBadgesPage() {
               <div>
                 <p className="text-sm text-gray-600">최근 획득</p>
                 <p className="text-sm font-medium mt-1">
-                  {badges.length > 0 
-                    ? new Date(badges[0].earned_at).toLocaleDateString('ko-KR')
+                  {badges.length > 0
+                    ? new Date(badges[0].earnedAt).toLocaleDateString('ko-KR')
                     : '-'}
                 </p>
               </div>
@@ -196,15 +196,13 @@ export default async function MyBadgesPage() {
         <Card>
           <CardHeader>
             <CardTitle>획득한 뱃지</CardTitle>
-            <CardDescription>
-              열심히 학습하고 활동하여 획득한 뱃지입니다
-            </CardDescription>
+            <CardDescription>열심히 학습하고 활동하여 획득한 뱃지입니다</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {badges.map((badge: UserBadge) => {
-                const Icon = badgeIcons[badge.badge_type] || badgeIcons.default;
-                const colorClass = badgeColors[badge.badge_level] || badgeColors.default;
+                const Icon = badgeIcons[badge.badgeType] || badgeIcons.default;
+                const colorClass = badgeColors[badge.badgeLevel] || badgeColors.default;
 
                 return (
                   <div
@@ -216,14 +214,10 @@ export default async function MyBadgesPage() {
                         <Icon className="h-6 w-6" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">
-                          {badge.title}
-                        </h4>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {badge.description}
-                        </p>
+                        <h4 className="font-semibold text-gray-900">{badge.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{badge.description}</p>
                         <p className="text-xs text-gray-500 mt-2">
-                          {new Date(badge.earned_at).toLocaleDateString('ko-KR')} 획득
+                          {new Date(badge.earnedAt).toLocaleDateString('ko-KR')} 획득
                         </p>
                       </div>
                     </div>
@@ -239,9 +233,7 @@ export default async function MyBadgesPage() {
       <Card>
         <CardHeader>
           <CardTitle>획득 가능한 뱃지</CardTitle>
-          <CardDescription>
-            조건을 달성하여 새로운 뱃지를 획득해보세요
-          </CardDescription>
+          <CardDescription>조건을 달성하여 새로운 뱃지를 획득해보세요</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -254,36 +246,34 @@ export default async function MyBadgesPage() {
                 <div
                   key={badge.type}
                   className={`p-4 rounded-lg border-2 ${
-                    isEarned 
-                      ? `${colorClass} bg-opacity-20` 
+                    isEarned
+                      ? `${colorClass} bg-opacity-20`
                       : 'border-gray-200 bg-gray-50 opacity-60'
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-3 rounded-full ${
-                      isEarned ? colorClass : 'bg-gray-200 text-gray-400'
-                    }`}>
+                    <div
+                      className={`p-3 rounded-full ${
+                        isEarned ? colorClass : 'bg-gray-200 text-gray-400'
+                      }`}
+                    >
                       <Icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h4 className={`font-semibold ${
-                          isEarned ? 'text-gray-900' : 'text-gray-600'
-                        }`}>
+                        <h4
+                          className={`font-semibold ${
+                            isEarned ? 'text-gray-900' : 'text-gray-600'
+                          }`}
+                        >
                           {badge.title}
                         </h4>
-                        {isEarned && (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        )}
+                        {isEarned && <CheckCircle className="h-4 w-4 text-green-600" />}
                       </div>
-                      <p className={`text-sm mt-1 ${
-                        isEarned ? 'text-gray-600' : 'text-gray-500'
-                      }`}>
+                      <p className={`text-sm mt-1 ${isEarned ? 'text-gray-600' : 'text-gray-500'}`}>
                         {badge.description}
                       </p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        조건: {badge.condition}
-                      </p>
+                      <p className="text-xs text-gray-500 mt-2">조건: {badge.condition}</p>
                     </div>
                   </div>
                 </div>

@@ -1,54 +1,54 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { KakaoLoginButton } from '@/components/features/auth/KakaoLoginButton'
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui'
-import { Zap, Star, TrendingUp, Users, Award, Sparkles } from 'lucide-react'
+import { Award, Sparkles, Star, TrendingUp, Users, Zap } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { KakaoLoginButton } from '@/components/features/auth/KakaoLoginButton';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: '회원가입 - 디하클',
   description: '디하클과 함께 성공적인 크리에이터가 되어보세요',
-}
+};
 
 export default function SignupPage() {
   const features = [
     {
       icon: Zap,
       title: '빠른 시작',
-      description: '복잡한 절차 없이 3초 만에 가입'
+      description: '복잡한 절차 없이 3초 만에 가입',
     },
     {
       icon: Star,
       title: '프리미엄 콘텐츠',
-      description: '검증된 크리에이터의 노하우 전수'
+      description: '검증된 크리에이터의 노하우 전수',
     },
     {
       icon: TrendingUp,
       title: '실시간 트렌드',
-      description: '최신 숏폼 트렌드 분석 제공'
+      description: '최신 숏폼 트렌드 분석 제공',
     },
     {
       icon: Users,
       title: '활발한 커뮤니티',
-      description: '1만+ 크리에이터와 함께 성장'
+      description: '1만+ 크리에이터와 함께 성장',
     },
     {
       icon: Award,
       title: '수익 인증',
-      description: '투명한 수익 공개로 신뢰 구축'
+      description: '투명한 수익 공개로 신뢰 구축',
     },
     {
       icon: Sparkles,
       title: 'AI 도구',
-      description: '콘텐츠 제작을 위한 AI 도구 제공'
-    }
-  ]
+      description: '콘텐츠 제작을 위한 AI 도구 제공',
+    },
+  ];
 
   const stats = [
     { value: '10,000+', label: '활동 크리에이터' },
     { value: '500+', label: '강의 콘텐츠' },
     { value: '95%', label: '만족도' },
-    { value: '24/7', label: '지원' }
-  ]
+    { value: '24/7', label: '지원' },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
@@ -75,7 +75,7 @@ export default function SignupPage() {
             {/* Features Grid */}
             <div className="grid grid-cols-2 gap-4">
               {features.map((feature, index) => {
-                const Icon = feature.icon
+                const Icon = feature.icon;
                 return (
                   <div key={index} className="space-y-2">
                     <div className="flex items-start gap-3">
@@ -88,7 +88,7 @@ export default function SignupPage() {
                       </div>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
 
@@ -115,9 +115,7 @@ export default function SignupPage() {
 
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl">무료로 시작하기</CardTitle>
-                <p className="text-muted-foreground">
-                  지금 가입하고 특별 혜택을 받아보세요
-                </p>
+                <p className="text-muted-foreground">지금 가입하고 특별 혜택을 받아보세요</p>
               </CardHeader>
 
               <CardContent className="space-y-6">
@@ -144,19 +142,15 @@ export default function SignupPage() {
                 </div>
 
                 {/* Kakao Login Button */}
-                <KakaoLoginButton 
-                  variant="large"
-                  text="카카오톡으로 회원가입"
-                  className="w-full"
-                />
+                <KakaoLoginButton variant="large" text="카카오톡으로 회원가입" className="w-full" />
 
                 {/* Terms */}
                 <p className="text-xs text-center text-muted-foreground">
                   회원가입 시{' '}
                   <Link href="/terms" className="underline underline-offset-2 hover:text-primary">
                     이용약관
-                  </Link>
-                  {' '}및{' '}
+                  </Link>{' '}
+                  및{' '}
                   <Link href="/privacy" className="underline underline-offset-2 hover:text-primary">
                     개인정보처리방침
                   </Link>
@@ -175,7 +169,7 @@ export default function SignupPage() {
                 </div>
 
                 {/* Login Link */}
-                <Link 
+                <Link
                   href="/auth/login"
                   className="block w-full text-center py-3 px-4 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
@@ -203,5 +197,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

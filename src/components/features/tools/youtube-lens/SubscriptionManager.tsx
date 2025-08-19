@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { AlertCircle, Bell, BellOff, CheckCircle, Clock, Loader2, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Bell, BellOff, RefreshCw, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
-import { toast } from 'sonner';
-import { formatDistanceToNow } from 'date-fns';
-import { apiGet, apiPost, apiDelete, apiPatch, ApiError } from '@/lib/api-client';
+import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api-client';
 
 interface Subscription {
   id: string;
   channel_id: string;
-  channel_title: string;
+  channelTitle: string;
   status: 'pending' | 'verified' | 'active' | 'expired' | 'failed';
-  expires_at: string | null;
-  last_notification_at: string | null;
-  notification_count: number;
+  expiresAt: string | null;
+  lastNotificationAt: string | null;
+  notificationCount: number;
   created_at: string;
 }
 
@@ -38,7 +38,7 @@ export function SubscriptionManager() {
       const data = await apiGet<{ success: boolean; subscriptions: Subscription[] }>(
         '/api/youtube/subscribe'
       );
-      
+
       if (data.success) {
         setSubscriptions(data.subscriptions);
       } else {
@@ -64,24 +64,21 @@ export function SubscriptionManager() {
 
     try {
       setSubscribing(true);
-      
+
       // Extract channel ID from URL if needed
       let channelId = channelInput.trim();
       if (channelInput.includes('youtube.com')) {
-        const match = channelInput.match(/channel\/([^\/\?]+)/);
+        const match = channelInput.match(/channel\/([^/?]+)/);
         if (match) {
           channelId = match[1];
         }
       }
 
-      const data = await apiPost<{ success: boolean; error?: string }>(
-        '/api/youtube/subscribe',
-        {
-          channelId,
-          channelTitle: `Channel ${channelId}` // Will be updated after verification
-        }
-      );
-      
+      const data = await apiPost<{ success: boolean; error?: string }>('/api/youtube/subscribe', {
+        channelId,
+        channelTitle: `Channel ${channelId}`, // Will be updated after verification
+      });
+
       if (data.success) {
         toast.success('Subscription request sent! Awaiting verification...');
         setChannelInput('');
@@ -110,7 +107,7 @@ export function SubscriptionManager() {
       const data = await apiDelete<{ success: boolean; error?: string }>(
         `/api/youtube/subscribe?channelId=${channelId}`
       );
-      
+
       if (data.success) {
         toast.success('Unsubscribed successfully');
         fetchSubscriptions(); // Refresh list
@@ -133,11 +130,10 @@ export function SubscriptionManager() {
 
   const handleRenew = async (channelId: string) => {
     try {
-      const data = await apiPatch<{ success: boolean; error?: string }>(
-        '/api/youtube/subscribe',
-        { channelId }
-      );
-      
+      const data = await apiPatch<{ success: boolean; error?: string }>('/api/youtube/subscribe', {
+        channelId,
+      });
+
       if (data.success) {
         toast.success('Renewal request sent');
         fetchSubscriptions(); // Refresh list
@@ -233,38 +229,43 @@ export function SubscriptionManager() {
               >
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{sub.channel_title}</span>
+                    <span className="font-medium">{sub.channelTitle}</span>
                     {getStatusBadge(sub)}
                   </div>
                   <div className="text-sm text-muted-foreground space-x-4">
                     <span>ID: {sub.channel_id.slice(0, 12)}...</span>
-                    {sub.notification_count > 0 && (
-                      <span>{sub.notification_count} notifications</span>
+                    {sub.notificationCount > 0 && (
+                      <span>{sub.notificationCount} notifications</span>
                     )}
-                    {sub.last_notification_at && (
+                    {sub.lastNotificationAt && (
                       <span>
-                        Last: {formatDistanceToNow(new Date(sub.last_notification_at), { addSuffix: true })}
+                        Last:{' '}
+                        {formatDistanceToNow(new Date(sub.lastNotificationAt), {
+                          addSuffix: true,
+                        })}
                       </span>
                     )}
-                    {sub.expires_at && (
+                    {sub.expiresAt && (
                       <span>
-                        Expires: {formatDistanceToNow(new Date(sub.expires_at), { addSuffix: true })}
+                        Expires:{' '}
+                        {formatDistanceToNow(new Date(sub.expiresAt), { addSuffix: true })}
                       </span>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {sub.status === 'active' && sub.expires_at && 
-                   new Date(sub.expires_at) < new Date(Date.now() + 6 * 60 * 60 * 1000) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRenew(sub.channel_id)}
-                      title="Renew subscription"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  )}
+                  {sub.status === 'active' &&
+                    sub.expiresAt &&
+                    new Date(sub.expiresAt) < new Date(Date.now() + 6 * 60 * 60 * 1000) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRenew(sub.channel_id)}
+                        title="Renew subscription"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    )}
                   <Button
                     size="sm"
                     variant="ghost"
@@ -283,8 +284,9 @@ export function SubscriptionManager() {
         <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
           <p className="font-medium mb-1">ℹ️ About Real-time Updates</p>
           <p className="text-muted-foreground">
-            PubSubHubbub provides instant notifications when channels upload new videos. 
-            Subscriptions auto-renew every 5 days. For local development, use ngrok to expose your webhook endpoint.
+            PubSubHubbub provides instant notifications when channels upload new videos.
+            Subscriptions auto-renew every 5 days. For local development, use ngrok to expose your
+            webhook endpoint.
           </p>
         </div>
       </CardContent>

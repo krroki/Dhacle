@@ -1,7 +1,7 @@
+import { BarChart3, Clock, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge, Card, CardContent } from '@/components/ui';
-import { Clock, Users, BarChart3 } from 'lucide-react';
 import type { Course } from '@/lib/dummy-data/home';
 
 interface CourseCardProps {
@@ -29,28 +29,24 @@ export function CourseCard({ course, showNewBadge = false }: CourseCardProps) {
           <Image
             src={course.thumbnail}
             alt={course.title}
-            fill
+            fill={true}
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {showNewBadge && (
-            <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-              NEW
-            </Badge>
+            <Badge className="absolute top-2 left-2 bg-red-500 text-white">NEW</Badge>
           )}
           {course.isFree && (
-            <Badge className="absolute top-2 right-2 bg-green-500 text-white">
-              무료
-            </Badge>
+            <Badge className="absolute top-2 right-2 bg-green-500 text-white">무료</Badge>
           )}
         </div>
-        
+
         <CardContent className="p-4">
           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
             {course.title}
           </h3>
-          
+
           <p className="text-sm text-muted-foreground mb-3">{course.instructor}</p>
-          
+
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
@@ -63,17 +59,15 @@ export function CourseCard({ course, showNewBadge = false }: CourseCardProps) {
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-sm">
               <Users className="w-4 h-4 text-muted-foreground" />
               <span>{course.enrollCount.toLocaleString()}명</span>
             </div>
-            
+
             {!course.isFree && course.price && (
-              <p className="font-bold text-lg text-primary">
-                ₩{course.price.toLocaleString()}
-              </p>
+              <p className="font-bold text-lg text-primary">₩{course.price.toLocaleString()}</p>
             )}
           </div>
         </CardContent>

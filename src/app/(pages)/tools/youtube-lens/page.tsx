@@ -1,52 +1,57 @@
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  AlertCircle,
+  BarChart3,
+  Bell,
+  CheckCircle,
+  Folder,
+  FolderOpen,
+  Heart,
+  History,
+  Key,
+  Search,
+  Settings,
+  TrendingUp,
+  Youtube,
+} from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useYouTubeLensStore } from '@/store/youtube-lens';
-import { 
-  SearchBar, 
-  VideoGrid, 
-  QuotaStatus, 
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import {
+  MetricsDashboard,
+  QuotaStatus,
+  SearchBar,
+  VideoGrid,
   YouTubeLensErrorBoundary,
-  MetricsDashboard 
 } from '@/components/features/tools/youtube-lens';
-import PopularShortsList from '@/components/features/tools/youtube-lens/PopularShortsList';
-import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
+import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PopularShortsList from '@/components/features/tools/youtube-lens/PopularShortsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Search, 
-  Youtube, 
-  Settings, 
-  Heart, 
-  History,
-  AlertCircle,
-  Key,
-  CheckCircle,
-  TrendingUp,
-  Folder,
-  Bell,
-  FolderOpen,
-  BarChart3
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiDelete, apiGet, apiPost } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { toast } from 'sonner';
-import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaStatusType, YouTubeFavorite } from '@/types/youtube';
-import type { VideoStats, TrendAnalysis, EntityExtraction } from '@/types/youtube-lens';
-import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
+import { useYouTubeLensStore } from '@/store/youtube-lens';
+import type {
+  FlattenedYouTubeVideo,
+  QuotaStatus as QuotaStatusType,
+  YouTubeFavorite,
+  YouTubeSearchFilters,
+} from '@/types/youtube';
+import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtube-lens';
 
 // API 타입 정의
 interface ApiKeyData {
   id: string;
-  service_name: string;
+  serviceName: string;
   is_active: boolean;
-  usage_today?: number;
+  usageToday?: number;
   [key: string]: unknown;
 }
 
@@ -59,28 +64,30 @@ interface ApiKeyStatusResponse {
 const fetchApiKeyStatus = async () => {
   try {
     const data = await apiGet<ApiKeyStatusResponse>('/api/user/api-keys?service=youtube');
-    
+
     // QuotaStatus 타입에 맞게 구성
-    const used = data.data?.usage_today || 0;
+    const used = data.data?.usageToday || 0;
     const limit = 10000;
     const remaining = limit - used;
     const percentage = (used / limit) * 100;
-    
+
     return {
       success: data.success,
       hasApiKey: !!data.data,
       apiKeyData: data.data,
-      quota: data.data ? {
-        used,
-        limit,
-        remaining,
-        percentage,
-        resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
-        warning: percentage >= 80,
-        critical: percentage >= 95,
-        searchCount: 0,
-        videoCount: 0
-      } : null
+      quota: data.data
+        ? {
+            used,
+            limit,
+            remaining,
+            percentage,
+            resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
+            warning: percentage >= 80,
+            critical: percentage >= 95,
+            searchCount: 0,
+            videoCount: 0,
+          }
+        : null,
     };
   } catch (error) {
     console.error('API Key status fetch error:', error);
@@ -138,7 +145,7 @@ const addFavorite = async (video: FlattenedYouTubeVideo) => {
   try {
     const result = await apiPost<AddFavoriteResponse>('/api/youtube/favorites', {
       video_id: video.id,
-      video_data: video,
+      videoData: video,
     });
     return result;
   } catch (error) {
@@ -161,8 +168,8 @@ function YouTubeLensContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  
-  const { 
+
+  const {
     videos,
     setVideos,
     setQuotaStatus,
@@ -171,7 +178,7 @@ function YouTubeLensContent() {
     setLoading,
     searchHistory,
     favoriteVideos,
-    loadFavorites
+    loadFavorites,
   } = useYouTubeLensStore();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -179,7 +186,11 @@ function YouTubeLensContent() {
   const [hasApiKey, setHasApiKey] = useState(false);
 
   // API Key 상태 쿼리
-  const { data: apiKeyStatus, isLoading: apiKeyLoading, refetch: refetchApiKeyStatus } = useQuery({
+  const {
+    data: apiKeyStatus,
+    isLoading: apiKeyLoading,
+    refetch: refetchApiKeyStatus,
+  } = useQuery({
     queryKey: ['youtube-api-key-status'],
     queryFn: fetchApiKeyStatus,
     enabled: !!user,
@@ -187,7 +198,11 @@ function YouTubeLensContent() {
   });
 
   // 메트릭 데이터 조회
-  const { data: metricsData, isLoading: isLoadingMetrics, refetch: refetchMetrics } = useQuery({
+  const {
+    data: metricsData,
+    isLoading: isLoadingMetrics,
+    refetch: refetchMetrics,
+  } = useQuery({
     queryKey: ['youtube-metrics'],
     queryFn: async () => {
       const response = await apiGet<{
@@ -236,65 +251,81 @@ function YouTubeLensContent() {
   });
 
   // 검색 결과에서 할당량 업데이트
-  const updateQuotaFromSearch = useCallback((result: { quota?: { used?: number; limit?: number; remaining?: number; searchCount?: number; videoCount?: number } }) => {
-    if (result?.quota) {
-      const quota: QuotaStatusType = {
-        used: result.quota.used || 0,
-        limit: result.quota.limit || 10000,
-        remaining: result.quota.remaining || 10000,
-        percentage: ((result.quota.used || 0) / (result.quota.limit || 10000)) * 100,
-        resetTime: new Date(new Date().setHours(24, 0, 0, 0)),
-        warning: (result.quota.remaining || 0) < 2000,
-        critical: (result.quota.remaining || 0) < 500,
-        searchCount: (result.quota.searchCount || 0) + 1,
-        videoCount: result.quota.videoCount || 0
+  const updateQuotaFromSearch = useCallback(
+    (result: {
+      quota?: {
+        used?: number;
+        limit?: number;
+        remaining?: number;
+        searchCount?: number;
+        videoCount?: number;
       };
-      setQuotaStatus(quota);
-    }
-  }, [setQuotaStatus]);
+    }) => {
+      if (result?.quota) {
+        const quota: QuotaStatusType = {
+          used: result.quota.used || 0,
+          limit: result.quota.limit || 10000,
+          remaining: result.quota.remaining || 10000,
+          percentage: ((result.quota.used || 0) / (result.quota.limit || 10000)) * 100,
+          resetTime: new Date(new Date().setHours(24, 0, 0, 0)),
+          warning: (result.quota.remaining || 0) < 2000,
+          critical: (result.quota.remaining || 0) < 500,
+          searchCount: (result.quota.searchCount || 0) + 1,
+          videoCount: result.quota.videoCount || 0,
+        };
+        setQuotaStatus(quota);
+      }
+    },
+    [setQuotaStatus]
+  );
 
   // 검색 실행
-  const handleSearch = useCallback(async (query: string, filters: YouTubeSearchFilters) => {
-    if (!hasApiKey) {
-      toast.error('API Key를 먼저 등록해주세요');
-      router.push('/settings/api-keys');
-      return;
-    }
-
-    setIsSearching(true);
-    setError(null);
-    
-    try {
-      const result = await searchVideos(filters);
-      
-      if (result.success) {
-        setVideos(result.data.items);
-        updateQuotaFromSearch(result);
-        toast.success(`${result.data.items.length}개의 영상을 찾았습니다`);
-      } else if (result.errorCode === 'api_key_required') {
-        toast.error(result.error || 'API Key가 필요합니다');
+  const handleSearch = useCallback(
+    async (query: string, filters: YouTubeSearchFilters) => {
+      if (!hasApiKey) {
+        toast.error('API Key를 먼저 등록해주세요');
         router.push('/settings/api-keys');
-      } else {
-        throw new Error(result.error || '검색 실패');
+        return;
       }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '검색 실패';
-      setError(message);
-      
-      // API Key 관련 오류 처리
-      if (message.includes('API Key') || message.includes('api_key')) {
-        toast.error(message);
-        const shouldRedirect = confirm('API Key에 문제가 있습니다. 설정 페이지로 이동하시겠습니까?');
-        if (shouldRedirect) {
+
+      setIsSearching(true);
+      setError(null);
+
+      try {
+        const result = await searchVideos(filters);
+
+        if (result.success) {
+          setVideos(result.data.items);
+          updateQuotaFromSearch(result);
+          toast.success(`${result.data.items.length}개의 영상을 찾았습니다`);
+        } else if (result.errorCode === 'apiKeyRequired') {
+          toast.error(result.error || 'API Key가 필요합니다');
           router.push('/settings/api-keys');
+        } else {
+          throw new Error(result.error || '검색 실패');
         }
-      } else {
-        toast.error(message);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '검색 실패';
+        setError(message);
+
+        // API Key 관련 오류 처리
+        if (message.includes('API Key') || message.includes('api_key')) {
+          toast.error(message);
+          const shouldRedirect = confirm(
+            'API Key에 문제가 있습니다. 설정 페이지로 이동하시겠습니까?'
+          );
+          if (shouldRedirect) {
+            router.push('/settings/api-keys');
+          }
+        } else {
+          toast.error(message);
+        }
+      } finally {
+        setIsSearching(false);
       }
-    } finally {
-      setIsSearching(false);
-    }
-  }, [hasApiKey, router, setVideos, updateQuotaFromSearch, setError]);
+    },
+    [hasApiKey, router, setVideos, updateQuotaFromSearch, setError]
+  );
 
   // 할당량 새로고침
   const handleRefreshQuota = useCallback(async () => {
@@ -360,15 +391,16 @@ function YouTubeLensContent() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-yt-lens-primary to-yt-lens-secondary bg-clip-text text-transparent">
                 YouTube Lens
               </h1>
-              <p className="text-muted-foreground mt-1">
-                YouTube Shorts 영상 탐색 및 분석 도구
-              </p>
+              <p className="text-muted-foreground mt-1">YouTube Shorts 영상 탐색 및 분석 도구</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {!isAuthenticated ? (
-              <Button onClick={handleApiKeySetup} className="bg-yt-lens-primary hover:bg-yt-lens-primary-dark text-white">
+              <Button
+                onClick={handleApiKeySetup}
+                className="bg-yt-lens-primary hover:bg-yt-lens-primary-dark text-white"
+              >
                 <Key className="mr-2 h-4 w-4" />
                 API Key 설정
               </Button>
@@ -378,8 +410,8 @@ function YouTubeLensContent() {
                   <CheckCircle className="h-3 w-3" />
                   API Key 등록됨
                 </Badge>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={handleApiKeySetup}
                   title="API Key 설정"
@@ -393,10 +425,10 @@ function YouTubeLensContent() {
 
         {/* API 할당량 표시 */}
         {apiKeyStatus?.quota && (
-          <QuotaStatus 
+          <QuotaStatus
             quotaStatus={apiKeyStatus.quota}
             onRefresh={handleRefreshQuota}
-            compact
+            compact={true}
             className="mb-4"
           />
         )}
@@ -405,9 +437,12 @@ function YouTubeLensContent() {
         {!isAuthenticated && (
           <Alert className="mb-4 border-yt-lens-secondary bg-yt-lens-secondary/10">
             <AlertCircle className="h-4 w-4 text-yt-lens-secondary" />
-            <AlertTitle className="text-yt-lens-secondary">YouTube API Key 설정이 필요합니다</AlertTitle>
+            <AlertTitle className="text-yt-lens-secondary">
+              YouTube API Key 설정이 필요합니다
+            </AlertTitle>
             <AlertDescription>
-              YouTube 영상을 검색하려면 API Key를 등록해주세요. 개인별로 일일 10,000 units를 무료로 사용할 수 있습니다.
+              YouTube 영상을 검색하려면 API Key를 등록해주세요. 개인별로 일일 10,000 units를 무료로
+              사용할 수 있습니다.
             </AlertDescription>
           </Alert>
         )}
@@ -416,35 +451,59 @@ function YouTubeLensContent() {
       {/* 메인 콘텐츠 */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-8 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
-          <TabsTrigger value="dashboard" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="dashboard"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <BarChart3 className="mr-2 h-4 w-4" />
             대시보드
           </TabsTrigger>
-          <TabsTrigger value="popular" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="popular"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <TrendingUp className="mr-2 h-4 w-4" />
             인기 Shorts
           </TabsTrigger>
-          <TabsTrigger value="folders" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="folders"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <Folder className="mr-2 h-4 w-4" />
             채널 폴더
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="alerts"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <Bell className="mr-2 h-4 w-4" />
             알림 설정
           </TabsTrigger>
-          <TabsTrigger value="collections" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="collections"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <FolderOpen className="mr-2 h-4 w-4" />
             컬렉션
           </TabsTrigger>
-          <TabsTrigger value="search" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="search"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <Search className="mr-2 h-4 w-4" />
             검색
           </TabsTrigger>
-          <TabsTrigger value="favorites" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="favorites"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <Heart className="mr-2 h-4 w-4" />
             즐겨찾기 ({favoriteVideos.size})
           </TabsTrigger>
-          <TabsTrigger value="history" className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="history"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
             <History className="mr-2 h-4 w-4" />
             검색 기록
           </TabsTrigger>
@@ -452,7 +511,7 @@ function YouTubeLensContent() {
 
         {/* 대시보드 탭 */}
         <TabsContent value="dashboard" className="space-y-4">
-          <MetricsDashboard 
+          <MetricsDashboard
             metrics={metricsData?.metrics}
             trends={metricsData?.trends}
             entities={metricsData?.entities}
@@ -486,9 +545,7 @@ function YouTubeLensContent() {
           <Card>
             <CardHeader>
               <CardTitle>YouTube 영상 검색</CardTitle>
-              <CardDescription>
-                키워드를 입력하여 YouTube Shorts 영상을 검색하세요
-              </CardDescription>
+              <CardDescription>키워드를 입력하여 YouTube Shorts 영상을 검색하세요</CardDescription>
             </CardHeader>
             <CardContent>
               <SearchBar
@@ -501,11 +558,7 @@ function YouTubeLensContent() {
                   <p className="text-sm text-muted-foreground mb-2">
                     YouTube 검색을 사용하려면 API Key 등록이 필요합니다.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleApiKeySetup}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleApiKeySetup}>
                     <Key className="mr-2 h-4 w-4" />
                     API Key 등록하기
                   </Button>
@@ -533,23 +586,19 @@ function YouTubeLensContent() {
           <Card>
             <CardHeader>
               <CardTitle>즐겨찾기 영상</CardTitle>
-              <CardDescription>
-                저장한 YouTube 영상 목록입니다
-              </CardDescription>
+              <CardDescription>저장한 YouTube 영상 목록입니다</CardDescription>
             </CardHeader>
             <CardContent>
               {favoriteVideos.size > 0 ? (
                 <VideoGrid
-                  videos={Array.from(favoriteVideos.values()).map(f => f.video_data)}
+                  videos={Array.from(favoriteVideos.values()).map((f) => f.videoData)}
                   isLoading={false}
                   hasMore={false}
                 />
               ) : (
                 <div className="text-center py-8">
                   <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    아직 즐겨찾기한 영상이 없습니다
-                  </p>
+                  <p className="text-muted-foreground">아직 즐겨찾기한 영상이 없습니다</p>
                 </div>
               )}
             </CardContent>
@@ -561,9 +610,7 @@ function YouTubeLensContent() {
           <Card>
             <CardHeader>
               <CardTitle>검색 기록</CardTitle>
-              <CardDescription>
-                최근 검색한 키워드 목록입니다
-              </CardDescription>
+              <CardDescription>최근 검색한 키워드 목록입니다</CardDescription>
             </CardHeader>
             <CardContent>
               {searchHistory.length > 0 ? (
@@ -590,9 +637,7 @@ function YouTubeLensContent() {
               ) : (
                 <div className="text-center py-8">
                   <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    검색 기록이 없습니다
-                  </p>
+                  <p className="text-muted-foreground">검색 기록이 없습니다</p>
                 </div>
               )}
             </CardContent>
@@ -606,14 +651,16 @@ function YouTubeLensContent() {
 export default function YouTubeLensPage() {
   return (
     <YouTubeLensErrorBoundary>
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>로딩 중...</p>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>로딩 중...</p>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <YouTubeLensContent />
       </Suspense>
     </YouTubeLensErrorBoundary>

@@ -1,24 +1,24 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { apiGet, apiPost, ApiError } from '@/lib/api-client';
-import { useSearchParams, useRouter } from 'next/navigation';
+import confetti from 'canvas-confetti';
+import { ArrowRight, BookOpen, CheckCircle, Download } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, ArrowRight, Download, BookOpen } from 'lucide-react';
+import { ApiError, apiGet, apiPost } from '@/lib/api-client';
 import { createClient } from '@/lib/supabase/browser-client';
-import confetti from 'canvas-confetti';
 import type { Course } from '@/types/course';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   // 토스페이먼츠 파라미터
   const orderId = searchParams.get('orderId');
   const paymentKey = searchParams.get('paymentKey');
   const amount = searchParams.get('amount');
-  
+
   const [course, setCourse] = useState<Course | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,11 +45,11 @@ function PaymentSuccessContent() {
         };
         error?: string;
       }>('/api/payment/confirm', {
-          orderId,
-          paymentKey,
-          amount: parseInt(amount || '0'),
+        orderId,
+        paymentKey,
+        amount: Number.parseInt(amount || '0'),
       });
-      
+
       // 축하 애니메이션
       confetti({
         particleCount: 100,
@@ -72,12 +72,8 @@ function PaymentSuccessContent() {
 
   const loadCourseData = async (courseId: string) => {
     const supabase = createClient();
-    const { data } = await supabase
-      .from('courses')
-      .select('*')
-      .eq('id', courseId)
-      .single();
-    
+    const { data } = await supabase.from('courses').select('*').eq('id', courseId).single();
+
     if (data) {
       setCourse(data);
     }
@@ -102,14 +98,10 @@ function PaymentSuccessContent() {
               <span className="text-4xl">❌</span>
             </div>
             <CardTitle>결제 실패</CardTitle>
-            <CardDescription className="text-destructive">
-              {error}
-            </CardDescription>
+            <CardDescription className="text-destructive">{error}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button onClick={() => router.push('/courses')}>
-              강의 목록으로 돌아가기
-            </Button>
+            <Button onClick={() => router.push('/courses')}>강의 목록으로 돌아가기</Button>
           </CardContent>
         </Card>
       </div>
@@ -132,7 +124,7 @@ function PaymentSuccessContent() {
         <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full mb-6">
           <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
         </div>
-        
+
         <h1 className="text-3xl font-bold mb-4">결제가 완료되었습니다!</h1>
         <p className="text-lg text-muted-foreground">
           {course.title} 강의를 구매해주셔서 감사합니다.
@@ -142,9 +134,7 @@ function PaymentSuccessContent() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>구매 완료</CardTitle>
-          <CardDescription>
-            이제 모든 강의 콘텐츠에 접근하실 수 있습니다
-          </CardDescription>
+          <CardDescription>이제 모든 강의 콘텐츠에 접근하실 수 있습니다</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between py-2">
@@ -153,7 +143,7 @@ function PaymentSuccessContent() {
           </div>
           <div className="flex justify-between py-2">
             <span className="text-muted-foreground">강사</span>
-            <span className="font-medium">{course.instructor_name}</span>
+            <span className="font-medium">{course.instructorName}</span>
           </div>
           <div className="flex justify-between py-2">
             <span className="text-muted-foreground">결제 금액</span>
@@ -167,19 +157,15 @@ function PaymentSuccessContent() {
       </Card>
 
       <div className="space-y-4">
-        <Button 
-          size="lg" 
-          className="w-full"
-          onClick={() => router.push(`/learn/${course.id}`)}
-        >
+        <Button size="lg" className="w-full" onClick={() => router.push(`/learn/${course.id}`)}>
           <BookOpen className="w-4 h-4 mr-2" />
           바로 학습 시작하기
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
 
-        <Button 
+        <Button
           variant="outline"
-          size="lg" 
+          size="lg"
           className="w-full"
           onClick={() => router.push('/my/courses')}
         >

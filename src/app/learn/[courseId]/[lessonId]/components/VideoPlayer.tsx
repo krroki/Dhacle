@@ -1,23 +1,23 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import Hls from 'hls.js';
 import debounce from 'lodash.debounce';
+import {
+  Loader2,
+  Maximize,
+  Pause,
+  Play,
+  Settings,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize,
-  SkipBack,
-  SkipForward,
-  Settings,
-  Loader2
-} from 'lucide-react';
+import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 
 interface VideoPlayerProps {
@@ -37,12 +37,12 @@ export function VideoPlayer({
   title,
   onProgress,
   initialProgress = 0,
-  accessToken
+  accessToken,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(initialProgress);
   const [duration, setDuration] = useState(0);
@@ -73,7 +73,7 @@ export function VideoPlayer({
 
       hls.loadSource(streamUrl);
       hls.attachMedia(video);
-      
+
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsLoading(false);
         if (initialProgress > 0) {
@@ -143,8 +143,8 @@ export function VideoPlayer({
     const saveProgress = debounce(async (time: number) => {
       try {
         await apiPost('/api/lessons/progress', {
-            lessonId,
-            progress: Math.floor(time)
+          lessonId,
+          progress: Math.floor(time),
         });
         onProgress?.(time);
       } catch (error) {
@@ -155,7 +155,7 @@ export function VideoPlayer({
     const handleTimeUpdate = () => {
       const video = videoRef.current;
       if (!video) return;
-      
+
       const time = video.currentTime;
       setCurrentTime(time);
       saveProgress(time);
@@ -182,7 +182,7 @@ export function VideoPlayer({
       const video = videoRef.current;
       if (!video) return;
 
-      switch(e.key) {
+      switch (e.key) {
         case ' ':
           e.preventDefault();
           togglePlay();
@@ -197,11 +197,11 @@ export function VideoPlayer({
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setVolume(v => Math.min(1, v + 0.1));
+          setVolume((v) => Math.min(1, v + 0.1));
           break;
         case 'ArrowDown':
           e.preventDefault();
-          setVolume(v => Math.max(0, v - 0.1));
+          setVolume((v) => Math.max(0, v - 0.1));
           break;
         case 'f':
           e.preventDefault();
@@ -315,7 +315,7 @@ export function VideoPlayer({
     const currentIndex = rates.indexOf(playbackRate);
     const nextIndex = (currentIndex + 1) % rates.length;
     const newRate = rates[nextIndex];
-    
+
     video.playbackRate = newRate;
     setPlaybackRate(newRate);
   };
@@ -338,9 +338,9 @@ export function VideoPlayer({
         <video
           ref={videoRef}
           className="w-full h-full"
-          playsInline
+          playsInline={true}
           controlsList="nodownload noremoteplayback"
-          disablePictureInPicture
+          disablePictureInPicture={true}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
@@ -361,8 +361,8 @@ export function VideoPlayer({
         {/* 컨트롤 오버레이 */}
         <div
           className={cn(
-            "absolute inset-0 flex flex-col justify-between transition-opacity",
-            showControls ? "opacity-100" : "opacity-0"
+            'absolute inset-0 flex flex-col justify-between transition-opacity',
+            showControls ? 'opacity-100' : 'opacity-0'
           )}
         >
           {/* 상단 바 */}
@@ -405,11 +405,7 @@ export function VideoPlayer({
                   onClick={togglePlay}
                   className="text-white hover:bg-white/20"
                 >
-                  {isPlaying ? (
-                    <Pause className="w-4 h-4" />
-                  ) : (
-                    <Play className="w-4 h-4" />
-                  )}
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
 
                 {/* 되감기/빨리감기 */}

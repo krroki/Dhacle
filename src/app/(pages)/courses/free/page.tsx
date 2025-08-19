@@ -1,10 +1,10 @@
-import React from 'react';
-import { Metadata } from 'next';
+import { ArrowLeft, Gift } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
 import { getFreeCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../components/CourseGrid';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Gift } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '무료 강의 | 디하클',
@@ -41,8 +41,7 @@ export default async function FreeCoursesPage(): Promise<React.JSX.Element> {
           </div>
           <h1 className="text-4xl font-bold mb-4">무료 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            YouTube Shorts 입문자를 위한 무료 강의를 제공합니다.
-            기초부터 차근차근 시작해보세요!
+            YouTube Shorts 입문자를 위한 무료 강의를 제공합니다. 기초부터 차근차근 시작해보세요!
           </p>
         </div>
 
@@ -62,9 +61,7 @@ export default async function FreeCoursesPage(): Promise<React.JSX.Element> {
           </div>
           <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-lg p-4 text-center">
             <h3 className="font-semibold mb-2">🎯 실습 중심</h3>
-            <p className="text-sm text-muted-foreground">
-              바로 적용 가능한 실전 노하우 제공
-            </p>
+            <p className="text-sm text-muted-foreground">바로 적용 가능한 실전 노하우 제공</p>
           </div>
         </div>
       </div>
@@ -74,7 +71,8 @@ export default async function FreeCoursesPage(): Promise<React.JSX.Element> {
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 무료 강의
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 무료
+              강의
             </p>
           </div>
           <CourseGrid initialCourses={courses} />

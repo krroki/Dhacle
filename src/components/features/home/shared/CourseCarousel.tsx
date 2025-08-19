@@ -7,8 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { CourseCard } from './CourseCard';
 import type { Course } from '@/lib/dummy-data/home';
+import { CourseCard } from './CourseCard';
 
 interface CourseCarouselProps {
   courses: Course[];
@@ -26,7 +26,10 @@ export function CourseCarousel({ courses, showNewBadge = false }: CourseCarousel
     >
       <CarouselContent className="-ml-2 md:-ml-4">
         {courses.map((course) => (
-          <CarouselItem key={course.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+          <CarouselItem
+            key={course.id}
+            className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4"
+          >
             <CourseCard course={course} showNewBadge={showNewBadge} />
           </CarouselItem>
         ))}

@@ -1,37 +1,33 @@
+import { Activity, Award, BookOpen, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server-client';
-import { 
-  Users, 
-  BookOpen, 
-  DollarSign, 
-  TrendingUp,
-  Activity,
-  Award
-} from 'lucide-react';
 
 async function getStats() {
   const supabase = await createClient();
-  
+
   // 통계 데이터 조회
   const [
     { count: totalCourses },
     { count: totalUsers },
     { count: totalPurchases },
-    { data: revenueData }
+    { data: revenueData },
   ] = await Promise.all([
     supabase.from('courses').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('purchases').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-    supabase.from('purchases').select('final_amount').eq('status', 'completed')
+    supabase
+      .from('purchases')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'completed'),
+    supabase.from('purchases').select('finalAmount').eq('status', 'completed'),
   ]);
 
-  const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.final_amount || 0), 0) || 0;
+  const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.finalAmount || 0), 0) || 0;
 
   return {
     totalCourses: totalCourses || 0,
     totalUsers: totalUsers || 0,
     totalPurchases: totalPurchases || 0,
-    totalRevenue
+    totalRevenue,
   };
 }
 
@@ -44,38 +40,36 @@ export default async function AdminDashboard() {
       value: stats.totalCourses,
       icon: BookOpen,
       description: '활성화된 강의 수',
-      color: 'text-blue-600'
+      color: 'text-blue-600',
     },
     {
       title: '전체 수강생',
       value: stats.totalUsers.toLocaleString(),
       icon: Users,
       description: '가입한 사용자 수',
-      color: 'text-green-600'
+      color: 'text-green-600',
     },
     {
       title: '총 매출',
       value: `₩${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       description: '누적 매출액',
-      color: 'text-purple-600'
+      color: 'text-purple-600',
     },
     {
       title: '구매 건수',
       value: stats.totalPurchases,
       icon: TrendingUp,
       description: '완료된 구매',
-      color: 'text-orange-600'
-    }
+      color: 'text-orange-600',
+    },
   ];
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold">관리자 대시보드</h1>
-        <p className="text-muted-foreground mt-2">
-          Dhacle 플랫폼 운영 현황을 한눈에 확인하세요
-        </p>
+        <p className="text-muted-foreground mt-2">Dhacle 플랫폼 운영 현황을 한눈에 확인하세요</p>
       </div>
 
       {/* 통계 카드 */}
@@ -85,16 +79,12 @@ export default async function AdminDashboard() {
           return (
             <Card key={stat.title}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className={cn("w-4 h-4", stat.color)} />
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <Icon className={cn('w-4 h-4', stat.color)} />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stat.description}
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
               </CardContent>
             </Card>
           );

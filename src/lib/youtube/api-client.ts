@@ -1,12 +1,12 @@
 // OAuth removed - using API Key system
-import type { 
+import type {
   FlattenedYouTubeVideo,
-  YouTubeChannel, 
+  OAuthToken,
+  YouTubeChannel,
   YouTubeSearchFilters,
-  OAuthToken 
 } from '@/types/youtube';
-import { cacheManager, CacheManager } from './cache';
-import { queueManager, JobType, JobPriority } from './queue-manager';
+import { CacheManager, cacheManager } from './cache';
+import { JobPriority, JobType, queueManager } from './queue-manager';
 
 /**
  * YouTube Data API v3 클라이언트
@@ -14,24 +14,24 @@ import { queueManager, JobType, JobPriority } from './queue-manager';
  */
 export class YouTubeAPIClient {
   private static readonly BASE_URL = 'https://www.googleapis.com/youtube/v3';
-  
+
   // API 할당량 비용 (YouTube Data API v3 기준)
   private static readonly QUOTA_COSTS = {
-    search: 100,           // search.list
-    videos: 1,            // videos.list (per ID)
-    channels: 1,          // channels.list
-    playlists: 1,         // playlists.list
-    playlistItems: 1,     // playlistItems.list
-    comments: 1,          // comments.list
-    commentThreads: 1,    // commentThreads.list
+    search: 100, // search.list
+    videos: 1, // videos.list (per ID)
+    channels: 1, // channels.list
+    playlists: 1, // playlists.list
+    playlistItems: 1, // playlistItems.list
+    comments: 1, // comments.list
+    commentThreads: 1, // commentThreads.list
   };
 
   private token?: OAuthToken;
   private apiKey?: string;
   private onTokenRefresh?: (token: OAuthToken) => Promise<void>;
   private onQuotaUpdate?: (units: number) => Promise<void>;
-  private useCache: boolean = true;
-  private useBatchQueue: boolean = false;
+  private useCache = true;
+  private useBatchQueue = false;
   private userId?: string;
 
   constructor(options: {
@@ -62,7 +62,7 @@ export class YouTubeAPIClient {
   ): Promise<T> {
     // 캐시 키 생성
     const cacheKey = cacheManager.generateKey(endpoint, params);
-    
+
     // 캐시 확인 (캐싱 활성화된 경우)
     if (this.useCache) {
       const cached = await cacheManager.get<T>(cacheKey);
@@ -76,7 +76,7 @@ export class YouTubeAPIClient {
     if (this.useBatchQueue) {
       // 작업 유형 매핑
       const jobType = this.mapEndpointToJobType(endpoint);
-      
+
       if (jobType) {
         const job = await queueManager.addJob({
           type: jobType,
@@ -112,14 +112,14 @@ export class YouTubeAPIClient {
     quotaCost: number
   ): Promise<T> {
     // OAuth 시스템이 제거되었습니다 - API Key만 사용
-    
+
     // API 키 사용
     if (this.apiKey) {
       const url = new URL(`${YouTubeAPIClient.BASE_URL}/${endpoint}`);
-      
+
       // API 키 추가
       url.searchParams.append('key', this.apiKey);
-      
+
       // 파라미터 추가
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -129,15 +129,14 @@ export class YouTubeAPIClient {
 
       const response = await fetch(url.toString(), {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       });
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(
-          error.error?.message || 
-          `YouTube API error: ${response.status} ${response.statusText}`
+          error.error?.message || `YouTube API error: ${response.status} ${response.statusText}`
         );
       }
 
@@ -157,10 +156,10 @@ export class YouTubeAPIClient {
    */
   private mapEndpointToJobType(endpoint: string): JobType | null {
     const mapping: Record<string, JobType> = {
-      'search': JobType.SEARCH,
-      'videos': JobType.VIDEO_DETAILS,
-      'channels': JobType.CHANNEL_DETAILS,
-      'playlistItems': JobType.PLAYLIST_ITEMS,
+      search: JobType.SEARCH,
+      videos: JobType.VIDEO_DETAILS,
+      channels: JobType.CHANNEL_DETAILS,
+      playlistItems: JobType.PLAYLIST_ITEMS,
     };
 
     return mapping[endpoint] || null;
@@ -176,7 +175,7 @@ export class YouTubeAPIClient {
 
     for (let i = 0; i < maxAttempts; i++) {
       const job = await queueManager.getJobStatus(jobId, jobType);
-      
+
       if (job?.finishedOn) {
         if (job.failedReason) {
           throw new Error(`Job failed: ${job.failedReason}`);
@@ -184,7 +183,7 @@ export class YouTubeAPIClient {
         return job.returnvalue as T;
       }
 
-      await new Promise(resolve => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
 
     throw new Error('Job timeout');
@@ -236,28 +235,22 @@ export class YouTubeAPIClient {
       items: { id: { videoId: string } }[];
       nextPageToken?: string;
       pageInfo?: { totalResults: number };
-    }>(
-      'search',
-      params,
-      YouTubeAPIClient.QUOTA_COSTS.search
-    );
+    }>('search', params, YouTubeAPIClient.QUOTA_COSTS.search);
 
     // 검색 결과를 YouTubeVideo 형식으로 변환
     const videoIds = response.items.map((item) => item.id.videoId).join(',');
-    
+
     // 비디오 상세 정보 가져오기 (통계, 재생시간 등)
     if (videoIds) {
       const videosResponse = await this.getVideos(videoIds);
-      
+
       // 검색 결과와 상세 정보 병합
-      const videosMap = new Map(
-        videosResponse.items.map(video => [video.id, video])
-      );
-      
+      const videosMap = new Map(videosResponse.items.map((video) => [video.id, video]));
+
       const items = response.items
         .map((item) => videosMap.get(item.id.videoId))
         .filter(Boolean) as FlattenedYouTubeVideo[];
-      
+
       return {
         items,
         nextPageToken: response.nextPageToken,
@@ -299,24 +292,26 @@ export class YouTubeAPIClient {
       const statistics = videoItem.statistics as Record<string, unknown> | undefined;
       const contentDetails = videoItem.contentDetails as Record<string, unknown> | undefined;
       const status = videoItem.status as Record<string, unknown> | undefined;
-      
+
       return {
         id: String(videoItem.id || ''),
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
         thumbnail: String(
-          ((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)?.url || 
-          ((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)?.url || 
-          ''
+          ((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)
+            ?.url ||
+            ((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)
+              ?.url ||
+            ''
         ),
         channelId: String(snippet?.channelId || ''),
         channelTitle: String(snippet?.channelTitle || ''),
         publishedAt: String(snippet?.publishedAt || ''),
         duration: this.parseDuration(String(contentDetails?.duration || '')),
-        viewCount: parseInt(String(statistics?.viewCount || '0')),
-        likeCount: parseInt(String(statistics?.likeCount || '0')),
-        commentCount: parseInt(String(statistics?.commentCount || '0')),
-        tags: Array.isArray(snippet?.tags) ? snippet.tags as string[] : [],
+        viewCount: Number.parseInt(String(statistics?.viewCount || '0')),
+        likeCount: Number.parseInt(String(statistics?.likeCount || '0')),
+        commentCount: Number.parseInt(String(statistics?.commentCount || '0')),
+        tags: Array.isArray(snippet?.tags) ? (snippet.tags as string[]) : [],
         categoryId: String(snippet?.categoryId || ''),
         defaultLanguage: String(snippet?.defaultLanguage || ''),
         defaultAudioLanguage: String(snippet?.defaultAudioLanguage || ''),
@@ -381,15 +376,21 @@ export class YouTubeAPIClient {
         publishedAt: String(snippet?.publishedAt || ''),
         thumbnails: {
           high: {
-            url: String(((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)?.url || ''),
+            url: String(
+              ((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)
+                ?.url || ''
+            ),
             width: 800,
-            height: 800
+            height: 800,
           },
           default: {
-            url: String(((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)?.url || ''),
+            url: String(
+              ((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)
+                ?.url || ''
+            ),
             width: 88,
-            height: 88
-          }
+            height: 88,
+          },
         },
         country: String(snippet?.country || ''),
       },
@@ -405,7 +406,10 @@ export class YouTubeAPIClient {
   /**
    * 재생목록의 영상 가져오기
    */
-  async getPlaylistItems(playlistId: string, pageToken?: string): Promise<{
+  async getPlaylistItems(
+    playlistId: string,
+    pageToken?: string
+  ): Promise<{
     items: FlattenedYouTubeVideo[];
     nextPageToken?: string;
     totalResults: number;
@@ -440,7 +444,7 @@ export class YouTubeAPIClient {
     // 비디오 상세 정보 가져오기
     if (videoIds) {
       const videosResponse = await this.getVideos(videoIds);
-      
+
       return {
         items: videosResponse.items,
         nextPageToken: response.nextPageToken,
@@ -460,24 +464,21 @@ export class YouTubeAPIClient {
    */
   private parseDuration(duration?: string): number {
     if (!duration) return 0;
-    
+
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;
-    
-    const hours = parseInt(match[1] || '0');
-    const minutes = parseInt(match[2] || '0');
-    const seconds = parseInt(match[3] || '0');
-    
+
+    const hours = Number.parseInt(match[1] || '0');
+    const minutes = Number.parseInt(match[2] || '0');
+    const seconds = Number.parseInt(match[3] || '0');
+
     return hours * 3600 + minutes * 60 + seconds;
   }
 
   /**
    * 인증 방법 업데이트
    */
-  updateAuth(options: {
-    token?: OAuthToken;
-    apiKey?: string;
-  }) {
+  updateAuth(options: { token?: OAuthToken; apiKey?: string }) {
     if (options.token) {
       this.token = options.token;
     }
@@ -489,7 +490,10 @@ export class YouTubeAPIClient {
   /**
    * 할당량 비용 계산
    */
-  static calculateQuotaCost(operation: keyof typeof YouTubeAPIClient.QUOTA_COSTS, count: number = 1): number {
+  static calculateQuotaCost(
+    operation: keyof typeof YouTubeAPIClient.QUOTA_COSTS,
+    count = 1
+  ): number {
     return (YouTubeAPIClient.QUOTA_COSTS[operation] || 0) * count;
   }
 }

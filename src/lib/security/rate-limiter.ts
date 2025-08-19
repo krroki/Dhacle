@@ -1,7 +1,7 @@
 /**
  * 🔐 Rate Limiter
  * Wave 3: API 호출 제한 구현
- * 
+ *
  * IP 기반 및 사용자 기반 rate limiting을 제공합니다.
  * 메모리 저장소를 사용하여 간단하게 구현되었습니다.
  */
@@ -16,7 +16,7 @@ class RateLimiter {
   private readonly windowMs: number;
   private readonly maxRequests: number;
 
-  constructor(windowMs: number = 60000, maxRequests: number = 60) {
+  constructor(windowMs = 60000, maxRequests = 60) {
     this.windowMs = windowMs;
     this.maxRequests = maxRequests;
 
@@ -44,7 +44,7 @@ class RateLimiter {
         count: 1,
         resetTime: now + this.windowMs,
       });
-      
+
       return {
         allowed: true,
         remaining: this.maxRequests - 1,
@@ -88,7 +88,7 @@ class RateLimiter {
       }
     });
 
-    expiredKeys.forEach(key => this.store.delete(key));
+    expiredKeys.forEach((key) => this.store.delete(key));
   }
 
   /**
@@ -138,7 +138,7 @@ export function getClientIp(request: Request): string {
 // Rate limit 응답 생성 헬퍼
 export function createRateLimitResponse(resetTime: number): Response {
   const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
-  
+
   return new Response(
     JSON.stringify({
       error: 'Too many requests. Please try again later.',

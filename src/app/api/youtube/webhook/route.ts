@@ -3,9 +3,7 @@
  * Handles verification callbacks and notifications from YouTube
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
 
 /**
@@ -14,34 +12,20 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
  */
 export async function GET(request: NextRequest) {
   try {
-
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-
+    // Webhook endpoints must be public (no authentication required)
+    // YouTube servers will call this without authentication
     const searchParams = request.nextUrl.searchParams;
-    
+
     // Extract verification parameters
     const mode = searchParams.get('hub.mode');
     const topic = searchParams.get('hub.topic');
     const challenge = searchParams.get('hub.challenge');
-    const leaseSeconds = searchParams.get('hub.lease_seconds');
+    const leaseSeconds = searchParams.get('hub.leaseSeconds');
 
     // Validate required parameters
     if (!mode || !topic || !challenge) {
       console.error('Missing verification parameters:', { mode, topic, challenge });
-      return NextResponse.json(
-        { error: 'Missing required parameters' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
     // Verify the callback
@@ -49,7 +33,7 @@ export async function GET(request: NextRequest) {
       mode,
       topic,
       challenge,
-      lease_seconds: leaseSeconds || undefined
+      leaseSeconds: leaseSeconds || undefined,
     });
 
     if (result.success && result.challenge) {
@@ -58,22 +42,15 @@ export async function GET(request: NextRequest) {
       return new NextResponse(result.challenge, {
         status: 200,
         headers: {
-          'Content-Type': 'text/plain'
-        }
+          'Content-Type': 'text/plain',
+        },
       });
-    } else {
-      console.error('Webhook verification failed:', result.error);
-      return NextResponse.json(
-        { error: result.error || 'Verification failed' },
-        { status: 404 }
-      );
     }
+    console.error('Webhook verification failed:', result.error);
+    return NextResponse.json({ error: result.error || 'Verification failed' }, { status: 404 });
   } catch (error) {
     console.error('Webhook GET error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -83,77 +60,50 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-
-  // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return new Response(
-      JSON.stringify({ error: 'User not authenticated' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-
+    // Webhook endpoints must be public (no authentication required)
+    // YouTube servers will call this without authentication
+    
     // Get the raw body
     const body = await request.text();
-    
+
     // Get HMAC signature from headers
     const signature = request.headers.get('x-hub-signature') || null;
-    
+
     // Extract channel ID from the XML (simplified parsing)
     const channelIdMatch = body.match(/<yt:channelId>([^<]+)<\/yt:channelId>/);
-    
+
     if (!channelIdMatch) {
       console.error('No channel ID found in notification');
-      return NextResponse.json(
-        { error: 'Invalid notification format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
     }
-    
+
     const channelId = channelIdMatch[1];
-    
+
     // Process the notification
-    const result = await pubsubManager.processNotification(
-      body,
-      signature,
-      channelId
-    );
-    
+    const result = await pubsubManager.processNotification(body, signature, channelId);
+
     if (result.success) {
       console.log('Notification processed:', {
         channelId,
-        video: result.video
+        video: result.video,
       });
-      
+
       // Trigger any additional processing here
       // For example, update statistics, send alerts, etc.
       if (result.video) {
         await handleVideoUpdate(result.video);
       }
-      
+
       // Hub expects 2xx response
-      return NextResponse.json(
-        { success: true },
-        { status: 200 }
-      );
-    } else {
-      console.error('Notification processing failed:', result.error);
-      return NextResponse.json(
-        { error: result.error || 'Processing failed' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: true }, { status: 200 });
     }
+    console.error('Notification processing failed:', result.error);
+    return NextResponse.json({ error: result.error || 'Processing failed' }, { status: 400 });
   } catch (error) {
     console.error('Webhook POST error:', error);
     // Return 200 to prevent hub from retrying
     // Log the error for debugging
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 200 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 200 });
   }
 }
 
@@ -165,37 +115,37 @@ async function handleVideoUpdate(video: unknown) {
     // Import monitoring system dynamically to avoid circular dependencies
     const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
     const scheduler = new MonitoringScheduler();
-    
+
     // Check if this video triggers any alerts
     // Note: Alert checking would be done through AlertRuleEngine
     // const alertEngine = new AlertRuleEngine(supabase);
     // await alertEngine.checkVideoAgainstRules(video, rules);
-    
+
     // Type guard to check if video has expected properties
     const isVideoObject = (v: unknown): v is { videoId?: string; deleted?: boolean } => {
       return typeof v === 'object' && v !== null;
     };
-    
+
     // Update video statistics if needed
     if (isVideoObject(video) && video.videoId && !video.deleted) {
       // Fetch latest statistics from YouTube API
       // This would need to be implemented with proper YouTube API integration
       // const apiClient = new YouTubeAPIClient();
       // const videoData = await apiClient.getVideoDetails(video.videoId);
-      
+
       // For now, we'll just log the update
       console.log(`Video update received for ${video.videoId}`);
-        
-        // TODO: Implement proper video data fetching and storage
-        // This would require:
-        // 1. Fetching video details from YouTube API
-        // 2. Storing the data in Supabase
-        // For now, we just acknowledge the update
-        
-        // const { createClient } = await import('@/lib/supabase/client');
-        // const supabase = createClient();
-        // await supabase.from('videos').upsert({...})
-        // await supabase.from('video_stats').insert({...})
+
+      // TODO: Implement proper video data fetching and storage
+      // This would require:
+      // 1. Fetching video details from YouTube API
+      // 2. Storing the data in Supabase
+      // For now, we just acknowledge the update
+
+      // const { createClient } = await import('@/lib/supabase/client');
+      // const supabase = createClient();
+      // await supabase.from('videos').upsert({...})
+      // await supabase.from('videoStats').insert({...})
     }
   } catch (error) {
     console.error('Error handling video update:', error);

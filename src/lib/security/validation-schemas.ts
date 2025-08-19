@@ -1,7 +1,7 @@
 /**
  * 🔐 Zod Validation Schemas
  * Wave 3: 입력 검증 스키마 정의
- * 
+ *
  * 모든 API 엔드포인트에 대한 입력 검증 스키마를 정의합니다.
  */
 
@@ -45,7 +45,8 @@ export const updateProfileSchema = z.object({
 
 // 사용자명 체크
 export const checkUsernameSchema = z.object({
-  username: z.string()
+  username: z
+    .string()
     .min(3, '사용자명은 3자 이상이어야 합니다.')
     .max(30, '사용자명은 30자 이내여야 합니다.')
     .regex(/^[a-zA-Z0-9_-]+$/, '영문, 숫자, 언더스코어, 하이픈만 사용 가능합니다.'),
@@ -73,7 +74,7 @@ export const youtubeSearchSchema = z.object({
 export const addFavoriteSchema = z.object({
   video_id: z.string().min(1, '비디오 ID가 필요합니다.'),
   title: z.string().min(1).max(500),
-  channel_title: z.string().max(200).optional(),
+  channelTitle: z.string().max(200).optional(),
   thumbnail_url: urlSchema.optional(),
 });
 
@@ -103,15 +104,15 @@ export const createRevenueProofSchema = z.object({
   description: z.string().min(10, '설명은 10자 이상이어야 합니다.').max(2000),
   amount: z.number().positive('금액은 양수여야 합니다.').max(1000000000),
   currency: z.enum(['KRW', 'USD', 'EUR', 'JPY']).default('KRW'),
-  proof_date: dateSchema,
-  image_url: urlSchema.optional(),
+  proofDate: dateSchema,
+  imageUrl: urlSchema.optional(),
   is_public: z.boolean().default(true),
 });
 
 // 댓글 작성
 export const createCommentSchema = z.object({
   content: z.string().min(1, '댓글을 입력해주세요.').max(500),
-  parent_id: uuidSchema.optional(),
+  parentId: uuidSchema.optional(),
 });
 
 // ============================================
@@ -135,8 +136,8 @@ export const createPostSchema = z.object({
 export const createPaymentSchema = z.object({
   course_id: uuidSchema,
   amount: z.number().positive().int(),
-  coupon_code: z.string().max(50).optional(),
-  payment_method: z.enum(['card', 'transfer', 'virtual_account', 'mobile']),
+  couponCode: z.string().max(50).optional(),
+  paymentMethod: z.enum(['card', 'transfer', 'virtualAccount', 'mobile']),
 });
 
 // 쿠폰 검증
@@ -159,15 +160,15 @@ export async function validateRequestBody<T>(
   try {
     const body = await request.json();
     const result = schema.safeParse(body);
-    
+
     if (!result.success) {
-      const errors = result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
+      const errors = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`);
       return {
         success: false,
         error: errors.join(', '),
       };
     }
-    
+
     return {
       success: true,
       data: result.data,
@@ -188,7 +189,7 @@ export function validateQueryParams<T>(
   schema: z.ZodSchema<T>
 ): { success: true; data: T } | { success: false; error: string } {
   const data: Record<string, unknown> = {};
-  
+
   params.forEach((value, key) => {
     // 숫자로 변환 가능한 경우 변환
     if (!isNaN(Number(value))) {
@@ -199,17 +200,17 @@ export function validateQueryParams<T>(
       data[key] = value;
     }
   });
-  
+
   const result = schema.safeParse(data);
-  
+
   if (!result.success) {
-    const errors = result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
+    const errors = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`);
     return {
       success: false,
       error: errors.join(', '),
     };
   }
-  
+
   return {
     success: true,
     data: result.data,
@@ -223,7 +224,7 @@ export function createValidationErrorResponse(error: string): Response {
   return new Response(
     JSON.stringify({
       error: `입력값 검증 실패: ${error}`,
-      type: 'validation_error',
+      type: 'validationError',
     }),
     {
       status: 400,

@@ -1,22 +1,21 @@
-import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 
 const tossSecretKey = process.env.TOSS_SECRET_KEY;
 
 export async function POST(req: NextRequest) {
-  
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) {
     return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
+      { error: 'User not authenticated' },
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
   try {
@@ -24,25 +23,19 @@ export async function POST(req: NextRequest) {
     const { paymentKey, orderId, amount } = body;
 
     if (!paymentKey || !orderId || !amount) {
-      return NextResponse.json(
-        { error: '필수 파라미터가 누락되었습니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
     }
 
     if (!tossSecretKey) {
       console.error('토스페이먼츠 시크릿 키가 설정되지 않았습니다.');
-      return NextResponse.json(
-        { error: '결제 시스템 설정 오류' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
     }
 
     // 토스페이먼츠 결제 승인 API 호출
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -57,9 +50,9 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       console.error('토스페이먼츠 결제 승인 실패:', paymentData);
       return NextResponse.json(
-        { 
+        {
           error: paymentData.message || '결제 승인에 실패했습니다.',
-          code: paymentData.code 
+          code: paymentData.code,
         },
         { status: response.status }
       );
@@ -73,10 +66,10 @@ export async function POST(req: NextRequest) {
       .from('purchases')
       .update({
         status: 'completed',
-        completed_at: new Date().toISOString(),
-        payment_key: paymentKey, // 토스페이먼츠 결제 키 저장
+        completedAt: new Date().toISOString(),
+        paymentKey: paymentKey, // 토스페이먼츠 결제 키 저장
       })
-      .eq('payment_intent_id', orderId)
+      .eq('paymentIntentId', orderId)
       .select()
       .single();
 
@@ -86,7 +79,7 @@ export async function POST(req: NextRequest) {
       await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
+          Authorization: `Basic ${Buffer.from(tossSecretKey + ':').toString('base64')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -94,37 +87,35 @@ export async function POST(req: NextRequest) {
         }),
       });
 
-      return NextResponse.json(
-        { error: '주문 처리 중 오류가 발생했습니다.' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '주문 처리 중 오류가 발생했습니다.' }, { status: 500 });
     }
 
     if (purchase) {
       // 수강 등록
-      await supabase
-        .from('enrollments')
-        .upsert({
+      await supabase.from('enrollments').upsert(
+        {
           user_id: purchase.user_id,
           course_id: purchase.course_id,
-          enrolled_at: new Date().toISOString(),
+          enrolledAt: new Date().toISOString(),
           is_active: true,
-        }, {
+        },
+        {
           onConflict: 'user_id,course_id',
-        });
+        }
+      );
 
       // 강의 수강생 수 증가
       const { data: course } = await supabase
         .from('courses')
-        .select('student_count')
+        .select('studentCount')
         .eq('id', purchase.course_id)
         .single();
 
       if (course) {
         await supabase
           .from('courses')
-          .update({ 
-            student_count: (course.student_count || 0) + 1 
+          .update({
+            studentCount: (course.studentCount || 0) + 1,
           })
           .eq('id', purchase.course_id);
       }
@@ -144,9 +135,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('결제 승인 처리 중 오류:', error);
-    return NextResponse.json(
-      { error: '결제 처리 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

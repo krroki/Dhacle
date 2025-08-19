@@ -1,9 +1,9 @@
 // revenue-proof.ts
 // 수익인증 API 클라이언트 함수
 
-import type { RevenueProof } from '@/types/revenue-proof';
+import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import type { CreateProofInput } from '@/lib/validations/revenue-proof';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
+import type { RevenueProof } from '@/types/revenue-proof';
 
 // API 기본 URL
 const API_BASE = '/api/revenue-proof';
@@ -23,12 +23,12 @@ export async function getRevenueProofs(params?: {
   };
 }> {
   const searchParams = new URLSearchParams();
-  
+
   if (params?.platform) searchParams.append('platform', params.platform);
   if (params?.filter) searchParams.append('filter', params.filter);
   if (params?.page) searchParams.append('page', params.page.toString());
   if (params?.limit) searchParams.append('limit', params.limit.toString());
-  
+
   try {
     return await apiGet<{
       data: RevenueProof[];
@@ -52,34 +52,37 @@ export async function getRevenueProof(id: string) {
 // 인증 생성
 export async function createRevenueProof(data: CreateProofInput) {
   const formData = new FormData();
-  
+
   formData.append('title', data.title);
   formData.append('amount', data.amount.toString());
   formData.append('platform', data.platform);
   formData.append('content', data.content);
   formData.append('signature', data.signature);
   formData.append('screenshot', data.screenshot);
-  
+
   const response = await fetch(API_BASE, {
     method: 'POST',
     body: formData,
     credentials: 'same-origin',
   });
-  
+
   const result = await response.json();
-  
+
   if (!response.ok) {
     return { error: result.error || 'Failed to create revenue proof', data: null };
   }
-  
+
   return { error: null, data: result };
 }
 
 // 인증 수정 (24시간 내)
-export async function updateRevenueProof(id: string, data: {
-  title?: string;
-  content?: string;
-}) {
+export async function updateRevenueProof(
+  id: string,
+  data: {
+    title?: string;
+    content?: string;
+  }
+) {
   return await apiPut(`${API_BASE}/${id}`, data);
 }
 
@@ -94,7 +97,10 @@ export async function toggleLike(proofId: string) {
 }
 
 // 댓글 작성
-export async function createComment(proofId: string, content: string): Promise<{
+export async function createComment(
+  proofId: string,
+  content: string
+): Promise<{
   id: string;
   proof_id: string;
   user_id: string;
@@ -121,11 +127,14 @@ export async function createComment(proofId: string, content: string): Promise<{
 }
 
 // 신고하기
-export async function reportProof(proofId: string, data: {
-  reason: string;
-  details?: string;
-  acknowledged: boolean;
-}) {
+export async function reportProof(
+  proofId: string,
+  data: {
+    reason: string;
+    details?: string;
+    acknowledged: boolean;
+  }
+) {
   return await apiPost(`${API_BASE}/${proofId}/report`, data);
 }
 
@@ -158,7 +167,10 @@ export async function getMyProofs() {
 }
 
 // 이미지 업로드 헬퍼 함수
-export async function uploadImage(file: File, bucket: string = 'revenue-proofs'): Promise<{
+export async function uploadImage(
+  file: File,
+  bucket = 'revenue-proofs'
+): Promise<{
   url: string;
   thumbnailUrl: string;
   blurDataUrl: string;
@@ -167,37 +179,37 @@ export async function uploadImage(file: File, bucket: string = 'revenue-proofs')
   const formData = new FormData();
   formData.append('file', file);
   formData.append('bucket', bucket);
-  
+
   const response = await fetch('/api/upload', {
     method: 'POST',
     body: formData,
     credentials: 'same-origin',
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new ApiError(error.error || 'Failed to upload image', 400);
   }
-  
+
   return response.json();
 }
 
 // 이미지 삭제 헬퍼 함수
-export async function deleteImage(path: string, bucket: string = 'revenue-proofs') {
+export async function deleteImage(path: string, bucket = 'revenue-proofs') {
   const params = new URLSearchParams({
     path,
-    bucket
+    bucket,
   });
-  
+
   const response = await fetch(`/api/upload?${params.toString()}`, {
     method: 'DELETE',
     credentials: 'same-origin',
   });
-  
+
   if (!response.ok) {
     const error = await response.json();
     throw new ApiError(error.error || 'Failed to delete image', 400);
   }
-  
+
   return response.json();
 }

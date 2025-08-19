@@ -1,4 +1,4 @@
-import { loadTossPayments, TossPaymentsInstance } from '@tosspayments/payment-sdk';
+import { loadTossPayments, type TossPaymentsInstance } from '@tosspayments/payment-sdk';
 
 // 토스페이먼츠 클라이언트 키
 const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
@@ -33,7 +33,7 @@ export const formatKRW = (amount: number): string => {
 };
 
 // 토스페이먼츠 결제 수단 타입
-export type PaymentMethod = 
+export type PaymentMethod =
   | '카드'
   | '가상계좌'
   | '계좌이체'
@@ -75,47 +75,44 @@ export interface TossPaymentOptions {
 export const getTossErrorMessage = (code: string): string => {
   const errorMessages: Record<string, string> = {
     // 공통 에러
-    'INVALID_CARD_COMPANY': '유효하지 않은 카드입니다.',
-    'INVALID_CARD_NUMBER': '카드 번호가 올바르지 않습니다.',
-    'INVALID_CARD_EXPIRATION': '카드 유효기간이 올바르지 않습니다.',
-    'EXCEED_MAX_AMOUNT': '결제 금액이 한도를 초과했습니다.',
-    'EXCEED_MAX_DAILY_AMOUNT': '일일 결제 한도를 초과했습니다.',
-    'EXCEED_MAX_MONTHLY_AMOUNT': '월 결제 한도를 초과했습니다.',
-    
+    INVALID_CARD_COMPANY: '유효하지 않은 카드입니다.',
+    INVALID_CARD_NUMBER: '카드 번호가 올바르지 않습니다.',
+    INVALID_CARD_EXPIRATION: '카드 유효기간이 올바르지 않습니다.',
+    EXCEED_MAX_AMOUNT: '결제 금액이 한도를 초과했습니다.',
+    EXCEED_MAX_DAILY_AMOUNT: '일일 결제 한도를 초과했습니다.',
+    EXCEED_MAX_MONTHLY_AMOUNT: '월 결제 한도를 초과했습니다.',
+
     // 카드 관련 에러
-    'CARD_LIMIT_EXCEEDED': '카드 한도를 초과했습니다.',
-    'CARD_DECLINED': '카드가 거부되었습니다.',
-    'EXPIRED_CARD': '만료된 카드입니다.',
-    'INCORRECT_CVC': 'CVC 번호가 올바르지 않습니다.',
-    'INSUFFICIENT_BALANCE': '잔액이 부족합니다.',
-    'LOST_OR_STOLEN_CARD': '분실 또는 도난 카드입니다.',
-    'RESTRICTED_CARD': '사용이 제한된 카드입니다.',
-    
+    CARD_LIMIT_EXCEEDED: '카드 한도를 초과했습니다.',
+    CARD_DECLINED: '카드가 거부되었습니다.',
+    EXPIRED_CARD: '만료된 카드입니다.',
+    INCORRECT_CVC: 'CVC 번호가 올바르지 않습니다.',
+    INSUFFICIENT_BALANCE: '잔액이 부족합니다.',
+    LOST_OR_STOLEN_CARD: '분실 또는 도난 카드입니다.',
+    RESTRICTED_CARD: '사용이 제한된 카드입니다.',
+
     // 간편결제 에러
-    'NOT_AVAILABLE_PAYMENT': '사용할 수 없는 결제 수단입니다.',
-    'PAYMENT_TIMEOUT': '결제 시간이 초과되었습니다.',
-    'USER_CANCEL': '사용자가 결제를 취소했습니다.',
-    
+    NOT_AVAILABLE_PAYMENT: '사용할 수 없는 결제 수단입니다.',
+    PAYMENT_TIMEOUT: '결제 시간이 초과되었습니다.',
+    USER_CANCEL: '사용자가 결제를 취소했습니다.',
+
     // 가상계좌 에러
-    'VIRTUAL_ACCOUNT_NOT_FOUND': '가상계좌를 찾을 수 없습니다.',
-    'VIRTUAL_ACCOUNT_EXPIRED': '가상계좌 입금 기한이 만료되었습니다.',
-    
+    VIRTUAL_ACCOUNT_NOT_FOUND: '가상계좌를 찾을 수 없습니다.',
+    VIRTUAL_ACCOUNT_EXPIRED: '가상계좌 입금 기한이 만료되었습니다.',
+
     // 시스템 에러
-    'INTERNAL_SERVER_ERROR': '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-    'NETWORK_ERROR': '네트워크 오류가 발생했습니다.',
-    'UNKNOWN_ERROR': '알 수 없는 오류가 발생했습니다.',
+    INTERNAL_SERVER_ERROR: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    NETWORK_ERROR: '네트워크 오류가 발생했습니다.',
+    UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
   };
 
   return errorMessages[code] || '결제 처리 중 오류가 발생했습니다.';
 };
 
 // 결제 요청 헬퍼 함수
-export const requestPayment = async (
-  method: PaymentMethod,
-  options: TossPaymentOptions
-) => {
+export const requestPayment = async (method: PaymentMethod, options: TossPaymentOptions) => {
   const tossPayments = await getTossPayments();
-  
+
   if (!tossPayments) {
     throw new Error('토스페이먼츠 초기화에 실패했습니다.');
   }
@@ -133,9 +130,10 @@ export const requestPayment = async (
       failUrl: options.failUrl,
       validHours: options.validHours,
       // 가상계좌 옵션
-      ...(method === '가상계좌' && options.virtualAccount && {
-        virtualAccount: options.virtualAccount,
-      }),
+      ...(method === '가상계좌' &&
+        options.virtualAccount && {
+          virtualAccount: options.virtualAccount,
+        }),
       // 현금영수증 옵션
       ...(options.cashReceipt && {
         cashReceipt: options.cashReceipt,
@@ -153,7 +151,7 @@ export const requestPayment = async (
 // 결제 위젯 헬퍼 함수 (더 간단한 UI를 원할 경우)
 export const createPaymentWidget = async (elementId: string) => {
   const tossPayments = await getTossPayments();
-  
+
   if (!tossPayments) {
     throw new Error('토스페이먼츠 초기화에 실패했습니다.');
   }

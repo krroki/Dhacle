@@ -1,24 +1,24 @@
 'use client';
 
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Database,
+  Globe,
+  Key,
+  Loader2,
+  RefreshCw,
+  Settings,
+  Shield,
+  XCircle,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle,
-  RefreshCw,
-  Loader2,
-  Settings,
-  Key,
-  Globe,
-  Database,
-  Shield
-} from 'lucide-react';
+import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 
 interface EnvironmentVariable {
   name: string;
@@ -42,7 +42,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     warnings: string[];
     progress: number;
   } | null>(null);
-  
+
   const [variables, setVariables] = useState<EnvironmentVariable[]>([
     {
       name: 'NEXT_PUBLIC_SITE_URL',
@@ -50,7 +50,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       required: true,
       status: 'missing',
       description: 'OAuth 리디렉션 및 API 통신에 필요한 사이트 URL',
-      icon: <Globe className="h-4 w-4" />
+      icon: <Globe className="h-4 w-4" />,
     },
     {
       name: 'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
@@ -58,7 +58,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       required: true,
       status: 'missing',
       description: 'Google OAuth 2.0 클라이언트 ID',
-      icon: <Key className="h-4 w-4" />
+      icon: <Key className="h-4 w-4" />,
     },
     {
       name: 'GOOGLE_CLIENT_SECRET',
@@ -66,7 +66,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       required: true,
       status: 'missing',
       description: 'Google OAuth 2.0 클라이언트 시크릿',
-      icon: <Shield className="h-4 w-4" />
+      icon: <Shield className="h-4 w-4" />,
     },
     {
       name: 'YOUTUBE_API_KEY',
@@ -74,7 +74,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       required: true,
       status: 'missing',
       description: 'YouTube Data API v3 액세스 키',
-      icon: <Key className="h-4 w-4" />
+      icon: <Key className="h-4 w-4" />,
     },
     {
       name: 'ENCRYPTION_KEY',
@@ -82,38 +82,40 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       required: true,
       status: 'missing',
       description: '토큰 암호화를 위한 32자 이상의 키',
-      icon: <Shield className="h-4 w-4" />
-    }
+      icon: <Shield className="h-4 w-4" />,
+    },
   ]);
 
   const checkEnvironment = async () => {
     setIsChecking(true);
-    
+
     try {
-      const data = await apiGet<{ 
-        missingVars?: string[]; 
-        hasAllRequired: boolean; 
-        error?: string 
+      const data = await apiGet<{
+        missingVars?: string[];
+        hasAllRequired: boolean;
+        error?: string;
       }>('/api/youtube/auth/check-config');
-      
+
       // 변수 상태 업데이트
-      const updatedVars = variables.map(v => ({
+      const updatedVars = variables.map((v) => ({
         ...v,
-        status: (data.missingVars?.includes(v.name) ? 'missing' : 'configured') as 'missing' | 'configured'
+        status: (data.missingVars?.includes(v.name) ? 'missing' : 'configured') as
+          | 'missing'
+          | 'configured',
       }));
-      
+
       setVariables(updatedVars);
-      
-      const configuredCount = updatedVars.filter(v => v.status === 'configured').length;
+
+      const configuredCount = updatedVars.filter((v) => v.status === 'configured').length;
       const progress = (configuredCount / updatedVars.length) * 100;
-      
+
       setCheckResult({
         configured: data.hasAllRequired,
         missingVars: data.missingVars || [],
         warnings: [],
-        progress
+        progress,
       });
-      
+
       if (data.hasAllRequired && onComplete) {
         onComplete();
       }
@@ -121,9 +123,9 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       console.error('Environment check failed:', error);
       setCheckResult({
         configured: false,
-        missingVars: variables.map(v => v.name),
+        missingVars: variables.map((v) => v.name),
         warnings: ['환경 변수 확인 중 오류가 발생했습니다.'],
-        progress: 0
+        progress: 0,
       });
     } finally {
       setIsChecking(false);
@@ -170,12 +172,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
             <Settings className="h-5 w-5" />
             <CardTitle>환경 변수 상태</CardTitle>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={checkEnvironment}
-            disabled={isChecking}
-          >
+          <Button variant="outline" size="sm" onClick={checkEnvironment} disabled={isChecking}>
             {isChecking ? (
               <>
                 <Loader2 className="mr-2 h-3 w-3 animate-spin" />
@@ -189,9 +186,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
             )}
           </Button>
         </div>
-        <CardDescription>
-          YouTube Lens 실행에 필요한 환경 변수 설정 상태입니다.
-        </CardDescription>
+        <CardDescription>YouTube Lens 실행에 필요한 환경 변수 설정 상태입니다.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {checkResult && (
@@ -263,13 +258,9 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
                       <Badge variant={getCategoryColor(variable.category)}>
                         {variable.category}
                       </Badge>
-                      {variable.required && (
-                        <Badge variant="outline">필수</Badge>
-                      )}
+                      {variable.required && <Badge variant="outline">필수</Badge>}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {variable.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{variable.description}</p>
                   </div>
                 </div>
               </div>
@@ -283,8 +274,8 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
             <p className="text-sm text-muted-foreground">
               환경 변수 설정 방법은 상단의 설정 가이드를 참고하세요.
               <br />
-              <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local</code> 파일을 수정한 후 
-              개발 서버를 재시작해야 합니다.
+              <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local</code> 파일을 수정한
+              후 개발 서버를 재시작해야 합니다.
             </p>
           </div>
         )}

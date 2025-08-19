@@ -1,16 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, ArrowLeft, Eye, Heart, Loader2, MessageSquare, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, MessageSquare, Eye, Plus, Heart, Loader2, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
-import { apiGet, apiPost, ApiError } from '@/lib/api-client';
+import { ApiError, apiGet, apiPost } from '@/lib/api-client';
 
 interface Post {
   id: string;
@@ -19,7 +25,7 @@ interface Post {
   view_count: number;
   comment_count: number;
   like_count: number;
-  is_pinned: boolean;
+  isPinned: boolean;
   created_at: string;
   author: {
     username: string;
@@ -44,7 +50,9 @@ export default function CommunityBoardPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const data = await apiGet<{ posts: Post[], totalPages: number }>(`/api/community/posts?category=board&page=${page}`);
+      const data = await apiGet<{ posts: Post[]; totalPages: number }>(
+        `/api/community/posts?category=board&page=${page}`
+      );
       setPosts(data.posts || []);
       setTotalPages(data.totalPages || 1);
     } catch (error) {
@@ -64,11 +72,11 @@ export default function CommunityBoardPage() {
     try {
       setSubmitting(true);
       setError('');
-      
+
       await apiPost<{ id: string; title: string; content: string }>('/api/community/posts', {
         category: 'board',
         title: newPost.title,
-        content: newPost.content
+        content: newPost.content,
       });
 
       setShowNewPost(false);
@@ -95,13 +103,10 @@ export default function CommunityBoardPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">자유 게시판</h1>
-          <p className="text-muted-foreground mt-1">
-            크리에이터들이 자유롭게 소통하는 공간입니다
-          </p>
+          <p className="text-muted-foreground mt-1">크리에이터들이 자유롭게 소통하는 공간입니다</p>
         </div>
         <Button onClick={() => setShowNewPost(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          새 글 작성
+          <Plus className="mr-2 h-4 w-4" />새 글 작성
         </Button>
       </div>
 
@@ -121,12 +126,9 @@ export default function CommunityBoardPage() {
           <CardContent>
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">아직 게시글이 없습니다</h3>
-            <p className="text-muted-foreground mb-4">
-              첫 번째 게시글을 작성해보세요!
-            </p>
+            <p className="text-muted-foreground mb-4">첫 번째 게시글을 작성해보세요!</p>
             <Button onClick={() => setShowNewPost(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              첫 글 작성하기
+              <Plus className="mr-2 h-4 w-4" />첫 글 작성하기
             </Button>
           </CardContent>
         </Card>
@@ -139,14 +141,10 @@ export default function CommunityBoardPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        {post.is_pinned && (
-                          <Badge variant="secondary">공지</Badge>
-                        )}
+                        {post.isPinned && <Badge variant="secondary">공지</Badge>}
                         <h3 className="font-semibold text-lg">{post.title}</h3>
                       </div>
-                      <p className="text-muted-foreground line-clamp-2 mb-3">
-                        {post.content}
-                      </p>
+                      <p className="text-muted-foreground line-clamp-2 mb-3">{post.content}</p>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{post.author?.username || '익명'}</span>
                         <span className="flex items-center gap-1">
@@ -177,7 +175,7 @@ export default function CommunityBoardPage() {
         <div className="flex justify-center gap-2 mt-8">
           <Button
             variant="outline"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             이전
@@ -187,7 +185,7 @@ export default function CommunityBoardPage() {
           </span>
           <Button
             variant="outline"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
           >
             다음
@@ -200,9 +198,7 @@ export default function CommunityBoardPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>새 글 작성</DialogTitle>
-            <DialogDescription>
-              자유 게시판에 새로운 글을 작성합니다
-            </DialogDescription>
+            <DialogDescription>자유 게시판에 새로운 글을 작성합니다</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
@@ -230,11 +226,7 @@ export default function CommunityBoardPage() {
               </Alert>
             )}
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowNewPost(false)}
-                disabled={submitting}
-              >
+              <Button variant="outline" onClick={() => setShowNewPost(false)} disabled={submitting}>
                 취소
               </Button>
               <Button onClick={handleSubmit} disabled={submitting}>

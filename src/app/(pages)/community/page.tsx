@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Construction, Users, MessageSquare, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, MessageSquare, Users } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CommunityPage() {
   return (
@@ -23,11 +23,9 @@ export default function CommunityPage() {
             <Users className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">커뮤니티</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            디하클 커뮤니티가 곧 오픈됩니다!
-          </p>
+          <p className="text-muted-foreground text-lg">디하클 커뮤니티가 곧 오픈됩니다!</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* 준비 중 메시지 */}
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
@@ -53,7 +51,7 @@ export default function CommunityPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 p-4 bg-muted/50 rounded-lg">
                 <BookOpen className="w-5 h-5 text-primary mt-0.5" />
                 <div>
@@ -63,14 +61,12 @@ export default function CommunityPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 p-4 bg-muted/50 rounded-lg">
                 <Users className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <h4 className="font-medium mb-1">스터디 모집</h4>
-                  <p className="text-sm text-muted-foreground">
-                    함께 성장할 스터디 멤버 찾기
-                  </p>
+                  <p className="text-sm text-muted-foreground">함께 성장할 스터디 멤버 찾기</p>
                 </div>
               </div>
             </div>
@@ -79,9 +75,7 @@ export default function CommunityPage() {
           {/* 알림 신청 */}
           <div className="bg-primary/5 rounded-lg p-6 text-center">
             <p className="mb-4">커뮤니티 오픈 알림을 받고 싶으신가요?</p>
-            <Button disabled>
-              오픈 알림 신청하기 (준비중)
-            </Button>
+            <Button disabled={true}>오픈 알림 신청하기 (준비중)</Button>
           </div>
         </CardContent>
       </Card>

@@ -1,16 +1,16 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -24,10 +24,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (courseError || !course) {
-      return NextResponse.json(
-        { error: '강의를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
     }
 
     // 이미 구매했는지 확인
@@ -40,10 +37,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (existingPurchase) {
-      return NextResponse.json(
-        { error: '이미 구매한 강의입니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
     }
 
     let finalPrice = course.price;
@@ -60,23 +54,23 @@ export async function POST(req: NextRequest) {
 
       if (!couponError && coupon) {
         const now = new Date();
-        const validFrom = new Date(coupon.valid_from);
-        const validUntil = new Date(coupon.valid_until);
+        const validFrom = new Date(coupon.validFrom);
+        const validUntil = new Date(coupon.validUntil);
 
         if (now >= validFrom && now <= validUntil) {
-          if (coupon.discount_type === 'percentage') {
-            finalPrice = Math.round(course.price * (1 - coupon.discount_value / 100));
+          if (coupon.discountType === 'percentage') {
+            finalPrice = Math.round(course.price * (1 - coupon.discountValue / 100));
           } else {
-            finalPrice = Math.max(0, course.price - coupon.discount_value);
+            finalPrice = Math.max(0, course.price - coupon.discountValue);
           }
-          
+
           appliedCoupon = coupon;
 
           // 쿠폰 사용 횟수 증가
           await supabase
             .from('coupons')
-            .update({ 
-              usage_count: (coupon.usage_count || 0) + 1 
+            .update({
+              usageCount: (coupon.usageCount || 0) + 1,
             })
             .eq('id', coupon.id);
         }
@@ -93,20 +87,17 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         course_id: courseId,
         amount: course.price,
-        final_amount: finalPrice,
-        payment_method: 'tosspayments',
-        payment_intent_id: orderId, // 주문 ID 저장
+        finalAmount: finalPrice,
+        paymentMethod: 'tosspayments',
+        paymentIntentId: orderId, // 주문 ID 저장
         status: 'pending',
-        coupon_id: appliedCoupon?.id,
+        couponId: appliedCoupon?.id,
       })
       .select()
       .single();
 
     if (purchaseError) {
-      return NextResponse.json(
-        { error: '구매 처리 중 오류가 발생했습니다.' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '구매 처리 중 오류가 발생했습니다.' }, { status: 500 });
     }
 
     // 사용자 프로필 정보 가져오기
@@ -125,17 +116,16 @@ export async function POST(req: NextRequest) {
       customerName: profile?.username || '고객',
       customerEmail: profile?.email || user.email,
       purchaseId: purchase.id,
-      appliedCoupon: appliedCoupon ? {
-        code: appliedCoupon.code,
-        discountType: appliedCoupon.discount_type,
-        discountValue: appliedCoupon.discount_value,
-      } : null,
+      appliedCoupon: appliedCoupon
+        ? {
+            code: appliedCoupon.code,
+            discountType: appliedCoupon.discountType,
+            discountValue: appliedCoupon.discountValue,
+          }
+        : null,
     });
   } catch (error) {
     console.error('Payment intent creation error:', error);
-    return NextResponse.json(
-      { error: '결제 처리 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

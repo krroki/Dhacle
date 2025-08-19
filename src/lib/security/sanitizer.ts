@@ -1,7 +1,7 @@
 /**
  * 🔐 XSS Prevention Sanitizer
  * Wave 3: XSS 방지를 위한 HTML sanitization
- * 
+ *
  * DOMPurify를 사용하여 사용자 입력을 안전하게 정화합니다.
  */
 
@@ -13,17 +13,46 @@ import DOMPurify from 'isomorphic-dompurify';
 
 // 기본 허용 태그 (일반 텍스트용)
 const BASIC_ALLOWED_TAGS = [
-  'b', 'i', 'em', 'strong', 'a', 'br', 'p', 'span',
-  'ul', 'ol', 'li', 'blockquote', 'code', 'pre'
+  'b',
+  'i',
+  'em',
+  'strong',
+  'a',
+  'br',
+  'p',
+  'span',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'code',
+  'pre',
 ];
 
 // 리치 텍스트 허용 태그 (에디터용)
 const RICH_ALLOWED_TAGS = [
   ...BASIC_ALLOWED_TAGS,
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'img', 'video', 'audio', 'iframe',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'div', 'section', 'article', 'header', 'footer'
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'img',
+  'video',
+  'audio',
+  'iframe',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'div',
+  'section',
+  'article',
+  'header',
+  'footer',
 ];
 
 // 허용 속성
@@ -33,7 +62,7 @@ const ALLOWED_ATTRIBUTES = {
   video: ['src', 'width', 'height', 'controls'],
   audio: ['src', 'controls'],
   iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
-  '*': ['class', 'id', 'style']
+  '*': ['class', 'id', 'style'],
 };
 
 // 위험한 프로토콜 차단
@@ -119,19 +148,19 @@ export function sanitizeURL(url: string): string {
 
   try {
     const parsed = new URL(url);
-    
+
     // 허용된 프로토콜만
     if (!['http:', 'https:', 'mailto:'].includes(parsed.protocol)) {
       return '';
     }
-    
+
     return parsed.toString();
   } catch {
     // 상대 경로인 경우
     if (url.startsWith('/') && !url.startsWith('//')) {
       return encodeURI(url);
     }
-    
+
     return '';
   }
 }
@@ -166,13 +195,13 @@ export function sanitizeJSON(obj: unknown): unknown {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeJSON(item));
+    return obj.map((item) => sanitizeJSON(item));
   }
 
   if (typeof obj === 'object') {
     const cleaned: Record<string, unknown> = {};
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (Object.hasOwn(obj, key)) {
         // 키도 sanitize
         const cleanKey = sanitizePlainText(key);
         cleaned[cleanKey] = sanitizeJSON((obj as Record<string, unknown>)[key]);
@@ -232,21 +261,24 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   sanitizer: (str: string) => string = sanitizeBasicHTML
 ): T {
   const cleaned = {} as T;
-  
+
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.hasOwn(obj, key)) {
       const value = obj[key];
-      
+
       if (typeof value === 'string') {
         cleaned[key] = sanitizer(value) as T[Extract<keyof T, string>];
       } else if (typeof value === 'object' && value !== null) {
-        cleaned[key] = sanitizeObject(value as Record<string, unknown>, sanitizer) as T[Extract<keyof T, string>];
+        cleaned[key] = sanitizeObject(value as Record<string, unknown>, sanitizer) as T[Extract<
+          keyof T,
+          string
+        >];
       } else {
         cleaned[key] = value as T[Extract<keyof T, string>];
       }
     }
   }
-  
+
   return cleaned;
 }
 
@@ -267,7 +299,7 @@ export function generateCSPHeader(): string {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests"
+    'upgrade-insecure-requests',
   ].join('; ');
 }
 

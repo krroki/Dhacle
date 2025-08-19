@@ -1,15 +1,21 @@
 'use client';
 
+import { AlertCircle, CheckCircle2, Loader2, Upload } from 'lucide-react';
 import { useState } from 'react';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { apiUpload, ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function VideoUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -53,7 +59,7 @@ export default function VideoUploadPage() {
     try {
       // 진행률 시뮬레이션 (실제로는 XMLHttpRequest 또는 fetch with streams 사용)
       const progressInterval = setInterval(() => {
-        setProgress(prev => {
+        setProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -62,24 +68,13 @@ export default function VideoUploadPage() {
         });
       }, 500);
 
-      // FormData는 fetch 사용
-      const response = await fetch('/api/admin/video/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin',
-      });
+      // FormData 업로드는 apiUpload 사용
+      const result = await apiUpload('/api/admin/video/upload', formData);
 
       clearInterval(progressInterval);
       setProgress(100);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '업로드 실패');
-      }
-
-      const result = await response.json();
       setSuccess(true);
-      
+
       // 성공 후 폼 초기화
       setTimeout(() => {
         setFile(null);
@@ -89,7 +84,6 @@ export default function VideoUploadPage() {
         setProgress(0);
         setSuccess(false);
       }, 3000);
-      
     } catch (err) {
       setError(err instanceof Error ? err.message : '비디오 업로드 중 오류가 발생했습니다');
       setProgress(0);
@@ -102,7 +96,7 @@ export default function VideoUploadPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">비디오 업로드</h1>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>새 비디오 업로드</CardTitle>
@@ -154,9 +148,7 @@ export default function VideoUploadPage() {
                 placeholder="예: lesson-001"
                 disabled={uploading}
               />
-              <p className="text-xs text-muted-foreground">
-                레슨의 고유 식별자를 입력하세요
-              </p>
+              <p className="text-xs text-muted-foreground">레슨의 고유 식별자를 입력하세요</p>
             </div>
 
             {/* 레슨 제목 */}
@@ -201,8 +193,8 @@ export default function VideoUploadPage() {
             )}
 
             {/* 업로드 버튼 */}
-            <Button 
-              onClick={handleUpload} 
+            <Button
+              onClick={handleUpload}
               disabled={uploading || !file}
               className="w-full"
               size="lg"

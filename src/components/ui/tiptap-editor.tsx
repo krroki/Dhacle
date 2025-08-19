@@ -1,22 +1,22 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Button } from '@/components/ui/button';
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Quote,
-  Undo,
-  Redo,
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {
+  Bold,
+  Image as ImageIcon,
+  Italic,
   Link2,
-  Image as ImageIcon
+  List,
+  ListOrdered,
+  Quote,
+  Redo,
+  Undo,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface TiptapEditorProps {
@@ -32,25 +32,25 @@ export function TiptapEditor({
   onChange,
   placeholder = '내용을 입력하세요...',
   className,
-  editorClassName
+  editorClassName,
 }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [2, 3]
-        }
+          levels: [2, 3],
+        },
       }),
       Image,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-primary underline'
-        }
+          class: 'text-primary underline',
+        },
       }),
       Placeholder.configure({
-        placeholder
-      })
+        placeholder,
+      }),
     ],
     content: value,
     immediatelyRender: false, // SSR hydration 문제 해결
@@ -67,9 +67,9 @@ export function TiptapEditor({
           'max-w-none',
           'p-4',
           editorClassName
-        )
-      }
-    }
+        ),
+      },
+    },
   });
 
   if (!editor) {
@@ -99,23 +99,17 @@ export function TiptapEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={cn(
-            'h-8 w-8 p-0',
-            editor.isActive('bold') && 'bg-muted'
-          )}
+          className={cn('h-8 w-8 p-0', editor.isActive('bold') && 'bg-muted')}
         >
           <Bold className="h-4 w-4" />
         </Button>
-        
+
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={cn(
-            'h-8 w-8 p-0',
-            editor.isActive('italic') && 'bg-muted'
-          )}
+          className={cn('h-8 w-8 p-0', editor.isActive('italic') && 'bg-muted')}
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -127,10 +121,7 @@ export function TiptapEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={cn(
-            'h-8 w-8 p-0',
-            editor.isActive('bulletList') && 'bg-muted'
-          )}
+          className={cn('h-8 w-8 p-0', editor.isActive('bulletList') && 'bg-muted')}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -140,10 +131,7 @@ export function TiptapEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={cn(
-            'h-8 w-8 p-0',
-            editor.isActive('orderedList') && 'bg-muted'
-          )}
+          className={cn('h-8 w-8 p-0', editor.isActive('orderedList') && 'bg-muted')}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -153,33 +141,18 @@ export function TiptapEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={cn(
-            'h-8 w-8 p-0',
-            editor.isActive('blockquote') && 'bg-muted'
-          )}
+          className={cn('h-8 w-8 p-0', editor.isActive('blockquote') && 'bg-muted')}
         >
           <Quote className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-8 bg-border mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={addLink}
-          className="h-8 w-8 p-0"
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={addLink} className="h-8 w-8 p-0">
           <Link2 className="h-4 w-4" />
         </Button>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={addImage}
-          className="h-8 w-8 p-0"
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={addImage} className="h-8 w-8 p-0">
           <ImageIcon className="h-4 w-4" />
         </Button>
 

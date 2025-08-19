@@ -1,7 +1,8 @@
 // Server Component - 강의 목록 페이지
-import React from 'react';
-import { Metadata } from 'next';
+
+import type { Metadata } from 'next';
 import Script from 'next/script';
+import type React from 'react';
 import { getCourses, getUniqueInstructors } from '@/lib/api/courses';
 import { CourseGrid } from './components/CourseGrid';
 import { InstructorFilter } from './components/InstructorFilter';
@@ -9,8 +10,15 @@ import { InstructorFilter } from './components/InstructorFilter';
 // 메타데이터 설정
 export const metadata: Metadata = {
   title: '전체 강의 - YouTube Shorts 제작 교육',
-  description: 'YouTube Shorts 전문가들이 제작한 체계적인 커리큘럼. 기초부터 고급까지 단계별 학습 프로그램을 만나보세요.',
-  keywords: ['YouTube Shorts 강의', '동영상 편집 강의', '콘텐츠 제작 교육', '크리에이터 강의', '온라인 강의'],
+  description:
+    'YouTube Shorts 전문가들이 제작한 체계적인 커리큘럼. 기초부터 고급까지 단계별 학습 프로그램을 만나보세요.',
+  keywords: [
+    'YouTube Shorts 강의',
+    '동영상 편집 강의',
+    '콘텐츠 제작 교육',
+    '크리에이터 강의',
+    '온라인 강의',
+  ],
   alternates: {
     canonical: 'https://dhacle.com/courses',
   },
@@ -79,22 +87,22 @@ export default async function CoursesPage(): Promise<React.JSX.Element> {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(courseListSchema) }}
       />
-      
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* 페이지 헤더 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">전체 강의</h1>
-        <p className="text-muted-foreground">
-          YouTube Shorts 전문가들이 제작한 체계적인 커리큘럼으로 학습하세요.
-        </p>
+        {/* 페이지 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-4">전체 강의</h1>
+          <p className="text-muted-foreground">
+            YouTube Shorts 전문가들이 제작한 체계적인 커리큘럼으로 학습하세요.
+          </p>
+        </div>
+
+        {/* 필터 (Client Component) */}
+        <InstructorFilter instructors={instructors} />
+
+        {/* 강의 그리드 (Client Component) */}
+        <CourseGrid initialCourses={coursesData.courses} />
       </div>
-
-      {/* 필터 (Client Component) */}
-      <InstructorFilter instructors={instructors} />
-
-      {/* 강의 그리드 (Client Component) */}
-      <CourseGrid initialCourses={coursesData.courses} />
-    </div>
     </>
   );
 }

@@ -5,11 +5,11 @@ export const siteConfig = {
   nameEn: 'Dhacle',
   description: 'YouTube Shorts 크리에이터를 위한 교육 및 커뮤니티 플랫폼',
   descriptionEn: 'Education and Community Platform for YouTube Shorts Creators',
-  
+
   // URL 설정 - 환경변수 우선, 없으면 dhacle.com 사용
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://dhacle.com',
   domain: 'dhacle.com',
-  
+
   // SEO 키워드
   keywords: [
     'YouTube Shorts',
@@ -23,14 +23,14 @@ export const siteConfig = {
     '온라인 강의',
     '크리에이터 커뮤니티',
   ],
-  
+
   // 작성자 정보
   author: {
     name: '디하클',
     email: 'contact@dhacle.com',
     twitter: '@dhacle',
   },
-  
+
   // 소셜 미디어
   social: {
     twitter: 'https://twitter.com/dhacle',
@@ -38,14 +38,14 @@ export const siteConfig = {
     youtube: 'https://youtube.com/@dhacle',
     naverCafe: 'https://cafe.naver.com/dhacle',
   },
-  
+
   // OG 이미지 설정
   ogImage: {
     default: '/images/og-default.png',
     width: 1200,
     height: 630,
   },
-  
+
   // 파비콘 및 아이콘
   icons: {
     favicon: '/favicon.ico',
@@ -55,7 +55,7 @@ export const siteConfig = {
     icon512: '/icon-512.png',
     apple: '/apple-touch-icon.png',
   },
-  
+
   // 사이트맵 설정
   sitemap: {
     // 캐싱 시간 (초 단위) - 1시간
@@ -83,7 +83,7 @@ export const siteConfig = {
       mypage: 'weekly' as const,
     },
   },
-  
+
   // robots.txt 설정
   robots: {
     // 크롤링 차단 경로
@@ -105,7 +105,8 @@ export const siteConfig = {
       googlebot: {
         disallow: ['/api/', '/admin/', '/_next/', '/auth/callback'],
       },
-      yeti: { // 네이버 검색봇
+      yeti: {
+        // 네이버 검색봇
         disallow: ['/api/', '/admin/', '/_next/'],
       },
       bingbot: {
@@ -116,10 +117,10 @@ export const siteConfig = {
 };
 
 // 메타데이터 헬퍼 함수
-export function getMetadata(page: string = '') {
+export function getMetadata(page = '') {
   const title = page ? `${page} | ${siteConfig.name}` : siteConfig.name;
   const url = page ? `${siteConfig.url}/${page}` : siteConfig.url;
-  
+
   return {
     title,
     description: siteConfig.description,
@@ -133,16 +134,16 @@ export function getMetadata(page: string = '') {
 // 캐싱 관련 유틸리티
 const cache = new Map<string, { data: unknown; timestamp: number }>();
 
-export function getCachedData<T>(key: string, ttl: number = 3600): T | null {
+export function getCachedData<T>(key: string, ttl = 3600): T | null {
   const cached = cache.get(key);
   if (!cached) return null;
-  
+
   const now = Date.now();
   if (now - cached.timestamp > ttl * 1000) {
     cache.delete(key);
     return null;
   }
-  
+
   return cached.data as T;
 }
 

@@ -1,11 +1,11 @@
-import React from 'react';
-import { Metadata } from 'next';
+import { ArrowLeft, Award, Star, TrendingUp, Users } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { getPopularCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../components/CourseGrid';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TrendingUp, Users, Star, Award } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '인기 강의 | 디하클',
@@ -42,8 +42,7 @@ export default async function PopularCoursesPage(): Promise<React.JSX.Element> {
           </div>
           <h1 className="text-4xl font-bold mb-4">인기 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            수많은 크리에이터들이 선택한 베스트 강의!
-            검증된 퀄리티와 만족도를 자랑합니다.
+            수많은 크리에이터들이 선택한 베스트 강의! 검증된 퀄리티와 만족도를 자랑합니다.
           </p>
         </div>
 
@@ -52,30 +51,22 @@ export default async function PopularCoursesPage(): Promise<React.JSX.Element> {
           <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 text-center">
             <Users className="w-8 h-8 text-red-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">수강생 수</h3>
-            <p className="text-xs text-muted-foreground">
-              많은 학생이 선택
-            </p>
+            <p className="text-xs text-muted-foreground">많은 학생이 선택</p>
           </div>
           <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4 text-center">
             <Star className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">높은 평점</h3>
-            <p className="text-xs text-muted-foreground">
-              4.5점 이상 우수
-            </p>
+            <p className="text-xs text-muted-foreground">4.5점 이상 우수</p>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-900 rounded-lg p-4 text-center">
             <Award className="w-8 h-8 text-green-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">완주율</h3>
-            <p className="text-xs text-muted-foreground">
-              높은 완주 비율
-            </p>
+            <p className="text-xs text-muted-foreground">높은 완주 비율</p>
           </div>
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-900 rounded-lg p-4 text-center">
             <TrendingUp className="w-8 h-8 text-blue-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">실시간 인기</h3>
-            <p className="text-xs text-muted-foreground">
-              최근 관심 급증
-            </p>
+            <p className="text-xs text-muted-foreground">최근 관심 급증</p>
           </div>
         </div>
 
@@ -95,7 +86,8 @@ export default async function PopularCoursesPage(): Promise<React.JSX.Element> {
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 인기 강의
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 인기
+              강의
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4" />

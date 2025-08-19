@@ -1,9 +1,10 @@
+import { Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server-client';
+import { mapCourse } from '@/lib/utils/type-mappers';
 import type { Course } from '@/types/course';
 
 async function getCourses() {
@@ -18,7 +19,7 @@ async function getCourses() {
     return [];
   }
 
-  return data as Course[];
+  return data.map(mapCourse) as Course[];
 }
 
 export default async function AdminCoursesPage() {
@@ -29,14 +30,11 @@ export default async function AdminCoursesPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">강의 관리</h1>
-          <p className="text-muted-foreground mt-2">
-            강의를 생성하고 관리합니다
-          </p>
+          <p className="text-muted-foreground mt-2">강의를 생성하고 관리합니다</p>
         </div>
         <Link href="/admin/courses/new">
           <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            새 강의 만들기
+            <Plus className="w-4 h-4 mr-2" />새 강의 만들기
           </Button>
         </Link>
       </div>
@@ -44,9 +42,7 @@ export default async function AdminCoursesPage() {
       <Card>
         <CardHeader>
           <CardTitle>전체 강의 목록</CardTitle>
-          <CardDescription>
-            총 {courses.length}개의 강의
-          </CardDescription>
+          <CardDescription>총 {courses.length}개의 강의</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -68,36 +64,34 @@ export default async function AdminCoursesPage() {
                       <div>
                         <p className="font-medium">{course.title}</p>
                         {course.subtitle && (
-                          <p className="text-sm text-muted-foreground">
-                            {course.subtitle}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{course.subtitle}</p>
                         )}
                       </div>
                     </td>
+                    <td className="py-3 px-4">{course.instructorName}</td>
                     <td className="py-3 px-4">
-                      {course.instructor_name}
-                    </td>
-                    <td className="py-3 px-4">
-                      {course.is_free ? (
+                      {course.isFree ? (
                         <Badge variant="secondary">무료</Badge>
                       ) : (
                         <span>₩{course.price.toLocaleString()}</span>
                       )}
                     </td>
+                    <td className="py-3 px-4">{course.studentCount || 0}명</td>
                     <td className="py-3 px-4">
-                      {course.student_count || 0}명
-                    </td>
-                    <td className="py-3 px-4">
-                      <Badge 
+                      <Badge
                         variant={
-                          course.status === 'active' ? 'default' :
-                          course.status === 'upcoming' ? 'secondary' :
-                          'outline'
+                          course.status === 'active'
+                            ? 'default'
+                            : course.status === 'upcoming'
+                              ? 'secondary'
+                              : 'outline'
                         }
                       >
-                        {course.status === 'active' ? '활성' :
-                         course.status === 'upcoming' ? '예정' :
-                         '종료'}
+                        {course.status === 'active'
+                          ? '활성'
+                          : course.status === 'upcoming'
+                            ? '예정'
+                            : '종료'}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">

@@ -3,14 +3,14 @@
  * BullMQ를 사용하여 API 호출을 큐에 저장하고 순차적으로 처리
  */
 
-import { Queue, Worker, Job, QueueEvents } from 'bullmq';
+import { type Job, Queue, QueueEvents, type Worker } from 'bullmq';
 import Redis from 'ioredis';
 import PQueue from 'p-queue';
 
 // Redis 연결 설정
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+  port: Number.parseInt(process.env.REDIS_PORT || '6379'),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });
@@ -26,10 +26,10 @@ export enum JobType {
 
 // 작업 우선순위
 export enum JobPriority {
-  CRITICAL = 1,    // 실시간 사용자 요청
-  HIGH = 2,        // 중요 업데이트
-  NORMAL = 3,      // 일반 배치 작업
-  LOW = 4,         // 백그라운드 작업
+  CRITICAL = 1, // 실시간 사용자 요청
+  HIGH = 2, // 중요 업데이트
+  NORMAL = 3, // 일반 배치 작업
+  LOW = 4, // 백그라운드 작업
 }
 
 // 작업 데이터 인터페이스
@@ -76,8 +76,8 @@ export class QuotaManager {
       this.usedQuota = 0;
       this.resetTime = this.getNextResetTime();
     }
-    
-    return (this.usedQuota + cost) <= this.dailyQuota;
+
+    return this.usedQuota + cost <= this.dailyQuota;
   }
 
   async useQuota(cost: number): Promise<void> {
@@ -103,8 +103,8 @@ export class QuotaManager {
   async loadQuotaState(): Promise<void> {
     const used = await connection.get('youtube:quota:used');
     const resetTime = await connection.get('youtube:quota:resetTime');
-    
-    if (used) this.usedQuota = parseInt(used);
+
+    if (used) this.usedQuota = Number.parseInt(used);
     if (resetTime) this.resetTime = new Date(resetTime);
   }
 }
@@ -123,11 +123,11 @@ export class YouTubeQueueManager {
     this.workers = new Map();
     this.quotaManager = QuotaManager.getInstance();
     this.concurrencyQueue = new PQueue({ concurrency: 3 }); // 동시 처리 제한
-    
+
     // 큐 이벤트 리스너 설정
     this.queueEvents = new QueueEvents('youtube-api', { connection });
     this.setupEventListeners();
-    
+
     // 쿼터 상태 로드
     this.quotaManager.loadQuotaState();
   }
@@ -159,31 +159,31 @@ export class YouTubeQueueManager {
           },
         },
       });
-      
+
       this.queues.set(jobType, queue);
     }
-    
+
     return this.queues.get(jobType)!;
   }
 
   // 작업 추가
   async addJob(data: YouTubeJobData): Promise<Job> {
     const queue = this.initializeQueue(data.type);
-    
+
     // 쿼터 체크
     const quotaCost = this.getQuotaCost(data.type);
     const hasQuota = await this.quotaManager.checkQuota(quotaCost);
-    
+
     if (!hasQuota) {
       throw new Error('Daily quota exceeded. Please try again tomorrow.');
     }
-    
+
     // 작업 추가
     const job = await queue.add(data.type, data, {
       priority: data.priority || JobPriority.NORMAL,
       delay: this.calculateDelay(data.priority),
     });
-    
+
     console.log(`Job ${job.id} added to queue ${data.type}`);
     return job;
   }
@@ -191,10 +191,10 @@ export class YouTubeQueueManager {
   // 배치 작업 추가
   async addBatchJobs(jobs: YouTubeJobData[]): Promise<Job[]> {
     const results: Job[] = [];
-    
+
     // 우선순위별로 정렬
     jobs.sort((a, b) => (a.priority || 3) - (b.priority || 3));
-    
+
     for (const jobData of jobs) {
       try {
         const job = await this.addJob(jobData);
@@ -203,7 +203,7 @@ export class YouTubeQueueManager {
         console.error(`Failed to add job: ${error}`);
       }
     }
-    
+
     return results;
   }
 
@@ -211,7 +211,7 @@ export class YouTubeQueueManager {
   async getJobStatus(jobId: string, jobType: JobType): Promise<Job | undefined> {
     const queue = this.queues.get(jobType);
     if (!queue) return undefined;
-    
+
     return queue.getJob(jobId);
   }
 
@@ -219,7 +219,7 @@ export class YouTubeQueueManager {
   async getQueueStatus(jobType: JobType) {
     const queue = this.queues.get(jobType);
     if (!queue) return null;
-    
+
     const [waiting, active, completed, failed, delayed] = await Promise.all([
       queue.getWaitingCount(),
       queue.getActiveCount(),
@@ -227,7 +227,7 @@ export class YouTubeQueueManager {
       queue.getFailedCount(),
       queue.getDelayedCount(),
     ]);
-    
+
     return {
       waiting,
       active,
@@ -241,13 +241,13 @@ export class YouTubeQueueManager {
   // 모든 큐 상태 조회
   async getAllQueuesStatus() {
     const statuses: Record<string, unknown> = {};
-    
+
     for (const jobType of Object.values(JobType)) {
       statuses[jobType] = await this.getQueueStatus(jobType as JobType);
     }
-    
+
     const quotaStatus = await this.quotaManager.getQuotaStatus();
-    
+
     return {
       queues: statuses,
       quota: quotaStatus,
@@ -273,7 +273,7 @@ export class YouTubeQueueManager {
   }
 
   // 큐 정리
-  async cleanQueue(jobType: JobType, grace: number = 0): Promise<void> {
+  async cleanQueue(jobType: JobType, grace = 0): Promise<void> {
     const queue = this.queues.get(jobType);
     if (queue) {
       await queue.clean(grace, 1000); // 1000개 제한
@@ -285,12 +285,12 @@ export class YouTubeQueueManager {
   async retryFailedJobs(jobType: JobType): Promise<void> {
     const queue = this.queues.get(jobType);
     if (!queue) return;
-    
+
     const failed = await queue.getFailed();
     for (const job of failed) {
       await job.retry();
     }
-    
+
     console.log(`Retried ${failed.length} failed jobs in ${jobType}`);
   }
 
@@ -299,11 +299,11 @@ export class YouTubeQueueManager {
     this.queueEvents.on('completed', async ({ jobId, returnvalue }) => {
       console.log(`Job ${jobId} completed with result:`, returnvalue);
     });
-    
+
     this.queueEvents.on('failed', async ({ jobId, failedReason }) => {
       console.error(`Job ${jobId} failed:`, failedReason);
     });
-    
+
     this.queueEvents.on('progress', async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress:`, data);
     });
@@ -318,21 +318,21 @@ export class YouTubeQueueManager {
       [JobType.PLAYLIST_ITEMS]: 1,
       [JobType.VIDEO_STATS]: 1,
     };
-    
+
     return costs[jobType] || 1;
   }
 
   // 지연 시간 계산
   private calculateDelay(priority?: JobPriority): number {
     if (!priority) return 0;
-    
+
     const delays: Record<JobPriority, number> = {
       [JobPriority.CRITICAL]: 0,
       [JobPriority.HIGH]: 1000,
       [JobPriority.NORMAL]: 5000,
       [JobPriority.LOW]: 10000,
     };
-    
+
     return delays[priority] || 0;
   }
 
@@ -342,18 +342,18 @@ export class YouTubeQueueManager {
     for (const worker of this.workers.values()) {
       await worker.close();
     }
-    
+
     // 모든 큐 종료
     for (const queue of this.queues.values()) {
       await queue.close();
     }
-    
+
     // 이벤트 리스너 종료
     await this.queueEvents.close();
-    
+
     // Redis 연결 종료
     await connection.quit();
-    
+
     console.log('YouTube Queue Manager shut down gracefully');
   }
 }

@@ -1,11 +1,11 @@
-import React from 'react';
-import { Metadata } from 'next';
+import { ArrowLeft, Calendar, Clock, Sparkles, Zap } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { getNewCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../components/CourseGrid';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Sparkles, Clock, Calendar, Zap } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '신규 강의 | 디하클',
@@ -50,8 +50,7 @@ export default async function NewCoursesPage(): Promise<React.JSX.Element> {
           </div>
           <h1 className="text-4xl font-bold mb-4">신규 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            최신 트렌드와 알고리즘을 반영한 새로운 강의!
-            누구보다 빠르게 최신 정보를 습득하세요.
+            최신 트렌드와 알고리즘을 반영한 새로운 강의! 누구보다 빠르게 최신 정보를 습득하세요.
           </p>
         </div>
 
@@ -60,23 +59,17 @@ export default async function NewCoursesPage(): Promise<React.JSX.Element> {
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-900 rounded-lg p-4 text-center">
             <Zap className="w-8 h-8 text-purple-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">최신 트렌드</h3>
-            <p className="text-xs text-muted-foreground">
-              2025년 최신 YouTube 동향 반영
-            </p>
+            <p className="text-xs text-muted-foreground">2025년 최신 YouTube 동향 반영</p>
           </div>
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-900 rounded-lg p-4 text-center">
             <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">실시간 업데이트</h3>
-            <p className="text-xs text-muted-foreground">
-              알고리즘 변화 즉시 반영
-            </p>
+            <p className="text-xs text-muted-foreground">알고리즘 변화 즉시 반영</p>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-900 rounded-lg p-4 text-center">
             <Calendar className="w-8 h-8 text-green-500 mx-auto mb-2" />
             <h3 className="font-semibold text-sm mb-1">얼리버드 혜택</h3>
-            <p className="text-xs text-muted-foreground">
-              신규 강의 특별 할인 제공
-            </p>
+            <p className="text-xs text-muted-foreground">신규 강의 특별 할인 제공</p>
           </div>
         </div>
 
@@ -109,7 +102,8 @@ export default async function NewCoursesPage(): Promise<React.JSX.Element> {
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 신규 강의
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 신규
+              강의
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />

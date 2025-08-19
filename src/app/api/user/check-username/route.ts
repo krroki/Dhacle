@@ -1,23 +1,28 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import type { Database } from '@/types/database.types'
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import type { Database } from '@/types/database.types';
 
 // POST: Check username availability
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const supabase = createRouteHandlerClient<Database>({ cookies });
 
   try {
+    // 선택적 인증 체크 - 로그인 사용자와 비로그인 사용자 모두 사용 가능
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     // Parse request body
-    const body = await request.json()
-    const { username } = body
+    const body = await request.json();
+    const { username } = body;
 
     // Validate username
     if (!username || username.length < 3) {
       return NextResponse.json(
         { error: 'Username must be at least 3 characters' },
         { status: 400 }
-      )
+      );
     }
 
     // Validate username format (alphanumeric and underscore only)
@@ -25,7 +30,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Username can only contain letters, numbers, and underscores' },
         { status: 400 }
-      )
+      );
     }
 
     // Check if username exists
@@ -33,26 +38,20 @@ export async function POST(request: Request) {
       .from('users')
       .select('username')
       .eq('username', username)
-      .maybeSingle()
+      .maybeSingle();
 
     if (error) {
-      console.error('Error checking username:', error)
-      return NextResponse.json(
-        { error: 'Failed to check username' },
-        { status: 500 }
-      )
+      console.error('Error checking username:', error);
+      return NextResponse.json({ error: 'Failed to check username' }, { status: 500 });
     }
 
     // Return availability status
-    return NextResponse.json({ 
+    return NextResponse.json({
       available: !existingUser,
-      username 
-    })
+      username,
+    });
   } catch (error) {
-    console.error('Error in check-username:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error in check-username:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

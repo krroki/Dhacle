@@ -1,27 +1,27 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Bell, Check, X, MessageSquare, BookOpen, Trophy, AlertCircle } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { ko } from 'date-fns/locale'
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { AlertCircle, Bell, BookOpen, Check, MessageSquare, Trophy, X } from 'lucide-react';
+import { useState } from 'react';
 import {
+  Badge,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  Button,
-  Badge,
-  ScrollArea
-} from '@/components/ui'
-import { cn } from '@/lib/utils'
+  ScrollArea,
+} from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export interface Notification {
-  id: string
-  type: 'info' | 'success' | 'warning' | 'comment' | 'course' | 'achievement'
-  title: string
-  message: string
-  read: boolean
-  createdAt: Date
-  link?: string
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'comment' | 'course' | 'achievement';
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: Date;
+  link?: string;
 }
 
 const notificationIcons = {
@@ -31,7 +31,7 @@ const notificationIcons = {
   comment: MessageSquare,
   course: BookOpen,
   achievement: Trophy,
-}
+};
 
 const notificationColors = {
   info: 'text-blue-500',
@@ -40,11 +40,11 @@ const notificationColors = {
   comment: 'text-purple-500',
   course: 'text-indigo-500',
   achievement: 'text-orange-500',
-}
+};
 
 interface NotificationDropdownProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropdownProps) {
@@ -90,38 +90,36 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       read: true,
       createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000),
     },
-  ])
+  ]);
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, read: true } : n))
-    )
-  }
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id))
-  }
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   const handleNotificationClick = (notification: Notification) => {
-    markAsRead(notification.id)
+    markAsRead(notification.id);
     if (notification.link) {
-      window.location.href = notification.link
+      window.location.href = notification.link;
     }
-  }
+  };
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild={true}>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge 
+            <Badge
               className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center"
               variant="destructive"
             >
@@ -161,27 +159,24 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
           ) : (
             <div className="divide-y">
               {notifications.map((notification) => {
-                const Icon = notificationIcons[notification.type]
-                const colorClass = notificationColors[notification.type]
-                
+                const Icon = notificationIcons[notification.type];
+                const colorClass = notificationColors[notification.type];
+
                 return (
                   <div
                     key={notification.id}
                     className={cn(
-                      "p-4 hover:bg-muted/50 transition-colors cursor-pointer group",
-                      !notification.read && "bg-primary/5"
+                      'p-4 hover:bg-muted/50 transition-colors cursor-pointer group',
+                      !notification.read && 'bg-primary/5'
                     )}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex gap-3">
-                      <div className={cn("mt-0.5", colorClass)}>
+                      <div className={cn('mt-0.5', colorClass)}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className={cn(
-                          "text-sm",
-                          !notification.read && "font-semibold"
-                        )}>
+                        <p className={cn('text-sm', !notification.read && 'font-semibold')}>
                           {notification.title}
                         </p>
                         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -196,8 +191,8 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
                       </div>
                       <button
                         onClick={(e) => {
-                          e.stopPropagation()
-                          deleteNotification(notification.id)
+                          e.stopPropagation();
+                          deleteNotification(notification.id);
                         }}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
                       >
@@ -205,18 +200,18 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
                       </button>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           )}
         </ScrollArea>
 
         <div className="p-3 border-t">
-          <Button variant="ghost" className="w-full justify-center text-sm" asChild>
+          <Button variant="ghost" className="w-full justify-center text-sm" asChild={true}>
             <a href="/notifications">모든 알림 보기</a>
           </Button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

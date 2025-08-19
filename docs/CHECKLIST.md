@@ -72,6 +72,15 @@ _업데이트: 새로운 검증 항목 추가 시_
 - [ ] npm run build 성공
 - [ ] npm run lint 에러 없음 (**2025-08-19 0개 달성**)
 
+### 코드 품질 체크리스트 (2025-08-20 Biome 통합)
+
+- [ ] **Biome 린팅 통과**: `npm run lint:biome`
+- [ ] **Import 정렬 확인**: 자동 정렬 적용됨
+- [ ] **코드 포맷팅**: `npm run format:biome` 실행
+- [ ] **불필요한 코드 제거**: 사용하지 않는 변수/import 제거
+- [ ] **snake_case 검토**: DB 매핑 필요 시 유지, 아니면 camelCase 변환
+- [ ] **Pre-commit 자동 검사**: Git 커밋 시 자동 실행됨
+
 ### API 작업 후
 
 - [ ] 세션 검사 구현 (서버 라우트)

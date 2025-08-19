@@ -1,22 +1,36 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import SignatureCanvas from 'react-signature-canvas';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import ReactCrop, { type Crop } from 'react-image-crop';
+import SignatureCanvas from 'react-signature-canvas';
+import { ApiError, apiDelete, apiGet, apiPost, apiPut, apiUpload } from '@/lib/api-client';
 import 'react-image-crop/dist/ReactCrop.css';
-import { TiptapEditor } from '@/components/ui/tiptap-editor';
+import { AlertTriangle, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { createProofSchema, type CreateProofInput } from '@/lib/validations/revenue-proof';
-import { AlertTriangle, Upload, Trash2, RefreshCw } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { TiptapEditor } from '@/components/ui/tiptap-editor';
+import { type CreateProofInput, createProofSchema } from '@/lib/validations/revenue-proof';
 
 export default function CreateRevenueProof() {
   const router = useRouter();
@@ -35,9 +49,9 @@ export default function CreateRevenueProof() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue
+    setValue,
   } = useForm<CreateProofInput>({
-    resolver: zodResolver(createProofSchema)
+    resolver: zodResolver(createProofSchema),
   });
 
   // 이미지 미리보기
@@ -88,7 +102,7 @@ export default function CreateRevenueProof() {
   // 폼 제출
   const onSubmit = async (data: CreateProofInput) => {
     setIsSubmitting(true);
-    
+
     try {
       // API 호출을 위한 FormData 생성
       const formData = new FormData();
@@ -98,34 +112,31 @@ export default function CreateRevenueProof() {
       formData.append('content', data.content);
       formData.append('signature', data.signature);
       formData.append('screenshot', data.screenshot);
-      
-      // API 호출 (FormData는 fetch 사용)
-      const response = await fetch('/api/revenue-proof', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin',
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        // 일일 제한 에러 처리
-        if (response.status === 429) {
-          alert(result.error);
+
+      // API 호출 (FormData는 apiUpload 사용)
+      try {
+        const result = await apiUpload<{ message?: string; id?: string }>('/api/revenue-proof', formData);
+        
+        // 성공 메시지
+        alert(result?.message || '수익 인증이 성공적으로 작성되었습니다!');
+        
+        // 갤러리로 이동
+        router.push('/revenue-proof');
+      } catch (error) {
+        if (error instanceof ApiError) {
+          // 일일 제한 에러 처리
+          if (error.status === 429) {
+            const errorData = error.data as { error?: string };
+            alert(errorData?.error || '일일 작성 제한에 도달했습니다.');
+          } else {
+            alert(error.message || '인증 작성 중 오류가 발생했습니다.');
+          }
         } else {
-          alert(result.error || '인증 작성 중 오류가 발생했습니다.');
+          console.error('Submit error:', error);
+          alert('인증 작성 중 오류가 발생했습니다.');
         }
         return;
       }
-      
-      // 성공 메시지
-      alert(result.message || '수익 인증이 성공적으로 작성되었습니다!');
-      
-      // 갤러리로 이동
-      router.push('/revenue-proof');
-    } catch (error) {
-      console.error('Submit error:', error);
-      alert('인증 작성 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +154,9 @@ export default function CreateRevenueProof() {
                 수익 인증 작성 전 필독사항
               </AlertDialogTitle>
               <AlertDialogDescription className="space-y-3">
-                <p>수익 인증은 <strong>커뮤니티의 신뢰</strong>를 바탕으로 운영됩니다.</p>
+                <p>
+                  수익 인증은 <strong>커뮤니티의 신뢰</strong>를 바탕으로 운영됩니다.
+                </p>
                 <Alert className="border-red-200 bg-red-50 dark:bg-red-950">
                   <AlertDescription className="text-red-800 dark:text-red-200">
                     ⚠️ 허위 인증 작성 시 다음과 같은 제재가 있을 수 있습니다:
@@ -155,9 +168,9 @@ export default function CreateRevenueProof() {
                   </AlertDescription>
                 </Alert>
                 <p className="text-sm">
-                  ✅ 실제 수익 스크린샷만 업로드해주세요<br/>
-                  ✅ 본인의 닉네임으로 서명을 추가해주세요<br/>
-                  ✅ 하루에 1회만 인증 가능합니다
+                  ✅ 실제 수익 스크린샷만 업로드해주세요
+                  <br />✅ 본인의 닉네임으로 서명을 추가해주세요
+                  <br />✅ 하루에 1회만 인증 가능합니다
                 </p>
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -181,15 +194,17 @@ export default function CreateRevenueProof() {
               placeholder="예: 1월 YouTube Shorts 수익 인증"
               className="mt-2"
             />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-            )}
+            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
           </div>
 
           {/* 플랫폼 선택 */}
           <div>
             <Label htmlFor="platform">플랫폼 *</Label>
-            <Select onValueChange={(value) => setValue('platform', value as 'youtube' | 'instagram' | 'tiktok')}>
+            <Select
+              onValueChange={(value) =>
+                setValue('platform', value as 'youtube' | 'instagram' | 'tiktok')
+              }
+            >
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="플랫폼을 선택하세요" />
               </SelectTrigger>
@@ -214,9 +229,7 @@ export default function CreateRevenueProof() {
               placeholder="예: 1500000"
               className="mt-2"
             />
-            {errors.amount && (
-              <p className="text-sm text-red-500 mt-1">{errors.amount.message}</p>
-            )}
+            {errors.amount && <p className="text-sm text-red-500 mt-1">{errors.amount.message}</p>}
           </div>
 
           {/* 스크린샷 업로드 */}
@@ -225,11 +238,10 @@ export default function CreateRevenueProof() {
             <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
               {imagePreview ? (
                 <div className="relative">
-                  <img 
-                    src={imagePreview} 
-                    alt="스크린샷 미리보기" 
+                  <img
+                    src={imagePreview}
+                    alt="스크린샷 미리보기"
                     className="max-w-full h-auto mx-auto rounded-lg"
-                     
                   />
                   <div className="flex gap-2 justify-center mt-4">
                     <Button
@@ -259,7 +271,8 @@ export default function CreateRevenueProof() {
                 <label htmlFor="screenshot" className="cursor-pointer">
                   <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-sm text-muted-foreground">
-                    클릭하여 스크린샷을 업로드하세요<br/>
+                    클릭하여 스크린샷을 업로드하세요
+                    <br />
                     (JPG, PNG, WebP / 최대 5MB)
                   </p>
                   <input
@@ -289,26 +302,17 @@ export default function CreateRevenueProof() {
                   ref={sigCanvas}
                   canvasProps={{
                     className: 'border rounded bg-white dark:bg-gray-800 w-full',
-                    style: { width: '100%', height: '200px' }
+                    style: { width: '100%', height: '200px' },
                   }}
                   backgroundColor="white"
                   penColor="black"
                 />
                 <div className="flex gap-2 mt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={clearSignature}
-                  >
+                  <Button type="button" variant="outline" size="sm" onClick={clearSignature}>
                     <RefreshCw className="w-4 h-4 mr-2" />
                     지우기
                   </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={saveSignature}
-                  >
+                  <Button type="button" size="sm" onClick={saveSignature}>
                     서명 저장
                   </Button>
                 </div>
@@ -366,7 +370,7 @@ export default function CreateRevenueProof() {
           {(!imageFile || !signatureData) && (
             <Alert>
               <AlertDescription>
-                {!imageFile && '스크린샷을 업로드해주세요.'} 
+                {!imageFile && '스크린샷을 업로드해주세요.'}
                 {imageFile && !signatureData && '서명을 추가해주세요.'}
               </AlertDescription>
             </Alert>
@@ -379,27 +383,23 @@ export default function CreateRevenueProof() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-auto">
             <h3 className="text-lg font-semibold mb-4">이미지 편집</h3>
-            <ReactCrop 
-              crop={crop} 
-              onChange={c => setCrop(c)}
-              aspect={16/9}
+            <ReactCrop
+              crop={crop}
+              onChange={(c) => setCrop(c)}
+              aspect={16 / 9}
               minWidth={100}
               minHeight={100}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
+              <img
                 ref={imageRef}
-                src={imagePreview} 
+                src={imagePreview}
                 alt="편집할 이미지"
-                style={{ maxWidth: '100%', height: 'auto' }}
+                className="max-w-full h-auto"
               />
             </ReactCrop>
             <div className="flex gap-2 justify-end mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowCropModal(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setShowCropModal(false)}>
                 취소
               </Button>
               <Button

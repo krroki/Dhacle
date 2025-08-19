@@ -17,7 +17,7 @@ export interface RevenueProof {
   is_hidden: boolean;
   created_at: string;
   updated_at: string;
-  
+
   // Relations
   user?: {
     id: string;
@@ -34,7 +34,7 @@ export interface ProofComment {
   user_id: string;
   content: string;
   created_at: string;
-  
+
   // Relations
   user?: {
     id: string;
@@ -53,7 +53,7 @@ export interface ProofLike {
 export interface ProofReport {
   id: string;
   proof_id: string;
-  reporter_id: string;
+  reporterId: string;
   reason: 'fake' | 'spam' | 'inappropriate' | 'copyright' | 'other';
   details?: string;
   created_at: string;
@@ -62,9 +62,9 @@ export interface ProofReport {
 export interface UserBadge {
   id: string;
   user_id: string;
-  badge_type: string;
-  badge_data?: Record<string, unknown>;
-  earned_at: string;
+  badgeType: string;
+  badgeData?: Record<string, unknown>;
+  earnedAt: string;
 }
 
 export interface MonthlyRanking {
@@ -74,7 +74,7 @@ export interface MonthlyRanking {
   total_amount: number;
   rank: number;
   created_at: string;
-  
+
   // Relations
   user?: {
     id: string;

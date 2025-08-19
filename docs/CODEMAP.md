@@ -41,6 +41,21 @@ node scripts/verify-api-consistency.js  # API 일치성 검사 (빌드에 통합
 node scripts/fix-api-consistency.js     # API 일치성 문제 자동 수정
 node scripts/fix-typescript-errors.js   # TypeScript 에러 자동 수정
 
+# 🎯 코드 품질 도구 (2025-08-20 추가)
+npm run lint:biome             # Biome 코드 검사
+npm run lint:biome:fix         # Biome 자동 수정 (import 정렬, 포맷팅)
+npm run format:biome           # Biome 코드 포맷팅
+npm run verify:complete        # 전체 검증 (기존 + Biome)
+npm run fix:all                # 모든 자동 수정 한번에
+
+# 🧪 테스트 명령어 (2025-02-01 추가)
+npm run test                   # Vitest 테스트 실행 (watch 모드)
+npm run test:coverage          # 테스트 커버리지 확인
+npm run test:ui                # Vitest UI 실행
+npm run e2e                    # Playwright E2E 테스트
+npm run e2e:ui                 # Playwright UI 실행
+npm run e2e:install            # Playwright 브라우저 설치
+
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
 npm run supabase:verify           # 테이블 생성 검증
@@ -129,6 +144,9 @@ export async function GET(request: Request) {
 
 ```
 9.Dhacle/
+├── .semgrep.yml                   # Semgrep 보안 규칙 🆕 2025-08-20
+├── biome.json                     # Biome 설정 파일 🆕 2025-08-20
+├── SEMGREP_GUIDE.md              # Semgrep 사용 가이드 🆕 2025-08-20
 ├── src/
 │   ├── middleware.ts              # 캐싱 정책 & 보안 헤더 ✅ Wave 2
 │   ├── app/
@@ -166,6 +184,14 @@ export async function GET(request: Request) {
 │   │   ├── globals.css            # 전역 스타일
 │   │   ├── sitemap.ts             # SEO 사이트맵 ✅
 │   │   └── robots.ts              # SEO robots ✅
+│   ├── mocks/                     # MSW 모킹 시스템 ✅ NEW (2025-02-01)
+│   │   ├── handlers.ts            # API 모킹 핸들러
+│   │   ├── browser.ts             # 브라우저 워커 설정
+│   │   └── server.ts              # Node.js 서버 설정
+│   ├── providers/
+│   │   └── MSWProvider.tsx        # MSW Provider 컴포넌트 ✅ NEW
+│   ├── test/                      # 테스트 설정 ✅ NEW (2025-02-01)
+│   │   └── setup.ts               # Vitest 테스트 셋업
 │   ├── components/
 │   │   ├── ui/                    # shadcn/ui (24개 컴포넌트)
 │   │   ├── layout/                # 레이아웃 컴포넌트

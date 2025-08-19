@@ -1,32 +1,20 @@
 'use client';
 
-import { useState, useCallback, useRef, KeyboardEvent } from 'react';
-import { useYouTubeLensStore } from '@/store/youtube-lens';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ChevronDown, Clock, Filter, Loader2, Search, TrendingUp, X } from 'lucide-react';
+import { type KeyboardEvent, useCallback, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { 
-  Search, 
-  Filter, 
-  X, 
-  Clock, 
-  TrendingUp,
-  ChevronDown,
-  Loader2
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type { YouTubeSearchFilters } from '@/types/youtube';
 
 interface SearchBarProps {
@@ -42,17 +30,17 @@ const SUGGESTED_QUERIES = [
   '썸네일 디자인',
   '편집 팁',
   '수익화 방법',
-  '조회수 늘리기'
+  '조회수 늘리기',
 ];
 
 export function SearchBar({ onSearch, isLoading = false, disabled = false }: SearchBarProps) {
-  const { 
+  const {
     searchQuery,
     searchFilters,
     searchHistory,
     setSearchQuery,
     setSearchFilters,
-    addToSearchHistory
+    addToSearchHistory,
   } = useYouTubeLensStore();
 
   const [showHistory, setShowHistory] = useState(false);
@@ -66,11 +54,11 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
 
     // 검색 기록에 추가
     addToSearchHistory(trimmedQuery);
-    
+
     // 검색 실행
     await onSearch(trimmedQuery, {
       ...searchFilters,
-      query: trimmedQuery
+      query: trimmedQuery,
     });
   }, [searchQuery, searchFilters, isLoading, disabled, onSearch, addToSearchHistory]);
 
@@ -95,7 +83,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
       query: '',
       order: 'relevance',
       maxResults: 50,
-      videoDuration: 'short'
+      videoDuration: 'short',
     });
   };
 
@@ -105,7 +93,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
     searchFilters.videoDuration !== 'short',
     searchFilters.videoDefinition === 'high',
     searchFilters.publishedAfter,
-    searchFilters.publishedBefore
+    searchFilters.publishedBefore,
   ].filter(Boolean).length;
 
   return (
@@ -140,7 +128,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
 
           {/* 필터 버튼 */}
           <Popover open={showFilters} onOpenChange={setShowFilters}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild={true}>
               <Button variant="outline" size="icon" className="relative">
                 <Filter className="h-4 w-4" />
                 {activeFilterCount > 0 && (
@@ -171,7 +159,9 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   <label className="text-sm font-medium">정렬</label>
                   <Select
                     value={searchFilters.order}
-                    onValueChange={(value) => setSearchFilters({ order: value as YouTubeSearchFilters['order'] })}
+                    onValueChange={(value) =>
+                      setSearchFilters({ order: value as YouTubeSearchFilters['order'] })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -191,7 +181,11 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   <label className="text-sm font-medium">영상 길이</label>
                   <Select
                     value={searchFilters.videoDuration}
-                    onValueChange={(value) => setSearchFilters({ videoDuration: value as YouTubeSearchFilters['videoDuration'] })}
+                    onValueChange={(value) =>
+                      setSearchFilters({
+                        videoDuration: value as YouTubeSearchFilters['videoDuration'],
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -210,9 +204,14 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   <label className="text-sm font-medium">화질</label>
                   <Select
                     value={searchFilters.videoDefinition || 'any'}
-                    onValueChange={(value) => setSearchFilters({ 
-                      videoDefinition: value === 'any' ? undefined : value as YouTubeSearchFilters['videoDefinition'] 
-                    })}
+                    onValueChange={(value) =>
+                      setSearchFilters({
+                        videoDefinition:
+                          value === 'any'
+                            ? undefined
+                            : (value as YouTubeSearchFilters['videoDefinition']),
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -230,7 +229,9 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   <label className="text-sm font-medium">결과 개수</label>
                   <Select
                     value={searchFilters.maxResults?.toString() || '50'}
-                    onValueChange={(value) => setSearchFilters({ maxResults: parseInt(value) })}
+                    onValueChange={(value) =>
+                      setSearchFilters({ maxResults: Number.parseInt(value) })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -247,7 +248,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
           </Popover>
 
           {/* 검색 버튼 */}
-          <Button 
+          <Button
             onClick={handleSearch}
             disabled={!searchQuery.trim() || isLoading || disabled}
             className="min-w-[100px]"
@@ -288,7 +289,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                 </div>
               </div>
             )}
-            
+
             <div className="p-2">
               <div className="flex items-center gap-2 px-2 py-1 text-sm text-muted-foreground">
                 <TrendingUp className="h-3 w-3" />
@@ -316,9 +317,14 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
           <span className="text-sm text-muted-foreground">필터:</span>
           {searchFilters.order !== 'relevance' && (
             <Badge variant="secondary" className="gap-1">
-              정렬: {searchFilters.order === 'date' ? '최신순' : 
-                     searchFilters.order === 'viewCount' ? '조회수' :
-                     searchFilters.order === 'rating' ? '평점순' : '제목순'}
+              정렬:{' '}
+              {searchFilters.order === 'date'
+                ? '최신순'
+                : searchFilters.order === 'viewCount'
+                  ? '조회수'
+                  : searchFilters.order === 'rating'
+                    ? '평점순'
+                    : '제목순'}
               <button
                 onClick={() => setSearchFilters({ order: 'relevance' })}
                 className="ml-1 hover:text-destructive"
@@ -329,8 +335,12 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
           )}
           {searchFilters.videoDuration !== 'short' && (
             <Badge variant="secondary" className="gap-1">
-              길이: {searchFilters.videoDuration === 'medium' ? '4-20분' :
-                     searchFilters.videoDuration === 'long' ? '20분+' : '모든 길이'}
+              길이:{' '}
+              {searchFilters.videoDuration === 'medium'
+                ? '4-20분'
+                : searchFilters.videoDuration === 'long'
+                  ? '20분+'
+                  : '모든 길이'}
               <button
                 onClick={() => setSearchFilters({ videoDuration: 'short' })}
                 className="ml-1 hover:text-destructive"

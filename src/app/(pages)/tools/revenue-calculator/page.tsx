@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Construction, Calculator } from 'lucide-react';
+import { ArrowLeft, Calculator, Construction } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function RevenueCalculatorPage() {
   return (
@@ -21,17 +21,16 @@ export default function RevenueCalculatorPage() {
             <Calculator className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">수익 계산기</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            YouTube Shorts 예상 수익 계산
-          </p>
+          <p className="text-muted-foreground text-lg">YouTube Shorts 예상 수익 계산</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
             <Construction className="w-12 h-12 text-amber-600 dark:text-amber-500 mx-auto mb-3" />
             <h3 className="font-semibold text-lg mb-2">🚧 준비 중입니다</h3>
             <p className="text-muted-foreground">
-              조회수, 구독자 수, 참여율 등을 기반으로 예상 수익을 계산할 수 있는 도구를 준비하고 있습니다.
+              조회수, 구독자 수, 참여율 등을 기반으로 예상 수익을 계산할 수 있는 도구를 준비하고
+              있습니다.
             </p>
           </div>
 

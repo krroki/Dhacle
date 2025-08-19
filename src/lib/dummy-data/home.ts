@@ -81,7 +81,7 @@ export const dummyHeroSlides: HeroSlide[] = [
     subtitle: 'YouTube Shorts로 시작하는 새로운 커리어',
     mediaUrl: '/images/carousel/carousel-01.jpg',
     ctaText: '무료로 시작하기',
-    ctaLink: '/auth/signup'
+    ctaLink: '/auth/signup',
   },
   {
     id: '2',
@@ -90,7 +90,7 @@ export const dummyHeroSlides: HeroSlide[] = [
     subtitle: '투명한 수익 공개로 신뢰를 쌓습니다',
     mediaUrl: 'dQw4w9WgXcQ',
     ctaText: '수익인증 보기',
-    ctaLink: '/revenue-gallery'
+    ctaLink: '/revenue-gallery',
   },
   {
     id: '3',
@@ -99,7 +99,7 @@ export const dummyHeroSlides: HeroSlide[] = [
     subtitle: '최대 50% 할인 혜택을 놓치지 마세요',
     mediaUrl: '/images/carousel/carousel-03.jpg',
     ctaText: '할인 혜택 받기',
-    ctaLink: '/promotion'
+    ctaLink: '/promotion',
   },
   {
     id: '4',
@@ -108,8 +108,8 @@ export const dummyHeroSlides: HeroSlide[] = [
     subtitle: '100만 뷰 달성 노하우 공개',
     mediaUrl: 'M7lc1UVf-VE',
     ctaText: '강의 보러가기',
-    ctaLink: '/courses/viral-content'
-  }
+    ctaLink: '/courses/viral-content',
+  },
 ];
 
 export const dummyInstructors: Instructor[] = [
@@ -119,7 +119,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=deheti',
     specialty: '초효율쇼츠',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '2',
@@ -127,7 +127,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bbadae',
     specialty: '탑클래스쿠팡',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '3',
@@ -135,7 +135,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=taylor',
     specialty: '월억쇼츠',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '4',
@@ -143,7 +143,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lululala',
     specialty: '쇼츠투벤츠',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '5',
@@ -151,7 +151,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=keroro',
     specialty: 'AI뮤직자동화',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '6',
@@ -159,7 +159,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=handahae',
     specialty: '이지롱폼',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '7',
@@ -167,7 +167,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kkungdi',
     specialty: '셀럽팬튜브',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '8',
@@ -175,7 +175,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ground',
     specialty: '실버버튼 챌린지',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '9',
@@ -183,7 +183,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wesong',
     specialty: '이베이 이스타터',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '10',
@@ -191,7 +191,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 관리자 페이지에서 실제 프로필 이미지 업로드 기능 구현 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ringbob',
     specialty: '폰편집 월천쇼츠',
-    courseCount: 1
+    courseCount: 1,
   },
   {
     id: '11',
@@ -199,7 +199,7 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 실제 강사 정보로 업데이트 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor11',
     specialty: '준비중',
-    courseCount: 0
+    courseCount: 0,
   },
   {
     id: '12',
@@ -207,8 +207,8 @@ export const dummyInstructors: Instructor[] = [
     // TODO: 실제 강사 정보로 업데이트 필요
     profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor12',
     specialty: '준비중',
-    courseCount: 0
-  }
+    courseCount: 0,
+  },
 ];
 
 export const dummyRevenueProofs: RevenueProof[] = [
@@ -219,7 +219,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 15000000,
     date: '2025-01-01',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '2',
@@ -228,7 +228,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 8500000,
     date: '2025-01-03',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '3',
@@ -237,7 +237,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 12000000,
     date: '2025-01-05',
     platform: 'instagram',
-    verified: false
+    verified: false,
   },
   {
     id: '4',
@@ -246,7 +246,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 6700000,
     date: '2025-01-07',
     platform: 'tiktok',
-    verified: true
+    verified: true,
   },
   {
     id: '5',
@@ -255,7 +255,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 23000000,
     date: '2025-01-10',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '6',
@@ -264,7 +264,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 9800000,
     date: '2025-01-11',
     platform: 'instagram',
-    verified: true
+    verified: true,
   },
   {
     id: '7',
@@ -273,7 +273,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 14500000,
     date: '2025-01-12',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '8',
@@ -282,7 +282,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 7200000,
     date: '2025-01-13',
     platform: 'tiktok',
-    verified: false
+    verified: false,
   },
   {
     id: '9',
@@ -291,7 +291,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 18900000,
     date: '2025-01-14',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '10',
@@ -300,7 +300,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 11300000,
     date: '2025-01-14',
     platform: 'instagram',
-    verified: true
+    verified: true,
   },
   {
     id: '11',
@@ -309,7 +309,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 5600000,
     date: '2025-01-14',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '12',
@@ -318,7 +318,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 16700000,
     date: '2025-01-14',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '13',
@@ -327,7 +327,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 8900000,
     date: '2025-01-14',
     platform: 'tiktok',
-    verified: true
+    verified: true,
   },
   {
     id: '14',
@@ -336,7 +336,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 21000000,
     date: '2025-01-14',
     platform: 'youtube',
-    verified: true
+    verified: true,
   },
   {
     id: '15',
@@ -345,8 +345,8 @@ export const dummyRevenueProofs: RevenueProof[] = [
     amount: 13400000,
     date: '2025-01-14',
     platform: 'instagram',
-    verified: true
-  }
+    verified: true,
+  },
 ];
 
 export const dummyFreeCourses: Course[] = [
@@ -358,7 +358,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '2시간 30분',
     level: 'beginner',
     isFree: true,
-    enrollCount: 1234
+    enrollCount: 1234,
   },
   {
     id: '2',
@@ -368,7 +368,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '3시간',
     level: 'intermediate',
     isFree: true,
-    enrollCount: 892
+    enrollCount: 892,
   },
   {
     id: '3',
@@ -378,7 +378,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '1시간 45분',
     level: 'intermediate',
     isFree: true,
-    enrollCount: 1567
+    enrollCount: 1567,
   },
   {
     id: '4',
@@ -388,7 +388,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '2시간',
     level: 'beginner',
     isFree: true,
-    enrollCount: 2103
+    enrollCount: 2103,
   },
   {
     id: '5',
@@ -398,7 +398,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '4시간',
     level: 'beginner',
     isFree: true,
-    enrollCount: 756
+    enrollCount: 756,
   },
   {
     id: '6',
@@ -408,7 +408,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '1시간 30분',
     level: 'intermediate',
     isFree: true,
-    enrollCount: 945
+    enrollCount: 945,
   },
   {
     id: '7',
@@ -418,7 +418,7 @@ export const dummyFreeCourses: Course[] = [
     duration: '2시간 15분',
     level: 'advanced',
     isFree: true,
-    enrollCount: 623
+    enrollCount: 623,
   },
   {
     id: '8',
@@ -428,8 +428,8 @@ export const dummyFreeCourses: Course[] = [
     duration: '1시간',
     level: 'beginner',
     isFree: true,
-    enrollCount: 1789
-  }
+    enrollCount: 1789,
+  },
 ];
 
 export const dummyNewCourses: Course[] = [
@@ -442,7 +442,7 @@ export const dummyNewCourses: Course[] = [
     level: 'advanced',
     isFree: false,
     price: 99000,
-    enrollCount: 234
+    enrollCount: 234,
   },
   {
     id: '10',
@@ -453,7 +453,7 @@ export const dummyNewCourses: Course[] = [
     level: 'intermediate',
     isFree: false,
     price: 149000,
-    enrollCount: 189
+    enrollCount: 189,
   },
   {
     id: '11',
@@ -464,7 +464,7 @@ export const dummyNewCourses: Course[] = [
     level: 'advanced',
     isFree: false,
     price: 199000,
-    enrollCount: 97
+    enrollCount: 97,
   },
   {
     id: '12',
@@ -475,8 +475,8 @@ export const dummyNewCourses: Course[] = [
     level: 'intermediate',
     isFree: false,
     price: 79000,
-    enrollCount: 412
-  }
+    enrollCount: 412,
+  },
 ];
 
 export const dummyCourseSchedules: CourseSchedule[] = [
@@ -489,7 +489,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '19:00',
     isLive: true,
     registeredCount: 245,
-    maxCapacity: 300
+    maxCapacity: 300,
   },
   {
     id: '2',
@@ -500,7 +500,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '20:00',
     isLive: true,
     registeredCount: 178,
-    maxCapacity: 250
+    maxCapacity: 250,
   },
   {
     id: '3',
@@ -511,7 +511,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '19:30',
     isLive: true,
     registeredCount: 132,
-    maxCapacity: 200
+    maxCapacity: 200,
   },
   {
     id: '4',
@@ -522,7 +522,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '19:00',
     isLive: true,
     registeredCount: 192,
-    maxCapacity: 300
+    maxCapacity: 300,
   },
   {
     id: '5',
@@ -533,7 +533,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '18:00',
     isLive: true,
     registeredCount: 156,
-    maxCapacity: 200
+    maxCapacity: 200,
   },
   {
     id: '6',
@@ -544,7 +544,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '20:00',
     isLive: false,
     registeredCount: 123,
-    maxCapacity: 150
+    maxCapacity: 150,
   },
   {
     id: '7',
@@ -555,7 +555,7 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '19:30',
     isLive: true,
     registeredCount: 167,
-    maxCapacity: 200
+    maxCapacity: 200,
   },
   {
     id: '8',
@@ -566,8 +566,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
     time: '20:00',
     isLive: true,
     registeredCount: 189,
-    maxCapacity: 250
-  }
+    maxCapacity: 250,
+  },
 ];
 
 export const dummyEbooks: Ebook[] = [
@@ -579,7 +579,7 @@ export const dummyEbooks: Ebook[] = [
     description: '초보자를 위한 YouTube Shorts 시작 가이드북',
     isFree: true,
     downloadCount: 3456,
-    fileSize: '15.2MB'
+    fileSize: '15.2MB',
   },
   {
     id: '2',
@@ -590,7 +590,7 @@ export const dummyEbooks: Ebook[] = [
     isFree: false,
     price: 29000,
     downloadCount: 1234,
-    fileSize: '22.8MB'
+    fileSize: '22.8MB',
   },
   {
     id: '3',
@@ -601,7 +601,7 @@ export const dummyEbooks: Ebook[] = [
     isFree: false,
     price: 39000,
     downloadCount: 892,
-    fileSize: '18.5MB'
+    fileSize: '18.5MB',
   },
   {
     id: '4',
@@ -611,7 +611,7 @@ export const dummyEbooks: Ebook[] = [
     description: '단계별 수익화 전략과 실전 팁',
     isFree: true,
     downloadCount: 2789,
-    fileSize: '12.3MB'
+    fileSize: '12.3MB',
   },
   {
     id: '5',
@@ -622,7 +622,7 @@ export const dummyEbooks: Ebook[] = [
     isFree: false,
     price: 49000,
     downloadCount: 567,
-    fileSize: '35.7MB'
+    fileSize: '35.7MB',
   },
   {
     id: '6',
@@ -632,57 +632,65 @@ export const dummyEbooks: Ebook[] = [
     description: '2025년 콘텐츠 트렌드 완벽 분석',
     isFree: true,
     downloadCount: 4123,
-    fileSize: '8.9MB'
-  }
+    fileSize: '8.9MB',
+  },
 ];
 
 export const dummyFAQs: FAQ[] = [
   {
     id: '1',
     question: '디하클은 어떤 서비스인가요?',
-    answer: '디하클은 YouTube Shorts 크리에이터를 위한 종합 교육 플랫폼입니다. 초보자부터 전문가까지 단계별 맞춤 교육을 제공하며, 실제 수익 인증을 통해 투명하고 신뢰할 수 있는 교육 환경을 제공합니다.',
-    category: '일반'
+    answer:
+      '디하클은 YouTube Shorts 크리에이터를 위한 종합 교육 플랫폼입니다. 초보자부터 전문가까지 단계별 맞춤 교육을 제공하며, 실제 수익 인증을 통해 투명하고 신뢰할 수 있는 교육 환경을 제공합니다.',
+    category: '일반',
   },
   {
     id: '2',
     question: '무료 강의와 유료 강의의 차이점은 무엇인가요?',
-    answer: '무료 강의는 기초적인 내용과 입문 과정을 제공하며, 유료 강의는 심화 내용, 1:1 멘토링, 실습 자료, 수료증 발급 등의 추가 혜택이 포함됩니다. 또한 유료 강의는 지속적인 업데이트와 Q&A 서비스를 제공합니다.',
-    category: '강의'
+    answer:
+      '무료 강의는 기초적인 내용과 입문 과정을 제공하며, 유료 강의는 심화 내용, 1:1 멘토링, 실습 자료, 수료증 발급 등의 추가 혜택이 포함됩니다. 또한 유료 강의는 지속적인 업데이트와 Q&A 서비스를 제공합니다.',
+    category: '강의',
   },
   {
     id: '3',
     question: '강의를 수강하려면 어떻게 해야 하나요?',
-    answer: '회원가입 후 원하는 강의를 선택하여 수강신청을 하시면 됩니다. 무료 강의는 바로 시청 가능하며, 유료 강의는 결제 완료 후 수강할 수 있습니다.',
-    category: '강의'
+    answer:
+      '회원가입 후 원하는 강의를 선택하여 수강신청을 하시면 됩니다. 무료 강의는 바로 시청 가능하며, 유료 강의는 결제 완료 후 수강할 수 있습니다.',
+    category: '강의',
   },
   {
     id: '4',
     question: '결제 방법은 어떤 것들이 있나요?',
-    answer: '신용카드, 체크카드, 카카오페이, 네이버페이, 토스 등 다양한 결제 수단을 지원합니다. 또한 무이자 할부도 가능합니다.',
-    category: '결제'
+    answer:
+      '신용카드, 체크카드, 카카오페이, 네이버페이, 토스 등 다양한 결제 수단을 지원합니다. 또한 무이자 할부도 가능합니다.',
+    category: '결제',
   },
   {
     id: '5',
     question: '환불 정책은 어떻게 되나요?',
-    answer: '강의 구매 후 7일 이내, 수강 진도율 10% 미만인 경우 전액 환불이 가능합니다. 그 이후에는 수강 진도율에 따라 부분 환불이 적용됩니다.',
-    category: '환불'
+    answer:
+      '강의 구매 후 7일 이내, 수강 진도율 10% 미만인 경우 전액 환불이 가능합니다. 그 이후에는 수강 진도율에 따라 부분 환불이 적용됩니다.',
+    category: '환불',
   },
   {
     id: '6',
     question: '수료증은 어떻게 발급받나요?',
-    answer: '강의를 80% 이상 수강하고 최종 과제를 제출하면 수료증이 자동으로 발급됩니다. 마이페이지에서 다운로드할 수 있습니다.',
-    category: '강의'
+    answer:
+      '강의를 80% 이상 수강하고 최종 과제를 제출하면 수료증이 자동으로 발급됩니다. 마이페이지에서 다운로드할 수 있습니다.',
+    category: '강의',
   },
   {
     id: '7',
     question: '강의 유효기간은 얼마나 되나요?',
-    answer: '대부분의 강의는 구매 후 1년간 무제한 시청이 가능합니다. 일부 특별 강의는 유효기간이 다를 수 있으니 강의 상세 페이지를 확인해 주세요.',
-    category: '강의'
+    answer:
+      '대부분의 강의는 구매 후 1년간 무제한 시청이 가능합니다. 일부 특별 강의는 유효기간이 다를 수 있으니 강의 상세 페이지를 확인해 주세요.',
+    category: '강의',
   },
   {
     id: '8',
     question: '모바일에서도 수강할 수 있나요?',
-    answer: '네, 모든 강의는 PC, 태블릿, 스마트폰에서 시청 가능합니다. 전용 앱도 제공하고 있어 더욱 편리하게 학습할 수 있습니다.',
-    category: '일반'
-  }
+    answer:
+      '네, 모든 강의는 PC, 태블릿, 스마트폰에서 시청 가능합니다. 전용 앱도 제공하고 있어 더욱 편리하게 학습할 수 있습니다.',
+    category: '일반',
+  },
 ];

@@ -1,8 +1,8 @@
-import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
-import { generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
+import { generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { Database } from '@/types/database';
 
 /**
@@ -11,21 +11,22 @@ import type { Database } from '@/types/database';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
-    
+    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+
     // 인증 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 프로필이 이미 있는지 확인
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, random_nickname')
+      .select('id, randomNickname')
       .eq('id', user.id)
       .single();
 
@@ -38,18 +39,18 @@ export async function POST(request: NextRequest) {
 
       while (attempts < maxAttempts) {
         randomNickname = generateRandomNickname();
-        
+
         // 중복 체크
         const { data: duplicateCheck } = await supabase
           .from('profiles')
           .select('id')
-          .eq('random_nickname', randomNickname)
+          .eq('randomNickname', randomNickname)
           .single();
 
         if (!duplicateCheck) {
           break;
         }
-        
+
         attempts++;
       }
 
@@ -65,28 +66,25 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           username: user.email?.split('@')[0] || 'user',
-          random_nickname: randomNickname,
+          randomNickname: randomNickname,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();
 
       if (createError) {
         console.error('Error creating profile:', createError);
-        return NextResponse.json(
-          { error: 'Failed to create profile' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
       }
 
       return NextResponse.json({
         message: 'Profile initialized successfully',
         profile: newProfile,
-        isNew: true
+        isNew: true,
       });
-
-    } else if (existingProfile && !existingProfile.random_nickname) {
+    }
+    if (existingProfile && !existingProfile.randomNickname) {
       // 프로필은 있지만 랜덤 닉네임이 없는 경우
       let randomNickname = '';
       let attempts = 0;
@@ -94,18 +92,18 @@ export async function POST(request: NextRequest) {
 
       while (attempts < maxAttempts) {
         randomNickname = generateRandomNickname();
-        
+
         // 중복 체크
         const { data: duplicateCheck } = await supabase
           .from('profiles')
           .select('id')
-          .eq('random_nickname', randomNickname)
+          .eq('randomNickname', randomNickname)
           .single();
 
         if (!duplicateCheck) {
           break;
         }
-        
+
         attempts++;
       }
 
@@ -117,8 +115,8 @@ export async function POST(request: NextRequest) {
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
         .update({
-          random_nickname: randomNickname,
-          updated_at: new Date().toISOString()
+          randomNickname: randomNickname,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
         .select()
@@ -126,16 +124,13 @@ export async function POST(request: NextRequest) {
 
       if (updateError) {
         console.error('Error updating profile:', updateError);
-        return NextResponse.json(
-          { error: 'Failed to update profile' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
       }
 
       return NextResponse.json({
         message: 'Random nickname added successfully',
         profile: updatedProfile,
-        isNew: false
+        isNew: false,
       });
     }
 
@@ -143,30 +138,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'Profile already initialized',
       profile: existingProfile,
-      isNew: false
+      isNew: false,
     });
-
   } catch (error) {
     console.error('Error initializing profile:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // 프로필 상태 확인
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createRouteHandlerClient({ cookies }) as SupabaseClient<Database>;
-    
+    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+
     // 인증 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 프로필 가져오기
@@ -179,28 +171,24 @@ export async function GET(request: NextRequest) {
     if (profileError) {
       return NextResponse.json({
         exists: false,
-        needsInitialization: true
+        needsInitialization: true,
       });
     }
 
     return NextResponse.json({
       exists: true,
-      needsInitialization: !profile.random_nickname,
+      needsInitialization: !profile.randomNickname,
       profile: {
         id: profile.id,
         username: profile.username,
-        randomNickname: profile.random_nickname,
-        naverCafeNickname: profile.naver_cafe_nickname,
-        naverCafeVerified: profile.naver_cafe_verified,
-        displayNickname: profile.display_nickname
-      }
+        randomNickname: profile.randomNickname,
+        naverCafeNickname: profile.naverCafeNickname,
+        naverCafeVerified: profile.naverCafeVerified,
+        displayNickname: profile.displayNickname,
+      },
     });
-
   } catch (error) {
     console.error('Error checking profile status:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

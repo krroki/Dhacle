@@ -1,35 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { RevenueProof, ProofComment } from '@/types/revenue-proof';
-import { 
-  toggleLike, 
-  createComment, 
-  reportProof, 
-  deleteRevenueProof,
-  updateRevenueProof 
-} from '@/lib/api/revenue-proof';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger 
-} from '@/components/ui/dialog';
+import {
+  AlertTriangle,
+  Calendar,
+  Check,
+  Copy,
+  DollarSign,
+  Edit,
+  Heart,
+  Instagram,
+  MessageCircle,
+  Share2,
+  Trash2,
+  User,
+  Youtube,
+} from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,27 +34,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Heart, 
-  MessageCircle, 
-  AlertTriangle, 
-  Share2, 
-  Edit, 
-  Trash2,
-  Youtube,
-  Instagram,
-  DollarSign,
-  Calendar,
-  User,
-  Copy,
-  Check
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  createComment,
+  deleteRevenueProof,
+  reportProof,
+  toggleLike,
+  updateRevenueProof,
+} from '@/lib/api/revenue-proof';
+import type { ProofComment, RevenueProof } from '@/types/revenue-proof';
 
 interface RevenueProofDetailProps {
   initialData: RevenueProof & { isLiked: boolean; currentUserId?: string };
@@ -88,13 +88,13 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   const platformIcons = {
     youtube: <Youtube className="h-5 w-5" />,
     instagram: <Instagram className="h-5 w-5" />,
-    tiktok: <DollarSign className="h-5 w-5" /> // TikTok 아이콘 대체
+    tiktok: <DollarSign className="h-5 w-5" />, // TikTok 아이콘 대체
   };
 
   const platformColors = {
     youtube: 'bg-red-500',
     instagram: 'bg-gradient-to-tr from-purple-500 to-pink-500',
-    tiktok: 'bg-black'
+    tiktok: 'bg-black',
   };
 
   // 좋아요 토글
@@ -102,14 +102,14 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     mutationFn: () => toggleLike(proof.id),
     onSuccess: () => {
       setIsLiked(!isLiked);
-      setProof(prev => ({
+      setProof((prev) => ({
         ...prev,
-        likes_count: isLiked ? prev.likes_count - 1 : prev.likes_count + 1
+        likes_count: isLiked ? prev.likes_count - 1 : prev.likes_count + 1,
       }));
     },
     onError: () => {
       toast.error('좋아요 처리 중 오류가 발생했습니다.');
-    }
+    },
   });
 
   // 댓글 작성
@@ -118,24 +118,25 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     onSuccess: (data) => {
       setComments([data, ...comments]);
       setCommentContent('');
-      setProof(prev => ({
+      setProof((prev) => ({
         ...prev,
-        comments_count: prev.comments_count + 1
+        comments_count: prev.comments_count + 1,
       }));
       toast.success('댓글이 작성되었습니다.');
     },
     onError: () => {
       toast.error('댓글 작성 중 오류가 발생했습니다.');
-    }
+    },
   });
 
   // 신고하기
   const reportMutation = useMutation({
-    mutationFn: () => reportProof(proof.id, {
-      reason: reportReason,
-      details: reportDetails,
-      acknowledged: reportAcknowledged
-    }),
+    mutationFn: () =>
+      reportProof(proof.id, {
+        reason: reportReason,
+        details: reportDetails,
+        acknowledged: reportAcknowledged,
+      }),
     onSuccess: () => {
       setShowReportDialog(false);
       toast.success('신고가 접수되었습니다.');
@@ -145,7 +146,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     },
     onError: () => {
       toast.error('신고 처리 중 오류가 발생했습니다.');
-    }
+    },
   });
 
   // 삭제하기
@@ -157,27 +158,28 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     },
     onError: () => {
       toast.error('삭제 중 오류가 발생했습니다.');
-    }
+    },
   });
 
   // 수정하기
   const editMutation = useMutation({
-    mutationFn: () => updateRevenueProof(proof.id, {
-      title: editTitle,
-      content: editContent
-    }),
+    mutationFn: () =>
+      updateRevenueProof(proof.id, {
+        title: editTitle,
+        content: editContent,
+      }),
     onSuccess: (data) => {
-      setProof(prev => ({
+      setProof((prev) => ({
         ...prev,
         title: editTitle,
-        content: editContent
+        content: editContent,
       }));
       setShowEditDialog(false);
       toast.success('수익 인증이 수정되었습니다.');
     },
     onError: () => {
       toast.error('수정 중 오류가 발생했습니다. 24시간이 지났거나 권한이 없습니다.');
-    }
+    },
   });
 
   // URL 복사
@@ -215,9 +217,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                     <div className="flex items-center gap-1">
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={proof.user?.avatar_url} />
-                        <AvatarFallback>
-                          {proof.user?.username?.[0]?.toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback>{proof.user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <span>{proof.user?.username}</span>
                     </div>
@@ -227,7 +227,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                       <span>
                         {formatDistanceToNow(new Date(proof.created_at), {
                           addSuffix: true,
-                          locale: ko
+                          locale: ko,
                         })}
                       </span>
                     </div>
@@ -256,19 +256,15 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                 <Image
                   src={proof.screenshot_url}
                   alt="수익 인증 스크린샷"
-                  fill
+                  fill={true}
                   className="object-contain"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
-                  priority
+                  priority={true}
                 />
                 {/* 서명 오버레이 */}
                 {proof.signature_data && (
                   <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-black/90 p-2 rounded">
-                    <img 
-                      src={proof.signature_data} 
-                      alt="서명" 
-                      className="h-12 w-auto"
-                    />
+                    <img src={proof.signature_data} alt="서명" className="h-12 w-auto" />
                   </div>
                 )}
               </div>
@@ -276,10 +272,10 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               {/* 상세 내용 */}
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <h3 className="text-lg font-semibold mb-3">수익 달성 과정</h3>
-                <div 
+                <div
                   className="text-muted-foreground"
-                  dangerouslySetInnerHTML={{ 
-                    __html: DOMPurify.sanitize(proof.content) 
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(proof.content),
                   }}
                 />
               </div>
@@ -289,7 +285,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               {/* 좋아요, 댓글 카운트 */}
               <div className="flex items-center gap-4">
                 <Button
-                  variant={isLiked ? "default" : "outline"}
+                  variant={isLiked ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => likeMutation.mutate()}
                   disabled={!currentUserId || likeMutation.isPending}
@@ -305,44 +301,24 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
 
               {/* 액션 버튼들 */}
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Share2 className="h-4 w-4" />
-                  )}
+                <Button variant="outline" size="sm" onClick={handleShare}>
+                  {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
                 </Button>
 
                 {isOwner && canEdit() && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowEditDialog(true)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                 )}
 
                 {isOwner && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDeleteDialog(true)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
 
                 {!isOwner && currentUserId && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowReportDialog(true)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShowReportDialog(true)}>
                     <AlertTriangle className="h-4 w-4" />
                   </Button>
                 )}
@@ -353,9 +329,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
           {/* 댓글 섹션 */}
           <Card>
             <CardHeader>
-              <h3 className="text-lg font-semibold">
-                댓글 {comments.length}개
-              </h3>
+              <h3 className="text-lg font-semibold">댓글 {comments.length}개</h3>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 댓글 작성 */}
@@ -383,9 +357,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                 </div>
               ) : (
                 <Alert>
-                  <AlertDescription>
-                    댓글을 작성하려면 로그인이 필요합니다.
-                  </AlertDescription>
+                  <AlertDescription>댓글을 작성하려면 로그인이 필요합니다.</AlertDescription>
                 </Alert>
               )}
 
@@ -405,19 +377,15 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                         </Avatar>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">
-                              {comment.user?.username}
-                            </span>
+                            <span className="text-sm font-medium">{comment.user?.username}</span>
                             <span className="text-xs text-muted-foreground">
                               {formatDistanceToNow(new Date(comment.created_at), {
                                 addSuffix: true,
-                                locale: ko
+                                locale: ko,
                               })}
                             </span>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {comment.content}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{comment.content}</p>
                         </div>
                       </div>
                     ))
@@ -443,15 +411,11 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={proof.user?.avatar_url} />
-                  <AvatarFallback>
-                    {proof.user?.username?.[0]?.toUpperCase()}
-                  </AvatarFallback>
+                  <AvatarFallback>{proof.user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium">{proof.user?.username}</p>
-                  <p className="text-sm text-muted-foreground">
-                    크리에이터
-                  </p>
+                  <p className="text-sm text-muted-foreground">크리에이터</p>
                 </div>
               </div>
             </CardContent>
@@ -487,9 +451,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>수익 인증 수정</DialogTitle>
-            <DialogDescription>
-              작성 후 24시간 이내에만 수정 가능합니다.
-            </DialogDescription>
+            <DialogDescription>작성 후 24시간 이내에만 수정 가능합니다.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -515,16 +477,10 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowEditDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               취소
             </Button>
-            <Button
-              onClick={() => editMutation.mutate()}
-              disabled={editMutation.isPending}
-            >
+            <Button onClick={() => editMutation.mutate()} disabled={editMutation.isPending}>
               수정하기
             </Button>
           </DialogFooter>
@@ -560,16 +516,13 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               <AlertTriangle className="h-5 w-5 text-yellow-500" />
               수익 인증 신고
             </DialogTitle>
-            <DialogDescription>
-              허위 신고 시 제재를 받을 수 있습니다.
-            </DialogDescription>
+            <DialogDescription>허위 신고 시 제재를 받을 수 있습니다.</DialogDescription>
           </DialogHeader>
-          
+
           <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              신고 기능을 악용할 경우 계정 이용이 제한될 수 있습니다.
-              신중하게 신고해주세요.
+              신고 기능을 악용할 경우 계정 이용이 제한될 수 있습니다. 신중하게 신고해주세요.
             </AlertDescription>
           </Alert>
 
@@ -625,10 +578,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowReportDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowReportDialog(false)}>
               취소
             </Button>
             <Button

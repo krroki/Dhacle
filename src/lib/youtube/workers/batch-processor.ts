@@ -3,20 +3,16 @@
  * 큐에서 작업을 가져와 실제 API 호출을 처리
  */
 
-import { Worker, Job } from 'bullmq';
+import { type Job, Worker } from 'bullmq';
+import { google, type youtube_v3 } from 'googleapis';
 import Redis from 'ioredis';
-import { google, youtube_v3 } from 'googleapis';
-import { 
-  JobType, 
-  YouTubeJobData, 
-  quotaManager 
-} from '../queue-manager';
 import { cacheManager } from '../cache';
+import { JobType, quotaManager, type YouTubeJobData } from '../queue-manager';
 
 // Redis 연결
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+  port: Number.parseInt(process.env.REDIS_PORT || '6379'),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });
@@ -87,7 +83,7 @@ export class YouTubeBatchProcessor {
     const { type, params, userId } = job.data;
 
     // API 키 확인
-    const apiKey = this.apiKey || await this.getUserApiKey(userId);
+    const apiKey = this.apiKey || (await this.getUserApiKey(userId));
     if (!apiKey) {
       throw new Error('YouTube API key not found');
     }
@@ -153,7 +149,7 @@ export class YouTubeBatchProcessor {
 
   // 검색 처리
   private async processSearch(
-    youtube: youtube_v3.Youtube, 
+    youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$SearchListResponse> {
     const searchParams: youtube_v3.Params$Resource$Search$List = {
@@ -178,7 +174,7 @@ export class YouTubeBatchProcessor {
     params: Record<string, unknown>
   ): Promise<{ items: youtube_v3.Schema$Video[] }> {
     const videoIds = Array.isArray(params.id) ? params.id : [params.id];
-    
+
     // 배치로 처리 (최대 50개)
     const chunks = this.chunkArray(videoIds, 50);
     const results = [];
@@ -201,7 +197,7 @@ export class YouTubeBatchProcessor {
     params: Record<string, unknown>
   ): Promise<{ items: youtube_v3.Schema$Channel[] }> {
     const channelIds = Array.isArray(params.id) ? params.id : [params.id];
-    
+
     const chunks = this.chunkArray(channelIds, 50);
     const results = [];
 
@@ -239,7 +235,7 @@ export class YouTubeBatchProcessor {
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$VideoListResponse> {
     const videoIds = Array.isArray(params.id) ? params.id : [params.id];
-    
+
     const statsParams: youtube_v3.Params$Resource$Videos$List = {
       part: ['statistics'],
       id: videoIds,
@@ -252,7 +248,7 @@ export class YouTubeBatchProcessor {
   // 사용자 API 키 가져오기
   private async getUserApiKey(userId?: string): Promise<string | null> {
     if (!userId) return null;
-    
+
     // Supabase에서 암호화된 API 키 가져오기
     // TODO: 실제 구현 필요
     return process.env.YOUTUBE_API_KEY || null;
@@ -276,7 +272,7 @@ export class YouTubeBatchProcessor {
       [JobType.PLAYLIST_ITEMS]: 2,
       [JobType.VIDEO_STATS]: 5,
     };
-    
+
     return concurrency[jobType] || 1;
   }
 
@@ -289,20 +285,20 @@ export class YouTubeBatchProcessor {
       [JobType.PLAYLIST_ITEMS]: 1,
       [JobType.VIDEO_STATS]: 1,
     };
-    
+
     return costs[jobType] || 1;
   }
 
   // 캐시 TTL 설정
   private getCacheTTL(jobType: JobType): number {
     const ttls: Record<JobType, number> = {
-      [JobType.SEARCH]: 5 * 60 * 1000,        // 5분
+      [JobType.SEARCH]: 5 * 60 * 1000, // 5분
       [JobType.VIDEO_DETAILS]: 10 * 60 * 1000, // 10분
       [JobType.CHANNEL_DETAILS]: 60 * 60 * 1000, // 1시간
-      [JobType.PLAYLIST_ITEMS]: 10 * 60 * 1000,  // 10분
-      [JobType.VIDEO_STATS]: 5 * 60 * 1000,      // 5분
+      [JobType.PLAYLIST_ITEMS]: 10 * 60 * 1000, // 10분
+      [JobType.VIDEO_STATS]: 5 * 60 * 1000, // 5분
     };
-    
+
     return ttls[jobType] || 5 * 60 * 1000;
   }
 
@@ -311,7 +307,7 @@ export class YouTubeBatchProcessor {
     for (const worker of this.workers.values()) {
       await worker.close();
     }
-    
+
     await connection.quit();
     console.log('All YouTube batch processors stopped');
   }

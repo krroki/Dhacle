@@ -4,16 +4,19 @@
  * 개발 서버 시작 전 빠른 검증
  * - 치명적 문제만 체크
  * - 경고는 표시하되 진행 차단하지 않음
+ * - Biome 코드 품질 검사 포함 (2025-08-20)
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 // 색상 코드
 const colors = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   green: '\x1b[32m',
+  blue: '\x1b[34m',
   reset: '\x1b[0m'
 };
 
@@ -141,6 +144,51 @@ if (!fs.existsSync(envPath)) {
       warningCount++;
     }
   });
+}
+
+// Biome 코드 품질 체크 (2025-08-20 추가)
+console.log('\n🎯 Checking code quality with Biome...');
+if (fs.existsSync(path.join(process.cwd(), 'biome.json'))) {
+  try {
+    // Biome 검사 실행 (에러만 표시, 자동 수정 없음)
+    execSync('npx biome check ./src --reporter=compact', { 
+      stdio: 'pipe',
+      encoding: 'utf-8'
+    });
+    console.log(`${colors.green}✅ Biome: All checks passed${colors.reset}`);
+  } catch (error) {
+    const output = error.stdout || error.stderr || '';
+    const lines = output.split('\n').filter(line => line.trim());
+    
+    // 에러/경고 카운트 추출
+    const errorMatch = output.match(/(\d+) error/);
+    const warningMatch = output.match(/(\d+) warning/);
+    const errorCount = errorMatch ? parseInt(errorMatch[1]) : 0;
+    const biomeWarningCount = warningMatch ? parseInt(warningMatch[1]) : 0;
+    
+    if (errorCount > 0) {
+      console.log(`${colors.red}❌ Biome: ${errorCount} errors found${colors.reset}`);
+      console.log(`   Run 'npm run lint:biome:fix' to auto-fix`);
+      // Biome 에러는 치명적이지 않으므로 hasError를 설정하지 않음
+      warningCount += errorCount;
+    } else if (biomeWarningCount > 0) {
+      console.log(`${colors.yellow}⚠️  Biome: ${biomeWarningCount} warnings${colors.reset}`);
+      warningCount += biomeWarningCount;
+    }
+    
+    // 처음 3개 이슈만 표시
+    const issueLines = lines.filter(line => 
+      line.includes('.ts') || line.includes('.tsx') || line.includes('.js')
+    );
+    issueLines.slice(0, 3).forEach(line => {
+      console.log(`   ${line}`);
+    });
+    if (issueLines.length > 3) {
+      console.log(`   ... and ${issueLines.length - 3} more issues`);
+    }
+  }
+} else {
+  console.log(`${colors.blue}ℹ️  Biome not configured (biome.json not found)${colors.reset}`);
 }
 
 // 결과 요약

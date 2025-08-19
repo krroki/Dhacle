@@ -1,24 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  AlertCircle, 
-  CheckCircle2, 
-  Clock, 
-  Copy, 
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Copy,
   ExternalLink,
   Info,
   Key,
   Shield,
-  Zap
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function GetApiKeyPage() {
   const [copiedStep, setCopiedStep] = useState<number | null>(null);
@@ -103,17 +103,15 @@ export default function GetApiKeyPage() {
           <Card>
             <CardHeader>
               <CardTitle>1단계: Google Cloud Console 접속</CardTitle>
-              <CardDescription>
-                Google Cloud Platform 콘솔에 로그인합니다
-              </CardDescription>
+              <CardDescription>Google Cloud Platform 콘솔에 로그인합니다</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm">아래 링크를 클릭하여 Google Cloud Console에 접속하세요:</p>
-                <Button variant="outline" asChild>
-                  <a 
-                    href="https://console.cloud.google.com" 
-                    target="_blank" 
+                <Button variant="outline" asChild={true}>
+                  <a
+                    href="https://console.cloud.google.com"
+                    target="_blank"
                     rel="noopener noreferrer"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
@@ -142,9 +140,7 @@ export default function GetApiKeyPage() {
           <Card>
             <CardHeader>
               <CardTitle>2단계: 프로젝트 생성 또는 선택</CardTitle>
-              <CardDescription>
-                API를 사용할 프로젝트를 생성하거나 선택합니다
-              </CardDescription>
+              <CardDescription>API를 사용할 프로젝트를 생성하거나 선택합니다</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
@@ -166,9 +162,9 @@ export default function GetApiKeyPage() {
 
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm font-mono">프로젝트 이름 예시: dhacle-youtube</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="mt-2"
                   onClick={() => copyToClipboard('dhacle-youtube', 2)}
                 >
@@ -204,10 +200,10 @@ export default function GetApiKeyPage() {
                 </ol>
               </div>
 
-              <Button variant="outline" asChild>
-                <a 
-                  href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" 
-                  target="_blank" 
+              <Button variant="outline" asChild={true}>
+                <a
+                  href="https://console.cloud.google.com/apis/library/youtube.googleapis.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
@@ -230,9 +226,7 @@ export default function GetApiKeyPage() {
           <Card>
             <CardHeader>
               <CardTitle>4단계: API Key 생성</CardTitle>
-              <CardDescription>
-                YouTube API를 사용하기 위한 API Key를 생성합니다
-              </CardDescription>
+              <CardDescription>YouTube API를 사용하기 위한 API Key를 생성합니다</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
@@ -266,9 +260,7 @@ export default function GetApiKeyPage() {
           <Card>
             <CardHeader>
               <CardTitle>5단계: API Key 제한 설정 (선택사항)</CardTitle>
-              <CardDescription>
-                보안을 위해 API Key 사용을 제한할 수 있습니다
-              </CardDescription>
+              <CardDescription>보안을 위해 API Key 사용을 제한할 수 있습니다</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
@@ -286,8 +278,8 @@ export default function GetApiKeyPage() {
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription>
-                  제한 설정은 선택사항이지만, 보안을 위해 권장됩니다.
-                  개발 중에는 제한 없이 사용하고, 배포 시 설정하셔도 됩니다.
+                  제한 설정은 선택사항이지만, 보안을 위해 권장됩니다. 개발 중에는 제한 없이
+                  사용하고, 배포 시 설정하셔도 됩니다.
                 </AlertDescription>
               </Alert>
 
@@ -299,7 +291,7 @@ export default function GetApiKeyPage() {
                 <p className="text-sm text-muted-foreground mb-3">
                   API Key 발급이 완료되었습니다. 이제 디하클에서 사용할 수 있습니다.
                 </p>
-                <Button asChild>
+                <Button asChild={true}>
                   <Link href="/settings/api-keys">
                     <Key className="mr-2 h-4 w-4" />
                     API Key 등록하러 가기
@@ -320,8 +312,8 @@ export default function GetApiKeyPage() {
           <div>
             <h4 className="font-medium mb-1">API Key는 안전한가요?</h4>
             <p className="text-sm text-muted-foreground">
-              네, 디하클에서는 모든 API Key를 AES-256 암호화를 통해 안전하게 저장합니다.
-              다른 사용자는 절대 접근할 수 없습니다.
+              네, 디하클에서는 모든 API Key를 AES-256 암호화를 통해 안전하게 저장합니다. 다른
+              사용자는 절대 접근할 수 없습니다.
             </p>
           </div>
 
@@ -336,16 +328,16 @@ export default function GetApiKeyPage() {
           <div>
             <h4 className="font-medium mb-1">할당량이 초과되면 어떻게 되나요?</h4>
             <p className="text-sm text-muted-foreground">
-              할당량이 초과되면 다음날 자정(태평양 시간 기준)에 자동으로 초기화됩니다.
-              추가 할당량이 필요한 경우 Google에 요청할 수 있습니다.
+              할당량이 초과되면 다음날 자정(태평양 시간 기준)에 자동으로 초기화됩니다. 추가 할당량이
+              필요한 경우 Google에 요청할 수 있습니다.
             </p>
           </div>
 
           <div>
             <h4 className="font-medium mb-1">여러 개의 API Key를 사용할 수 있나요?</h4>
             <p className="text-sm text-muted-foreground">
-              현재는 계정당 하나의 YouTube API Key만 등록할 수 있습니다.
-              기존 Key를 삭제하고 새로운 Key를 등록할 수 있습니다.
+              현재는 계정당 하나의 YouTube API Key만 등록할 수 있습니다. 기존 Key를 삭제하고 새로운
+              Key를 등록할 수 있습니다.
             </p>
           </div>
         </CardContent>

@@ -4,16 +4,16 @@
  */
 
 // 콘텐츠 블록 타입
-export type ContentBlockType = 
-  | 'heading' 
-  | 'text' 
-  | 'image' 
-  | 'video' 
+export type ContentBlockType =
+  | 'heading'
+  | 'text'
+  | 'image'
+  | 'video'
   | 'gif'
-  | 'grid' 
-  | 'divider' 
-  | 'button' 
-  | 'html' 
+  | 'grid'
+  | 'divider'
+  | 'button'
+  | 'html'
   | 'accordion';
 
 // 기본 콘텐츠 블록
@@ -76,13 +76,13 @@ export interface AccordionBlock extends BaseContentBlock {
 }
 
 // 통합 콘텐츠 블록 타입
-export type ContentBlock = 
-  | TextBlock 
-  | MediaBlock 
-  | GridBlock 
-  | DividerBlock 
-  | ButtonBlock 
-  | HtmlBlock 
+export type ContentBlock =
+  | TextBlock
+  | MediaBlock
+  | GridBlock
+  | DividerBlock
+  | ButtonBlock
+  | HtmlBlock
   | AccordionBlock;
 
 // 강의 레벨
@@ -93,30 +93,30 @@ export interface EnhancedCourse {
   id: string;
   title: string;
   description: string | null;
-  instructor_name: string;
+  instructorName: string;
   thumbnail_url: string | null;
-  badge_icon_url: string | null;
-  duration_weeks: number;
+  badgeIconUrl: string | null;
+  durationWeeks: number;
   price: number;
-  original_price: number | null;
-  discount_rate: number;
-  is_premium: boolean;
-  chat_room_url: string | null;
-  launch_date: string;
+  originalPrice: number | null;
+  discountRate: number;
+  isPremium: boolean;
+  chatRoomUrl: string | null;
+  launchDate: string;
   status: 'upcoming' | 'active' | 'completed';
-  max_students: number | null;
-  
+  maxStudents: number | null;
+
   // 새로운 필드들
-  content_blocks: ContentBlock[];
+  contentBlocks: ContentBlock[];
   rating: number;
-  student_count: number;
+  studentCount: number;
   category: string | null;
   level: CourseLevel | null;
-  preview_video_url: string | null;
-  learning_goals: string[];
+  previewVideoUrl: string | null;
+  learningGoals: string[];
   requirements: string[];
   tags: string[];
-  
+
   created_at: string;
   updated_at: string;
 }
@@ -129,11 +129,11 @@ export interface CourseReview {
   rating: number;
   title: string | null;
   content: string | null;
-  is_verified_purchase: boolean;
-  helpful_count: number;
+  isVerifiedPurchase: boolean;
+  helpfulCount: number;
   created_at: string;
   updated_at: string;
-  
+
   // 조인된 사용자 정보
   user?: {
     id: string;
@@ -148,10 +148,10 @@ export type CourseTab = 'intro' | 'curriculum' | 'reviews' | 'qna';
 // 구매 정보 타입
 export interface PurchaseInfo {
   price: number;
-  original_price: number | null;
-  discount_rate: number;
+  originalPrice: number | null;
+  discountRate: number;
   benefits: string[];
-  is_enrolled: boolean;
+  isEnrolled: boolean;
   enrollment_count: number;
-  refund_policy: string;
+  refundPolicy: string;
 }

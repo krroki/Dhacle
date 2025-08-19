@@ -1,36 +1,36 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useInView } from 'react-intersection-observer'
-import { useAnimation, Variants } from 'framer-motion'
+import { useAnimation, type Variants } from 'framer-motion';
+import { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 interface ScrollAnimationOptions {
-  threshold?: number
-  triggerOnce?: boolean
-  rootMargin?: string
+  threshold?: number;
+  triggerOnce?: boolean;
+  rootMargin?: string;
 }
 
 export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
-  const controls = useAnimation()
+  const controls = useAnimation();
   const { ref, inView } = useInView({
     threshold: options.threshold || 0.1,
     triggerOnce: options.triggerOnce !== false,
     rootMargin: options.rootMargin || '0px',
-  })
+  });
 
   useEffect(() => {
     if (inView) {
-      controls.start('visible')
+      controls.start('visible');
     } else if (!options.triggerOnce) {
-      controls.start('hidden')
+      controls.start('hidden');
     }
-  }, [controls, inView, options.triggerOnce])
+  }, [controls, inView, options.triggerOnce]);
 
   return {
     ref,
     controls,
     inView,
-  }
+  };
 }
 
 // Preset animation variants
@@ -47,7 +47,7 @@ export const fadeInUp: Variants = {
       ease: 'easeOut',
     },
   },
-}
+};
 
 export const fadeInLeft: Variants = {
   hidden: {
@@ -62,7 +62,7 @@ export const fadeInLeft: Variants = {
       ease: 'easeOut',
     },
   },
-}
+};
 
 export const fadeInRight: Variants = {
   hidden: {
@@ -77,7 +77,7 @@ export const fadeInRight: Variants = {
       ease: 'easeOut',
     },
   },
-}
+};
 
 export const scaleIn: Variants = {
   hidden: {
@@ -92,7 +92,7 @@ export const scaleIn: Variants = {
       ease: 'easeOut',
     },
   },
-}
+};
 
 export const staggerContainer: Variants = {
   hidden: {
@@ -105,7 +105,7 @@ export const staggerContainer: Variants = {
       delayChildren: 0.2,
     },
   },
-}
+};
 
 export const staggerItem: Variants = {
   hidden: {
@@ -120,4 +120,4 @@ export const staggerItem: Variants = {
       ease: 'easeOut',
     },
   },
-}
+};

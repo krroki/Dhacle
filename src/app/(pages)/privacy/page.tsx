@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield, Construction } from 'lucide-react';
+import { ArrowLeft, Construction, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function PrivacyPage() {
   return (
@@ -21,11 +21,9 @@ export default function PrivacyPage() {
             <Shield className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">개인정보처리방침</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            디하클 개인정보 보호 정책
-          </p>
+          <p className="text-muted-foreground text-lg">디하클 개인정보 보호 정책</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
             <Construction className="w-12 h-12 text-amber-600 dark:text-amber-500 mx-auto mb-3" />

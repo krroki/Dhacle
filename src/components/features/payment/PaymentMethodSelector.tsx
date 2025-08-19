@@ -1,18 +1,12 @@
 'use client';
 
+import { Building2, CreditCard, Loader2, Smartphone, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { requestPayment, type PaymentMethod } from '@/lib/tosspayments/client';
-import { 
-  CreditCard, 
-  Smartphone, 
-  Building2, 
-  Wallet,
-  Loader2
-} from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { type PaymentMethod, requestPayment } from '@/lib/tosspayments/client';
 
 interface PaymentMethodSelectorProps {
   orderId: string;
@@ -94,7 +88,7 @@ export function PaymentMethodSelector({
 
   const handlePayment = async () => {
     setIsProcessing(true);
-    
+
     try {
       await requestPayment(selectedMethod, {
         amount,
@@ -106,11 +100,11 @@ export function PaymentMethodSelector({
         successUrl: `${window.location.origin}/payment/success?orderId=${orderId}`,
         failUrl: `${window.location.origin}/payment/fail?orderId=${orderId}`,
       });
-      
+
       onSuccess?.();
     } catch (error) {
       console.error('Payment error:', error);
-      
+
       // 사용자가 취소한 경우는 에러로 처리하지 않음
       if (error instanceof Error && !error.message.includes('사용자가 결제를 취소')) {
         onError?.(error);
@@ -128,13 +122,11 @@ export function PaymentMethodSelector({
     <Card>
       <CardHeader>
         <CardTitle>결제 수단 선택</CardTitle>
-        <CardDescription>
-          원하시는 결제 수단을 선택하세요
-        </CardDescription>
+        <CardDescription>원하시는 결제 수단을 선택하세요</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <RadioGroup 
-          value={selectedMethod} 
+        <RadioGroup
+          value={selectedMethod}
           onValueChange={(value) => setSelectedMethod(value as PaymentMethod)}
         >
           <div className="grid gap-3">
@@ -155,9 +147,7 @@ export function PaymentMethodSelector({
                       {option.icon}
                       <span className="font-medium">{option.label}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {option.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{option.description}</p>
                   </div>
                 </Label>
               </div>
@@ -168,27 +158,18 @@ export function PaymentMethodSelector({
         <div className="rounded-lg bg-muted p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">결제 금액</span>
-            <span className="text-2xl font-bold text-primary">
-              {formatPrice(amount)}
-            </span>
+            <span className="text-2xl font-bold text-primary">{formatPrice(amount)}</span>
           </div>
         </div>
 
-        <Button 
-          onClick={handlePayment}
-          disabled={isProcessing}
-          className="w-full"
-          size="lg"
-        >
+        <Button onClick={handlePayment} disabled={isProcessing} className="w-full" size="lg">
           {isProcessing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               처리 중...
             </>
           ) : (
-            <>
-              {formatPrice(amount)} 결제하기
-            </>
+            <>{formatPrice(amount)} 결제하기</>
           )}
         </Button>
 

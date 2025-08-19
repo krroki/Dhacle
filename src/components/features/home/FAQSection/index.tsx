@@ -1,5 +1,6 @@
 'use client';
 
+import { HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import {
   Accordion,
@@ -8,17 +9,17 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SectionTitle } from '../shared/SectionTitle';
 import { dummyFAQs } from '@/lib/dummy-data/home';
-import { HelpCircle } from 'lucide-react';
+import { SectionTitle } from '../shared/SectionTitle';
 
 export function FAQSection() {
   const categories = ['전체', '일반', '강의', '결제', '환불'];
   const [selectedCategory, setSelectedCategory] = useState('전체');
 
-  const filteredFAQs = selectedCategory === '전체' 
-    ? dummyFAQs 
-    : dummyFAQs.filter(faq => faq.category === selectedCategory);
+  const filteredFAQs =
+    selectedCategory === '전체'
+      ? dummyFAQs
+      : dummyFAQs.filter((faq) => faq.category === selectedCategory);
 
   return (
     <section className="py-12">
@@ -44,16 +45,12 @@ export function FAQSection() {
             </TabsList>
 
             <TabsContent value={selectedCategory}>
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible={true} className="w-full">
                 {filteredFAQs.map((faq) => (
                   <AccordionItem key={faq.id} value={faq.id}>
-                    <AccordionTrigger className="text-left">
-                      {faq.question}
-                    </AccordionTrigger>
+                    <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {faq.answer}
-                      </p>
+                      <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
                     </AccordionContent>
                   </AccordionItem>
                 ))}

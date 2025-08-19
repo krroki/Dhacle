@@ -1,9 +1,9 @@
-import { SectionTitle } from '../shared/SectionTitle';
-import { CourseCarousel } from '../shared/CourseCarousel';
-import { dummyNewCourses } from '@/lib/dummy-data/home';
-import { Button } from '@/components/ui';
-import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui';
+import { dummyNewCourses } from '@/lib/dummy-data/home';
+import { CourseCarousel } from '../shared/CourseCarousel';
+import { SectionTitle } from '../shared/SectionTitle';
 
 export function NewCoursesCarousel() {
   return (
@@ -18,11 +18,11 @@ export function NewCoursesCarousel() {
               className="mb-0"
             />
           </div>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild={true}>
             <Link href="/courses/new">전체보기</Link>
           </Button>
         </div>
-        
+
         <CourseCarousel courses={dummyNewCourses} showNewBadge={true} />
       </div>
     </section>

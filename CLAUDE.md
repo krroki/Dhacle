@@ -30,6 +30,12 @@
 - **생성 이유 설명**: 새로운 요소 생성 시 반드시 사용자에게 이유와 목적 설명
 - **보안 현황**: Wave 0-3 완료 ✅, Rate Limiting/Zod/XSS 방지 구현 완료
 
+### 1-1. 🚨 AI 필수 행동 수칙 (2025-02-01 추가)
+- **코드 수정 전 반드시 Read 도구로 현재 코드 확인** - 추측 기반 해결책 제시 금지
+- **문서 내용보다 실제 코드를 우선 신뢰** - "문서는 참고, 코드가 진실"
+- **확실하지 않으면 "추정", "아마도" 명시** - 과도한 자신감 금지
+- **이미 올바른 코드는 수정하지 않기** - 최소 수정 원칙
+
 ### 2. 코드 작성 규칙
 - **API 호출**: `/src/lib/api-client.ts`의 함수 사용 (`apiGet`, `apiPost`, `apiPut`, `apiDelete`) - **Wave 1 100% 적용**
 - **컴포넌트**: shadcn/ui 컴포넌트 우선 사용
@@ -130,7 +136,30 @@ import { sanitizeRichHTML } from '@/lib/security/sanitizer';
 const safeContent = sanitizeRichHTML(userInput);
 ```
 
-### 4. 파일 작업 규칙
+### 4. 🎯 코드 품질 자동화 도구 (필수 사용)
+
+#### Biome - 코드 포맷팅 및 린팅
+- **자동 활성화**: 모든 TypeScript/JavaScript 파일 작업 시
+- **실행 명령**: 
+  ```bash
+  # 작업 전 검사
+  npm run lint:biome
+  
+  # 자동 수정
+  npm run lint:biome:fix
+  ```
+- **Pre-commit**: 자동으로 staged 파일 검사 및 수정
+- **주요 규칙**:
+  - Import 자동 정렬
+  - 불필요한 코드 제거
+  - 일관된 포맷팅
+
+#### Semgrep 보안 스캔
+- **정기 실행**: 보안 관련 작업 후
+- **참조**: `/SEMGREP_GUIDE.md`
+- **주요 탐지**: 직접 fetch() 사용, any 타입, 하드코딩된 비밀키
+
+### 5. 파일 작업 규칙
 - 새 파일 생성보다 기존 파일 수정 우선
 - 문서 파일(*.md, README) 임의 생성 금지
 - 환경 변수 하드코딩 금지
@@ -399,6 +428,65 @@ npm run security:complete # RLS + TTL + 테스트
 
 ### 4. 빌드 전 체크리스트
 > 체크리스트는 `/docs/CHECKLIST.md` 참조
+
+### 5. 🧪 테스트 작성 규칙 (MSW + Vitest + Playwright) - 2025-02-01 추가
+#### MSW (Mock Service Worker) 활용
+- **개발 중 API 모킹**: 실제 백엔드 없이 개발 가능
+- **YouTube API 할당량 절약**: 개발 중 실제 API 호출 없음
+- **에러 시뮬레이션**: 401, 500, 타임아웃 등 테스트
+```typescript
+// src/mocks/handlers.ts에 핸들러 추가
+http.get('/api/new-endpoint', () => {
+  return HttpResponse.json({ data: 'mocked' })
+})
+```
+
+#### Vitest 단위/컴포넌트 테스트
+- **새 컴포넌트 생성 시**: `.test.tsx` 파일 동시 생성
+- **테스트 커버리지**: 80% 이상 유지
+- **테스트 실행**: `npm run test` (watch 모드)
+```typescript
+// ComponentName.test.tsx
+import { render, screen } from '@testing-library/react'
+import { ComponentName } from './ComponentName'
+
+describe('ComponentName', () => {
+  it('should render correctly', () => {
+    render(<ComponentName />)
+    expect(screen.getByText('expected text')).toBeInTheDocument()
+  })
+})
+```
+
+#### Playwright E2E 테스트
+- **사용자 시나리오 테스트**: 실제 브라우저에서 테스트
+- **크로스 브라우저 테스트**: Chrome, Firefox, Safari
+- **테스트 실행**: `npm run e2e`
+```typescript
+// e2e/feature.spec.ts
+import { test, expect } from '@playwright/test'
+
+test('user can complete flow', async ({ page }) => {
+  await page.goto('/')
+  await page.click('button:has-text("시작하기")')
+  await expect(page).toHaveURL('/expected-path')
+})
+```
+
+#### 자동 테스트 실행
+```bash
+# 개발 중 테스트 (watch 모드)
+npm run test
+
+# 테스트 커버리지 확인
+npm run test:coverage
+
+# E2E 테스트
+npm run e2e
+
+# Pre-commit 자동 실행
+git commit # 자동으로 테스트 실행됨
+```
 
 #### 🔐 코드 일관성 검증 시스템 v2.0 - 2025-01-31 완성
 ```bash

@@ -492,7 +492,63 @@ try {
 }
 
 // ==============================
-// 7. 빌드 테스트 (옵션)
+// 8. Biome 코드 품질 검증 (2025-08-20 추가)
+// ==============================
+console.log('\n🎯 Biome Code Quality Verification');
+console.log('-'.repeat(40));
+
+if (fs.existsSync(path.join(process.cwd(), 'biome.json'))) {
+  try {
+    // Biome 검사 실행 (에러와 경고 모두 표시)
+    const biomeOutput = execSync('npx biome check ./src --reporter=compact', { 
+      stdio: 'pipe',
+      encoding: 'utf-8'
+    });
+    console.log(`${colors.green}✅ Biome check passed${colors.reset}`);
+  } catch (error) {
+    const output = error.stdout || error.stderr || '';
+    
+    // 에러/경고 카운트 추출
+    const errorMatch = output.match(/(\d+) error/);
+    const warningMatch = output.match(/(\d+) warning/);
+    const biomeErrorCount = errorMatch ? parseInt(errorMatch[1]) : 0;
+    const biomeWarningCount = warningMatch ? parseInt(warningMatch[1]) : 0;
+    
+    if (biomeErrorCount > 0) {
+      console.log(`${colors.red}❌ Biome found ${biomeErrorCount} errors${colors.reset}`);
+      console.log('   These should be fixed for better code quality');
+      console.log('   Run: npm run lint:biome:fix to auto-fix');
+      
+      // Biome 에러는 빌드를 막지 않지만 경고로 기록
+      warningCount += biomeErrorCount;
+      issues.warnings.push(`Biome: ${biomeErrorCount} code quality issues`);
+      
+      // 처음 3개 이슈만 표시
+      const lines = output.split('\n').filter(line => line.trim());
+      const issueLines = lines.filter(line => 
+        line.includes('.ts') || line.includes('.tsx') || line.includes('.js')
+      );
+      issueLines.slice(0, 3).forEach(line => {
+        console.log(`   ${line}`);
+      });
+      if (issueLines.length > 3) {
+        console.log(`   ... and ${issueLines.length - 3} more issues`);
+      }
+    } else if (biomeWarningCount > 0) {
+      console.log(`${colors.yellow}⚠️ Biome found ${biomeWarningCount} warnings${colors.reset}`);
+      warningCount += biomeWarningCount;
+    } else {
+      console.log(`${colors.yellow}⚠️ Biome check completed with issues${colors.reset}`);
+    }
+  }
+} else {
+  console.log(`${colors.cyan}ℹ️ Biome not configured (biome.json not found)${colors.reset}`);
+  console.log('   Install with: npm install --save-dev @biomejs/biome');
+  console.log('   Initialize with: npx biome init');
+}
+
+// ==============================
+// 9. 빌드 테스트 (옵션)
 // ==============================
 const skipBuild = process.argv.includes('--skip-build');
 

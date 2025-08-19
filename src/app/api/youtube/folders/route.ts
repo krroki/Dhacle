@@ -1,12 +1,12 @@
 /**
  * API Route: /api/youtube/folders
- * Purpose: Manage YouTube channel folders (source_folders)
+ * Purpose: Manage YouTube channel folders (sourceFolders)
  * Created: 2025-01-30
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/youtube/folders
@@ -16,21 +16,20 @@ export async function GET() {
   try {
     // Authentication check - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Fetch folders with channel count
     const { data: folders, error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .select(`
         *,
-        folder_channels (
+        folderChannels (
           id,
           channel_id
         )
@@ -40,30 +39,23 @@ export async function GET() {
 
     if (error) {
       console.error('Error fetching folders:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch folders' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
     }
 
     // Calculate channel count for each folder
-    const foldersWithCount = (folders || []).map(folder => ({
+    const foldersWithCount = (folders || []).map((folder) => ({
       ...folder,
-      channel_count: folder.folder_channels?.length || 0,
-      folder_channels: undefined // Remove raw relation data
+      channelCount: folder.folderChannels?.length || 0,
+      folderChannels: undefined, // Remove raw relation data
     }));
 
     return NextResponse.json({
       success: true,
-      folders: foldersWithCount
+      folders: foldersWithCount,
     });
-
   } catch (error) {
     console.error('[/api/youtube/folders] GET Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -75,13 +67,12 @@ export async function POST(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse request body
@@ -90,18 +81,15 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json(
-        { error: 'Folder name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
     }
 
     // Check for duplicate folder name
     const { data: existingFolder } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .select('id')
       .eq('user_id', user.id)
-      .eq('folder_name', name.trim())
+      .eq('folderName', name.trim())
       .single();
 
     if (existingFolder) {
@@ -113,38 +101,34 @@ export async function POST(request: NextRequest) {
 
     // Create new folder
     const { data: newFolder, error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .insert({
         user_id: user.id,
-        folder_name: name.trim(),
+        folderName: name.trim(),
         description: description?.trim() || null,
         color: color || '#3B82F6', // Default blue color
         icon: icon || '📁',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error) {
       console.error('Error creating folder:', error);
-      return NextResponse.json(
-        { error: 'Failed to create folder' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
     }
 
-    return NextResponse.json({
-      success: true,
-      folder: newFolder
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        folder: newFolder,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('[/api/youtube/folders] POST Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -156,13 +140,12 @@ export async function PUT(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse request body
@@ -171,39 +154,33 @@ export async function PUT(request: NextRequest) {
 
     // Validate folder ID
     if (!id) {
-      return NextResponse.json(
-        { error: 'Folder ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
     }
 
     // Check if folder exists and belongs to user
     const { data: existingFolder } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .select('id')
       .eq('id', id)
       .eq('user_id', user.id)
       .single();
 
     if (!existingFolder) {
-      return NextResponse.json(
-        { error: 'Folder not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
     // Prepare update data
     const updateData: Record<string, unknown> = {
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
     if (name !== undefined && name.trim() !== '') {
       // Check for duplicate name if changing
       const { data: duplicateFolder } = await supabase
-        .from('source_folders')
+        .from('sourceFolders')
         .select('id')
         .eq('user_id', user.id)
-        .eq('folder_name', name.trim())
+        .eq('folderName', name.trim())
         .neq('id', id)
         .single();
 
@@ -213,7 +190,7 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         );
       }
-      updateData.folder_name = name.trim();
+      updateData.folderName = name.trim();
     }
 
     if (description !== undefined) {
@@ -230,7 +207,7 @@ export async function PUT(request: NextRequest) {
 
     // Update folder
     const { data: updatedFolder, error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -239,23 +216,16 @@ export async function PUT(request: NextRequest) {
 
     if (error) {
       console.error('Error updating folder:', error);
-      return NextResponse.json(
-        { error: 'Failed to update folder' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      folder: updatedFolder
+      folder: updatedFolder,
     });
-
   } catch (error) {
     console.error('[/api/youtube/folders] PUT Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -267,13 +237,12 @@ export async function DELETE(request: NextRequest) {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse query parameters
@@ -282,66 +251,50 @@ export async function DELETE(request: NextRequest) {
 
     // Validate folder ID
     if (!folderId) {
-      return NextResponse.json(
-        { error: 'Folder ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
     }
 
     // Check if folder exists and belongs to user
     const { data: existingFolder } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .select('id')
       .eq('id', folderId)
       .eq('user_id', user.id)
       .single();
 
     if (!existingFolder) {
-      return NextResponse.json(
-        { error: 'Folder not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
     // Delete channel associations first (due to foreign key constraint)
     const { error: channelError } = await supabase
-      .from('folder_channels')
+      .from('folderChannels')
       .delete()
       .eq('folder_id', folderId);
 
     if (channelError) {
       console.error('Error deleting folder channels:', channelError);
-      return NextResponse.json(
-        { error: 'Failed to delete folder channels' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete folder channels' }, { status: 500 });
     }
 
     // Delete the folder
     const { error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .delete()
       .eq('id', folderId)
       .eq('user_id', user.id);
 
     if (error) {
       console.error('Error deleting folder:', error);
-      return NextResponse.json(
-        { error: 'Failed to delete folder' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Folder deleted successfully'
+      message: 'Folder deleted successfully',
     });
-
   } catch (error) {
     console.error('[/api/youtube/folders] DELETE Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

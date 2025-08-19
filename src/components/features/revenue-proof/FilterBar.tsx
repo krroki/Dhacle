@@ -1,7 +1,7 @@
 'use client';
 
+import { Instagram, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Youtube, Instagram } from 'lucide-react';
 
 interface FilterBarProps {
   platform: 'all' | 'youtube' | 'instagram' | 'tiktok';

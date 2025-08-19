@@ -3,45 +3,53 @@
 /**
  * YouTube Lens - Metrics Dashboard Component
  * Phase 5: UI/UX Implementation
- * 
+ *
  * Comprehensive dashboard for YouTube Lens metrics and analytics
  */
 
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendChart } from './TrendChart';
-import { EntityRadar } from './EntityRadar';
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
   Activity,
-  Users,
-  Eye,
-  Heart,
-  MessageSquare,
-  Share2,
-  Clock,
+  AlertCircle,
   BarChart3,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Download,
+  Eye,
+  Filter,
+  Globe,
+  Hash,
+  Heart,
   LineChart,
+  MessageSquare,
   PieChart,
   RefreshCw,
-  Calendar,
-  Filter,
-  Download,
-  AlertCircle,
-  CheckCircle,
+  Share2,
+  TrendingDown,
+  TrendingUp,
+  Users,
   XCircle,
   Youtube,
-  Hash,
-  Globe,
-  Zap
+  Zap,
 } from 'lucide-react';
-import type { VideoStats, TrendAnalysis, EntityExtraction } from '@/types/youtube-lens';
+import type React from 'react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { mapTrendAnalysis, mapVideoStats } from '@/lib/utils/type-mappers';
+import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtube-lens';
+import { EntityRadar } from './EntityRadar';
+import { TrendChart } from './TrendChart';
 
 interface MetricsDashboardProps {
   metrics?: VideoStats[];
@@ -61,16 +69,31 @@ interface StatCardProps {
   color?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error';
 }
 
-function StatCard({ title, value, change, icon: Icon, description, trend = 'neutral', color = 'primary' }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  change,
+  icon: Icon,
+  description,
+  trend = 'neutral',
+  color = 'primary',
+}: StatCardProps) {
   const getColorClasses = () => {
     switch (color) {
-      case 'primary': return 'bg-yt-lens-primary/10 text-yt-lens-primary border-yt-lens-primary/20';
-      case 'secondary': return 'bg-yt-lens-secondary/10 text-yt-lens-secondary border-yt-lens-secondary/20';
-      case 'accent': return 'bg-yt-lens-accent/10 text-yt-lens-accent-dark border-yt-lens-accent/20';
-      case 'success': return 'bg-green-50 text-green-600 border-green-200';
-      case 'warning': return 'bg-yellow-50 text-yellow-600 border-yellow-200';
-      case 'error': return 'bg-red-50 text-red-600 border-red-200';
-      default: return 'bg-gray-50 text-gray-600 border-gray-200';
+      case 'primary':
+        return 'bg-yt-lens-primary/10 text-yt-lens-primary border-yt-lens-primary/20';
+      case 'secondary':
+        return 'bg-yt-lens-secondary/10 text-yt-lens-secondary border-yt-lens-secondary/20';
+      case 'accent':
+        return 'bg-yt-lens-accent/10 text-yt-lens-accent-dark border-yt-lens-accent/20';
+      case 'success':
+        return 'bg-green-50 text-green-600 border-green-200';
+      case 'warning':
+        return 'bg-yellow-50 text-yellow-600 border-yellow-200';
+      case 'error':
+        return 'bg-red-50 text-red-600 border-red-200';
+      default:
+        return 'bg-gray-50 text-gray-600 border-gray-200';
     }
   };
 
@@ -96,26 +119,33 @@ function StatCard({ title, value, change, icon: Icon, description, trend = 'neut
           {change !== undefined && (
             <div className="flex items-center gap-1 text-sm">
               {getTrendIcon()}
-              <span className={trend === 'up' ? 'text-yt-lens-accent' : trend === 'down' ? 'text-yt-lens-secondary' : 'text-gray-500'}>
-                {change > 0 ? '+' : ''}{change}%
+              <span
+                className={
+                  trend === 'up'
+                    ? 'text-yt-lens-accent'
+                    : trend === 'down'
+                      ? 'text-yt-lens-secondary'
+                      : 'text-gray-500'
+                }
+              >
+                {change > 0 ? '+' : ''}
+                {change}%
               </span>
             </div>
           )}
-          {description && (
-            <p className="text-xs text-muted-foreground mt-1">{description}</p>
-          )}
+          {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export function MetricsDashboard({ 
-  metrics = [], 
-  trends = [], 
+export function MetricsDashboard({
+  metrics = [],
+  trends = [],
   entities = [],
   onRefresh,
-  isLoading = false
+  isLoading = false,
 }: MetricsDashboardProps) {
   const [timeRange, setTimeRange] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
@@ -131,19 +161,21 @@ export function MetricsDashboard({
         totalVideos: 0,
         viralVideos: 0,
         topPerformers: 0,
-        growthRate: 0
+        growthRate: 0,
       };
     }
 
     const totalViews = metrics.reduce((sum, m) => sum + (m.view_count || 0), 0);
     const totalLikes = metrics.reduce((sum, m) => sum + (m.like_count || 0), 0);
-    const avgVPH = metrics.reduce((sum, m) => sum + (m.views_per_hour || 0), 0) / metrics.length;
-    const avgEngagement = metrics.reduce((sum, m) => sum + (m.engagement_rate || 0), 0) / metrics.length;
-    const viralVideos = metrics.filter(m => (m.viral_score || 0) > 70).length;
-    const topPerformers = metrics.filter(m => (m.views_per_hour || 0) > 1000).length;
+    const avgVPH = metrics.reduce((sum, m) => sum + (m.viewsPerHour || 0), 0) / metrics.length;
+    const avgEngagement =
+      metrics.reduce((sum, m) => sum + (m.engagementRate || 0), 0) / metrics.length;
+    const viralVideos = metrics.filter((m) => (m.viralScore || 0) > 70).length;
+    const topPerformers = metrics.filter((m) => (m.viewsPerHour || 0) > 1000).length;
 
     // Calculate growth rate from trends data
-    const growthRate = trends.length > 0 && trends[0]?.growth_rate ? trends[0].growth_rate : 0;
+    const mappedTrends = trends.map(mapTrendAnalysis);
+  const growthRate = mappedTrends.length > 0 && mappedTrends[0]?.growthRate ? mappedTrends[0].growthRate : 0;
 
     return {
       totalViews,
@@ -153,7 +185,7 @@ export function MetricsDashboard({
       totalVideos: metrics.length,
       viralVideos,
       topPerformers,
-      growthRate
+      growthRate,
     };
   }, [metrics]);
 
@@ -167,10 +199,11 @@ export function MetricsDashboard({
   // Performance distribution
   const performanceDistribution = useMemo(() => {
     const distribution = {
-      excellent: metrics.filter(m => (m.viral_score || 0) > 80).length,
-      good: metrics.filter(m => (m.viral_score || 0) > 60 && (m.viral_score || 0) <= 80).length,
-      average: metrics.filter(m => (m.viral_score || 0) > 40 && (m.viral_score || 0) <= 60).length,
-      poor: metrics.filter(m => (m.viral_score || 0) <= 40).length
+      excellent: metrics.filter((m) => (m.viralScore || 0) > 80).length,
+      good: metrics.filter((m) => (m.viralScore || 0) > 60 && (m.viralScore || 0) <= 80).length,
+      average: metrics.filter((m) => (m.viralScore || 0) > 40 && (m.viralScore || 0) <= 60)
+        .length,
+      poor: metrics.filter((m) => (m.viralScore || 0) <= 40).length,
     };
     return distribution;
   }, [metrics]);
@@ -225,7 +258,13 @@ export function MetricsDashboard({
           value={formatNumber(aggregateMetrics.totalViews)}
           change={aggregateMetrics.growthRate}
           icon={Eye}
-          trend={aggregateMetrics.growthRate > 0 ? "up" : aggregateMetrics.growthRate < 0 ? "down" : "neutral"}
+          trend={
+            aggregateMetrics.growthRate > 0
+              ? 'up'
+              : aggregateMetrics.growthRate < 0
+                ? 'down'
+                : 'neutral'
+          }
           color="primary"
           description="지난 기간 대비"
         />
@@ -261,29 +300,29 @@ export function MetricsDashboard({
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
-          <TabsTrigger 
-            value="overview" 
+          <TabsTrigger
+            value="overview"
             className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
           >
             <BarChart3 className="w-4 h-4 mr-2" />
             개요
           </TabsTrigger>
-          <TabsTrigger 
-            value="performance" 
+          <TabsTrigger
+            value="performance"
             className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
           >
             <LineChart className="w-4 h-4 mr-2" />
             성과 분석
           </TabsTrigger>
-          <TabsTrigger 
-            value="trends" 
+          <TabsTrigger
+            value="trends"
             className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             트렌드
           </TabsTrigger>
-          <TabsTrigger 
-            value="entities" 
+          <TabsTrigger
+            value="entities"
             className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
           >
             <Globe className="w-4 h-4 mr-2" />
@@ -308,40 +347,50 @@ export function MetricsDashboard({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">우수 (80+)</span>
-                      <span className="text-sm text-muted-foreground">{performanceDistribution.excellent}개</span>
+                      <span className="text-sm text-muted-foreground">
+                        {performanceDistribution.excellent}개
+                      </span>
                     </div>
-                    <Progress 
-                      value={(performanceDistribution.excellent / aggregateMetrics.totalVideos) * 100} 
+                    <Progress
+                      value={
+                        (performanceDistribution.excellent / aggregateMetrics.totalVideos) * 100
+                      }
                       className="h-2 bg-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">양호 (60-80)</span>
-                      <span className="text-sm text-muted-foreground">{performanceDistribution.good}개</span>
+                      <span className="text-sm text-muted-foreground">
+                        {performanceDistribution.good}개
+                      </span>
                     </div>
-                    <Progress 
-                      value={(performanceDistribution.good / aggregateMetrics.totalVideos) * 100} 
+                    <Progress
+                      value={(performanceDistribution.good / aggregateMetrics.totalVideos) * 100}
                       className="h-2 bg-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">보통 (40-60)</span>
-                      <span className="text-sm text-muted-foreground">{performanceDistribution.average}개</span>
+                      <span className="text-sm text-muted-foreground">
+                        {performanceDistribution.average}개
+                      </span>
                     </div>
-                    <Progress 
-                      value={(performanceDistribution.average / aggregateMetrics.totalVideos) * 100} 
+                    <Progress
+                      value={(performanceDistribution.average / aggregateMetrics.totalVideos) * 100}
                       className="h-2 bg-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">미흡 (40 이하)</span>
-                      <span className="text-sm text-muted-foreground">{performanceDistribution.poor}개</span>
+                      <span className="text-sm text-muted-foreground">
+                        {performanceDistribution.poor}개
+                      </span>
                     </div>
-                    <Progress 
-                      value={(performanceDistribution.poor / aggregateMetrics.totalVideos) * 100} 
+                    <Progress
+                      value={(performanceDistribution.poor / aggregateMetrics.totalVideos) * 100}
                       className="h-2 bg-gray-200"
                     />
                   </div>
@@ -362,23 +411,30 @@ export function MetricsDashboard({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">신규 영상</p>
-                    <p className="text-2xl font-bold text-yt-lens-primary">{aggregateMetrics.totalVideos}</p>
+                    <p className="text-2xl font-bold text-yt-lens-primary">
+                      {aggregateMetrics.totalVideos}
+                    </p>
                     <Badge className="bg-yt-lens-accent/20 text-yt-lens-accent-dark">
                       <TrendingUp className="w-3 h-3 mr-1" />
-                      {aggregateMetrics.growthRate > 0 ? '+' : ''}{aggregateMetrics.growthRate.toFixed(1)}%
+                      {aggregateMetrics.growthRate > 0 ? '+' : ''}
+                      {aggregateMetrics.growthRate.toFixed(1)}%
                     </Badge>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">모니터링 채널</p>
                     <p className="text-2xl font-bold text-yt-lens-secondary">{trends.length}</p>
-                    <Badge variant="outline">
-                      {trends.length > 0 ? '활성' : '대기'}
-                    </Badge>
+                    <Badge variant="outline">{trends.length > 0 ? '활성' : '대기'}</Badge>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">알림 발생</p>
                     <p className="text-2xl font-bold">{aggregateMetrics.viralVideos}</p>
-                    <Badge className={aggregateMetrics.viralVideos > 5 ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}>
+                    <Badge
+                      className={
+                        aggregateMetrics.viralVideos > 5
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-green-100 text-green-800'
+                      }
+                    >
                       {aggregateMetrics.viralVideos > 5 ? (
                         <>
                           <AlertCircle className="w-3 h-3 mr-1" />
@@ -395,7 +451,10 @@ export function MetricsDashboard({
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">API 사용량</p>
                     <p className="text-2xl font-bold">{aggregateMetrics.avgEngagement}%</p>
-                    <Progress value={parseFloat(String(aggregateMetrics.avgEngagement))} className="h-2 mt-2" />
+                    <Progress
+                      value={Number.parseFloat(String(aggregateMetrics.avgEngagement))}
+                      className="h-2 mt-2"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -414,7 +473,10 @@ export function MetricsDashboard({
             <CardContent>
               <div className="space-y-3">
                 {metrics.slice(0, 5).map((metric, index) => (
-                  <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors">
+                  <div
+                    key={metric.id}
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yt-lens-primary/10 text-yt-lens-primary font-bold">
                         {index + 1}
@@ -428,14 +490,14 @@ export function MetricsDashboard({
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             <Clock className="w-3 h-3 mr-1" />
-                            VPH: {formatNumber(metric.views_per_hour || 0)}
+                            VPH: {formatNumber(metric.viewsPerHour || 0)}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-yt-lens-primary">
-                        {metric.viral_score?.toFixed(0)}
+                        {metric.viralScore?.toFixed(0)}
                       </div>
                       <p className="text-xs text-muted-foreground">바이럴 점수</p>
                     </div>

@@ -1,8 +1,17 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { Youtube, Instagram, MessageCircle, Mail, Phone, Coffee, Facebook, MapPin } from 'lucide-react'
-import { Button, Input, Separator } from '@/components/ui'
+import {
+  Coffee,
+  Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Youtube,
+} from 'lucide-react';
+import Link from 'next/link';
+import { Button, Input, Separator } from '@/components/ui';
 
 const footerLinks = {
   service: [
@@ -29,27 +38,52 @@ const footerLinks = {
     { label: '제휴 문의', href: '/partnership' },
     { label: '광고 문의', href: '/advertising' },
   ],
-}
+};
 
 const socialLinks = [
-  { name: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@%EB%A7%88%EC%BC%80%ED%84%B0%EC%A0%9C%EC%9D%B4J', color: 'hover:text-red-600' },
-  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/marketerjjj', color: 'hover:text-pink-600' },
-  { name: '카카오톡 오픈채팅', icon: MessageCircle, href: 'https://open.kakao.com/o/goShEsJg', color: 'hover:text-yellow-600' },
-  { name: '네이버 카페', icon: Coffee, href: 'https://cafe.naver.com/dinohighclass', color: 'hover:text-green-600' },
-  { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/p/%EB%A7%88%EC%BC%80%ED%84%B0-%EC%A0%9C%EC%9D%B4J-100091505784956/', color: 'hover:text-blue-600' },
-]
+  {
+    name: 'YouTube',
+    icon: Youtube,
+    href: 'https://www.youtube.com/@%EB%A7%88%EC%BC%80%ED%84%B0%EC%A0%9C%EC%9D%B4J',
+    color: 'hover:text-red-600',
+  },
+  {
+    name: 'Instagram',
+    icon: Instagram,
+    href: 'https://www.instagram.com/marketerjjj',
+    color: 'hover:text-pink-600',
+  },
+  {
+    name: '카카오톡 오픈채팅',
+    icon: MessageCircle,
+    href: 'https://open.kakao.com/o/goShEsJg',
+    color: 'hover:text-yellow-600',
+  },
+  {
+    name: '네이버 카페',
+    icon: Coffee,
+    href: 'https://cafe.naver.com/dinohighclass',
+    color: 'hover:text-green-600',
+  },
+  {
+    name: 'Facebook',
+    icon: Facebook,
+    href: 'https://www.facebook.com/p/%EB%A7%88%EC%BC%80%ED%84%B0-%EC%A0%9C%EC%9D%B4J-100091505784956/',
+    color: 'hover:text-blue-600',
+  },
+];
 
 export function Footer() {
   const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: 뉴스레터 구독 기능 구현 필요
     // - Supabase newsletter_subscribers 테이블 생성
     // - 이메일 유효성 검증 (Zod 스키마)
     // - 구독 API 엔드포인트 생성 (/api/newsletter/subscribe)
     // - 이메일 서비스 연동 (SendGrid, AWS SES 등)
     // - 구독 확인 이메일 발송
-    console.log('뉴스레터 구독 기능 구현 예정')
-  }
+    console.log('뉴스레터 구독 기능 구현 예정');
+  };
 
   return (
     <footer className="bg-muted/50 border-t mt-auto">
@@ -64,7 +98,7 @@ export function Footer() {
                 YouTube Shorts 크리에이터를 위한 체계적인 교육 플랫폼
               </p>
             </div>
-            
+
             {/* Newsletter */}
             <div className="mb-6">
               <h4 className="text-sm font-semibold mb-2">뉴스레터 구독</h4>
@@ -73,7 +107,7 @@ export function Footer() {
                   type="email"
                   placeholder="이메일을 입력하세요"
                   className="flex-1"
-                  required
+                  required={true}
                 />
                 <Button type="submit" size="sm">
                   구독하기
@@ -89,7 +123,7 @@ export function Footer() {
               <h4 className="text-sm font-semibold mb-3">소셜 미디어</h4>
               <div className="flex gap-3">
                 {socialLinks.map((social) => {
-                  const Icon = social.icon
+                  const Icon = social.icon;
                   return (
                     <Link
                       key={social.name}
@@ -101,7 +135,7 @@ export function Footer() {
                     >
                       <Icon className="h-5 w-5" />
                     </Link>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -196,5 +230,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

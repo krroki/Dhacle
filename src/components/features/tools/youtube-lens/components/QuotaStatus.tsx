@@ -1,29 +1,24 @@
 'use client';
 
+import {
+  Activity,
+  AlertCircle,
+  BarChart3,
+  Clock,
+  Info,
+  RefreshCw,
+  Search,
+  TrendingUp,
+  Video,
+  Zap,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { 
-  AlertCircle, 
-  Info, 
-  TrendingUp,
-  Activity,
-  Zap,
-  RefreshCw,
-  Clock,
-  BarChart3,
-  Search,
-  Video
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { QuotaStatus } from '@/types/youtube';
 
@@ -54,15 +49,15 @@ function getProgressColor(percentage: number): string {
 // 남은 시간 계산
 function formatTimeRemaining(resetTime?: number): string {
   if (!resetTime) return '알 수 없음';
-  
+
   const now = Date.now();
   const diff = resetTime - now;
-  
+
   if (diff <= 0) return '곧 초기화';
-  
+
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  
+
   if (hours > 0) {
     return `${hours}시간 ${minutes}분 후`;
   }
@@ -74,7 +69,7 @@ export function QuotaStatus({
   onRefresh,
   isLoading = false,
   compact = false,
-  className
+  className,
 }: QuotaStatusProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
@@ -96,7 +91,7 @@ export function QuotaStatus({
   // 새로고침 핸들러
   const handleRefresh = async () => {
     if (!onRefresh || isRefreshing) return;
-    
+
     setIsRefreshing(true);
     try {
       await onRefresh();
@@ -108,8 +103,8 @@ export function QuotaStatus({
   // 로딩 상태
   if (isLoading && !quotaStatus) {
     return (
-      <Card className={cn("animate-pulse", className)}>
-        <CardHeader className={compact ? "pb-3" : ""}>
+      <Card className={cn('animate-pulse', className)}>
+        <CardHeader className={compact ? 'pb-3' : ''}>
           <div className="h-5 w-32 bg-muted rounded" />
         </CardHeader>
         <CardContent>
@@ -124,20 +119,13 @@ export function QuotaStatus({
   if (!quotaStatus) {
     return (
       <Card className={className}>
-        <CardHeader className={compact ? "pb-3" : ""}>
+        <CardHeader className={compact ? 'pb-3' : ''}>
           <CardTitle className="text-base">API 할당량</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            할당량 정보를 불러올 수 없습니다
-          </p>
+          <p className="text-sm text-muted-foreground">할당량 정보를 불러올 수 없습니다</p>
           {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={handleRefresh}
-            >
+            <Button variant="outline" size="sm" className="mt-2" onClick={handleRefresh}>
               <RefreshCw className="mr-2 h-4 w-4" />
               새로고침
             </Button>
@@ -150,24 +138,28 @@ export function QuotaStatus({
   // Compact 뷰
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-4", className)}>
+      <div className={cn('flex items-center gap-4', className)}>
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">API 할당량</span>
-            <Badge 
-              variant={quotaStatus.critical ? 'destructive' : quotaStatus.warning ? 'secondary' : 'default'}
+            <Badge
+              variant={
+                quotaStatus.critical ? 'destructive' : quotaStatus.warning ? 'secondary' : 'default'
+              }
               className="text-xs"
             >
               {quotaStatus.used.toLocaleString()} / 10,000
             </Badge>
           </div>
-          <Progress 
-            value={quotaStatus.percentage} 
+          <Progress
+            value={quotaStatus.percentage}
             className="h-2"
             // Progress 컴포넌트에 색상 적용
-            style={{
-              '--progress-foreground': getProgressColor(quotaStatus.percentage)
-            } as React.CSSProperties}
+            style={
+              {
+                '--progress-foreground': getProgressColor(quotaStatus.percentage),
+              } as React.CSSProperties
+            }
           />
         </div>
         {onRefresh && (
@@ -178,7 +170,7 @@ export function QuotaStatus({
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+            <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
           </Button>
         )}
       </div>
@@ -195,13 +187,8 @@ export function QuotaStatus({
             <CardDescription>YouTube Data API v3 일일 할당량</CardDescription>
           </div>
           {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-            >
-              <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+              <RefreshCw className={cn('mr-2 h-4 w-4', isRefreshing && 'animate-spin')} />
               새로고침
             </Button>
           )}
@@ -212,16 +199,22 @@ export function QuotaStatus({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className={cn("h-4 w-4", getQuotaColor(quotaStatus.percentage))} />
+              <Activity className={cn('h-4 w-4', getQuotaColor(quotaStatus.percentage))} />
               <span className="text-sm font-medium">
                 사용량: {quotaStatus.percentage.toFixed(1)}%
               </span>
             </div>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge 
-                    variant={quotaStatus.critical ? 'destructive' : quotaStatus.warning ? 'secondary' : 'default'}
+                <TooltipTrigger asChild={true}>
+                  <Badge
+                    variant={
+                      quotaStatus.critical
+                        ? 'destructive'
+                        : quotaStatus.warning
+                          ? 'secondary'
+                          : 'default'
+                    }
                   >
                     {quotaStatus.used.toLocaleString()} / 10,000
                   </Badge>
@@ -232,12 +225,14 @@ export function QuotaStatus({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Progress 
-            value={quotaStatus.percentage} 
+          <Progress
+            value={quotaStatus.percentage}
             className="h-3"
-            style={{
-              '--progress-foreground': getProgressColor(quotaStatus.percentage)
-            } as React.CSSProperties}
+            style={
+              {
+                '--progress-foreground': getProgressColor(quotaStatus.percentage),
+              } as React.CSSProperties
+            }
           />
         </div>
 
@@ -269,9 +264,7 @@ export function QuotaStatus({
               <Zap className="h-3 w-3" />
               <span>남은 검색</span>
             </div>
-            <p className="text-sm font-medium">
-              약 {Math.floor(quotaStatus.remaining / 100)}회
-            </p>
+            <p className="text-sm font-medium">약 {Math.floor(quotaStatus.remaining / 100)}회</p>
           </div>
         </div>
 

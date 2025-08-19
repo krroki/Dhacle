@@ -4,7 +4,7 @@
  * Created: 2025-01-21
  */
 
-import { google, youtube_v3 } from 'googleapis';
+import { google, type youtube_v3 } from 'googleapis';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
 
@@ -17,7 +17,7 @@ let cachedClient: youtube_v3.Youtube | null = null;
 export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Youtube> {
   // For server-side calls, we need to get the API key differently
   let apiKey: string | null = null;
-  
+
   if (userId) {
     // Server-side: Get decrypted API key from database
     apiKey = await getDecryptedApiKey(userId, 'youtube');
@@ -25,12 +25,12 @@ export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Yout
     // Client-side fallback or environment variable
     apiKey = process.env.YOUTUBE_API_KEY || null;
   }
-  
+
   if (!apiKey) {
     console.error('[getYouTubeClient] API key not found:', {
       userId,
       hasUserId: !!userId,
-      hasEnvKey: !!process.env.YOUTUBE_API_KEY
+      hasEnvKey: !!process.env.YOUTUBE_API_KEY,
     });
     throw new Error('YouTube API key not configured. Please add your API key in settings.');
   }
@@ -44,7 +44,6 @@ export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Yout
   return youtube;
 }
 
-
 /**
  * Clear cached client (useful when API key changes)
  */
@@ -55,53 +54,50 @@ export function clearYouTubeClient(): void {
 /**
  * Track API quota usage
  */
-export async function trackQuotaUsage(
-  operation: string,
-  units: number
-): Promise<void> {
+export async function trackQuotaUsage(operation: string, units: number): Promise<void> {
   try {
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (user) {
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Check if record exists for today
       const { data: existing } = await supabase
-        .from('api_usage')
+        .from('apiUsage')
         .select('*')
         .eq('user_id', user.id)
         .eq('date', today)
         .single();
-      
+
       if (existing) {
         // Update existing record
         await supabase
-          .from('api_usage')
+          .from('apiUsage')
           .update({
-            units_used: existing.units_used + units,
-            [`${operation}_count`]: (existing[`${operation}_count`] || 0) + 1
+            unitsUsed: existing.unitsUsed + units,
+            [`${operation}_count`]: (existing[`${operation}_count`] || 0) + 1,
           })
           .eq('id', existing.id);
       } else {
         // Create new record
-        await supabase
-          .from('api_usage')
-          .insert({
-            user_id: user.id,
-            operation,
-            units,
-            date: today,
-            units_used: units,
-            [`${operation}_count`]: 1
-          });
+        await supabase.from('apiUsage').insert({
+          user_id: user.id,
+          operation,
+          units,
+          date: today,
+          unitsUsed: units,
+          [`${operation}_count`]: 1,
+        });
       }
     }
   } catch (error) {
     console.error('[trackQuotaUsage] Error:', {
       error: error instanceof Error ? error.message : String(error),
       operation,
-      units
+      units,
     });
   }
 }
@@ -116,37 +112,39 @@ export async function getRemainingQuota(): Promise<{
 }> {
   try {
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return { used: 0, limit: 10000, remaining: 10000 };
     }
-    
+
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Get user's subscription limits
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('api_quota_daily')
+      .select('apiQuotaDaily')
       .eq('user_id', user.id)
       .single();
-    
-    const limit = subscription?.api_quota_daily || 1000;
-    
+
+    const limit = subscription?.apiQuotaDaily || 1000;
+
     // Get today's usage
     const { data: usage } = await supabase
-      .from('api_usage')
-      .select('units_used')
+      .from('apiUsage')
+      .select('unitsUsed')
       .eq('user_id', user.id)
       .eq('date', today)
       .single();
-    
-    const used = usage?.units_used || 0;
-    
+
+    const used = usage?.unitsUsed || 0;
+
     return {
       used,
       limit,
-      remaining: Math.max(0, limit - used)
+      remaining: Math.max(0, limit - used),
     };
   } catch (error) {
     console.error('Error getting remaining quota:', error);
@@ -157,9 +155,7 @@ export async function getRemainingQuota(): Promise<{
 /**
  * Check if operation would exceed quota
  */
-export async function checkQuotaBeforeOperation(
-  estimatedUnits: number
-): Promise<boolean> {
+export async function checkQuotaBeforeOperation(estimatedUnits: number): Promise<boolean> {
   const { remaining } = await getRemainingQuota();
   return remaining >= estimatedUnits;
 }
@@ -183,11 +179,11 @@ export function estimateSearchQuota(params: {
   includeDetails?: boolean;
 }): number {
   let cost = QUOTA_COSTS.search;
-  
+
   if (params.includeDetails) {
     // Additional cost for fetching video details
     cost += params.maxResults * QUOTA_COSTS.videoDetails;
   }
-  
+
   return cost;
 }

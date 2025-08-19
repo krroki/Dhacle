@@ -1,9 +1,10 @@
 // 수익인증 상세 페이지
-import { notFound } from 'next/navigation';
+
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import type { RevenueProof } from '@/types/revenue-proof';
+import { notFound } from 'next/navigation';
 import { RevenueProofDetail } from '@/components/features/revenue-proof/RevenueProofDetail';
+import type { RevenueProof } from '@/types/revenue-proof';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -13,7 +14,7 @@ interface PageProps {
 export default async function RevenueProofDetailPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = createServerComponentClient({ cookies });
-  
+
   // 수익인증 상세 데이터 조회
   const { data: proof, error } = await supabase
     .from('revenue_proofs')
@@ -44,7 +45,9 @@ export default async function RevenueProofDetailPage({ params }: PageProps) {
   }
 
   // 현재 사용자 정보
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const currentUserId = session?.user?.id;
 
   // 좋아요 여부 확인
@@ -56,22 +59,19 @@ export default async function RevenueProofDetailPage({ params }: PageProps) {
       .eq('proof_id', id)
       .eq('user_id', currentUserId)
       .single();
-    
+
     isLiked = !!like;
   }
 
   const proofWithLike: RevenueProof & { isLiked: boolean; currentUserId?: string } = {
     ...proof,
     isLiked,
-    currentUserId
+    currentUserId,
   };
 
   return (
     <div className="container-responsive py-8">
-      <RevenueProofDetail 
-        initialData={proofWithLike}
-        currentUserId={currentUserId}
-      />
+      <RevenueProofDetail initialData={proofWithLike} currentUserId={currentUserId} />
     </div>
   );
 }
@@ -80,7 +80,7 @@ export default async function RevenueProofDetailPage({ params }: PageProps) {
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const supabase = createServerComponentClient({ cookies });
-  
+
   const { data: proof } = await supabase
     .from('revenue_proofs')
     .select('title, amount, platform')
@@ -90,14 +90,14 @@ export async function generateMetadata({ params }: PageProps) {
   if (!proof) {
     return {
       title: '수익 인증 상세',
-      description: '디하클 수익 인증 상세 페이지'
+      description: '디하클 수익 인증 상세 페이지',
     };
   }
 
   const platformMap: Record<string, string> = {
     youtube: 'YouTube',
     instagram: 'Instagram',
-    tiktok: 'TikTok'
+    tiktok: 'TikTok',
   };
 
   return {

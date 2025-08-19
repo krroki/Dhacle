@@ -1,24 +1,33 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { apiRateLimiter, authRateLimiter, getClientIp, createRateLimitResponse } from '@/lib/security/rate-limiter';
+import { NextResponse } from 'next/server';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import type { Database } from '@/types/database.types';
+import {
+  apiRateLimiter,
+  authRateLimiter,
+  createRateLimitResponse,
+  getClientIp,
+} from '@/lib/security/rate-limiter';
 
 /**
  * 🔐 보안 미들웨어
+ * Wave 1: Supabase 세션 관리 추가 (2025-02-01)
  * Wave 2: 캐싱 정책 및 보안 헤더 설정
  * Wave 3: Rate Limiting 추가
- * 
+ *
  * 기능:
- * 1. 개인 데이터 API에 대한 캐싱 방지
- * 2. 보안 헤더 추가
- * 3. CORS 설정
- * 4. Rate Limiting (Wave 3)
+ * 1. Supabase 세션 자동 새로고침 (Wave 1)
+ * 2. 개인 데이터 API에 대한 캐싱 방지
+ * 3. 보안 헤더 추가
+ * 4. CORS 설정
+ * 5. Rate Limiting (Wave 3)
  */
 
 // 개인 데이터가 포함된 API 경로 목록
 const PRIVATE_DATA_ROUTES = [
   '/api/user',
   '/api/youtube/favorites',
-  '/api/youtube/search-history', 
+  '/api/youtube/search-history',
   '/api/youtube/collections',
   '/api/revenue-proof/my',
   '/api/payment',
@@ -34,31 +43,55 @@ const PUBLIC_ROUTES = [
   '/api/youtube/popular', // 인기 Shorts는 캐싱 가능
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // API 라우트만 처리
+  // Create response early to be modified
+  const res = NextResponse.next();
+
+  // Wave 1: Supabase 세션 자동 새로고침 - 모든 경로에 적용
+  try {
+    const supabase = createMiddlewareClient<Database>({ req: request, res });
+    
+    // 세션 자동 새로고침 - createMiddlewareClient가 자동으로 쿠키 업데이트 처리
+    await supabase.auth.getSession();
+    
+    if (process.env.NODE_ENV === 'development') {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        console.log('[Middleware] Session refreshed for user:', user.id);
+      }
+    }
+  } catch (error) {
+    console.error('[Middleware] Error refreshing session:', error);
+  }
+
+  // 개발 환경에서 미들웨어 작동 확인
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Middleware] Processing:', pathname);
+  }
+
+  // API 라우트가 아니면 세션 새로고침만 하고 반환
   if (!pathname.startsWith('/api/')) {
-    return NextResponse.next();
+    return res;
   }
 
   // Wave 3: Rate Limiting 적용
   const clientIp = getClientIp(request as unknown as Request);
   const identifier = `${clientIp}:${pathname}`;
-  
+
   // 인증 관련 엔드포인트는 더 엄격한 제한
-  const limiter = pathname.includes('/auth/') || pathname.includes('/login') 
-    ? authRateLimiter 
-    : apiRateLimiter;
-  
+  const limiter =
+    pathname.includes('/auth/') || pathname.includes('/login') ? authRateLimiter : apiRateLimiter;
+
   const rateLimitResult = limiter.check(identifier);
-  
+
   if (!rateLimitResult.allowed) {
     return createRateLimitResponse(rateLimitResult.resetTime);
   }
 
-  // 응답 헤더 설정
-  const response = NextResponse.next();
+  // 응답 헤더 설정 - 이미 위에서 생성한 response 사용
+  const response = res;
 
   // 1. 캐싱 정책 설정
   if (isPrivateDataRoute(pathname)) {
@@ -80,16 +113,13 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // Referrer 정책
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // 콘텐츠 보안 정책 (CSP) - API에는 기본적인 것만
   if (pathname.startsWith('/api/')) {
-    response.headers.set(
-      'Content-Security-Policy',
-      "default-src 'self'; frame-ancestors 'none';"
-    );
+    response.headers.set('Content-Security-Policy', "default-src 'self'; frame-ancestors 'none';");
   }
 
   // 3. CORS 설정 (필요한 경우)
@@ -117,12 +147,12 @@ export function middleware(request: NextRequest) {
 
 // 개인 데이터 경로 확인
 function isPrivateDataRoute(pathname: string): boolean {
-  return PRIVATE_DATA_ROUTES.some(route => pathname.startsWith(route));
+  return PRIVATE_DATA_ROUTES.some((route) => pathname.startsWith(route));
 }
 
-// 공개 경로 확인  
+// 공개 경로 확인
 function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route));
+  return PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route));
 }
 
 // 미들웨어 적용 경로 설정

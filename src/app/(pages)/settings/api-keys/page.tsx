@@ -1,52 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import Link from 'next/link';
-import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
-import { 
-  Key, 
-  ShieldCheck, 
-  AlertCircle, 
-  Info, 
+import {
+  AlertCircle,
   CheckCircle2,
   Copy,
+  ExternalLink,
   Eye,
   EyeOff,
-  Trash2,
+  Info,
+  Key,
   RefreshCw,
-  ExternalLink,
-  Zap
+  ShieldCheck,
+  Trash2,
+  Zap,
 } from 'lucide-react';
-import { useAuth } from '@/lib/auth/AuthContext';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiDelete, apiGet, apiPost } from '@/lib/api-client';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 interface ApiKeyData {
   id: string;
-  service_name: string;
-  api_key_masked: string;
+  serviceName: string;
+  apiKeyMasked: string;
   created_at: string;
   updated_at: string;
-  last_used_at: string | null;
-  usage_count: number;
-  usage_today: number;
-  usage_date: string;
+  lastUsedAt: string | null;
+  usageCount: number;
+  usageToday: number;
+  usageDate: string;
   is_active: boolean;
-  is_valid: boolean;
-  validation_error: string | null;
+  isValid: boolean;
+  validationError: string | null;
 }
 
 export default function ApiKeysPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  
+
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,8 +64,10 @@ export default function ApiKeysPage() {
   const fetchCurrentKey = async () => {
     try {
       setFetchingKey(true);
-      const data = await apiGet<{ success: boolean, data?: ApiKeyData }>('/api/user/api-keys?service=youtube');
-      
+      const data = await apiGet<{ success: boolean; data?: ApiKeyData }>(
+        '/api/user/api-keys?service=youtube'
+      );
+
       if (data.success && data.data) {
         setCurrentKey(data.data);
       }
@@ -85,15 +87,17 @@ export default function ApiKeysPage() {
 
     setValidating(true);
     try {
-      const data = await apiPost<{ success: boolean, error?: string }>('/api/youtube/validate-key', { apiKey });
+      const data = await apiPost<{ success: boolean; error?: string }>(
+        '/api/youtube/validate-key',
+        { apiKey }
+      );
 
       if (data.success) {
         toast.success('유효한 API Key입니다!');
         return true;
-      } else {
-        toast.error(data.error || '유효하지 않은 API Key입니다');
-        return false;
       }
+      toast.error(data.error || '유효하지 않은 API Key입니다');
+      return false;
     } catch (error) {
       toast.error('검증 중 오류가 발생했습니다');
       return false;
@@ -115,18 +119,20 @@ export default function ApiKeysPage() {
       }
 
       // API Key 저장
-      const data = await apiPost<{ success: boolean, error?: string }>('/api/user/api-keys', { 
+      const data = await apiPost<{ success: boolean; error?: string }>('/api/user/api-keys', {
         apiKey,
-        serviceName: 'youtube'
+        serviceName: 'youtube',
       });
 
       if (data.success) {
         toast.success('API Key가 저장되었습니다');
         setApiKey('');
         await fetchCurrentKey();
-        
+
         // YouTube Lens로 이동할지 확인
-        const shouldRedirect = confirm('API Key가 저장되었습니다. YouTube Lens로 이동하시겠습니까?');
+        const shouldRedirect = confirm(
+          'API Key가 저장되었습니다. YouTube Lens로 이동하시겠습니까?'
+        );
         if (shouldRedirect) {
           router.push('/tools/youtube-lens');
         }
@@ -147,7 +153,9 @@ export default function ApiKeysPage() {
     }
 
     try {
-      const data = await apiDelete<{ success: boolean, error?: string }>('/api/user/api-keys?service=youtube');
+      const data = await apiDelete<{ success: boolean; error?: string }>(
+        '/api/user/api-keys?service=youtube'
+      );
 
       if (data.success) {
         toast.success('API Key가 삭제되었습니다');
@@ -193,10 +201,8 @@ export default function ApiKeysPage() {
 
       <Tabs defaultValue="youtube" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="youtube">
-            YouTube Data API
-          </TabsTrigger>
-          <TabsTrigger value="other" disabled>
+          <TabsTrigger value="youtube">YouTube Data API</TabsTrigger>
+          <TabsTrigger value="other" disabled={true}>
             기타 서비스 (준비 중)
           </TabsTrigger>
         </TabsList>
@@ -208,8 +214,8 @@ export default function ApiKeysPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>현재 등록된 API Key</CardTitle>
-                  <Badge variant={currentKey.is_valid ? "default" : "destructive"}>
-                    {currentKey.is_valid ? "정상" : "오류"}
+                  <Badge variant={currentKey.isValid ? 'default' : 'destructive'}>
+                    {currentKey.isValid ? '정상' : '오류'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -217,7 +223,7 @@ export default function ApiKeysPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">마스킹된 Key</Label>
-                    <p className="font-mono text-sm">{currentKey.api_key_masked}</p>
+                    <p className="font-mono text-sm">{currentKey.apiKeyMasked}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">등록일</Label>
@@ -227,30 +233,20 @@ export default function ApiKeysPage() {
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">오늘 사용량</Label>
-                    <p className="text-sm">
-                      {currentKey.usage_today} / 10,000 units
-                    </p>
+                    <p className="text-sm">{currentKey.usageToday} / 10,000 units</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">총 사용 횟수</Label>
-                    <p className="text-sm">{currentKey.usage_count}회</p>
+                    <p className="text-sm">{currentKey.usageCount}회</p>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => fetchCurrentKey()}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => fetchCurrentKey()}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     새로고침
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={handleDelete}
-                  >
+                  <Button variant="destructive" size="sm" onClick={handleDelete}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     삭제
                   </Button>
@@ -262,9 +258,7 @@ export default function ApiKeysPage() {
           {/* API Key 등록 폼 */}
           <Card>
             <CardHeader>
-              <CardTitle>
-                {currentKey ? 'API Key 변경' : '새 API Key 등록'}
-              </CardTitle>
+              <CardTitle>{currentKey ? 'API Key 변경' : '새 API Key 등록'}</CardTitle>
               <CardDescription>
                 YouTube Data API v3 Key를 등록하여 개인 할당량을 사용하세요
               </CardDescription>
@@ -291,7 +285,7 @@ export default function ApiKeysPage() {
                   <div className="relative flex-1">
                     <Input
                       id="apiKey"
-                      type={showApiKey ? "text" : "password"}
+                      type={showApiKey ? 'text' : 'password'}
                       placeholder="AIzaSy..."
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
@@ -304,11 +298,7 @@ export default function ApiKeysPage() {
                       className="absolute right-0 top-0 h-full px-3"
                       onClick={() => setShowApiKey(!showApiKey)}
                     >
-                      {showApiKey ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                   <Button
@@ -336,10 +326,7 @@ export default function ApiKeysPage() {
 
               {/* 저장 버튼 */}
               <div className="flex gap-2">
-                <Button 
-                  onClick={handleSave}
-                  disabled={!apiKey || loading}
-                >
+                <Button onClick={handleSave} disabled={!apiKey || loading}>
                   {loading ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -352,7 +339,7 @@ export default function ApiKeysPage() {
                     </>
                   )}
                 </Button>
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild={true}>
                   <Link href="/docs/get-api-key">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     발급 방법 보기
@@ -371,22 +358,25 @@ export default function ApiKeysPage() {
               <div>
                 <h4 className="font-medium mb-1">API Key는 어떻게 발급받나요?</h4>
                 <p className="text-sm text-muted-foreground">
-                  Google Cloud Console에서 무료로 발급받을 수 있습니다. 
-                  자세한 방법은 <Link href="/docs/get-api-key" className="text-primary hover:underline">발급 가이드</Link>를 참고하세요.
+                  Google Cloud Console에서 무료로 발급받을 수 있습니다. 자세한 방법은{' '}
+                  <Link href="/docs/get-api-key" className="text-primary hover:underline">
+                    발급 가이드
+                  </Link>
+                  를 참고하세요.
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-1">API Key는 안전하게 보관되나요?</h4>
                 <p className="text-sm text-muted-foreground">
-                  모든 API Key는 AES-256 암호화를 사용하여 안전하게 저장되며, 
-                  다른 사용자는 접근할 수 없습니다.
+                  모든 API Key는 AES-256 암호화를 사용하여 안전하게 저장되며, 다른 사용자는 접근할
+                  수 없습니다.
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-1">할당량은 얼마나 사용할 수 있나요?</h4>
                 <p className="text-sm text-muted-foreground">
-                  각 API Key당 일일 10,000 units를 사용할 수 있으며, 
-                  매일 자정(한국 시간 기준)에 초기화됩니다.
+                  각 API Key당 일일 10,000 units를 사용할 수 있으며, 매일 자정(한국 시간 기준)에
+                  초기화됩니다.
                 </p>
               </div>
             </CardContent>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import { Play } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface YouTubeEmbedProps {
   videoId: string;
@@ -15,13 +15,16 @@ export function YouTubeEmbed({ videoId, title = 'YouTube video' }: YouTubeEmbedP
 
   if (!isLoaded) {
     return (
-      <div className="relative w-full h-full cursor-pointer group" onClick={() => setIsLoaded(true)}>
+      <div
+        className="relative w-full h-full cursor-pointer group"
+        onClick={() => setIsLoaded(true)}
+      >
         <Image
           src={thumbnailUrl}
           alt={title}
-          fill
+          fill={true}
           className="object-cover"
-          priority
+          priority={true}
         />
         <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -39,7 +42,7 @@ export function YouTubeEmbed({ videoId, title = 'YouTube video' }: YouTubeEmbedP
       title={title}
       className="w-full h-full"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
+      allowFullScreen={true}
     />
   );
 }

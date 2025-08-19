@@ -13,10 +13,7 @@ interface EnvCheckResult {
  * 필수 환경 변수 검증
  */
 export function checkRequiredEnvVars(): EnvCheckResult {
-  const required = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  ];
+  const required = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'];
 
   const optional = [
     'SUPABASE_SERVICE_ROLE_KEY', // Optional - only needed for admin operations
@@ -42,7 +39,9 @@ export function checkRequiredEnvVars(): EnvCheckResult {
 
   // ENCRYPTION_KEY 길이 체크
   if (process.env.ENCRYPTION_KEY && process.env.ENCRYPTION_KEY.length !== 64) {
-    warnings.push(`ENCRYPTION_KEY must be exactly 64 characters (current: ${process.env.ENCRYPTION_KEY.length})`);
+    warnings.push(
+      `ENCRYPTION_KEY must be exactly 64 characters (current: ${process.env.ENCRYPTION_KEY.length})`
+    );
   }
 
   return {
@@ -63,12 +62,9 @@ export async function testSupabaseConnection(): Promise<{
   try {
     const { createSupabaseRouteHandlerClient } = await import('@/lib/supabase/server-client');
     const supabase = await createSupabaseRouteHandlerClient();
-    
+
     // 간단한 쿼리로 연결 테스트
-    const { error } = await supabase
-      .from('profiles')
-      .select('id')
-      .limit(1);
+    const { error } = await supabase.from('profiles').select('id').limit(1);
 
     if (error) {
       return {
@@ -97,18 +93,18 @@ export function logEnvDebugInfo(): void {
   }
 
   const result = checkRequiredEnvVars();
-  
+
   console.log('=== Environment Variables Check ===');
   console.log(`Status: ${result.isValid ? '✅ Valid' : '❌ Invalid'}`);
-  
+
   if (result.missing.length > 0) {
     console.error('Missing required variables:', result.missing);
   }
-  
+
   if (result.warnings.length > 0) {
     console.warn('Warnings:', result.warnings);
   }
-  
+
   // Supabase URL 형식 체크
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (supabaseUrl) {
@@ -116,6 +112,6 @@ export function logEnvDebugInfo(): void {
       console.warn('⚠️ NEXT_PUBLIC_SUPABASE_URL does not look like a valid Supabase URL');
     }
   }
-  
+
   console.log('===================================');
 }

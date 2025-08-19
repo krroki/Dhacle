@@ -1,36 +1,34 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
-import { redirect } from 'next/navigation';
-import { 
-  BookOpen, 
-  TrendingUp, 
-  Award, 
-  Clock,
-  Target,
+import {
+  Award,
+  BookOpen,
   Calendar,
   ChartBar,
-  Users
+  Clock,
+  Target,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+import type { Database } from '@/types/database';
 
 export default async function MyPageDashboard() {
-  const supabase = await createSupabaseServerClient() as SupabaseClient<Database>;
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/auth/login');
   }
 
   // 프로필 정보
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
   // 수강 중인 강의 수
   const { count: enrolledCoursesCount } = await supabase
@@ -59,12 +57,12 @@ export default async function MyPageDashboard() {
         id,
         title,
         thumbnail_url,
-        instructor_name,
-        total_lessons
+        instructorName,
+        totalLessons
       )
     `)
     .eq('user_id', user.id)
-    .order('last_accessed_at', { ascending: false })
+    .order('lastAccessedAt', { ascending: false })
     .limit(3);
 
   // 대시보드 통계 카드
@@ -107,12 +105,8 @@ export default async function MyPageDashboard() {
     <div className="space-y-6">
       {/* 환영 메시지 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">
-          대시보드
-        </h2>
-        <p className="mt-1 text-gray-600">
-          학습 진행 상황과 활동을 한눈에 확인하세요
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">대시보드</h2>
+        <p className="mt-1 text-gray-600">학습 진행 상황과 활동을 한눈에 확인하세요</p>
       </div>
 
       {/* 통계 카드 */}
@@ -155,17 +149,17 @@ export default async function MyPageDashboard() {
               {recentCourses.map((enrollment) => {
                 const course = enrollment.courses;
                 if (!course) return null;
-                
-                const progressPercent = course.total_lessons 
-                  ? (enrollment.completed_lessons / course.total_lessons) * 100
+
+                const progressPercent = course.totalLessons
+                  ? (enrollment.completedLessons / course.totalLessons) * 100
                   : 0;
 
                 return (
                   <div key={enrollment.id} className="flex items-center gap-4">
                     <div className="flex-shrink-0 w-20 h-14 bg-gray-200 rounded-lg overflow-hidden">
                       {course.thumbnail_url ? (
-                        <img 
-                          src={course.thumbnail_url} 
+                        <img
+                          src={course.thumbnail_url}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />
@@ -176,17 +170,13 @@ export default async function MyPageDashboard() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        {course.title}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {course.instructor_name}
-                      </p>
+                      <h4 className="font-medium text-gray-900">{course.title}</h4>
+                      <p className="text-sm text-gray-600">{course.instructorName}</p>
                       <div className="mt-2">
                         <div className="flex items-center justify-between text-sm mb-1">
                           <span className="text-gray-600">진행률</span>
                           <span className="font-medium">
-                            {enrollment.completed_lessons}/{course.total_lessons}강
+                            {enrollment.completedLessons}/{course.totalLessons}강
                           </span>
                         </div>
                         <Progress value={progressPercent} className="h-2" />

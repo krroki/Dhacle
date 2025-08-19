@@ -1,17 +1,17 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
     // 인증 확인
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 관리자 권한 확인
@@ -22,10 +22,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!profile?.is_admin) {
-      return NextResponse.json(
-        { error: '관리자 권한이 필요합니다.' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
     }
 
     // 환경 변수 확인
@@ -46,21 +43,15 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File;
     const courseId = formData.get('courseId') as string;
     const lessonId = formData.get('lessonId') as string;
-    
+
     if (!file) {
-      return NextResponse.json(
-        { error: '파일이 없습니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
     }
 
     // 파일 크기 제한 (5GB)
     const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: '파일 크기는 5GB를 초과할 수 없습니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '파일 크기는 5GB를 초과할 수 없습니다.' }, { status: 400 });
     }
 
     // 파일 타입 확인
@@ -75,23 +66,29 @@ export async function POST(req: NextRequest) {
     // Cloudflare Stream에 직접 업로드
     const uploadFormData = new FormData();
     uploadFormData.append('file', file);
-    
+
     // 메타데이터 추가
     if (courseId) {
-      uploadFormData.append('meta', JSON.stringify({
-        courseId,
-        lessonId,
-        uploadedBy: user.id,
-        uploadedAt: new Date().toISOString()
-      }));
+      uploadFormData.append(
+        'meta',
+        JSON.stringify({
+          courseId,
+          lessonId,
+          uploadedBy: user.id,
+          uploadedAt: new Date().toISOString(),
+        })
+      );
     }
 
     // 워터마크 설정 (선택사항)
-    uploadFormData.append('watermark', JSON.stringify({
-      uid: 'default-watermark',
-      position: 'topright',
-      opacity: 0.3
-    }));
+    uploadFormData.append(
+      'watermark',
+      JSON.stringify({
+        uid: 'default-watermark',
+        position: 'topright',
+        opacity: 0.3,
+      })
+    );
 
     // Cloudflare Stream API 호출
     const response = await fetch(
@@ -99,9 +96,9 @@ export async function POST(req: NextRequest) {
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${STREAM_TOKEN}`,
+          Authorization: `Bearer ${STREAM_TOKEN}`,
         },
-        body: uploadFormData
+        body: uploadFormData,
       }
     );
 
@@ -115,19 +112,16 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-    
+
     if (!data.success || !data.result) {
       console.error('Cloudflare Stream 응답 오류:', data);
-      return NextResponse.json(
-        { error: '비디오 업로드 처리에 실패했습니다.' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '비디오 업로드 처리에 실패했습니다.' }, { status: 500 });
     }
 
     const videoInfo = data.result;
 
     // HLS URL 구성
-    const hlsUrl = CUSTOMER_SUBDOMAIN 
+    const hlsUrl = CUSTOMER_SUBDOMAIN
       ? `https://${CUSTOMER_SUBDOMAIN}.cloudflarestream.com/${videoInfo.uid}/manifest/video.m3u8`
       : `https://videodelivery.net/${videoInfo.uid}/manifest/video.m3u8`;
 
@@ -139,11 +133,11 @@ export async function POST(req: NextRequest) {
       const { error: updateError } = await supabase
         .from('lessons')
         .update({
-          video_url: hlsUrl,
+          videoUrl: hlsUrl,
           thumbnail_url: thumbnailUrl,
-          cloudflare_video_id: videoInfo.uid,
+          cloudflareVideoId: videoInfo.uid,
           duration: videoInfo.duration || 0,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', lessonId);
 
@@ -162,15 +156,11 @@ export async function POST(req: NextRequest) {
       embedUrl: `https://iframe.videodelivery.net/${videoInfo.uid}`,
       duration: videoInfo.duration,
       status: videoInfo.status,
-      message: '비디오 업로드가 완료되었습니다.'
+      message: '비디오 업로드가 완료되었습니다.',
     });
-
   } catch (error) {
     console.error('비디오 업로드 에러:', error);
-    return NextResponse.json(
-      { error: '비디오 업로드 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '비디오 업로드 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
 
@@ -181,10 +171,7 @@ export async function GET(req: NextRequest) {
     const videoId = searchParams.get('videoId');
 
     if (!videoId) {
-      return NextResponse.json(
-        { error: '비디오 ID가 필요합니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '비디오 ID가 필요합니다.' }, { status: 400 });
     }
 
     const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
@@ -202,7 +189,7 @@ export async function GET(req: NextRequest) {
       `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream/${videoId}`,
       {
         headers: {
-          'Authorization': `Bearer ${STREAM_TOKEN}`,
+          Authorization: `Bearer ${STREAM_TOKEN}`,
         },
       }
     );
@@ -217,10 +204,7 @@ export async function GET(req: NextRequest) {
     const data = await response.json();
 
     if (!data.success || !data.result) {
-      return NextResponse.json(
-        { error: '비디오 정보가 없습니다.' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: '비디오 정보가 없습니다.' }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -232,10 +216,9 @@ export async function GET(req: NextRequest) {
         size: data.result.size,
         ready: data.result.status?.state === 'ready',
         percentComplete: data.result.status?.pctComplete || 0,
-        thumbnail: `https://videodelivery.net/${data.result.uid}/thumbnails/thumbnail.jpg`
-      }
+        thumbnail: `https://videodelivery.net/${data.result.uid}/thumbnails/thumbnail.jpg`,
+      },
     });
-
   } catch (error) {
     console.error('비디오 상태 확인 에러:', error);
     return NextResponse.json(

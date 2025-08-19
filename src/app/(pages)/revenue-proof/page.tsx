@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Masonry } from 'masonic';
 import { useWindowSize } from '@react-hook/window-size';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { Masonry } from 'masonic';
 import Link from 'next/link';
-import { RevenueProofCard } from '@/components/features/revenue-proof/RevenueProofCard';
-import { LiveRankingSidebar } from '@/components/features/revenue-proof/LiveRankingSidebar';
+import { useCallback, useEffect, useState } from 'react';
 import { FilterBar } from '@/components/features/revenue-proof/FilterBar';
+import { LiveRankingSidebar } from '@/components/features/revenue-proof/LiveRankingSidebar';
+import { RevenueProofCard } from '@/components/features/revenue-proof/RevenueProofCard';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRevenueProofs } from '@/lib/api/revenue-proof';
 // 더미 데이터 import 제거 - 실제 API만 사용
 import type { RevenueProof } from '@/types/revenue-proof';
@@ -28,28 +28,28 @@ export default function RevenueProofGallery() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // 실제 API 호출
       const result = await getRevenueProofs({
         platform: platform === 'all' ? undefined : platform,
         filter,
         page,
-        limit: 20
+        limit: 20,
       });
-      
+
       if (result.data) {
         if (page === 1) {
           setItems(result.data);
         } else {
-          setItems(prev => [...prev, ...result.data]);
+          setItems((prev) => [...prev, ...result.data]);
         }
         setHasMore(result.pagination.page < result.pagination.totalPages);
       }
     } catch (error) {
       console.error('Failed to load revenue proofs:', error);
       setError('수익 인증을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      
+
       // API 오류 시 빈 배열로 설정 (더미 데이터 사용하지 않음)
       if (page === 1) {
         setItems([]);
@@ -87,9 +87,7 @@ export default function RevenueProofGallery() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold">수익 인증 갤러리</h1>
-            <p className="text-muted-foreground mt-2">
-              투명한 수익 공개로 함께 성장하는 커뮤니티
-            </p>
+            <p className="text-muted-foreground mt-2">투명한 수익 공개로 함께 성장하는 커뮤니티</p>
           </div>
           <Link href="/revenue-proof/create">
             <Button size="lg" className="w-full sm:w-auto">
@@ -100,7 +98,11 @@ export default function RevenueProofGallery() {
         </div>
 
         {/* 필터 탭 */}
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'daily' | 'weekly' | 'monthly')} className="mb-6">
+        <Tabs
+          value={filter}
+          onValueChange={(v) => setFilter(v as 'all' | 'daily' | 'weekly' | 'monthly')}
+          className="mb-6"
+        >
           <TabsList>
             <TabsTrigger value="all">전체</TabsTrigger>
             <TabsTrigger value="daily">오늘</TabsTrigger>
@@ -171,8 +173,7 @@ export default function RevenueProofGallery() {
                   <div className="mt-6">
                     <Link href="/revenue-proof/create">
                       <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        첫 수익 인증하기
+                        <Plus className="mr-2 h-4 w-4" />첫 수익 인증하기
                       </Button>
                     </Link>
                   </div>

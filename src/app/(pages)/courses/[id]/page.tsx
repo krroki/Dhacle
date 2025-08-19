@@ -1,10 +1,11 @@
-import React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
 import Script from 'next/script';
+import type React from 'react';
 import { getCourseDetail } from '@/lib/api/courses';
-import { CourseDetailClient } from './components/CourseDetailClient';
+import { mapCourse } from '@/lib/utils/type-mappers';
 import { siteConfig } from '@/lib/config/site';
+import { CourseDetailClient } from './components/CourseDetailClient';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -22,16 +23,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const { course } = courseData;
+  const { course: rawCourse } = courseData;
+  const course = mapCourse(rawCourse);
 
   return {
     title: `${course.title} - YouTube Shorts 제작 강의`,
-    description: course.description || `${course.title} 강의로 YouTube Shorts 제작 전문가가 되어보세요.`,
+    description:
+      course.description || `${course.title} 강의로 YouTube Shorts 제작 전문가가 되어보세요.`,
     keywords: [
       course.title,
       'YouTube Shorts',
       '동영상 제작',
-      course.instructor_name || '전문가',
+      course.instructorName || '전문가',
       course.difficulty || 'beginner',
     ],
     alternates: {
@@ -68,7 +71,8 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
     notFound();
   }
 
-  const { course, lessons } = courseData;
+  const { course: rawCourse, lessons } = courseData;
+  const course = mapCourse(rawCourse);
 
   // 구조화된 데이터 - Course Schema
   const courseSchema = {
@@ -84,9 +88,9 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
     },
     instructor: {
       '@type': 'Person',
-      name: course.instructor_name || '디하클 전문강사',
-      description: course.instructor_name || 'YouTube Shorts 전문강사',
-      image: course.thumbnail_url
+      name: course.instructorName || '디하클 전문강사',
+      description: course.instructorName || 'YouTube Shorts 전문강사',
+      image: course.thumbnail_url,
     },
     url: `https://dhacle.com/courses/${course.id}`,
     courseMode: 'online',
@@ -95,7 +99,7 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
     hasCourseInstance: {
       '@type': 'CourseInstance',
       courseMode: 'online',
-      courseWorkload: course.total_duration ? `PT${course.total_duration}H` : undefined,
+      courseWorkload: course.totalDuration ? `PT${course.totalDuration}H` : undefined,
     },
     offers: {
       '@type': 'Offer',
@@ -105,13 +109,15 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
       url: `${siteConfig.url}/courses/${course.id}`,
       validFrom: course.created_at,
     },
-    aggregateRating: course.average_rating ? {
-      '@type': 'AggregateRating',
-      ratingValue: course.average_rating,
-      reviewCount: course.review_count || 0,
-      bestRating: 5,
-      worstRating: 1,
-    } : undefined,
+    aggregateRating: course.averageRating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: course.averageRating,
+          reviewCount: course.reviewCount || 0,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined,
     syllabusSections: lessons?.map((lesson) => ({
       '@type': 'Syllabus',
       name: lesson.title,
@@ -158,7 +164,7 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      
+
       <CourseDetailClient courseData={courseData} />
     </>
   );

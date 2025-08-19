@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CourseEditor } from '../components/CourseEditor';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/browser-client';
 import type { Course } from '@/types/course';
+import { CourseEditor } from '../components/CourseEditor';
 
 export default function NewCoursePage() {
   const router = useRouter();
@@ -14,9 +14,11 @@ export default function NewCoursePage() {
     setIsSaving(true);
     try {
       const supabase = createClient();
-      
+
       // 현재 사용자 정보 가져오기
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('로그인이 필요합니다.');
       }
@@ -26,8 +28,8 @@ export default function NewCoursePage() {
         .from('courses')
         .insert({
           ...courseData,
-          instructor_id: user.id,
-          status: 'upcoming'
+          instructorId: user.id,
+          status: 'upcoming',
         })
         .select()
         .single();
@@ -50,15 +52,10 @@ export default function NewCoursePage() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold">새 강의 만들기</h1>
-        <p className="text-muted-foreground mt-2">
-          새로운 강의를 생성합니다
-        </p>
+        <p className="text-muted-foreground mt-2">새로운 강의를 생성합니다</p>
       </div>
 
-      <CourseEditor
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
+      <CourseEditor onSave={handleSave} isSaving={isSaving} />
     </div>
   );
 }

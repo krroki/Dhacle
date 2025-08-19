@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { CourseCard } from './CourseCard';
+import { useEffect, useState } from 'react';
 import type { Course, CourseFilters } from '@/types/course';
+import { CourseCard } from './CourseCard';
+import { safeAccess } from '@/lib/utils/type-mappers';
 
 interface CourseGridProps {
   initialCourses: Course[];
@@ -18,7 +19,7 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
     if (filters) {
       filterCourses();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const filterCourses = async (): Promise<void> => {
@@ -28,19 +29,20 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
       let filtered = [...initialCourses];
 
       if (filters?.instructor) {
-        filtered = filtered.filter(c => c.instructor_name === filters.instructor);
+        filtered = filtered.filter((c) => safeAccess(c, 'instructor_name', 'instructorName', '') === filters.instructor);
       }
-      if (filters?.is_free !== undefined) {
-        filtered = filtered.filter(c => c.is_free === filters.is_free);
+      if (filters?.isFree !== undefined) {
+        filtered = filtered.filter((c) => safeAccess(c, 'is_free', 'isFree', false) === filters.isFree);
       }
       if (filters?.rating !== undefined) {
-        filtered = filtered.filter(c => c.average_rating >= filters.rating!);
+        filtered = filtered.filter((c) => safeAccess(c, 'average_rating', 'averageRating', 0) >= filters.rating!);
       }
       if (filters?.search) {
         const searchLower = filters.search.toLowerCase();
-        filtered = filtered.filter(c => 
-          c.title.toLowerCase().includes(searchLower) ||
-          c.description?.toLowerCase().includes(searchLower)
+        filtered = filtered.filter(
+          (c) =>
+            c.title.toLowerCase().includes(searchLower) ||
+            c.description?.toLowerCase().includes(searchLower)
         );
       }
 
@@ -71,9 +73,7 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
   if (courses.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">
-          조건에 맞는 강의가 없습니다.
-        </p>
+        <p className="text-muted-foreground">조건에 맞는 강의가 없습니다.</p>
       </div>
     );
   }

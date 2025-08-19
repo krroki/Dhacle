@@ -1,31 +1,25 @@
 'use client';
 
-import { useState, useCallback, memo } from 'react';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { 
-  Heart, 
-  ExternalLink, 
-  Clock, 
-  Eye, 
-  ThumbsUp,
-  MessageSquare,
   Calendar,
-  Play,
-  MoreVertical,
+  Clock,
   Copy,
+  Download,
+  ExternalLink,
+  Eye,
+  Heart,
+  MessageSquare,
+  MoreVertical,
+  Play,
   Share2,
-  Download
+  ThumbsUp,
 } from 'lucide-react';
+import Image from 'next/image';
+import { memo, useCallback, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { FlattenedYouTubeVideo } from '@/types/youtube';
 
@@ -50,11 +45,11 @@ interface VideoCardProps {
 // 시간 포맷팅 함수 (초 단위를 시간 형태로 변환)
 function formatDuration(seconds: number): string {
   if (!seconds) return '0:00';
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  
+
   if (hours > 0) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
@@ -81,7 +76,7 @@ function formatDate(dateString: string): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  
+
   if (days === 0) return '오늘';
   if (days === 1) return '어제';
   if (days < 7) return `${days}일 전`;
@@ -98,20 +93,26 @@ export const VideoCard = memo(function VideoCard({
   onSelect,
   onToggleFavorite,
   onPlay,
-  className
+  className,
 }: VideoCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleSelect = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect?.(video.id);
-  }, [video.id, onSelect]);
+  const handleSelect = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelect?.(video.id);
+    },
+    [video.id, onSelect]
+  );
 
-  const handleToggleFavorite = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleFavorite?.(video);
-  }, [video, onToggleFavorite]);
+  const handleToggleFavorite = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggleFavorite?.(video);
+    },
+    [video, onToggleFavorite]
+  );
 
   const handlePlay = useCallback(() => {
     onPlay?.(video);
@@ -128,10 +129,10 @@ export const VideoCard = memo(function VideoCard({
   // Grid View
   if (viewMode === 'grid') {
     return (
-      <Card 
+      <Card
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 hover:shadow-lg",
-          isSelected && "ring-2 ring-primary",
+          'group relative overflow-hidden transition-all duration-200 hover:shadow-lg',
+          isSelected && 'ring-2 ring-primary',
           className
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -158,13 +159,13 @@ export const VideoCard = memo(function VideoCard({
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute top-2 right-2 z-10 h-8 w-8",
-                "bg-background/80 backdrop-blur-sm hover:bg-background/90",
-                isFavorite && "text-red-500"
+                'absolute top-2 right-2 z-10 h-8 w-8',
+                'bg-background/80 backdrop-blur-sm hover:bg-background/90',
+                isFavorite && 'text-red-500'
               )}
               onClick={handleToggleFavorite}
             >
-              <Heart className={cn("h-4 w-4", isFavorite && "fill-current")} />
+              <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
             </Button>
           )}
 
@@ -189,7 +190,7 @@ export const VideoCard = memo(function VideoCard({
             <Image
               src={video.thumbnail}
               alt={video.title}
-              fill
+              fill={true}
               className="object-cover"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
               onError={() => setImageError(true)}
@@ -204,10 +205,8 @@ export const VideoCard = memo(function VideoCard({
 
         {/* 비디오 정보 */}
         <CardContent className="p-3 space-y-2">
-          <h3 className="font-medium line-clamp-2 text-sm">
-            {video.title}
-          </h3>
-          
+          <h3 className="font-medium line-clamp-2 text-sm">{video.title}</h3>
+
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="truncate">{video.channelTitle}</span>
           </div>
@@ -248,10 +247,10 @@ export const VideoCard = memo(function VideoCard({
   // List View
   if (viewMode === 'list') {
     return (
-      <Card 
+      <Card
         className={cn(
-          "group overflow-hidden transition-all duration-200 hover:shadow-md",
-          isSelected && "ring-2 ring-primary",
+          'group overflow-hidden transition-all duration-200 hover:shadow-md',
+          isSelected && 'ring-2 ring-primary',
           className
         )}
         onClick={handlePlay}
@@ -275,7 +274,7 @@ export const VideoCard = memo(function VideoCard({
                 <Image
                   src={video.thumbnail}
                   alt={video.title}
-                  fill
+                  fill={true}
                   className="object-cover"
                   sizes="160px"
                   onError={() => setImageError(true)}
@@ -285,8 +284,8 @@ export const VideoCard = memo(function VideoCard({
                   <Youtube className="h-8 w-8 text-muted-foreground" />
                 </div>
               )}
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className="absolute bottom-1 right-1 bg-black/80 text-white text-xs"
               >
                 {formatDuration(video.duration)}
@@ -297,13 +296,11 @@ export const VideoCard = memo(function VideoCard({
             <div className="flex-1 space-y-1">
               <h3 className="font-medium line-clamp-2">{video.title}</h3>
               <p className="text-sm text-muted-foreground">{video.channelTitle}</p>
-              
+
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span>{formatViewCount(video.viewCount)} 조회수</span>
                 <span>{formatDate(video.publishedAt)}</span>
-                {video.likeCount > 0 && (
-                  <span>좋아요 {formatViewCount(video.likeCount)}</span>
-                )}
+                {video.likeCount > 0 && <span>좋아요 {formatViewCount(video.likeCount)}</span>}
               </div>
 
               {/* 설명 미리보기 */}
@@ -321,19 +318,15 @@ export const VideoCard = memo(function VideoCard({
                   variant="ghost"
                   size="icon"
                   onClick={handleToggleFavorite}
-                  className={cn(isFavorite && "text-red-500")}
+                  className={cn(isFavorite && 'text-red-500')}
                 >
-                  <Heart className={cn("h-4 w-4", isFavorite && "fill-current")} />
+                  <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
                 </Button>
               )}
 
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                <DropdownMenuTrigger asChild={true}>
+                  <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -366,10 +359,10 @@ export const VideoCard = memo(function VideoCard({
 
   // Compact View
   return (
-    <div 
+    <div
       className={cn(
-        "group flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors cursor-pointer",
-        isSelected && "bg-accent ring-2 ring-primary",
+        'group flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors cursor-pointer',
+        isSelected && 'bg-accent ring-2 ring-primary',
         className
       )}
       onClick={handlePlay}
@@ -389,7 +382,7 @@ export const VideoCard = memo(function VideoCard({
           <Image
             src={video.thumbnail}
             alt={video.title}
-            fill
+            fill={true}
             className="object-cover"
             sizes="80px"
             onError={() => setImageError(true)}
@@ -405,7 +398,8 @@ export const VideoCard = memo(function VideoCard({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{video.title}</p>
         <p className="text-xs text-muted-foreground truncate">
-          {video.channelTitle} • {formatViewCount(video.viewCount)} • {formatDate(video.publishedAt)}
+          {video.channelTitle} • {formatViewCount(video.viewCount)} •{' '}
+          {formatDate(video.publishedAt)}
         </p>
       </div>
 
@@ -415,13 +409,8 @@ export const VideoCard = memo(function VideoCard({
           {formatDuration(video.duration)}
         </Badge>
         {onToggleFavorite && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleToggleFavorite}
-          >
-            <Heart className={cn("h-4 w-4", isFavorite && "fill-current text-red-500")} />
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleToggleFavorite}>
+            <Heart className={cn('h-4 w-4', isFavorite && 'fill-current text-red-500')} />
           </Button>
         )}
       </div>

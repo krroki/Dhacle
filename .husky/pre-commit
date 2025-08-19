@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # Pre-commit Hook v1.0
 # 커밋 전 코드 품질 검증
 
@@ -43,8 +40,61 @@ if [ -n "$STAGED_API_FILES" ]; then
   }
 fi
 
-# 3단계: 자동 포맷팅 (선택적)
-echo "📋 Step 3/3: 코드 포맷팅..."
+# 3단계: Biome 린팅 및 포맷팅 (새로 추가!)
+echo "📋 Step 3/5: Biome 코드 품질 검사..."
+
+# Biome 설치 확인 및 실행
+if [ -f "biome.json" ]; then
+  # staged된 소스 파일만 검사
+  STAGED_SRC_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/.*\.(ts|tsx|js|jsx)$' || true)
+  
+  if [ -n "$STAGED_SRC_FILES" ]; then
+    echo "  Biome 검사 중... ($(echo $STAGED_SRC_FILES | wc -w)개 파일)"
+    npx biome check --write $STAGED_SRC_FILES || {
+      echo "⚠️  Biome 검사 경고 - 자동 수정 시도됨"
+      echo "  'npm run lint:biome:fix'로 전체 수정 가능"
+    }
+    # 수정된 파일 다시 stage
+    echo "$STAGED_SRC_FILES" | xargs git add
+  fi
+else
+  echo "  ⚠️  Biome 설정 없음 - 건너뜀"
+fi
+
+# 4단계: 테스트 실행 (Vitest)
+echo "📋 Step 4/5: 테스트 실행..."
+
+# staged된 테스트 가능한 파일 확인
+STAGED_TESTABLE_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/.*\.(ts|tsx)$' | grep -v '\.test\.' | grep -v '\.spec\.' || true)
+
+if [ -n "$STAGED_TESTABLE_FILES" ]; then
+  # 해당 파일의 테스트 파일 존재 여부 확인
+  HAS_TEST_FILES=false
+  for FILE in $STAGED_TESTABLE_FILES; do
+    TEST_FILE="${FILE%.*}.test.${FILE##*.}"
+    SPEC_FILE="${FILE%.*}.spec.${FILE##*.}"
+    if [ -f "$TEST_FILE" ] || [ -f "$SPEC_FILE" ]; then
+      HAS_TEST_FILES=true
+      break
+    fi
+  done
+  
+  if [ "$HAS_TEST_FILES" = true ]; then
+    echo "  테스트 파일 감지 - 관련 테스트 실행 중..."
+    npm run verify:test || {
+      echo "⚠️  테스트 실패 - 테스트를 확인하세요"
+      echo "  'npm run test'로 상세 확인 가능"
+      # 테스트 실패는 경고만, 커밋은 허용
+    }
+  else
+    echo "  ⚠️  테스트 파일 없음 - 테스트 작성을 권장합니다"
+  fi
+else
+  echo "  테스트 대상 파일 없음 - 건너뜀"
+fi
+
+# 5단계: 자동 포맷팅 (선택적)
+echo "📋 Step 5/5: 코드 포맷팅..."
 
 # Prettier 설치 확인
 if command -v npx prettier > /dev/null 2>&1; then

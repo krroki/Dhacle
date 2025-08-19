@@ -1,13 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, Construction, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CommunitySuccessPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <div className="mb-6">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild={true}>
           <Link href="/community">
             <span className="flex items-center">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -23,11 +23,9 @@ export default function CommunitySuccessPage() {
             <Trophy className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">성공 사례</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            크리에이터들의 성공 스토리
-          </p>
+          <p className="text-muted-foreground text-lg">크리에이터들의 성공 스토리</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
             <Construction className="w-12 h-12 text-amber-600 dark:text-amber-500 mx-auto mb-3" />

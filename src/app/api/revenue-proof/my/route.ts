@@ -2,45 +2,48 @@
 // 내 수익인증 목록 조회 API
 
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import type { RevenueProof } from '@/types/revenue-proof';
 
 // 타입 정의
 interface RevenueProofWithDetails extends RevenueProof {
-  is_today: boolean;
-  can_edit: boolean;
-  hours_remaining: number;
+  isToday: boolean;
+  canEdit: boolean;
+  hoursRemaining: number;
 }
 
 // GET: 내 인증 목록 조회
 export async function GET(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    
+
     // 인증 확인
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = Number.parseInt(searchParams.get('page') || '1');
+    const limit = Number.parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
     const includeHidden = searchParams.get('includeHidden') === 'true';
 
     // 내 인증 목록 조회
     let query = supabase
       .from('revenue_proofs')
-      .select(`
+      .select(
+        `
         *,
         likes_count,
         comments_count,
         reports_count
-      `, { count: 'exact' })
+      `,
+        { count: 'exact' }
+      )
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -70,35 +73,47 @@ export async function GET(request: NextRequest) {
         const isToday = createdAt >= today;
 
         // 24시간 내 수정 가능 여부
-        const hoursSinceCreation = 
-          (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        const hoursSinceCreation = (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60);
         const canEdit = hoursSinceCreation <= 24;
 
         return {
           ...proof,
-          is_today: isToday,
-          can_edit: canEdit,
-          hours_remaining: canEdit ? Math.floor(24 - hoursSinceCreation) : 0
+          isToday: isToday,
+          canEdit: canEdit,
+          hoursRemaining: canEdit ? Math.floor(24 - hoursSinceCreation) : 0,
         };
       })
     );
 
     // 통계 정보 계산
     const stats = {
-      total_proofs: count || 0,
-      total_amount: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.amount, 0),
-      total_likes: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.likes_count, 0),
-      total_comments: proofsWithDetails.reduce((sum: number, p: RevenueProofWithDetails) => sum + p.comments_count, 0),
-      hidden_count: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
+      totalProofs: count || 0,
+      total_amount: proofsWithDetails.reduce(
+        (sum: number, p: RevenueProofWithDetails) => sum + p.amount,
+        0
+      ),
+      totalLikes: proofsWithDetails.reduce(
+        (sum: number, p: RevenueProofWithDetails) => sum + p.likes_count,
+        0
+      ),
+      totalComments: proofsWithDetails.reduce(
+        (sum: number, p: RevenueProofWithDetails) => sum + p.comments_count,
+        0
+      ),
+      hiddenCount: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
       platforms: {
-        youtube: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'youtube').length,
-        instagram: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'instagram').length,
-        tiktok: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'tiktok').length
-      }
+        youtube: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'youtube')
+          .length,
+        instagram: proofsWithDetails.filter(
+          (p: RevenueProofWithDetails) => p.platform === 'instagram'
+        ).length,
+        tiktok: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'tiktok')
+          .length,
+      },
     };
 
     // 오늘 인증 여부 확인
-    const todayProof = proofsWithDetails.find((p: RevenueProofWithDetails) => p.is_today);
+    const todayProof = proofsWithDetails.find((p: RevenueProofWithDetails) => p.isToday);
     const canCreateToday = !todayProof;
 
     // 다음 인증 가능 시간 계산
@@ -116,19 +131,15 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
+        totalPages: Math.ceil((count || 0) / limit),
       },
       stats,
       canCreateToday,
-      nextAvailable
+      nextAvailable,
     });
-
   } catch (error) {
     console.error('API error:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
 
@@ -136,49 +147,36 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    
+
     // 인증 확인
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 });
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 확인 토큰 검증 (안전장치)
     const { searchParams } = new URL(request.url);
     const confirmToken = searchParams.get('confirm');
-    
+
     if (confirmToken !== 'DELETE_ALL_MY_PROOFS') {
-      return NextResponse.json(
-        { error: '확인 토큰이 올바르지 않습니다' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '확인 토큰이 올바르지 않습니다' }, { status: 400 });
     }
 
     // 모든 내 인증 삭제
-    const { error } = await supabase
-      .from('revenue_proofs')
-      .delete()
-      .eq('user_id', user.id);
+    const { error } = await supabase.from('revenue_proofs').delete().eq('user_id', user.id);
 
     if (error) {
       console.error('Delete all proofs error:', error);
-      return NextResponse.json(
-        { error: '인증 삭제 중 오류가 발생했습니다' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '인증 삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 
     return NextResponse.json({
-      message: '모든 인증이 삭제되었습니다'
+      message: '모든 인증이 삭제되었습니다',
     });
-
   } catch (error) {
     console.error('API error:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

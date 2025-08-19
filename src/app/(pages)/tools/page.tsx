@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Construction, Wrench, Calculator, Palette, Eye } from 'lucide-react';
+import { ArrowLeft, Calculator, Construction, Eye, Palette, Wrench } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ToolsPage() {
   return (
@@ -21,11 +21,9 @@ export default function ToolsPage() {
             <Wrench className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">크리에이터 도구</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            YouTube Shorts 제작을 위한 다양한 도구들
-          </p>
+          <p className="text-muted-foreground text-lg">YouTube Shorts 제작을 위한 다양한 도구들</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* 사용 가능한 도구 */}
           <div>
@@ -53,19 +51,15 @@ export default function ToolsPage() {
                 <Calculator className="w-5 h-5 text-muted-foreground mt-0.5" />
                 <div>
                   <h4 className="font-medium mb-1">수익 계산기</h4>
-                  <p className="text-sm text-muted-foreground">
-                    예상 수익을 계산해보세요
-                  </p>
+                  <p className="text-sm text-muted-foreground">예상 수익을 계산해보세요</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 p-4 bg-muted/50 rounded-lg opacity-60">
                 <Palette className="w-5 h-5 text-muted-foreground mt-0.5" />
                 <div>
                   <h4 className="font-medium mb-1">썸네일 메이커</h4>
-                  <p className="text-sm text-muted-foreground">
-                    매력적인 썸네일을 쉽게 제작하세요
-                  </p>
+                  <p className="text-sm text-muted-foreground">매력적인 썸네일을 쉽게 제작하세요</p>
                 </div>
               </div>
             </div>

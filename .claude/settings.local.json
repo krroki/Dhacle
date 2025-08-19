@@ -27,12 +27,19 @@
       "Bash(npm run lint:*)",
       "Bash(npm install:*)",
       "Bash(mv:*)",
-      "Bash(npm run verify:api:*)"
+      "Bash(npm run verify:api:*)",
+      "Bash(npm run verify:ui:*)",
+      "Bash(npx husky:*)",
+      "Bash(chmod:*)",
+      "Bash(git rm:*)",
+      "Bash(npm run security:test:*)",
+      "Bash(npm run verify:quick:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "C:\\My_Claude_Project\\9.Dhacle"
+      "C:\\My_Claude_Project\\9.Dhacle",
+      "C:\\c\\My_Claude_Project\\9.Dhacle"
     ]
   }
 }

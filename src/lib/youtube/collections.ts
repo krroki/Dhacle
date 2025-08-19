@@ -20,10 +20,12 @@ export class CollectionManager {
     description?: string;
     is_public?: boolean;
     tags?: string[];
-    cover_image?: string;
+    coverImage?: string;
   }): Promise<{ data: Collection | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -36,8 +38,8 @@ export class CollectionManager {
           description: data.description || null,
           is_public: data.is_public || false,
           tags: data.tags || null,
-          cover_image: data.cover_image || null,
-          item_count: 0
+          coverImage: data.coverImage || null,
+          itemCount: 0,
         })
         .select()
         .single();
@@ -59,7 +61,9 @@ export class CollectionManager {
    */
   async getCollections(): Promise<{ data: Collection[] | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -86,9 +90,13 @@ export class CollectionManager {
   /**
    * 특정 컬렉션 조회
    */
-  async getCollection(collectionId: string): Promise<{ data: Collection | null; error: Error | null }> {
+  async getCollection(
+    collectionId: string
+  ): Promise<{ data: Collection | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -123,7 +131,9 @@ export class CollectionManager {
     tags?: string[]
   ): Promise<{ data: CollectionItem | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -148,7 +158,7 @@ export class CollectionManager {
 
       // 최대 position 값 조회
       const { data: maxPositionItem } = await this.supabase
-        .from('collection_items')
+        .from('collectionItems')
         .select('position')
         .eq('collection_id', collectionId)
         .order('position', { ascending: false })
@@ -159,14 +169,14 @@ export class CollectionManager {
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await this.supabase
-        .from('collection_items')
+        .from('collectionItems')
         .insert({
           collection_id: collectionId,
           video_id: videoId,
           notes: notes || null,
           tags: tags || null,
           position: nextPosition,
-          added_by: user.id
+          addedBy: user.id,
         })
         .select()
         .single();
@@ -176,12 +186,12 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      // item_count 업데이트
+      // itemCount 업데이트
       await this.supabase
         .from('collections')
-        .update({ 
-          item_count: collection.item_count + 1,
-          updated_at: new Date().toISOString()
+        .update({
+          itemCount: collection.itemCount + 1,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', collectionId);
 
@@ -200,7 +210,9 @@ export class CollectionManager {
     videoId: string
   ): Promise<{ success: boolean; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { success: false, error: new Error('User not authenticated') };
       }
@@ -213,7 +225,7 @@ export class CollectionManager {
 
       // 아이템 삭제
       const { error } = await this.supabase
-        .from('collection_items')
+        .from('collectionItems')
         .delete()
         .eq('collection_id', collectionId)
         .eq('video_id', videoId);
@@ -223,12 +235,12 @@ export class CollectionManager {
         return { success: false, error };
       }
 
-      // item_count 업데이트
+      // itemCount 업데이트
       await this.supabase
         .from('collections')
-        .update({ 
-          item_count: Math.max(0, collection.item_count - 1),
-          updated_at: new Date().toISOString()
+        .update({
+          itemCount: Math.max(0, collection.itemCount - 1),
+          updated_at: new Date().toISOString(),
         })
         .eq('id', collectionId);
 
@@ -246,7 +258,9 @@ export class CollectionManager {
     collectionId: string
   ): Promise<{ data: (CollectionItem & { video: Video })[] | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -259,7 +273,7 @@ export class CollectionManager {
 
       // 컬렉션 아이템과 비디오 정보 조인
       const { data: items, error } = await this.supabase
-        .from('collection_items')
+        .from('collectionItems')
         .select(`
           *,
           video:videos(*)
@@ -289,11 +303,13 @@ export class CollectionManager {
       description: string;
       is_public: boolean;
       tags: string[];
-      cover_image: string;
+      coverImage: string;
     }>
   ): Promise<{ data: Collection | null; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -308,7 +324,7 @@ export class CollectionManager {
         .from('collections')
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', collectionId)
         .eq('user_id', user.id)
@@ -332,7 +348,9 @@ export class CollectionManager {
    */
   async deleteCollection(collectionId: string): Promise<{ success: boolean; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { success: false, error: new Error('User not authenticated') };
       }
@@ -348,7 +366,7 @@ export class CollectionManager {
         .from('collections')
         .update({
           deleted_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', collectionId)
         .eq('user_id', user.id);
@@ -373,7 +391,9 @@ export class CollectionManager {
     items: { video_id: string; position: number }[]
   ): Promise<{ success: boolean; error: Error | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
       if (!user) {
         return { success: false, error: new Error('User not authenticated') };
       }
@@ -385,16 +405,16 @@ export class CollectionManager {
       }
 
       // 각 아이템의 position 업데이트
-      const updatePromises = items.map(item =>
+      const updatePromises = items.map((item) =>
         this.supabase
-          .from('collection_items')
+          .from('collectionItems')
           .update({ position: item.position })
           .eq('collection_id', collectionId)
           .eq('video_id', item.video_id)
       );
 
       const results = await Promise.all(updatePromises);
-      const hasError = results.some(result => result.error);
+      const hasError = results.some((result) => result.error);
 
       if (hasError) {
         return { success: false, error: new Error('Failed to reorder some items') };

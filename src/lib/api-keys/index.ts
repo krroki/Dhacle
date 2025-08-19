@@ -1,21 +1,21 @@
 import { createServerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
-import { encryptApiKey, decryptApiKey, maskApiKey, validateApiKeyFormat } from './crypto';
+import { decryptApiKey, encryptApiKey, maskApiKey, validateApiKeyFormat } from './crypto';
 
 export interface UserApiKey {
   id: string;
   user_id: string;
-  service_name: string;
-  api_key_masked: string;
-  encrypted_key: string;
+  serviceName: string;
+  apiKeyMasked: string;
+  encryptedKey: string;
   created_at: string;
   updated_at: string;
-  last_used_at: string | null;
-  usage_count: number;
-  usage_today: number;
-  usage_date: string;
+  lastUsedAt: string | null;
+  usageCount: number;
+  usageToday: number;
+  usageDate: string;
   is_active: boolean;
-  is_valid: boolean;
-  validation_error: string | null;
+  isValid: boolean;
+  validationError: string | null;
   metadata: Record<string, string | number | boolean | null>;
 }
 
@@ -43,58 +43,58 @@ export async function saveUserApiKey({
   userId,
   apiKey,
   serviceName = 'youtube',
-  metadata = {}
+  metadata = {},
 }: SaveApiKeyParams): Promise<UserApiKey> {
   try {
     console.log('[saveUserApiKey] Starting...', { userId, serviceName });
-    
+
     // API Key 형식 검증
     if (!validateApiKeyFormat(apiKey, serviceName)) {
       console.error('[saveUserApiKey] Invalid API key format');
       throw new Error('Invalid API key format');
     }
-    
+
     // 암호화
     const encryptedKey = encryptApiKey(apiKey);
     const maskedKey = maskApiKey(apiKey);
     console.log('[saveUserApiKey] Encryption successful');
-    
+
     // Service Role Client 사용 (RLS 우회)
     const supabase = await createSupabaseServiceRoleClient();
     console.log('[saveUserApiKey] Service Role Client created');
-    
+
     // 기존 키가 있는지 확인
     const { data: existingKey } = await supabase
-      .from('user_api_keys')
+      .from('userApiKeys')
       .select('id')
       .eq('user_id', userId)
-      .eq('service_name', serviceName)
+      .eq('serviceName', serviceName)
       .single();
-    
+
     let result;
-    
+
     if (existingKey) {
       // 업데이트
       const { data, error } = await supabase
-        .from('user_api_keys')
+        .from('userApiKeys')
         .update({
-          api_key_masked: maskedKey,
-          encrypted_key: encryptedKey,
+          apiKeyMasked: maskedKey,
+          encryptedKey: encryptedKey,
           is_active: true,
-          is_valid: true,
-          validation_error: null,
-          metadata
+          isValid: true,
+          validationError: null,
+          metadata,
         })
         .eq('id', existingKey.id)
         .select()
         .single();
-      
+
       if (error) {
         console.error('[saveUserApiKey] Update error:', {
           message: error.message,
           code: error.code,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
         });
         throw error;
       }
@@ -103,30 +103,30 @@ export async function saveUserApiKey({
     } else {
       // 새로 생성
       const { data, error } = await supabase
-        .from('user_api_keys')
+        .from('userApiKeys')
         .insert({
           user_id: userId,
-          service_name: serviceName,
-          api_key_masked: maskedKey,
-          encrypted_key: encryptedKey,
-          metadata
+          serviceName: serviceName,
+          apiKeyMasked: maskedKey,
+          encryptedKey: encryptedKey,
+          metadata,
         })
         .select()
         .single();
-      
+
       if (error) {
         console.error('[saveUserApiKey] Insert error:', {
           message: error.message,
           code: error.code,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
         });
         throw error;
       }
       console.log('[saveUserApiKey] Inserted new key');
       result = data;
     }
-    
+
     console.log('[saveUserApiKey] Success:', { id: result?.id });
     return result as UserApiKey;
   } catch (error) {
@@ -140,19 +140,19 @@ export async function saveUserApiKey({
  */
 export async function getUserApiKey(
   userId: string,
-  serviceName: string = 'youtube'
+  serviceName = 'youtube'
 ): Promise<UserApiKey | null> {
   try {
     const supabase = await createServerClient();
-    
+
     const { data, error } = await supabase
-      .from('user_api_keys')
+      .from('userApiKeys')
       .select('*')
       .eq('user_id', userId)
-      .eq('service_name', serviceName)
+      .eq('serviceName', serviceName)
       .eq('is_active', true)
       .single();
-    
+
     if (error) {
       if (error.code === 'PGRST116') {
         // No rows returned
@@ -160,7 +160,7 @@ export async function getUserApiKey(
       }
       throw error;
     }
-    
+
     return data as UserApiKey;
   } catch (error) {
     console.error('Error fetching API key:', error);
@@ -173,19 +173,19 @@ export async function getUserApiKey(
  */
 export async function getDecryptedApiKey(
   userId: string,
-  serviceName: string = 'youtube'
+  serviceName = 'youtube'
 ): Promise<string | null> {
   try {
     const apiKeyData = await getUserApiKey(userId, serviceName);
-    
-    if (!apiKeyData || !apiKeyData.encrypted_key) {
+
+    if (!apiKeyData || !apiKeyData.encryptedKey) {
       return null;
     }
-    
+
     // 사용량 증가
     await incrementUsage(apiKeyData.id);
-    
-    return decryptApiKey(apiKeyData.encrypted_key);
+
+    return decryptApiKey(apiKeyData.encryptedKey);
   } catch (error) {
     console.error('Error decrypting API key:', error);
     return null;
@@ -195,21 +195,18 @@ export async function getDecryptedApiKey(
 /**
  * API Key 삭제
  */
-export async function deleteUserApiKey(
-  userId: string,
-  serviceName: string = 'youtube'
-): Promise<boolean> {
+export async function deleteUserApiKey(userId: string, serviceName = 'youtube'): Promise<boolean> {
   try {
     const supabase = await createServerClient();
-    
+
     const { error } = await supabase
-      .from('user_api_keys')
+      .from('userApiKeys')
       .delete()
       .eq('user_id', userId)
-      .eq('service_name', serviceName);
-    
+      .eq('serviceName', serviceName);
+
     if (error) throw error;
-    
+
     return true;
   } catch (error) {
     console.error('Error deleting API key:', error);
@@ -228,31 +225,31 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
       `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&key=${apiKey}`,
       { method: 'GET' }
     );
-    
+
     if (response.ok) {
       // 할당량 정보 추출 (응답 헤더에서)
       const quotaUser = response.headers.get('X-RateLimit-Limit');
       const quotaUsed = response.headers.get('X-RateLimit-Used');
-      
+
       return {
         isValid: true,
         quotaInfo: {
-          used: parseInt(quotaUsed || '0'),
-          limit: parseInt(quotaUser || '10000'),
-          remaining: parseInt(quotaUser || '10000') - parseInt(quotaUsed || '0')
-        }
+          used: Number.parseInt(quotaUsed || '0'),
+          limit: Number.parseInt(quotaUser || '10000'),
+          remaining: Number.parseInt(quotaUser || '10000') - Number.parseInt(quotaUsed || '0'),
+        },
       };
     }
-    
+
     const error = await response.json();
-    
+
     if (response.status === 403 && error.error?.message?.includes('API key not valid')) {
       return {
         isValid: false,
-        error: 'Invalid API key'
+        error: 'Invalid API key',
       };
     }
-    
+
     if (response.status === 403 && error.error?.message?.includes('quota')) {
       return {
         isValid: true,
@@ -260,20 +257,20 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
         quotaInfo: {
           used: 10000,
           limit: 10000,
-          remaining: 0
-        }
+          remaining: 0,
+        },
       };
     }
-    
+
     return {
       isValid: false,
-      error: error.error?.message || 'Validation failed'
+      error: error.error?.message || 'Validation failed',
     };
   } catch (error) {
     console.error('Error validating YouTube API key:', error);
     return {
       isValid: false,
-      error: 'Network error during validation'
+      error: 'Network error during validation',
     };
   }
 }
@@ -284,27 +281,27 @@ export async function validateYouTubeApiKey(apiKey: string): Promise<ApiKeyValid
 async function incrementUsage(apiKeyId: string): Promise<void> {
   try {
     const supabase = await createSupabaseServiceRoleClient();
-    
-    // user_api_keys에서 user_id와 service_name 조회
+
+    // userApiKeys에서 user_id와 serviceName 조회
     const { data: keyData, error: fetchError } = await supabase
-      .from('user_api_keys')
-      .select('user_id, service_name')
+      .from('userApiKeys')
+      .select('user_id, serviceName')
       .eq('id', apiKeyId)
       .single();
-    
+
     if (fetchError || !keyData) {
       console.error('Error fetching key data for usage increment:', fetchError);
       return;
     }
-    
+
     // PostgreSQL 함수 호출 (올바른 파라미터 사용)
-    const { error: rpcError } = await supabase.rpc('increment_api_key_usage', {
-      p_user_id: keyData.user_id,
-      p_service_name: keyData.service_name
+    const { error: rpcError } = await supabase.rpc('incrementApiKeyUsage', {
+      pUserId: keyData.user_id,
+      pServiceName: keyData.serviceName,
     });
-    
+
     if (rpcError) {
-      console.error('Error calling increment_api_key_usage:', rpcError);
+      console.error('Error calling incrementApiKeyUsage:', rpcError);
     }
   } catch (error) {
     console.error('Error incrementing usage:', error);
@@ -322,19 +319,24 @@ export async function updateApiKeyValidity(
 ): Promise<void> {
   try {
     const supabase = await createServerClient();
-    
+
     await supabase
-      .from('user_api_keys')
+      .from('userApiKeys')
       .update({
-        is_valid: isValid,
-        validation_error: validationError || null
+        isValid: isValid,
+        validationError: validationError || null,
       })
       .eq('user_id', userId)
-      .eq('service_name', serviceName);
+      .eq('serviceName', serviceName);
   } catch (error) {
     console.error('Error updating API key validity:', error);
   }
 }
 
 // Re-export crypto functions
-export { maskApiKey, validateApiKeyFormat, hasEncryptionKey, generateEncryptionKey } from './crypto';
+export {
+  generateEncryptionKey,
+  hasEncryptionKey,
+  maskApiKey,
+  validateApiKeyFormat,
+} from './crypto';

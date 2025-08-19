@@ -6,30 +6,37 @@
  * Phase 3: Core Features Implementation
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { YouTubeVideo } from '@/types/youtube-lens';
-import ApiKeySetup from './ApiKeySetup';
-import { apiGet, ApiError } from '@/lib/api-client';
-import { 
-  TrendingUp, 
-  Eye, 
-  Heart, 
-  MessageCircle, 
-  Clock, 
-  RefreshCw,
-  Download,
+import {
+  AlertCircle,
   Bookmark,
+  Clock,
+  Download,
   ExternalLink,
-  AlertCircle
+  Eye,
+  Heart,
+  MessageCircle,
+  RefreshCw,
+  TrendingUp,
 } from 'lucide-react';
+import Image from 'next/image';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ApiError, apiGet } from '@/lib/api-client';
+import { mapVideo, mapVideoToYouTubeVideo } from '@/lib/utils/type-mappers';
+import type { YouTubeVideo } from '@/types/youtube-lens';
+import ApiKeySetup from './ApiKeySetup';
 
 interface PopularShortsListProps {
   initialRegion?: string;
@@ -37,10 +44,10 @@ interface PopularShortsListProps {
   onVideoSelect?: (video: YouTubeVideo) => void;
 }
 
-export default function PopularShortsList({ 
+export default function PopularShortsList({
   initialRegion = 'KR',
   initialPeriod = '7d',
-  onVideoSelect 
+  onVideoSelect,
 }: PopularShortsListProps) {
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,13 +70,13 @@ export default function PopularShortsList({
           videos: YouTubeVideo[];
         };
       }>(`/api/youtube/popular?region=${region}&period=${period}`);
-      
-      setVideos(data.data.videos || []);
+
+      setVideos((data.data.videos || []).map(mapVideoToYouTubeVideo));
     } catch (err) {
       console.error('[PopularShortsList] Fetch error:', {
         error: err,
         region,
-        period
+        period,
       });
 
       if (err instanceof ApiError) {
@@ -82,11 +89,14 @@ export default function PopularShortsList({
         // Handle 401 errors - distinguish between auth and API key issues
         if (err.status === 401) {
           // Check if it's an API key issue
-          const errorData = err.data as { requiresApiKey?: boolean; errorCode?: string; error?: string } | undefined;
-          const isApiKeyError = errorData?.requiresApiKey || 
-                                errorData?.errorCode === 'api_key_required' ||
-                                errorData?.error?.includes('API Key');
-          
+          const errorData = err.data as
+            | { requiresApiKey?: boolean; errorCode?: string; error?: string }
+            | undefined;
+          const isApiKeyError =
+            errorData?.requiresApiKey ||
+            errorData?.errorCode === 'api_key_required' ||
+            errorData?.error?.includes('API Key');
+
           if (isApiKeyError) {
             setRequiresApiKey(true);
             setError('YouTube API Key 설정이 필요합니다');
@@ -95,9 +105,8 @@ export default function PopularShortsList({
             window.location.href = '/auth/login?redirect=/tools/youtube-lens';
           }
           return;
-        } else {
-          setError(err.message);
         }
+        setError(err.message);
       } else {
         const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
         setError(errorMessage);
@@ -127,7 +136,7 @@ export default function PopularShortsList({
   const formatDuration = (duration: string): string => {
     const match = duration.match(/PT(\d+)S/);
     if (match) {
-      const seconds = parseInt(match[1]);
+      const seconds = Number.parseInt(match[1]);
       return `${seconds}s`;
     }
     return duration;
@@ -152,30 +161,43 @@ export default function PopularShortsList({
   };
 
   // Filter videos by tier
-  const filteredVideos = selectedTier === 'all' 
-    ? videos 
-    : videos.filter(video => {
-        const score = video.metrics?.viral_score || 0;
-        const tierName = getTierName(score).toLowerCase();
-        return tierName === selectedTier;
-      });
+  const filteredVideos =
+    selectedTier === 'all'
+      ? videos
+      : videos.filter((video) => {
+          const score = video.metrics?.viralScore || 0;
+          const tierName = getTierName(score).toLowerCase();
+          return tierName === selectedTier;
+        });
 
   // Export to CSV
   const exportToCSV = () => {
     const csvContent = [
-      ['Title', 'Channel', 'Views', 'Likes', 'Comments', 'VPH', 'Engagement Rate', 'Viral Score', 'URL'],
-      ...filteredVideos.map(video => [
+      [
+        'Title',
+        'Channel',
+        'Views',
+        'Likes',
+        'Comments',
+        'VPH',
+        'Engagement Rate',
+        'Viral Score',
+        'URL',
+      ],
+      ...filteredVideos.map((video) => [
         video.snippet.title,
         video.snippet.channelTitle,
         video.statistics.viewCount,
         video.statistics.likeCount,
         video.statistics.commentCount,
         video.metrics?.vph?.toFixed(2) || '0',
-        video.metrics?.engagement_rate?.toFixed(2) || '0',
-        video.metrics?.viral_score?.toFixed(2) || '0',
-        `https://youtube.com/watch?v=${video.id}`
-      ])
-    ].map(row => row.join(',')).join('\n');
+        video.metrics?.engagementRate?.toFixed(2) || '0',
+        video.metrics?.viralScore?.toFixed(2) || '0',
+        `https://youtube.com/watch?v=${video.id}`,
+      ]),
+    ]
+      .map((row) => row.join(','))
+      .join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -188,11 +210,11 @@ export default function PopularShortsList({
   // Show API key setup if required
   if (requiresApiKey) {
     return (
-      <ApiKeySetup 
+      <ApiKeySetup
         onSuccess={() => {
           setRequiresApiKey(false);
           fetchPopularShorts();
-        }} 
+        }}
       />
     );
   }
@@ -203,9 +225,7 @@ export default function PopularShortsList({
       <Card>
         <CardHeader>
           <CardTitle>Popular YouTube Shorts</CardTitle>
-          <CardDescription>
-            Discover trending short-form videos without keywords
-          </CardDescription>
+          <CardDescription>Discover trending short-form videos without keywords</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
@@ -238,17 +258,12 @@ export default function PopularShortsList({
 
             {/* Actions */}
             <div className="flex gap-2 ml-auto">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={fetchPopularShorts}
-                disabled={loading}
-              >
+              <Button variant="outline" size="sm" onClick={fetchPopularShorts} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={exportToCSV}
                 disabled={filteredVideos.length === 0}
@@ -266,28 +281,40 @@ export default function PopularShortsList({
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="all">All ({videos.length})</TabsTrigger>
           <TabsTrigger value="viral">
-            Viral ({videos.filter(v => (v.metrics?.viral_score || 0) >= 80).length})
+            Viral ({videos.filter((v) => (v.metrics?.viralScore || 0) >= 80).length})
           </TabsTrigger>
           <TabsTrigger value="trending">
-            Trending ({videos.filter(v => {
-              const score = v.metrics?.viral_score || 0;
-              return score >= 60 && score < 80;
-            }).length})
+            Trending (
+            {
+              videos.filter((v) => {
+                const score = v.metrics?.viralScore || 0;
+                return score >= 60 && score < 80;
+              }).length
+            }
+            )
           </TabsTrigger>
           <TabsTrigger value="growing">
-            Growing ({videos.filter(v => {
-              const score = v.metrics?.viral_score || 0;
-              return score >= 40 && score < 60;
-            }).length})
+            Growing (
+            {
+              videos.filter((v) => {
+                const score = v.metrics?.viralScore || 0;
+                return score >= 40 && score < 60;
+              }).length
+            }
+            )
           </TabsTrigger>
           <TabsTrigger value="steady">
-            Steady ({videos.filter(v => {
-              const score = v.metrics?.viral_score || 0;
-              return score >= 20 && score < 40;
-            }).length})
+            Steady (
+            {
+              videos.filter((v) => {
+                const score = v.metrics?.viralScore || 0;
+                return score >= 20 && score < 40;
+              }).length
+            }
+            )
           </TabsTrigger>
           <TabsTrigger value="low">
-            Low ({videos.filter(v => (v.metrics?.viral_score || 0) < 20).length})
+            Low ({videos.filter((v) => (v.metrics?.viralScore || 0) < 20).length})
           </TabsTrigger>
         </TabsList>
 
@@ -319,8 +346,8 @@ export default function PopularShortsList({
           {!loading && filteredVideos.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredVideos.map((video) => (
-                <Card 
-                  key={video.id} 
+                <Card
+                  key={video.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => onVideoSelect?.(video)}
                 >
@@ -330,13 +357,13 @@ export default function PopularShortsList({
                       <Image
                         src={video.snippet.thumbnails?.medium?.url || '/placeholder.jpg'}
                         alt={video.snippet.title}
-                        fill
+                        fill={true}
                         className="object-cover rounded-lg"
                       />
-                      <Badge 
-                        className={`absolute top-2 right-2 ${getTierColor(video.metrics?.viral_score || 0)} text-white`}
+                      <Badge
+                        className={`absolute top-2 right-2 ${getTierColor(video.metrics?.viralScore || 0)} text-white`}
                       >
-                        {getTierName(video.metrics?.viral_score || 0)}
+                        {getTierName(video.metrics?.viralScore || 0)}
                       </Badge>
                       <Badge className="absolute bottom-2 right-2 bg-black/70 text-white">
                         <Clock className="w-3 h-3 mr-1" />
@@ -383,13 +410,13 @@ export default function PopularShortsList({
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Engagement</span>
                             <span className="font-medium">
-                              {video.metrics.engagement_rate?.toFixed(2)}%
+                              {video.metrics.engagementRate?.toFixed(2)}%
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Viral Score</span>
                             <span className="font-medium">
-                              {video.metrics.viral_score?.toFixed(0)}/100
+                              {video.metrics.viralScore?.toFixed(0)}/100
                             </span>
                           </div>
                         </div>

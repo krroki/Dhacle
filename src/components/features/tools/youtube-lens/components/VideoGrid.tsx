@@ -1,14 +1,21 @@
 'use client';
 
-import { useCallback, useRef, useState, memo } from 'react';
-import { FixedSizeGrid, FixedSizeList, areEqual } from 'react-window';
+import {
+  CheckSquare,
+  Download,
+  Grid3X3,
+  LayoutGrid,
+  List,
+  Loader2,
+  Search,
+  Square,
+} from 'lucide-react';
+import { memo, useCallback, useRef, useState } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { areEqual, FixedSizeGrid, FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import { useYouTubeLensStore } from '@/store/youtube-lens';
-import { VideoCard } from './VideoCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -16,18 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Grid3X3,
-  List,
-  LayoutGrid,
-  Search,
-  Download,
-  Loader2,
-  CheckSquare,
-  Square
-} from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type { FlattenedYouTubeVideo, YouTubeFavorite } from '@/types/youtube';
+import { VideoCard } from './VideoCard';
 
 interface VideoGridProps {
   videos: FlattenedYouTubeVideo[];
@@ -39,11 +39,11 @@ interface VideoGridProps {
 }
 
 // 가상 스크롤 아이템 렌더러 - Grid View
-const GridCell = memo(function GridCell({ 
-  columnIndex, 
-  rowIndex, 
-  style, 
-  data 
+const GridCell = memo(function GridCell({
+  columnIndex,
+  rowIndex,
+  style,
+  data,
 }: {
   columnIndex: number;
   rowIndex: number;
@@ -64,7 +64,7 @@ const GridCell = memo(function GridCell({
   if (!video) return null;
 
   return (
-    <div style={{ ...style, padding: '8px' }}>
+    <div style={style} className="p-2">
       <VideoCard
         video={video}
         viewMode="grid"
@@ -79,10 +79,10 @@ const GridCell = memo(function GridCell({
 }, areEqual);
 
 // 가상 스크롤 아이템 렌더러 - List View
-const ListRow = memo(function ListRow({ 
-  index, 
-  style, 
-  data 
+const ListRow = memo(function ListRow({
+  index,
+  style,
+  data,
 }: {
   index: number;
   style: React.CSSProperties;
@@ -100,7 +100,7 @@ const ListRow = memo(function ListRow({
   if (!video) return null;
 
   return (
-    <div style={{ ...style, padding: '8px 16px' }}>
+    <div style={style} className="px-4 py-2">
       <VideoCard
         video={video}
         viewMode="list"
@@ -165,7 +165,7 @@ export function VideoGrid({
   hasMore = false,
   onLoadMore,
   onVideoSelect,
-  className
+  className,
 }: VideoGridProps) {
   const {
     selectedVideos,
@@ -176,7 +176,7 @@ export function VideoGrid({
     selectAllVideos,
     clearSelectedVideos,
     addFavorite,
-    removeFavorite
+    removeFavorite,
   } = useYouTubeLensStore();
 
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes'>('date');
@@ -196,25 +196,34 @@ export function VideoGrid({
   });
 
   // 선택 토글
-  const handleToggleSelect = useCallback((videoId: string) => {
-    toggleVideoSelection(videoId);
-  }, [toggleVideoSelection]);
+  const handleToggleSelect = useCallback(
+    (videoId: string) => {
+      toggleVideoSelection(videoId);
+    },
+    [toggleVideoSelection]
+  );
 
   // 즐겨찾기 토글
-  const handleToggleFavorite = useCallback((video: FlattenedYouTubeVideo) => {
-    if (favoriteVideos.has(video.id)) {
-      removeFavorite(video.id);
-    } else {
-      addFavorite(video);
-    }
-  }, [favoriteVideos, addFavorite, removeFavorite]);
+  const handleToggleFavorite = useCallback(
+    (video: FlattenedYouTubeVideo) => {
+      if (favoriteVideos.has(video.id)) {
+        removeFavorite(video.id);
+      } else {
+        addFavorite(video);
+      }
+    },
+    [favoriteVideos, addFavorite, removeFavorite]
+  );
 
   // 비디오 재생
-  const handlePlay = useCallback((video: FlattenedYouTubeVideo) => {
-    onVideoSelect?.(video);
-    // YouTube 플레이어 열기 또는 모달 표시
-    window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');
-  }, [onVideoSelect]);
+  const handlePlay = useCallback(
+    (video: FlattenedYouTubeVideo) => {
+      onVideoSelect?.(video);
+      // YouTube 플레이어 열기 또는 모달 표시
+      window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');
+    },
+    [onVideoSelect]
+  );
 
   // 전체 선택 토글
   const handleToggleSelectAll = useCallback(() => {
@@ -227,7 +236,7 @@ export function VideoGrid({
 
   // 선택된 비디오 다운로드
   const handleDownloadSelected = useCallback(() => {
-    const selected = videos.filter(v => selectedVideos.has(v.id));
+    const selected = videos.filter((v) => selectedVideos.has(v.id));
     const data = JSON.stringify(selected, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -265,7 +274,7 @@ export function VideoGrid({
   // 빈 상태
   if (!isLoading && videos.length === 0) {
     return (
-      <Card className={cn("flex flex-col items-center justify-center py-12", className)}>
+      <Card className={cn('flex flex-col items-center justify-center py-12', className)}>
         <Search className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="text-lg font-semibold mb-2">검색 결과가 없습니다</h3>
         <p className="text-muted-foreground text-center max-w-md">
@@ -276,17 +285,12 @@ export function VideoGrid({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       {/* 툴바 */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {/* 전체 선택 */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToggleSelectAll}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={handleToggleSelectAll} className="gap-2">
             {selectedVideos.size === videos.length ? (
               <>
                 <CheckSquare className="h-4 w-4" />
@@ -303,9 +307,7 @@ export function VideoGrid({
           {/* 선택된 항목 수 */}
           {selectedVideos.size > 0 && (
             <>
-              <span className="text-sm text-muted-foreground">
-                {selectedVideos.size}개 선택됨
-              </span>
+              <span className="text-sm text-muted-foreground">{selectedVideos.size}개 선택됨</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -321,7 +323,10 @@ export function VideoGrid({
 
         <div className="flex items-center gap-2">
           {/* 정렬 */}
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'views' | 'likes')}>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as 'date' | 'views' | 'likes')}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -363,7 +368,7 @@ export function VideoGrid({
       </div>
 
       {/* 비디오 그리드 */}
-      <div className="relative" style={{ height: '600px' }}>
+      <div className="relative h-[600px]">
         {isLoading && videos.length === 0 ? (
           // 초기 로딩
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -382,7 +387,7 @@ export function VideoGrid({
                 favoriteVideos,
                 onToggleSelect: handleToggleSelect,
                 onToggleFavorite: handleToggleFavorite,
-                onPlay: handlePlay
+                onPlay: handlePlay,
               };
 
               if (viewMode === 'grid') {
@@ -425,28 +430,33 @@ export function VideoGrid({
                     )}
                   </InfiniteLoader>
                 );
-              } else {
-                const itemHeight = viewMode === 'list' ? 140 : 80;
+              }
+              const itemHeight = viewMode === 'list' ? 140 : 80;
 
-                return (
-                  <InfiniteLoader
-                    ref={infiniteLoaderRef}
-                    isItemLoaded={isItemLoaded}
-                    itemCount={hasMore ? sortedVideos.length + 1 : sortedVideos.length}
-                    loadMoreItems={loadMoreItems}
-                  >
-                    {({ onItemsRendered, ref }) => (
-                      <FixedSizeList
-                        ref={ref}
-                        height={height}
-                        itemCount={sortedVideos.length}
-                        itemSize={itemHeight}
-                        width={width}
-                        itemData={itemData}
-                        onItemsRendered={onItemsRendered}
-                      >
-                        {viewMode === 'list' ? ListRow : (
-                          ({ index, style, data }: {
+              return (
+                <InfiniteLoader
+                  ref={infiniteLoaderRef}
+                  isItemLoaded={isItemLoaded}
+                  itemCount={hasMore ? sortedVideos.length + 1 : sortedVideos.length}
+                  loadMoreItems={loadMoreItems}
+                >
+                  {({ onItemsRendered, ref }) => (
+                    <FixedSizeList
+                      ref={ref}
+                      height={height}
+                      itemCount={sortedVideos.length}
+                      itemSize={itemHeight}
+                      width={width}
+                      itemData={itemData}
+                      onItemsRendered={onItemsRendered}
+                    >
+                      {viewMode === 'list'
+                        ? ListRow
+                        : ({
+                            index,
+                            style,
+                            data,
+                          }: {
                             index: number;
                             style: React.CSSProperties;
                             data: typeof itemData;
@@ -455,7 +465,7 @@ export function VideoGrid({
                             if (!video) return null;
 
                             return (
-                              <div style={{ ...style, padding: '4px 16px' }}>
+                              <div style={style} className="px-4 py-1">
                                 <VideoCard
                                   video={video}
                                   viewMode="compact"
@@ -467,13 +477,11 @@ export function VideoGrid({
                                 />
                               </div>
                             );
-                          }
-                        )}
-                      </FixedSizeList>
-                    )}
-                  </InfiniteLoader>
-                );
-              }
+                          }}
+                    </FixedSizeList>
+                  )}
+                </InfiniteLoader>
+              );
             }}
           </AutoSizer>
         )}

@@ -1,16 +1,16 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { Database } from '@/types/database'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 
 // Ensure environment variables are defined
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL')
+  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
 }
 if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a single supabase client for interacting with your database
 export const supabase = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -18,14 +18,14 @@ export const supabase = createSupabaseClient<Database>(supabaseUrl, supabaseAnon
     persistSession: true,
     autoRefreshToken: true,
   },
-})
+});
 
 // Export createClient function for compatibility
-export const createClient = () => supabase
+export const createClient = () => supabase;
 
 // Type definitions for our test table
 export type TestConnection = {
-  id: number
-  created_at: string
-  message: string
-}
+  id: number;
+  created_at: string;
+  message: string;
+};

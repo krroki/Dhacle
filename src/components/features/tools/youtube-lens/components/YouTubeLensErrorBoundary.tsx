@@ -1,11 +1,11 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, Bug, CheckCircle, Copy, Home, RefreshCw } from 'lucide-react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, RefreshCw, Home, Bug, Copy, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface Props {
   children: ReactNode;
@@ -28,14 +28,14 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       errorType: 'unknown',
-      copied: false
+      copied: false,
     };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // 에러 타입 분류
     let errorType: State['errorType'] = 'unknown';
-    
+
     if (error.message.includes('환경 변수') || error.message.includes('NEXT_PUBLIC')) {
       errorType = 'config';
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
@@ -47,14 +47,14 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorType
+      errorType,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('YouTube Lens Error:', error, errorInfo);
     this.setState({ errorInfo });
-    
+
     // 에러 리포팅 (프로덕션 환경에서)
     if (process.env.NODE_ENV === 'production') {
       // TODO: 에러 리포팅 서비스로 전송
@@ -68,7 +68,7 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       errorType: 'unknown',
-      copied: false
+      copied: false,
     });
   };
 
@@ -91,7 +91,7 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
     navigator.clipboard.writeText(errorText);
     this.setState({ copied: true });
     toast.success('에러 정보가 클립보드에 복사되었습니다');
-    
+
     setTimeout(() => {
       this.setState({ copied: false });
     }, 2000);
@@ -99,7 +99,7 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
 
   getErrorSolution = () => {
     const { errorType } = this.state;
-    
+
     switch (errorType) {
       case 'config':
         return {
@@ -109,10 +109,10 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
             '`.env.local` 파일을 생성하고 필요한 환경 변수를 추가하세요',
             'Google Cloud Console에서 OAuth 2.0 클라이언트를 생성하세요',
             'YouTube Data API v3를 활성화하세요',
-            '개발 서버를 재시작하세요'
-          ]
+            '개발 서버를 재시작하세요',
+          ],
         };
-      
+
       case 'network':
         return {
           title: '네트워크 연결 오류',
@@ -121,10 +121,10 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
             '인터넷 연결 상태를 확인하세요',
             'VPN이나 프록시 설정을 확인하세요',
             '잠시 후 다시 시도해주세요',
-            '문제가 지속되면 관리자에게 문의하세요'
-          ]
+            '문제가 지속되면 관리자에게 문의하세요',
+          ],
         };
-      
+
       case 'auth':
         return {
           title: '인증 오류',
@@ -133,10 +133,10 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
             'Google 계정에 다시 로그인해보세요',
             '브라우저 쿠키와 캐시를 삭제하세요',
             'OAuth 클라이언트 ID와 Secret이 올바른지 확인하세요',
-            '리디렉션 URI가 Google Console에 등록되어 있는지 확인하세요'
-          ]
+            '리디렉션 URI가 Google Console에 등록되어 있는지 확인하세요',
+          ],
         };
-      
+
       default:
         return {
           title: '예기치 않은 오류',
@@ -145,8 +145,8 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
             '페이지를 새로고침하세요',
             '브라우저를 재시작하세요',
             '다른 브라우저에서 시도해보세요',
-            '문제가 지속되면 관리자에게 문의하세요'
-          ]
+            '문제가 지속되면 관리자에게 문의하세요',
+          ],
         };
     }
   };
@@ -212,11 +212,7 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
                   <Home className="mr-2 h-4 w-4" />
                   홈으로
                 </Button>
-                <Button 
-                  onClick={this.handleCopyError} 
-                  variant="outline"
-                  disabled={copied}
-                >
+                <Button onClick={this.handleCopyError} variant="outline" disabled={copied}>
                   {copied ? (
                     <>
                       <CheckCircle className="mr-2 h-4 w-4" />
@@ -239,12 +235,16 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
                   </summary>
                   <div className="mt-2 space-y-2">
                     <div className="text-xs bg-muted p-3 rounded font-mono overflow-x-auto">
-                      <p><strong>Error Type:</strong> {errorType}</p>
-                      <p><strong>Message:</strong> {error?.message}</p>
-                      <p className="mt-2"><strong>Stack:</strong></p>
-                      <pre className="whitespace-pre-wrap text-xs">
-                        {error?.stack}
-                      </pre>
+                      <p>
+                        <strong>Error Type:</strong> {errorType}
+                      </p>
+                      <p>
+                        <strong>Message:</strong> {error?.message}
+                      </p>
+                      <p className="mt-2">
+                        <strong>Stack:</strong>
+                      </p>
+                      <pre className="whitespace-pre-wrap text-xs">{error?.stack}</pre>
                     </div>
                   </div>
                 </details>

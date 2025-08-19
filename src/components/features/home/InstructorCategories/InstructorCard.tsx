@@ -9,7 +9,7 @@ interface InstructorCardProps {
 
 export function InstructorCard({ instructor, onClick }: InstructorCardProps) {
   return (
-    <div 
+    <div
       className="flex flex-col items-center p-4 rounded-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg group"
       onClick={onClick}
     >
@@ -17,7 +17,7 @@ export function InstructorCard({ instructor, onClick }: InstructorCardProps) {
         <Image
           src={instructor.profileImage}
           alt={instructor.name}
-          fill
+          fill={true}
           className="rounded-full object-cover border-2 border-primary/20 group-hover:border-primary/50 transition-colors"
         />
       </div>

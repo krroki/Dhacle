@@ -1,21 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  Copy, 
+import {
+  AlertCircle,
+  CheckCircle,
+  Copy,
   ExternalLink,
   FileText,
   Key,
   Settings,
-  Terminal
+  Terminal,
 } from 'lucide-react';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface SetupGuideProps {
   missingVars?: string[];
@@ -79,15 +79,19 @@ ENCRYPTION_KEY=`;
           <TabsContent value="step1" className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Google Cloud Console 설정</h3>
-              
+
               <div className="space-y-2">
                 <h4 className="font-medium">1. 프로젝트 생성</h4>
                 <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground ml-4">
                   <li>Google Cloud Console 접속</li>
                   <li>새 프로젝트 생성 또는 기존 프로젝트 선택</li>
                 </ol>
-                <Button variant="outline" size="sm" asChild>
-                  <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" asChild={true}>
+                  <a
+                    href="https://console.cloud.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Console 열기 <ExternalLink className="ml-2 h-3 w-3" />
                   </a>
                 </Button>
@@ -105,8 +109,18 @@ ENCRYPTION_KEY=`;
                 <h4 className="font-medium">3. OAuth 2.0 클라이언트 ID 생성</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
                   <li>애플리케이션 유형: 웹 애플리케이션</li>
-                  <li>승인된 JavaScript 원본: <code className="text-xs bg-muted px-1 py-0.5 rounded">http://localhost:3000</code></li>
-                  <li>승인된 리디렉션 URI: <code className="text-xs bg-muted px-1 py-0.5 rounded">http://localhost:3000/api/youtube/auth/callback</code></li>
+                  <li>
+                    승인된 JavaScript 원본:{' '}
+                    <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                      http://localhost:3000
+                    </code>
+                  </li>
+                  <li>
+                    승인된 리디렉션 URI:{' '}
+                    <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                      http://localhost:3000/api/youtube/auth/callback
+                    </code>
+                  </li>
                 </ul>
               </div>
 
@@ -122,15 +136,11 @@ ENCRYPTION_KEY=`;
           <TabsContent value="step2" className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">환경 변수 설정</h3>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">1. .env.local 파일 생성</h4>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCopy(envTemplate, 0)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleCopy(envTemplate, 0)}>
                     {copiedIndex === 0 ? (
                       <>
                         <CheckCircle className="mr-2 h-3 w-3" />
@@ -144,9 +154,7 @@ ENCRYPTION_KEY=`;
                     )}
                   </Button>
                 </div>
-                <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-                  {envTemplate}
-                </pre>
+                <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">{envTemplate}</pre>
               </div>
 
               <div className="space-y-2">
@@ -183,7 +191,9 @@ ENCRYPTION_KEY=`;
                 <FileText className="h-4 w-4" />
                 <AlertTitle>참고</AlertTitle>
                 <AlertDescription>
-                  자세한 설정 방법은 <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local.example</code> 파일을 참조하세요.
+                  자세한 설정 방법은{' '}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local.example</code>{' '}
+                  파일을 참조하세요.
                 </AlertDescription>
               </Alert>
             </div>
@@ -192,14 +202,14 @@ ENCRYPTION_KEY=`;
           <TabsContent value="step3" className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">데이터베이스 설정</h3>
-              
+
               <div className="space-y-2">
                 <h4 className="font-medium">Supabase SQL Editor에서 실행:</h4>
                 <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-{`-- 테이블 확인
+                  {`-- 테이블 확인
 SELECT table_name FROM information_schema.tables 
 WHERE table_schema = 'public' 
-AND table_name IN ('user_api_keys', 'youtube_favorites');
+AND table_name IN ('userApiKeys', 'youtube_favorites');
 
 -- 마이그레이션 실행 (필요시)
 -- src/lib/supabase/migrations/009_youtube_lens_fix.sql 내용 실행`}
@@ -219,7 +229,7 @@ AND table_name IN ('user_api_keys', 'youtube_favorites');
           <TabsContent value="step4" className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">설정 테스트</h3>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h4 className="font-medium">1. 개발 서버 재시작</h4>

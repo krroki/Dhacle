@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { ArrowLeft, RefreshCw, XCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { apiPost } from '@/lib/api-client';
 
 function PaymentFailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const orderId = searchParams.get('orderId');
   const code = searchParams.get('code');
   const message = searchParams.get('message');
-  
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -55,18 +55,14 @@ function PaymentFailContent() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full mb-6">
             <XCircle className="w-12 h-12 text-red-600 dark:text-red-400" />
           </div>
-          
+
           <CardTitle className="text-2xl">결제를 완료할 수 없습니다</CardTitle>
-          <CardDescription className="text-base mt-2">
-            {getErrorMessage()}
-          </CardDescription>
+          <CardDescription className="text-base mt-2">{getErrorMessage()}</CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {orderId && (
-            <div className="text-center text-sm text-muted-foreground">
-              주문번호: {orderId}
-            </div>
+            <div className="text-center text-sm text-muted-foreground">주문번호: {orderId}</div>
           )}
 
           <div className="bg-muted/50 rounded-lg p-4">
@@ -88,20 +84,12 @@ function PaymentFailContent() {
           </div>
 
           <div className="flex gap-3">
-            <Button 
-              variant="outline"
-              className="flex-1"
-              onClick={() => router.push('/courses')}
-            >
+            <Button variant="outline" className="flex-1" onClick={() => router.push('/courses')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               강의 목록으로
             </Button>
-            
-            <Button 
-              className="flex-1"
-              onClick={handleRetry}
-              disabled={isProcessing}
-            >
+
+            <Button className="flex-1" onClick={handleRetry} disabled={isProcessing}>
               <RefreshCw className="w-4 h-4 mr-2" />
               다시 시도하기
             </Button>
@@ -111,9 +99,7 @@ function PaymentFailContent() {
 
       <div className="mt-8 text-center text-sm text-muted-foreground">
         <p>계속해서 문제가 발생하시면</p>
-        <p className="mt-1">
-          고객센터(support@dhacle.com)로 문의해주세요.
-        </p>
+        <p className="mt-1">고객센터(support@dhacle.com)로 문의해주세요.</p>
       </div>
     </div>
   );

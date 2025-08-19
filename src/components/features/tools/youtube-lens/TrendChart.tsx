@@ -3,21 +3,15 @@
 /**
  * YouTube Lens - Trend Chart Component
  * Phase 4: UI Component
- * 
+ *
  * Visualizes trend data using interactive charts
  */
 
+import { Activity, AlertCircle, BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Activity,
-  BarChart3,
-  AlertCircle
-} from 'lucide-react';
 import type { TrendAnalysis } from '@/types/youtube-lens';
 
 interface TrendChartProps {
@@ -26,25 +20,24 @@ interface TrendChartProps {
   description?: string;
 }
 
-export function TrendChart({ 
-  trends, 
+export function TrendChart({
+  trends,
   title = '트렌드 분석',
-  description = '키워드 성장률 및 트렌드 패턴'
+  description = '키워드 성장률 및 트렌드 패턴',
 }: TrendChartProps) {
-  
   // Sort trends by growth rate
   const sortedTrends = useMemo(() => {
-    return [...trends].sort((a, b) => b.growth_rate - a.growth_rate);
+    return [...trends].sort((a, b) => b.growthRate - a.growthRate);
   }, [trends]);
 
   // Top growing and declining trends
-  const topGrowing = sortedTrends.filter(t => t.growth_rate > 0).slice(0, 5);
-  const topDeclining = sortedTrends.filter(t => t.growth_rate < 0).slice(0, 5);
+  const topGrowing = sortedTrends.filter((t) => t.growthRate > 0).slice(0, 5);
+  const topDeclining = sortedTrends.filter((t) => t.growthRate < 0).slice(0, 5);
 
   // Sentiment distribution
   const sentimentCounts = useMemo(() => {
     const counts = { positive: 0, negative: 0, neutral: 0 };
-    trends.forEach(trend => {
+    trends.forEach((trend) => {
       counts[trend.sentiment]++;
     });
     return counts;
@@ -52,9 +45,12 @@ export function TrendChart({
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return 'text-green-600 bg-green-50';
-      case 'negative': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'positive':
+        return 'text-green-600 bg-green-50';
+      case 'negative':
+        return 'text-red-600 bg-red-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
     }
   };
 
@@ -98,9 +94,7 @@ export function TrendChart({
             <CardDescription>{description}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline">
-              총 {trends.length}개 트렌드
-            </Badge>
+            <Badge variant="outline">총 {trends.length}개 트렌드</Badge>
           </div>
         </div>
       </CardHeader>
@@ -130,28 +124,29 @@ export function TrendChart({
                           <Badge variant="secondary" className="text-xs">
                             빈도: {trend.frequency}
                           </Badge>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={`text-xs ${getSentimentColor(trend.sentiment)}`}
                           >
-                            {trend.sentiment === 'positive' ? '긍정' : 
-                             trend.sentiment === 'negative' ? '부정' : '중립'}
+                            {trend.sentiment === 'positive'
+                              ? '긍정'
+                              : trend.sentiment === 'negative'
+                                ? '부정'
+                                : '중립'}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {getGrowthIcon(trend.growth_rate)}
+                      {getGrowthIcon(trend.growthRate)}
                       <span className="font-bold text-green-600">
-                        {formatGrowthRate(trend.growth_rate)}
+                        {formatGrowthRate(trend.growthRate)}
                       </span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-4 text-gray-500">
-                  상승 트렌드가 없습니다
-                </div>
+                <div className="text-center py-4 text-gray-500">상승 트렌드가 없습니다</div>
               )}
             </div>
           </TabsContent>
@@ -174,28 +169,29 @@ export function TrendChart({
                           <Badge variant="secondary" className="text-xs">
                             빈도: {trend.frequency}
                           </Badge>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={`text-xs ${getSentimentColor(trend.sentiment)}`}
                           >
-                            {trend.sentiment === 'positive' ? '긍정' : 
-                             trend.sentiment === 'negative' ? '부정' : '중립'}
+                            {trend.sentiment === 'positive'
+                              ? '긍정'
+                              : trend.sentiment === 'negative'
+                                ? '부정'
+                                : '중립'}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {getGrowthIcon(trend.growth_rate)}
+                      {getGrowthIcon(trend.growthRate)}
                       <span className="font-bold text-red-600">
-                        {formatGrowthRate(trend.growth_rate)}
+                        {formatGrowthRate(trend.growthRate)}
                       </span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-4 text-gray-500">
-                  하락 트렌드가 없습니다
-                </div>
+                <div className="text-center py-4 text-gray-500">하락 트렌드가 없습니다</div>
               )}
             </div>
           </TabsContent>
@@ -205,21 +201,15 @@ export function TrendChart({
               {/* Sentiment Distribution */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
-                  <p className="text-2xl font-bold text-green-700">
-                    {sentimentCounts.positive}
-                  </p>
+                  <p className="text-2xl font-bold text-green-700">{sentimentCounts.positive}</p>
                   <p className="text-sm text-green-600 mt-1">긍정적</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-2xl font-bold text-gray-700">
-                    {sentimentCounts.neutral}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-700">{sentimentCounts.neutral}</p>
                   <p className="text-sm text-gray-600 mt-1">중립적</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-red-50 border border-red-200">
-                  <p className="text-2xl font-bold text-red-700">
-                    {sentimentCounts.negative}
-                  </p>
+                  <p className="text-2xl font-bold text-red-700">{sentimentCounts.negative}</p>
                   <p className="text-sm text-red-600 mt-1">부정적</p>
                 </div>
               </div>
@@ -227,31 +217,25 @@ export function TrendChart({
               {/* Sentiment Percentage Bar */}
               <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden flex">
                 {sentimentCounts.positive > 0 && (
-                  <div 
+                  <div
                     className="bg-green-500 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ 
-                      width: `${(sentimentCounts.positive / trends.length) * 100}%` 
-                    }}
+                    style={{ width: `${(sentimentCounts.positive / trends.length) * 100}%` }}
                   >
                     {((sentimentCounts.positive / trends.length) * 100).toFixed(0)}%
                   </div>
                 )}
                 {sentimentCounts.neutral > 0 && (
-                  <div 
+                  <div
                     className="bg-gray-400 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ 
-                      width: `${(sentimentCounts.neutral / trends.length) * 100}%` 
-                    }}
+                    style={{ width: `${(sentimentCounts.neutral / trends.length) * 100}%` }}
                   >
                     {((sentimentCounts.neutral / trends.length) * 100).toFixed(0)}%
                   </div>
                 )}
                 {sentimentCounts.negative > 0 && (
-                  <div 
+                  <div
                     className="bg-red-500 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ 
-                      width: `${(sentimentCounts.negative / trends.length) * 100}%` 
-                    }}
+                    style={{ width: `${(sentimentCounts.negative / trends.length) * 100}%` }}
                   >
                     {((sentimentCounts.negative / trends.length) * 100).toFixed(0)}%
                   </div>
@@ -262,25 +246,25 @@ export function TrendChart({
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-700">감성별 주요 키워드</p>
                 <div className="space-y-2">
-                  {['positive', 'negative', 'neutral'].map(sentiment => {
+                  {['positive', 'negative', 'neutral'].map((sentiment) => {
                     const keywords = trends
-                      .filter(t => t.sentiment === sentiment)
+                      .filter((t) => t.sentiment === sentiment)
                       .slice(0, 3)
-                      .map(t => t.keyword);
-                    
+                      .map((t) => t.keyword);
+
                     if (keywords.length === 0) return null;
-                    
+
                     return (
                       <div key={sentiment} className="flex items-center gap-2">
-                        <Badge 
-                          variant="outline" 
-                          className={getSentimentColor(sentiment)}
-                        >
-                          {sentiment === 'positive' ? '긍정' : 
-                           sentiment === 'negative' ? '부정' : '중립'}
+                        <Badge variant="outline" className={getSentimentColor(sentiment)}>
+                          {sentiment === 'positive'
+                            ? '긍정'
+                            : sentiment === 'negative'
+                              ? '부정'
+                              : '중립'}
                         </Badge>
                         <div className="flex gap-1 flex-wrap">
-                          {keywords.map(keyword => (
+                          {keywords.map((keyword) => (
                             <Badge key={keyword} variant="secondary" className="text-xs">
                               {keyword}
                             </Badge>

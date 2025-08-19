@@ -1,8 +1,11 @@
 'use client';
 
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -10,9 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
 import type { CourseFilters } from '@/types/course';
 
 interface InstructorFilterProps {
@@ -41,8 +41,8 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
     onFilterChange?.({});
   };
 
-  const activeFilterCount = Object.keys(filters).filter(key => 
-    filters[key as keyof CourseFilters] !== undefined
+  const activeFilterCount = Object.keys(filters).filter(
+    (key) => filters[key as keyof CourseFilters] !== undefined
   ).length;
 
   return (
@@ -61,11 +61,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
           />
         </div>
         <Button onClick={handleSearch}>검색</Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowAdvanced(!showAdvanced)} className="gap-2">
           <SlidersHorizontal className="w-4 h-4" />
           필터
           {activeFilterCount > 0 && (
@@ -103,12 +99,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
           <div className="flex items-center justify-between">
             <h3 className="font-medium">상세 필터</h3>
             {activeFilterCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="gap-1"
-              >
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
                 <X className="w-3 h-3" />
                 초기화
               </Button>
@@ -121,23 +112,23 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Label>가격</Label>
               <div className="flex gap-2">
                 <Button
-                  variant={filters.is_free === true ? 'default' : 'outline'}
+                  variant={filters.isFree === true ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: true })}
+                  onClick={() => handleFilterChange({ isFree: true })}
                 >
                   무료
                 </Button>
                 <Button
-                  variant={filters.is_free === false ? 'default' : 'outline'}
+                  variant={filters.isFree === false ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: false })}
+                  onClick={() => handleFilterChange({ isFree: false })}
                 >
                   유료
                 </Button>
                 <Button
-                  variant={filters.is_free === undefined ? 'default' : 'outline'}
+                  variant={filters.isFree === undefined ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: undefined })}
+                  onClick={() => handleFilterChange({ isFree: undefined })}
                 >
                   전체
                 </Button>
@@ -149,8 +140,8 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Label>최소 평점</Label>
               <Select
                 value={filters.rating?.toString()}
-                onValueChange={(value) => 
-                  handleFilterChange({ rating: value ? parseFloat(value) : undefined })
+                onValueChange={(value) =>
+                  handleFilterChange({ rating: value ? Number.parseFloat(value) : undefined })
                 }
               >
                 <SelectTrigger>
@@ -171,8 +162,10 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Label>강의 상태</Label>
               <Select
                 value={filters.status}
-                onValueChange={(value) => 
-                  handleFilterChange({ status: value as 'upcoming' | 'active' | 'completed' | undefined })
+                onValueChange={(value) =>
+                  handleFilterChange({
+                    status: value as 'upcoming' | 'active' | 'completed' | undefined,
+                  })
                 }
               >
                 <SelectTrigger>

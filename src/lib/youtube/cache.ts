@@ -3,9 +3,9 @@
  * 2-레벨 캐싱: 메모리(LRU) + Redis
  */
 
-import { LRUCache } from 'lru-cache';
-import Redis from 'ioredis';
 import crypto from 'crypto';
+import Redis from 'ioredis';
+import { LRUCache } from 'lru-cache';
 
 // Redis 클라이언트 (조건부 생성)
 let redis: Redis | null = null;
@@ -15,13 +15,13 @@ if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
   try {
     redis = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
+      port: Number.parseInt(process.env.REDIS_PORT || '6379'),
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       lazyConnect: true,
       retryStrategy: () => null, // 재시도 비활성화
     });
-    
+
     // 에러 핸들러 등록
     redis.on('error', (err) => {
       console.log('Redis connection failed, using memory cache only:', err.message);
@@ -37,10 +37,10 @@ if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
 
 // 캐시 옵션 인터페이스
 export interface CacheOptions {
-  ttl?: number;          // Time To Live (ms)
-  stale?: number;        // Stale while revalidate (ms)
-  namespace?: string;    // 캐시 네임스페이스
-  compress?: boolean;    // 압축 여부
+  ttl?: number; // Time To Live (ms)
+  stale?: number; // Stale while revalidate (ms)
+  namespace?: string; // 캐시 네임스페이스
+  compress?: boolean; // 압축 여부
 }
 
 // 캐시 통계
@@ -71,17 +71,17 @@ export class CacheManager {
     deletes: 0,
     hitRate: 0,
   };
-  private redisConnected: boolean = false;
+  private redisConnected = false;
 
   private constructor() {
     // LRU 캐시 설정 (메모리)
     this.memoryCache = new LRUCache<string, CacheItem<unknown>>({
-      max: 500,                        // 최대 500개 항목
-      maxSize: 50 * 1024 * 1024,      // 최대 50MB
+      max: 500, // 최대 500개 항목
+      maxSize: 50 * 1024 * 1024, // 최대 50MB
       sizeCalculation: (value) => {
         return JSON.stringify(value).length;
       },
-      ttl: 5 * 60 * 1000,              // 기본 TTL 5분
+      ttl: 5 * 60 * 1000, // 기본 TTL 5분
       updateAgeOnGet: true,
       updateAgeOnHas: true,
     });
@@ -103,7 +103,7 @@ export class CacheManager {
       this.redisConnected = false;
       return;
     }
-    
+
     try {
       await redis.connect();
       this.redisConnected = true;
@@ -123,27 +123,27 @@ export class CacheManager {
       .update(JSON.stringify(normalized))
       .digest('hex')
       .substring(0, 16);
-    
+
     return `youtube:${type}:${hash}`;
   }
 
   // 파라미터 정규화
   private normalizeParams(params: unknown): Record<string, unknown> {
     if (!params || typeof params !== 'object' || params === null) return {};
-    
+
     // Type assertion after type guard
     const paramsObj = params as Record<string, unknown>;
-    
+
     // 객체 키 정렬
     const sorted: Record<string, unknown> = {};
     Object.keys(paramsObj)
       .sort()
-      .forEach(key => {
+      .forEach((key) => {
         if (paramsObj[key] !== undefined && paramsObj[key] !== null) {
           sorted[key] = paramsObj[key];
         }
       });
-    
+
     return sorted;
   }
 
@@ -164,21 +164,20 @@ export class CacheManager {
         const redisData = await redis.get(key);
         if (redisData) {
           const item = JSON.parse(redisData) as CacheItem<T>;
-          
+
           // TTL 확인
           if (Date.now() - item.timestamp < item.ttl) {
             this.stats.hits++;
             this.updateHitRate();
-            
+
             // 메모리 캐시에도 저장
             this.memoryCache.set(key, item as CacheItem<unknown>);
-            
+
             console.log(`Redis cache hit: ${key}`);
             return item.data;
-          } else {
-            // 만료된 항목 삭제
-            await redis.del(key);
           }
+          // 만료된 항목 삭제
+          await redis.del(key);
         }
       } catch (error) {
         console.error('Redis get error:', error);
@@ -191,11 +190,7 @@ export class CacheManager {
   }
 
   // 캐시 저장
-  async set<T>(
-    key: string, 
-    data: T, 
-    ttl: number = 5 * 60 * 1000
-  ): Promise<void> {
+  async set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): Promise<void> {
     const item: CacheItem<T> = {
       data,
       timestamp: Date.now(),
@@ -209,11 +204,7 @@ export class CacheManager {
     // 2. Redis 캐시 저장 (연결된 경우)
     if (this.redisConnected && redis) {
       try {
-        await redis.setex(
-          key,
-          Math.floor(ttl / 1000),
-          JSON.stringify(item)
-        );
+        await redis.setex(key, Math.floor(ttl / 1000), JSON.stringify(item));
       } catch (error) {
         console.error('Redis set error:', error);
       }
@@ -299,11 +290,11 @@ export class CacheManager {
   // 캐시 워밍업
   async warmup(items: Array<{ key: string; data: unknown; ttl?: number }>): Promise<void> {
     console.log(`Warming up cache with ${items.length} items...`);
-    
+
     for (const item of items) {
       await this.set(item.key, item.data, item.ttl);
     }
-    
+
     console.log('Cache warmup completed');
   }
 
@@ -337,13 +328,13 @@ export class CacheManager {
   // TTL 전략
   static getTTL(dataType: string): number {
     const ttlMap: Record<string, number> = {
-      'search': 5 * 60 * 1000,           // 5분
-      'video': 10 * 60 * 1000,           // 10분
-      'channel': 60 * 60 * 1000,         // 1시간
-      'playlist': 30 * 60 * 1000,        // 30분
-      'stats': 5 * 60 * 1000,            // 5분
-      'trending': 15 * 60 * 1000,        // 15분
-      'popular': 10 * 60 * 1000,         // 10분
+      search: 5 * 60 * 1000, // 5분
+      video: 10 * 60 * 1000, // 10분
+      channel: 60 * 60 * 1000, // 1시간
+      playlist: 30 * 60 * 1000, // 30분
+      stats: 5 * 60 * 1000, // 5분
+      trending: 15 * 60 * 1000, // 15분
+      popular: 10 * 60 * 1000, // 10분
     };
 
     return ttlMap[dataType] || 5 * 60 * 1000;
@@ -355,13 +346,13 @@ export class CacheManager {
     if (!response || typeof response !== 'object') {
       return false;
     }
-    
+
     // Type assertion after type guard
     const responseObj = response as { error?: unknown; items?: unknown[] };
-    
+
     // 에러 응답은 캐시하지 않음
     if (responseObj.error) return false;
-    
+
     // 빈 결과는 짧게 캐시
     if (!responseObj.items || !Array.isArray(responseObj.items) || responseObj.items.length === 0) {
       return true; // 하지만 TTL을 짧게
@@ -376,7 +367,7 @@ export class CacheManager {
     if (this.redisConnected && redis) {
       await redis.quit();
     }
-    
+
     this.memoryCache.clear();
     console.log('Cache manager shut down');
   }
@@ -391,28 +382,28 @@ export function withCache<T extends (...args: unknown[]) => Promise<unknown>>(
   }
 ): T {
   const cache = CacheManager.getInstance();
-  
+
   return (async (...args: Parameters<T>) => {
     // 캐시 키 생성
-    const key = options?.keyGenerator 
+    const key = options?.keyGenerator
       ? options.keyGenerator(...args)
       : cache.generateKey(fn.name, args);
-    
+
     // 캐시 확인
     const cached = await cache.get(key);
     if (cached) {
       return cached;
     }
-    
+
     // 함수 실행
     const result = await fn(...args);
-    
+
     // 결과 캐싱
     if (CacheManager.isCacheable(result)) {
       const ttl = options?.ttl || CacheManager.getTTL(fn.name);
       await cache.set(key, result, ttl);
     }
-    
+
     return result;
   }) as T;
 }

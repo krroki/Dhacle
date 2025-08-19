@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Award, Medal, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getRankings } from '@/lib/api/revenue-proof';
 
 interface LiveRankingSidebarProps {
@@ -46,7 +46,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
     return new Intl.NumberFormat('ko-KR', {
       style: 'currency',
       currency: 'KRW',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -119,49 +119,46 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
           </p>
         ) : (
           rankings.slice(0, 5).map((ranking: Ranking, index: number) => (
-          <div key={`ranking-${ranking.user_id || index}`} className="flex items-center gap-3">
-            {/* 순위 */}
-            <div className="w-8 flex justify-center">
-              {getRankIcon(ranking.rank)}
-            </div>
-            
-            {/* 프로필 이미지 */}
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-              {ranking.avatar_url ? (
-                <Image
-                  src={ranking.avatar_url}
-                  alt={ranking.username}
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600" />
+            <div key={`ranking-${ranking.user_id || index}`} className="flex items-center gap-3">
+              {/* 순위 */}
+              <div className="w-8 flex justify-center">{getRankIcon(ranking.rank)}</div>
+
+              {/* 프로필 이미지 */}
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                {ranking.avatar_url ? (
+                  <Image
+                    src={ranking.avatar_url}
+                    alt={ranking.username}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600" />
+                )}
+              </div>
+
+              {/* 사용자 정보 */}
+              <div className="flex-1">
+                <p className="text-sm font-medium line-clamp-1">{ranking.username}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatAmount(ranking.total_amount)}
+                </p>
+              </div>
+
+              {/* 순위 배지 */}
+              {ranking.rank <= 3 && (
+                <Badge className={`text-xs ${getRankBadgeColor(ranking.rank)}`}>
+                  {ranking.rank}위
+                </Badge>
               )}
             </div>
-
-            {/* 사용자 정보 */}
-            <div className="flex-1">
-              <p className="text-sm font-medium line-clamp-1">
-                {ranking.username}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {formatAmount(ranking.total_amount)}
-              </p>
-            </div>
-
-            {/* 순위 배지 */}
-            {ranking.rank <= 3 && (
-              <Badge className={`text-xs ${getRankBadgeColor(ranking.rank)}`}>
-                {ranking.rank}위
-              </Badge>
-            )}
-          </div>
-        )))}
+          ))
+        )}
 
         {/* 더보기 링크 */}
         <div className="pt-4 border-t">
-          <Link 
+          <Link
             href="/revenue-proof/ranking"
             className="text-sm text-primary hover:underline text-center block"
           >

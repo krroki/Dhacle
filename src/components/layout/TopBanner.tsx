@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui'
+import Link from 'next/link';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 interface TopBannerProps {
-  text?: string
-  ctaText?: string
-  ctaLink?: string
-  bgColor?: string
+  text?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  bgColor?: string;
 }
 
 export function TopBanner({
@@ -21,10 +21,9 @@ export function TopBanner({
   return (
     <div
       className={cn(
-        'relative flex items-center justify-center px-4 py-3 text-white overflow-hidden',
+        'relative flex items-center justify-center px-4 py-3 text-white overflow-hidden h-12',
         bgColor
       )}
-      style={{ height: 'var(--top-banner-height)' }}
     >
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium">{text}</span>
@@ -39,5 +38,5 @@ export function TopBanner({
         </Link>
       </div>
     </div>
-  )
+  );
 }

@@ -1,19 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { AlertCircle, CheckCircle, ExternalLink, KeyRound, Loader2 } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { apiPost, ApiError } from '@/lib/api-client';
-import { 
-  KeyRound, 
-  ExternalLink, 
-  CheckCircle, 
-  AlertCircle,
-  Loader2
-} from 'lucide-react';
+import { ApiError, apiPost } from '@/lib/api-client';
 
 interface ApiKeySetupProps {
   onSuccess?: () => void;
@@ -27,7 +22,7 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!apiKey.trim()) {
       setError('API 키를 입력해주세요');
       return;
@@ -40,7 +35,7 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
       // API 키 검증 및 저장
       await apiPost('/api/user/api-keys', {
         apiKey: apiKey.trim(),
-        serviceName: 'youtube'
+        serviceName: 'youtube',
       });
 
       setSuccess(true);
@@ -105,9 +100,9 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
             <li className="flex items-start gap-2">
               <span className="font-medium">1.</span>
               <div>
-                <a 
-                  href="https://console.cloud.google.com/" 
-                  target="_blank" 
+                <a
+                  href="https://console.cloud.google.com/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
@@ -123,11 +118,15 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">3.</span>
-              <span>{'"API 및 서비스"'} → {'"라이브러리"'}에서 YouTube Data API v3 활성화</span>
+              <span>
+                {'"API 및 서비스"'} → {'"라이브러리"'}에서 YouTube Data API v3 활성화
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">4.</span>
-              <span>{'"사용자 인증 정보"'} → {'"사용자 인증 정보 만들기"'} → {'"API 키"'} 선택</span>
+              <span>
+                {'"사용자 인증 정보"'} → {'"사용자 인증 정보 만들기"'} → {'"API 키"'} 선택
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-medium">5.</span>
@@ -173,8 +172,8 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
         {/* 보안 안내 */}
         <div className="bg-muted rounded-lg p-3">
           <p className="text-xs text-muted-foreground">
-            <strong>보안 안내:</strong> API 키는 AES-256 암호화되어 안전하게 저장됩니다. 
-            키는 오직 YouTube API 호출에만 사용되며, 다른 용도로 사용되지 않습니다.
+            <strong>보안 안내:</strong> API 키는 AES-256 암호화되어 안전하게 저장됩니다. 키는 오직
+            YouTube API 호출에만 사용되며, 다른 용도로 사용되지 않습니다.
           </p>
         </div>
       </CardContent>

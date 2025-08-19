@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 import { CollectionManager } from '@/lib/youtube/collections';
 
 const collectionManager = new CollectionManager();
@@ -10,17 +10,16 @@ const collectionManager = new CollectionManager();
  * 특정 컬렉션의 비디오 목록 조회
  */
 export async function GET(request: NextRequest) {
-  
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) {
     return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
+      { error: 'User not authenticated' },
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
   try {
@@ -28,28 +27,19 @@ export async function GET(request: NextRequest) {
     const collectionId = searchParams.get('collectionId');
 
     if (!collectionId) {
-      return NextResponse.json(
-        { error: 'Collection ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
     const { data, error } = await collectionManager.getCollectionVideos(collectionId);
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ items: data });
   } catch (error) {
     console.error('Error in GET /api/youtube/collections/items:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -61,13 +51,12 @@ export async function POST(request: NextRequest) {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const body = await request.json();
     const { collectionId, videoId, notes, tags } = body;
@@ -87,19 +76,13 @@ export async function POST(request: NextRequest) {
     );
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ item: data }, { status: 201 });
   } catch (error) {
     console.error('Error in POST /api/youtube/collections/items:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -111,13 +94,12 @@ export async function DELETE(request: NextRequest) {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
     const collectionId = searchParams.get('collectionId');
@@ -136,19 +118,13 @@ export async function DELETE(request: NextRequest) {
     );
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ success });
   } catch (error) {
     console.error('Error in DELETE /api/youtube/collections/items:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -160,13 +136,12 @@ export async function PUT(request: NextRequest) {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const body = await request.json();
     const { collectionId, items } = body;
@@ -178,24 +153,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { success, error } = await collectionManager.reorderCollectionItems(
-      collectionId,
-      items
-    );
+    const { success, error } = await collectionManager.reorderCollectionItems(collectionId, items);
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ success });
   } catch (error) {
     console.error('Error in PUT /api/youtube/collections/items:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

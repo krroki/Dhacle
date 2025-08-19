@@ -1,10 +1,10 @@
-import React from 'react';
-import { Metadata } from 'next';
+import { ArrowLeft, Calendar } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
 import { getCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../../components/CourseGrid';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '주간 무료 강의 | 디하클',
@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function WeeklyFreeCoursesPage(): Promise<React.JSX.Element> {
-  // 주간 무료 강의 필터링 (is_free이면서 특별 태그가 있는 강의)
-  const response = await getCourses({ is_free: true });
-  const courses = response.courses.filter(course => 
-    course.tags?.includes('weekly-free') || course.tags?.includes('주간무료')
+  // 주간 무료 강의 필터링 (isFree이면서 특별 태그가 있는 강의)
+  const response = await getCourses({ isFree: true });
+  const courses = response.courses.filter(
+    (course) => course.tags?.includes('weekly-free') || course.tags?.includes('주간무료')
   );
 
   return (
@@ -68,7 +68,8 @@ export default async function WeeklyFreeCoursesPage(): Promise<React.JSX.Element
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              이번 주 <span className="font-semibold text-foreground">{courses.length}개</span>의 무료 강의
+              이번 주 <span className="font-semibold text-foreground">{courses.length}개</span>의
+              무료 강의
             </p>
           </div>
           <CourseGrid initialCourses={courses} />
@@ -79,8 +80,7 @@ export default async function WeeklyFreeCoursesPage(): Promise<React.JSX.Element
             <Calendar className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">이번 주 무료 강의 준비 중</h2>
             <p className="text-muted-foreground mb-6">
-              매주 월요일 새로운 무료 강의가 공개됩니다.
-              조금만 기다려주세요!
+              매주 월요일 새로운 무료 강의가 공개됩니다. 조금만 기다려주세요!
             </p>
             <Link href="/courses/free">
               <Button>다른 무료 강의 보기</Button>

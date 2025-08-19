@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { RevenueCard } from './RevenueCard';
-import { SectionTitle } from '../shared/SectionTitle';
 import { dummyRevenueProofs } from '@/lib/dummy-data/home';
+import { SectionTitle } from '../shared/SectionTitle';
+import { RevenueCard } from './RevenueCard';
 
 export function RevenueGallery() {
   // Duplicate the array for seamless loop
@@ -27,7 +27,7 @@ export function RevenueGallery() {
           }}
           transition={{
             x: {
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               repeatType: 'loop',
               duration: 30,
               ease: 'linear',

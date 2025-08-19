@@ -1,7 +1,7 @@
 /**
  * YouTube Channel Monitoring System
  * Phase 3: Core Features Implementation
- * 
+ *
  * Features:
  * - Channel folder management
  * - Periodic monitoring checks
@@ -10,7 +10,7 @@
  */
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { YouTubeVideo, AlertRule, SourceFolder, Alert } from '@/types/youtube-lens';
+import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types/youtube-lens';
 import { calculateMetrics } from './metrics';
 
 const supabase = createClientComponentClient();
@@ -22,12 +22,10 @@ export class ChannelFolderManager {
   /**
    * Create a new source folder
    */
-  async createFolder(folder: Omit<SourceFolder, 'id' | 'created_at' | 'updated_at'>): Promise<SourceFolder> {
-    const { data, error } = await supabase
-      .from('source_folders')
-      .insert(folder)
-      .select()
-      .single();
+  async createFolder(
+    folder: Omit<SourceFolder, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<SourceFolder> {
+    const { data, error } = await supabase.from('sourceFolders').insert(folder).select().single();
 
     if (error) throw error;
     return data;
@@ -37,14 +35,12 @@ export class ChannelFolderManager {
    * Add channels to a folder
    */
   async addChannelsToFolder(folderId: string, channelIds: string[]): Promise<void> {
-    const folderChannels = channelIds.map(channelId => ({
+    const folderChannels = channelIds.map((channelId) => ({
       folder_id: folderId,
-      channel_id: channelId
+      channel_id: channelId,
     }));
 
-    const { error } = await supabase
-      .from('folder_channels')
-      .insert(folderChannels);
+    const { error } = await supabase.from('folderChannels').insert(folderChannels);
 
     if (error) throw error;
   }
@@ -54,10 +50,10 @@ export class ChannelFolderManager {
    */
   async getUserFolders(userId: string): Promise<SourceFolder[]> {
     const { data, error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .select(`
         *,
-        folder_channels(
+        folderChannels(
           channel_id,
           channels(*)
         )
@@ -74,7 +70,7 @@ export class ChannelFolderManager {
    */
   async updateFolder(folderId: string, updates: Partial<SourceFolder>): Promise<SourceFolder> {
     const { data, error } = await supabase
-      .from('source_folders')
+      .from('sourceFolders')
       .update(updates)
       .eq('id', folderId)
       .select()
@@ -88,10 +84,7 @@ export class ChannelFolderManager {
    * Delete a folder
    */
   async deleteFolder(folderId: string): Promise<void> {
-    const { error } = await supabase
-      .from('source_folders')
-      .delete()
-      .eq('id', folderId);
+    const { error } = await supabase.from('sourceFolders').delete().eq('id', folderId);
 
     if (error) throw error;
   }
@@ -105,11 +98,7 @@ export class AlertRuleEngine {
    * Create a new alert rule
    */
   async createRule(rule: Omit<AlertRule, 'id' | 'created_at' | 'updated_at'>): Promise<AlertRule> {
-    const { data, error } = await supabase
-      .from('alert_rules')
-      .insert(rule)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('alertRules').insert(rule).select().single();
 
     if (error) throw error;
     return data;
@@ -120,7 +109,7 @@ export class AlertRuleEngine {
    */
   async getUserRules(userId: string): Promise<AlertRule[]> {
     const { data, error } = await supabase
-      .from('alert_rules')
+      .from('alertRules')
       .select('*')
       .eq('user_id', userId)
       .eq('is_active', true)
@@ -141,61 +130,82 @@ export class AlertRuleEngine {
       let triggered = false;
       let actualValue = 0;
 
-      switch (rule.metric_type) {
+      switch (rule.metricType) {
         case 'view_count':
           actualValue = video.statistics.viewCount;
-          triggered = this.compareValue(actualValue, rule.comparison_operator || '>', rule.threshold_value);
+          triggered = this.compareValue(
+            actualValue,
+            rule.comparisonOperator || '>',
+            rule.thresholdValue
+          );
           break;
 
         case 'vph':
           if (video.metrics?.vph !== undefined) {
             actualValue = video.metrics.vph;
-            triggered = this.compareValue(actualValue, rule.comparison_operator || '>', rule.threshold_value);
+            triggered = this.compareValue(
+              actualValue,
+              rule.comparisonOperator || '>',
+              rule.thresholdValue
+            );
           }
           break;
 
-        case 'engagement_rate':
-          if (video.metrics?.engagement_rate !== undefined) {
-            actualValue = video.metrics.engagement_rate;
-            triggered = this.compareValue(actualValue, rule.comparison_operator || '>', rule.threshold_value);
+        case 'engagementRate':
+          if (video.metrics?.engagementRate !== undefined) {
+            actualValue = video.metrics.engagementRate;
+            triggered = this.compareValue(
+              actualValue,
+              rule.comparisonOperator || '>',
+              rule.thresholdValue
+            );
           }
           break;
 
-        case 'viral_score':
-          if (video.metrics?.viral_score !== undefined) {
-            actualValue = video.metrics.viral_score;
-            triggered = this.compareValue(actualValue, rule.comparison_operator || '>', rule.threshold_value);
+        case 'viralScore':
+          if (video.metrics?.viralScore !== undefined) {
+            actualValue = video.metrics.viralScore;
+            triggered = this.compareValue(
+              actualValue,
+              rule.comparisonOperator || '>',
+              rule.thresholdValue
+            );
           }
           break;
 
-        case 'growth_rate':
+        case 'growthRate': {
           // Calculate growth rate from historical data
           const growthRate = await this.calculateGrowthRate(video.id);
           if (growthRate !== null) {
             actualValue = growthRate;
-            triggered = this.compareValue(actualValue, rule.comparison_operator || '>', rule.threshold_value);
+            triggered = this.compareValue(
+              actualValue,
+              rule.comparisonOperator || '>',
+              rule.thresholdValue
+            );
           }
           break;
+        }
       }
 
       if (triggered) {
         alerts.push({
           id: crypto.randomUUID(),
-          rule_id: rule.id,
+          ruleId: rule.id,
           user_id: rule.user_id,
           video_id: video.id,
           channel_id: video.snippet.channelId,
-          alert_type: rule.rule_type,
+          alertType: rule.ruleType,
           title: `${rule.name} Alert`,
-          message: `Alert: ${video.snippet.title} - ${rule.metric_type} is ${actualValue} (${rule.comparison_operator || '>'} ${rule.threshold_value})`,
+          message: `Alert: ${video.snippet.title} - ${rule.metricType} is ${actualValue} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
           severity: 'warning' as const,
-          metric_value: actualValue,
-          triggered_at: new Date().toISOString(),
-          context_data: { video_title: video.snippet.title },
-          is_read: false,
-          read_at: null,
-          is_archived: false,
-          created_at: new Date().toISOString()
+          metricValue: actualValue,
+          triggeredAt: new Date().toISOString(),
+          contextData: { video_title: video.snippet.title },
+          isRead: false,
+          readAt: null,
+          isArchived: false,
+          created_at: new Date().toISOString(),
         });
       }
     }
@@ -230,21 +240,22 @@ export class AlertRuleEngine {
    */
   private async calculateGrowthRate(videoId: string): Promise<number | null> {
     const { data, error } = await supabase
-      .from('video_stats')
-      .select('view_count, snapshot_at')
+      .from('videoStats')
+      .select('view_count, snapshotAt')
       .eq('video_id', videoId)
-      .order('snapshot_at', { ascending: false })
+      .order('snapshotAt', { ascending: false })
       .limit(2);
 
     if (error || !data || data.length < 2) return null;
 
     const [recent, previous] = data;
     const viewDiff = recent.view_count - previous.view_count;
-    const timeDiff = new Date(recent.snapshot_at).getTime() - new Date(previous.snapshot_at).getTime();
+    const timeDiff =
+      new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);
 
     if (hoursDiff === 0) return 0;
-    return (viewDiff / previous.view_count) * 100 / hoursDiff; // Growth rate per hour as percentage
+    return ((viewDiff / previous.view_count) * 100) / hoursDiff; // Growth rate per hour as percentage
   }
 
   /**
@@ -253,9 +264,7 @@ export class AlertRuleEngine {
   async saveAlerts(alerts: Alert[]): Promise<void> {
     if (alerts.length === 0) return;
 
-    const { error } = await supabase
-      .from('alerts')
-      .insert(alerts);
+    const { error } = await supabase.from('alerts').insert(alerts);
 
     if (error) throw error;
   }
@@ -272,7 +281,7 @@ export class MonitoringScheduler {
   /**
    * Start monitoring for a user
    */
-  async startMonitoring(userId: string, intervalMinutes: number = 60): Promise<void> {
+  async startMonitoring(userId: string, intervalMinutes = 60): Promise<void> {
     // Clear existing interval if any
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -282,9 +291,12 @@ export class MonitoringScheduler {
     await this.runMonitoringCheck(userId);
 
     // Set up periodic checks
-    this.intervalId = setInterval(async () => {
-      await this.runMonitoringCheck(userId);
-    }, intervalMinutes * 60 * 1000);
+    this.intervalId = setInterval(
+      async () => {
+        await this.runMonitoringCheck(userId);
+      },
+      intervalMinutes * 60 * 1000
+    );
   }
 
   /**
@@ -307,7 +319,7 @@ export class MonitoringScheduler {
       // Get user's folders and rules
       const [folders, rules] = await Promise.all([
         this.folderManager.getUserFolders(userId),
-        this.ruleEngine.getUserRules(userId)
+        this.ruleEngine.getUserRules(userId),
       ]);
 
       if (rules.length === 0) {
@@ -318,8 +330,8 @@ export class MonitoringScheduler {
       // Collect all channel IDs from folders
       const channelIds = new Set<string>();
       for (const folder of folders) {
-        if (folder.is_monitoring_enabled && folder.folder_channels) {
-          folder.folder_channels.forEach((fc) => {
+        if (folder.isMonitoringEnabled && folder.folderChannels) {
+          folder.folderChannels.forEach((fc) => {
             channelIds.add(fc.channel_id);
           });
         }
@@ -332,7 +344,7 @@ export class MonitoringScheduler {
 
       // Fetch recent videos from channels
       const videos = await this.fetchChannelVideos(Array.from(channelIds));
-      
+
       // Check each video against rules
       const allAlerts: Alert[] = [];
       for (const video of videos) {
@@ -348,7 +360,6 @@ export class MonitoringScheduler {
 
       // Update last check timestamp
       await this.updateLastCheckTime(userId);
-
     } catch (error) {
       console.error('Monitoring check failed:', error);
     }
@@ -370,8 +381,8 @@ export class MonitoringScheduler {
   private async updateLastCheckTime(userId: string): Promise<void> {
     const { error } = await supabase
       .from('users')
-      .update({ 
-        last_monitoring_check: new Date().toISOString() 
+      .update({
+        lastMonitoringCheck: new Date().toISOString(),
       })
       .eq('id', userId);
 
@@ -403,8 +414,8 @@ export const monitoringUtils = {
    * Get alert severity
    */
   getAlertSeverity(alert: Alert): 'low' | 'medium' | 'high' | 'critical' {
-    const metricValue = alert.metric_value || 0;
-    
+    const metricValue = alert.metricValue || 0;
+
     // Define severity based on metric value ranges
     // This is customizable based on requirements
     if (metricValue > 1000000) return 'critical';
@@ -424,12 +435,12 @@ export const monitoringUtils = {
   }> {
     const [rules, folders] = await Promise.all([
       alertRuleEngine.getUserRules(userId),
-      channelFolderManager.getUserFolders(userId)
+      channelFolderManager.getUserFolders(userId),
     ]);
 
     const channelCount = folders.reduce((count, folder) => {
-      if (folder.is_monitoring_enabled && folder.folder_channels) {
-        return count + folder.folder_channels.length;
+      if (folder.isMonitoringEnabled && folder.folderChannels) {
+        return count + folder.folderChannels.length;
       }
       return count;
     }, 0);
@@ -437,7 +448,7 @@ export const monitoringUtils = {
     return {
       isHealthy: rules.length > 0 && channelCount > 0,
       activeRules: rules.length,
-      monitoredChannels: channelCount
+      monitoredChannels: channelCount,
     };
-  }
+  },
 };

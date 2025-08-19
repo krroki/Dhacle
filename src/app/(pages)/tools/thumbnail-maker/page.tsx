@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, Construction, Palette } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ThumbnailMakerPage() {
   return (
@@ -21,11 +21,9 @@ export default function ThumbnailMakerPage() {
             <Palette className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-3xl mb-2">썸네일 메이커</CardTitle>
-          <p className="text-muted-foreground text-lg">
-            매력적인 YouTube Shorts 썸네일 제작
-          </p>
+          <p className="text-muted-foreground text-lg">매력적인 YouTube Shorts 썸네일 제작</p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-6 text-center">
             <Construction className="w-12 h-12 text-amber-600 dark:text-amber-500 mx-auto mb-3" />

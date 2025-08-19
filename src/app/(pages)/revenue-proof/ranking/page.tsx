@@ -1,7 +1,8 @@
 // 수익인증 랭킹 페이지
-import { RankingDashboard } from '@/components/features/revenue-proof/RankingDashboard';
+
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { RankingDashboard } from '@/components/features/revenue-proof/RankingDashboard';
 import type { MonthlyRanking } from '@/types/revenue-proof';
 
 export const metadata = {
@@ -11,13 +12,13 @@ export const metadata = {
 
 export default async function RankingPage() {
   const supabase = createServerComponentClient({ cookies });
-  
+
   // 현재 월 가져오기
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-  
+
   // 월간 랭킹 데이터 조회
   const { data: monthlyRankings } = await supabase
-    .from('monthly_rankings')
+    .from('monthlyRankings')
     .select(`
       *,
       user:profiles(
@@ -63,28 +64,34 @@ export default async function RankingPage() {
     .eq('is_hidden', false);
 
   // 사용자별 집계 함수
-  const aggregateByUser = (proofs: {
-    user_id: string;
-    amount: number;
-    user?: {
-      id: string;
-      username: string;
-      avatar_url?: string;
-    } | {
-      id: string;
-      username: string;
-      avatar_url?: string;
-    }[];
-  }[] | null) => {
+  const aggregateByUser = (
+    proofs:
+      | {
+          user_id: string;
+          amount: number;
+          user?:
+            | {
+                id: string;
+                username: string;
+                avatar_url?: string;
+              }
+            | {
+                id: string;
+                username: string;
+                avatar_url?: string;
+              }[];
+        }[]
+      | null
+  ) => {
     if (!proofs) return [];
-    
+
     const userMap = new Map();
-    
-    proofs.forEach(proof => {
+
+    proofs.forEach((proof) => {
       const userId = proof.user_id;
       // Handle both single object and array format from Supabase
       const userObj = Array.isArray(proof.user) ? proof.user[0] : proof.user;
-      
+
       if (userMap.has(userId)) {
         const existing = userMap.get(userId);
         existing.total_amount += proof.amount;
@@ -94,16 +101,16 @@ export default async function RankingPage() {
           user_id: userId,
           user: userObj,
           total_amount: proof.amount,
-          proof_count: 1
+          proof_count: 1,
         });
       }
     });
-    
+
     return Array.from(userMap.values())
       .sort((a, b) => b.total_amount - a.total_amount)
       .map((item, index) => ({
         ...item,
-        rank: index + 1
+        rank: index + 1,
       }));
   };
 
@@ -118,8 +125,8 @@ export default async function RankingPage() {
       { rank: 3, prize: '스타벅스 기프티콘 10만원', points: 20000, badge: 'bronze' },
       { rank: '4-10', prize: '스타벅스 기프티콘 3만원', points: 10000, badge: 'top10' },
       { rank: '11-30', prize: '포인트 5000P', points: 5000, badge: 'top30' },
-      { rank: '31-100', prize: '포인트 1000P', points: 1000, badge: 'top100' }
-    ]
+      { rank: '31-100', prize: '포인트 1000P', points: 1000, badge: 'top100' },
+    ],
   };
 
   return (

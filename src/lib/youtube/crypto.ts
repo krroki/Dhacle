@@ -11,15 +11,15 @@ export class CryptoUtil {
       console.error('ENCRYPTION_KEY environment variable is missing');
       throw new Error(
         '암호화 키가 설정되지 않았습니다. ' +
-        'ENCRYPTION_KEY 환경 변수를 설정해주세요. ' +
-        '생성 방법: Node.js 콘솔에서 require("crypto").randomBytes(32).toString("hex") 실행'
+          'ENCRYPTION_KEY 환경 변수를 설정해주세요. ' +
+          '생성 방법: Node.js 콘솔에서 require("crypto").randomBytes(32).toString("hex") 실행'
       );
     }
     if (key.length < 32) {
       console.error(`ENCRYPTION_KEY is too short: ${key.length} characters (minimum: 32)`);
       throw new Error(
         `암호화 키가 너무 짧습니다. 현재 길이: ${key.length}자, 최소 길이: 32자. ` +
-        '더 긴 암호화 키를 생성해주세요.'
+          '더 긴 암호화 키를 생성해주세요.'
       );
     }
     return key;
@@ -30,10 +30,10 @@ export class CryptoUtil {
    */
   static encrypt(text: string): string {
     try {
-      const key = this.getEncryptionKey();
+      const key = CryptoUtil.getEncryptionKey();
       const encrypted = CryptoJS.AES.encrypt(text, key, {
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       return encrypted.toString();
     } catch (error) {
@@ -47,17 +47,17 @@ export class CryptoUtil {
    */
   static decrypt(encryptedText: string): string {
     try {
-      const key = this.getEncryptionKey();
+      const key = CryptoUtil.getEncryptionKey();
       const decrypted = CryptoJS.AES.decrypt(encryptedText, key, {
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-      
+
       if (!decryptedText) {
         throw new Error('Failed to decrypt - invalid key or corrupted data');
       }
-      
+
       return decryptedText;
     } catch (error) {
       console.error('Decryption failed:', error);
@@ -70,14 +70,14 @@ export class CryptoUtil {
    */
   static encryptObject<T>(obj: T): string {
     const jsonString = JSON.stringify(obj);
-    return this.encrypt(jsonString);
+    return CryptoUtil.encrypt(jsonString);
   }
 
   /**
    * 암호화된 문자열을 복호화 후 객체로 변환
    */
   static decryptObject<T>(encryptedText: string): T {
-    const decryptedText = this.decrypt(encryptedText);
+    const decryptedText = CryptoUtil.decrypt(encryptedText);
     return JSON.parse(decryptedText) as T;
   }
 
@@ -122,13 +122,13 @@ export class CryptoUtil {
   /**
    * 시간 제한 토큰 생성
    */
-  static generateTimeLimitedToken(data: unknown, expiresInMinutes: number = 15): string {
-    const expiresAt = Date.now() + (expiresInMinutes * 60 * 1000);
+  static generateTimeLimitedToken(data: unknown, expiresInMinutes = 15): string {
+    const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
     const payload = {
       data,
-      expiresAt
+      expiresAt,
     };
-    return this.encryptObject(payload);
+    return CryptoUtil.encryptObject(payload);
   }
 
   /**
@@ -136,13 +136,13 @@ export class CryptoUtil {
    */
   static verifyTimeLimitedToken<T>(token: string): T | null {
     try {
-      const payload = this.decryptObject<{ data: T; expiresAt: number }>(token);
-      
+      const payload = CryptoUtil.decryptObject<{ data: T; expiresAt: number }>(token);
+
       if (Date.now() > payload.expiresAt) {
         console.warn('Token has expired');
         return null;
       }
-      
+
       return payload.data;
     } catch (error) {
       console.error('Token verification failed:', error);

@@ -3,23 +3,27 @@ import crypto from 'crypto';
 // 암호화 키 검증 및 가져오기
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
-  
+
   // 최소한의 디버깅 정보만 남김
   if (!key) {
     console.error('[crypto] ENCRYPTION_KEY not found in environment');
-    throw new Error('ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.');
+    throw new Error(
+      'ENCRYPTION_KEY environment variable is not set. Please add ENCRYPTION_KEY to your .env.local file.'
+    );
   }
-  
+
   // 32바이트 (256비트) hex 문자열인지 확인
   if (key.length !== 64) {
-    throw new Error(`ENCRYPTION_KEY must be exactly 64 characters (32 bytes hex). Current length: ${key.length}. Generate a new key with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`);
+    throw new Error(
+      `ENCRYPTION_KEY must be exactly 64 characters (32 bytes hex). Current length: ${key.length}. Generate a new key with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+    );
   }
-  
+
   // hex 문자열 유효성 검사
   if (!/^[0-9a-fA-F]{64}$/.test(key)) {
     throw new Error('ENCRYPTION_KEY must be a valid 64-character hexadecimal string.');
   }
-  
+
   try {
     return Buffer.from(key, 'hex');
   } catch (error) {
@@ -38,17 +42,22 @@ export function encryptApiKey(apiKey: string): string {
     const key = getEncryptionKey();
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    
+
     let encrypted = cipher.update(apiKey, 'utf8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-    
+
     // IV와 암호화된 데이터를 콜론으로 구분하여 저장
     const result = iv.toString('hex') + ':' + encrypted.toString('hex');
-    
+
     return result;
   } catch (error) {
-    console.error('[crypto] Encryption error:', error instanceof Error ? error.message : 'Unknown error');
-    throw new Error(`Failed to encrypt API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error(
+      '[crypto] Encryption error:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
+    throw new Error(
+      `Failed to encrypt API key: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -61,19 +70,19 @@ export function decryptApiKey(encryptedKey: string): string {
   try {
     const key = getEncryptionKey();
     const parts = encryptedKey.split(':');
-    
+
     if (parts.length !== 2) {
       throw new Error('Invalid encrypted key format');
     }
-    
+
     const iv = Buffer.from(parts[0], 'hex');
     const encrypted = Buffer.from(parts[1], 'hex');
-    
+
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-    
+
     let decrypted = decipher.update(encrypted);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
-    
+
     return decrypted.toString('utf8');
   } catch (error) {
     console.error('Decryption error:', error);
@@ -90,19 +99,15 @@ export function maskApiKey(apiKey: string): string {
   if (!apiKey || apiKey.length < 10) {
     return '***';
   }
-  
+
   const visibleStart = 4;
   const visibleEnd = 3;
-  
+
   if (apiKey.length <= visibleStart + visibleEnd) {
     return apiKey.substring(0, visibleStart) + '...';
   }
-  
-  return (
-    apiKey.substring(0, visibleStart) +
-    '...' +
-    apiKey.substring(apiKey.length - visibleEnd)
-  );
+
+  return apiKey.substring(0, visibleStart) + '...' + apiKey.substring(apiKey.length - visibleEnd);
 }
 
 /**
@@ -119,21 +124,21 @@ export function generateEncryptionKey(): string {
  * @param service - 서비스 이름 (youtube, openai 등)
  * @returns 유효성 여부
  */
-export function validateApiKeyFormat(apiKey: string, service: string = 'youtube'): boolean {
+export function validateApiKeyFormat(apiKey: string, service = 'youtube'): boolean {
   if (!apiKey || typeof apiKey !== 'string') {
     return false;
   }
-  
+
   // 서비스별 형식 검증
   switch (service) {
     case 'youtube':
       // YouTube API Key는 일반적으로 AIza로 시작하고 39자
       return /^AIza[0-9A-Za-z_-]{35}$/.test(apiKey);
-    
+
     case 'openai':
       // OpenAI API Key는 sk-로 시작
       return /^sk-[A-Za-z0-9]{48}$/.test(apiKey);
-    
+
     default:
       // 기본적으로 최소 길이만 확인
       return apiKey.length >= 20;
@@ -158,9 +163,6 @@ export function secureCompare(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false;
   }
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(a),
-    Buffer.from(b)
-  );
+
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }

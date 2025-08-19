@@ -3,8 +3,8 @@
  * Handles real-time webhook subscriptions for YouTube channels
  */
 
-import { createClient } from '@/lib/supabase/client';
 import crypto from 'crypto';
+import { createClient } from '@/lib/supabase/client';
 
 // PubSubHubbub Hub URL
 const HUB_URL = 'https://pubsubhubbub.appspot.com/';
@@ -12,7 +12,7 @@ const HUB_URL = 'https://pubsubhubbub.appspot.com/';
 // Subscription modes
 export enum SubscriptionMode {
   SUBSCRIBE = 'subscribe',
-  UNSUBSCRIBE = 'unsubscribe'
+  UNSUBSCRIBE = 'unsubscribe',
 }
 
 // Subscription status
@@ -21,14 +21,14 @@ export enum SubscriptionStatus {
   VERIFIED = 'verified',
   ACTIVE = 'active',
   EXPIRED = 'expired',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 // Event types for webhook notifications
 export enum WebhookEventType {
   VIDEO_PUBLISHED = 'video_published',
   VIDEO_UPDATED = 'video_updated',
-  VIDEO_DELETED = 'video_deleted'
+  VIDEO_DELETED = 'video_deleted',
 }
 
 interface SubscriptionParams {
@@ -42,7 +42,7 @@ interface WebhookVerification {
   mode: string;
   topic: string;
   challenge: string;
-  lease_seconds?: string;
+  leaseSeconds?: string;
 }
 
 interface VideoNotification {
@@ -77,23 +77,26 @@ export class PubSubHubbubManager {
   /**
    * Subscribe to a YouTube channel's updates
    */
-  async subscribe(params: SubscriptionParams): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
+  async subscribe(
+    params: SubscriptionParams
+  ): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
     try {
       const { channelId, channelTitle, userId, callbackUrl } = params;
-      
+
       // Generate secret for this subscription
       const hubSecret = this.generateSecret();
       const topicUrl = this.getTopicUrl(channelId);
 
       // Check if subscription already exists
       const { data: existing, error: checkError } = await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .select('*')
         .eq('channel_id', channelId)
         .eq('user_id', userId)
         .single();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 = no rows returned
         throw checkError;
       }
 
@@ -103,27 +106,27 @@ export class PubSubHubbubManager {
         // Update existing subscription
         subscriptionId = existing.id;
         await this.supabase
-          .from('channel_subscriptions')
+          .from('channelSubscriptions')
           .update({
-            hub_callback_url: callbackUrl,
-            hub_secret: hubSecret,
-            hub_topic: topicUrl,
+            hubCallbackUrl: callbackUrl,
+            hubSecret: hubSecret,
+            hubTopic: topicUrl,
             status: SubscriptionStatus.PENDING,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', subscriptionId);
       } else {
         // Create new subscription record
         const { data: newSub, error: insertError } = await this.supabase
-          .from('channel_subscriptions')
+          .from('channelSubscriptions')
           .insert({
             channel_id: channelId,
-            channel_title: channelTitle,
-            hub_callback_url: callbackUrl,
-            hub_secret: hubSecret,
-            hub_topic: topicUrl,
+            channelTitle: channelTitle,
+            hubCallbackUrl: callbackUrl,
+            hubSecret: hubSecret,
+            hubTopic: topicUrl,
             status: SubscriptionStatus.PENDING,
-            user_id: userId
+            user_id: userId,
           })
           .select()
           .single();
@@ -144,21 +147,20 @@ export class PubSubHubbubManager {
         // Log the subscription attempt
         await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.PENDING);
         return { success: true, subscriptionId };
-      } else {
-        // Update status to failed
-        await this.supabase
-          .from('channel_subscriptions')
-          .update({ status: SubscriptionStatus.FAILED })
-          .eq('id', subscriptionId);
-
-        await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.FAILED);
-        return { success: false, error: 'Failed to subscribe to hub' };
       }
+      // Update status to failed
+      await this.supabase
+        .from('channelSubscriptions')
+        .update({ status: SubscriptionStatus.FAILED })
+        .eq('id', subscriptionId);
+
+      await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.FAILED);
+      return { success: false, error: 'Failed to subscribe to hub' };
     } catch (error) {
       console.error('Subscribe error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -166,11 +168,14 @@ export class PubSubHubbubManager {
   /**
    * Unsubscribe from a YouTube channel's updates
    */
-  async unsubscribe(channelId: string, userId: string): Promise<{ success: boolean; error?: string }> {
+  async unsubscribe(
+    channelId: string,
+    userId: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       // Get subscription details
       const { data: subscription, error: fetchError } = await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .select('*')
         .eq('channel_id', channelId)
         .eq('user_id', userId)
@@ -183,28 +188,28 @@ export class PubSubHubbubManager {
       // Send unsubscribe request to hub
       const unsubscribeSuccess = await this.sendHubRequest(
         SubscriptionMode.UNSUBSCRIBE,
-        subscription.hub_topic,
-        subscription.hub_callback_url,
-        subscription.hub_secret
+        subscription.hubTopic,
+        subscription.hubCallbackUrl,
+        subscription.hubSecret
       );
 
       if (unsubscribeSuccess) {
         // Delete subscription record
-        await this.supabase
-          .from('channel_subscriptions')
-          .delete()
-          .eq('id', subscription.id);
+        await this.supabase.from('channelSubscriptions').delete().eq('id', subscription.id);
 
-        await this.logSubscriptionAction(subscription.id, 'unsubscribe', SubscriptionStatus.EXPIRED);
+        await this.logSubscriptionAction(
+          subscription.id,
+          'unsubscribe',
+          SubscriptionStatus.EXPIRED
+        );
         return { success: true };
-      } else {
-        return { success: false, error: 'Failed to unsubscribe from hub' };
       }
+      return { success: false, error: 'Failed to unsubscribe from hub' };
     } catch (error) {
       console.error('Unsubscribe error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -225,7 +230,7 @@ export class PubSubHubbubManager {
         'hub.verify': 'async',
         'hub.mode': mode,
         'hub.secret': secret,
-        'hub.lease_seconds': '432000' // 5 days
+        'hub.leaseSeconds': '432000', // 5 days
       });
 
       const response = await fetch(HUB_URL, {
@@ -233,7 +238,7 @@ export class PubSubHubbubManager {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: params.toString()
+        body: params.toString(),
       });
 
       // Hub returns 202 Accepted for async verification
@@ -247,13 +252,13 @@ export class PubSubHubbubManager {
   /**
    * Verify webhook callback from hub
    */
-  async verifyCallback(params: WebhookVerification): Promise<{ 
-    success: boolean; 
-    challenge?: string; 
-    error?: string 
+  async verifyCallback(params: WebhookVerification): Promise<{
+    success: boolean;
+    challenge?: string;
+    error?: string;
   }> {
     try {
-      const { mode, topic, challenge, lease_seconds } = params;
+      const { mode, topic, challenge, leaseSeconds } = params;
 
       // Extract channel ID from topic URL
       const channelIdMatch = topic.match(/channel_id=([^&]+)/);
@@ -264,7 +269,7 @@ export class PubSubHubbubManager {
 
       // Find subscription
       const { data: subscription, error: fetchError } = await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .select('*')
         .eq('channel_id', channelId)
         .single();
@@ -275,27 +280,27 @@ export class PubSubHubbubManager {
 
       // Update subscription status
       if (mode === 'subscribe') {
-        const expiresAt = lease_seconds 
-          ? new Date(Date.now() + parseInt(lease_seconds) * 1000).toISOString()
+        const expiresAt = leaseSeconds
+          ? new Date(Date.now() + Number.parseInt(leaseSeconds) * 1000).toISOString()
           : new Date(Date.now() + 432000 * 1000).toISOString(); // Default 5 days
 
         await this.supabase
-          .from('channel_subscriptions')
+          .from('channelSubscriptions')
           .update({
             status: SubscriptionStatus.ACTIVE,
-            lease_seconds: lease_seconds ? parseInt(lease_seconds) : 432000,
-            expires_at: expiresAt,
-            updated_at: new Date().toISOString()
+            leaseSeconds: leaseSeconds ? Number.parseInt(leaseSeconds) : 432000,
+            expiresAt: expiresAt,
+            updated_at: new Date().toISOString(),
           })
           .eq('id', subscription.id);
 
         await this.logSubscriptionAction(subscription.id, 'verify', SubscriptionStatus.ACTIVE);
       } else if (mode === 'unsubscribe') {
         await this.supabase
-          .from('channel_subscriptions')
+          .from('channelSubscriptions')
           .update({
             status: SubscriptionStatus.EXPIRED,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', subscription.id);
 
@@ -305,9 +310,9 @@ export class PubSubHubbubManager {
       return { success: true, challenge };
     } catch (error) {
       console.error('Verify callback error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -323,7 +328,7 @@ export class PubSubHubbubManager {
     try {
       // Get subscription
       const { data: subscription, error: fetchError } = await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .select('*')
         .eq('channel_id', channelId)
         .single();
@@ -333,9 +338,9 @@ export class PubSubHubbubManager {
       }
 
       // Verify HMAC signature if provided
-      if (signature && subscription.hub_secret) {
+      if (signature && subscription.hubSecret) {
         const expectedSignature = crypto
-          .createHmac('sha1', subscription.hub_secret)
+          .createHmac('sha1', subscription.hubSecret)
           .update(body)
           .digest('hex');
 
@@ -352,35 +357,33 @@ export class PubSubHubbubManager {
       }
 
       // Store webhook event
-      await this.supabase
-        .from('webhook_events')
-        .insert({
-          subscription_id: subscription.id,
-          event_type: videoData.deleted 
-            ? WebhookEventType.VIDEO_DELETED 
-            : WebhookEventType.VIDEO_PUBLISHED,
-          video_id: videoData.videoId,
-          video_title: videoData.title,
-          published_at: videoData.publishedAt,
-          raw_data: { xml: body },
-          processed: false
-        });
+      await this.supabase.from('webhookEvents').insert({
+        subscriptionId: subscription.id,
+        eventType: videoData.deleted
+          ? WebhookEventType.VIDEO_DELETED
+          : WebhookEventType.VIDEO_PUBLISHED,
+        video_id: videoData.videoId,
+        video_title: videoData.title,
+        published_at: videoData.publishedAt,
+        rawData: { xml: body },
+        processed: false,
+      });
 
       // Update subscription last notification
       await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .update({
-          last_notification_at: new Date().toISOString(),
-          notification_count: subscription.notification_count + 1
+          lastNotificationAt: new Date().toISOString(),
+          notificationCount: subscription.notificationCount + 1,
         })
         .eq('id', subscription.id);
 
       return { success: true, video: videoData };
     } catch (error) {
       console.error('Process notification error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -410,7 +413,7 @@ export class PubSubHubbubManager {
         title: titleMatch ? titleMatch[1] : '',
         publishedAt: publishedMatch ? publishedMatch[1] : new Date().toISOString(),
         updatedAt: updatedMatch ? updatedMatch[1] : undefined,
-        deleted: isDeleted
+        deleted: isDeleted,
       };
     } catch (error) {
       console.error('Parse notification error:', error);
@@ -424,17 +427,18 @@ export class PubSubHubbubManager {
   async renewExpiringSubscriptions(): Promise<void> {
     try {
       // Get subscriptions expiring within 6 hours
-      const { data: subscriptions, error } = await this.supabase
-        .rpc('get_subscriptions_needing_renewal');
+      const { data: subscriptions, error } = await this.supabase.rpc(
+        'getSubscriptionsNeedingRenewal'
+      );
 
       if (error) throw error;
 
       for (const sub of subscriptions || []) {
         await this.sendHubRequest(
           SubscriptionMode.SUBSCRIBE,
-          sub.hub_topic,
-          sub.hub_callback_url,
-          sub.hub_secret
+          sub.hubTopic,
+          sub.hubCallbackUrl,
+          sub.hubSecret
         );
 
         await this.logSubscriptionAction(sub.id, 'renew', SubscriptionStatus.PENDING);
@@ -449,7 +453,7 @@ export class PubSubHubbubManager {
    */
   async cleanupExpiredSubscriptions(): Promise<void> {
     try {
-      await this.supabase.rpc('cleanup_expired_subscriptions');
+      await this.supabase.rpc('cleanupExpiredSubscriptions');
     } catch (error) {
       console.error('Cleanup error:', error);
     }
@@ -467,16 +471,14 @@ export class PubSubHubbubManager {
     error?: string
   ): Promise<void> {
     try {
-      await this.supabase
-        .from('subscription_logs')
-        .insert({
-          subscription_id: subscriptionId,
-          action,
-          status,
-          request_data: requestData,
-          response_data: responseData,
-          error
-        });
+      await this.supabase.from('subscriptionLogs').insert({
+        subscriptionId: subscriptionId,
+        action,
+        status,
+        requestData: requestData,
+        responseData: responseData,
+        error,
+      });
     } catch (err) {
       console.error('Log action error:', err);
     }
@@ -488,7 +490,7 @@ export class PubSubHubbubManager {
   async getUserSubscriptions(userId: string): Promise<unknown[]> {
     try {
       const { data, error } = await this.supabase
-        .from('channel_subscriptions')
+        .from('channelSubscriptions')
         .select('*')
         .eq('user_id', userId)
         .in('status', [SubscriptionStatus.ACTIVE, SubscriptionStatus.VERIFIED])
@@ -505,19 +507,19 @@ export class PubSubHubbubManager {
   /**
    * Get recent webhook events for a user
    */
-  async getRecentEvents(userId: string, limit: number = 50): Promise<unknown[]> {
+  async getRecentEvents(userId: string, limit = 50): Promise<unknown[]> {
     try {
       const { data, error } = await this.supabase
-        .from('webhook_events')
+        .from('webhookEvents')
         .select(`
           *,
-          channel_subscriptions!inner(
+          channelSubscriptions!inner(
             channel_id,
-            channel_title,
+            channelTitle,
             user_id
           )
         `)
-        .eq('channel_subscriptions.user_id', userId)
+        .eq('channelSubscriptions.user_id', userId)
         .order('created_at', { ascending: false })
         .limit(limit);
 

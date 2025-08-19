@@ -1,17 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { apiGet, apiDelete, ApiError } from '@/lib/api-client';
-import { X, ExternalLink, Plus, Trash2, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { ExternalLink, Eye, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { ApiError, apiDelete, apiGet } from '@/lib/api-client';
+import { mapVideo } from '@/lib/utils/type-mappers';
 import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
 
 interface CollectionViewerProps {
@@ -20,7 +35,11 @@ interface CollectionViewerProps {
   onClose?: () => void;
 }
 
-export default function CollectionViewer({ collectionId, collectionName, onClose }: CollectionViewerProps) {
+export default function CollectionViewer({
+  collectionId,
+  collectionName,
+  onClose,
+}: CollectionViewerProps) {
   const [items, setItems] = useState<(CollectionItem & { video: Video })[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
@@ -34,7 +53,10 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
       const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
         `/api/youtube/collections/items?collectionId=${collectionId}`
       );
-      setItems(data.items || []);
+      setItems((data.items || []).map(item => ({
+        ...item,
+        video: mapVideo(item.video)
+      })));
     } catch (error) {
       console.error('Error fetching collection videos:', error);
       if (error instanceof ApiError) {
@@ -66,7 +88,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
         `/api/youtube/collections/items?collectionId=${collectionId}&videoId=${videoId}`
       );
       toast.success('비디오가 제거되었습니다');
-      setItems(items.filter(item => item.video_id !== videoId));
+      setItems(items.filter((item) => item.video_id !== videoId));
     } catch (error) {
       console.error('Error removing video:', error);
       if (error instanceof ApiError) {
@@ -95,7 +117,8 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
   const formatViewCount = (count: number): string => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`;
-    } else if (count >= 1000) {
+    }
+    if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}K`;
     }
     return count.toString();
@@ -107,7 +130,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 1) return '오늘';
     if (diffDays < 2) return '어제';
     if (diffDays < 7) return `${diffDays}일 전`;
@@ -121,7 +144,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
@@ -145,9 +168,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{collectionName}</h2>
-          <p className="text-muted-foreground">
-            {items.length}개의 비디오가 저장되어 있습니다
-          </p>
+          <p className="text-muted-foreground">{items.length}개의 비디오가 저장되어 있습니다</p>
         </div>
         {onClose && (
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -162,9 +183,7 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Plus className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">비디오가 없습니다</h3>
-            <p className="text-muted-foreground">
-              이 컬렉션에 YouTube 비디오를 추가해보세요
-            </p>
+            <p className="text-muted-foreground">이 컬렉션에 YouTube 비디오를 추가해보세요</p>
           </CardContent>
         </Card>
       ) : (
@@ -174,32 +193,28 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
               <div className="relative aspect-video">
                 {item.video.thumbnails && (
                   <Image
-                    src={typeof item.video.thumbnails === 'string' 
-                      ? JSON.parse(item.video.thumbnails)?.high?.url || ''
-                      : (item.video.thumbnails as { high?: { url: string } })?.high?.url || ''}
+                    src={
+                      typeof item.video.thumbnails === 'string'
+                        ? JSON.parse(item.video.thumbnails)?.high?.url || ''
+                        : (item.video.thumbnails as { high?: { url: string } })?.high?.url || ''
+                    }
                     alt={item.video.title}
-                    fill
+                    fill={true}
                     className="object-cover"
                   />
                 )}
-                {item.video.is_short && (
-                  <Badge className="absolute top-2 left-2 bg-red-600">
-                    Shorts
-                  </Badge>
+                {item.video.isShort && (
+                  <Badge className="absolute top-2 left-2 bg-red-600">Shorts</Badge>
                 )}
-                {item.video.duration_seconds && (
+                {item.video.durationSeconds && (
                   <Badge variant="secondary" className="absolute bottom-2 right-2">
-                    {formatDuration(item.video.duration_seconds)}
+                    {formatDuration(item.video.durationSeconds)}
                   </Badge>
                 )}
               </div>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm line-clamp-2">
-                  {item.video.title}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  {item.video.channel_id}
-                </CardDescription>
+                <CardTitle className="text-sm line-clamp-2">{item.video.title}</CardTitle>
+                <CardDescription className="text-xs">{item.video.channel_id}</CardDescription>
               </CardHeader>
               <CardContent className="pb-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -260,28 +275,26 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{selectedVideo?.title}</DialogTitle>
-            <DialogDescription>
-              비디오 상세 정보
-            </DialogDescription>
+            <DialogDescription>비디오 상세 정보</DialogDescription>
           </DialogHeader>
           {selectedVideo && (
             <div className="space-y-4">
               <div className="aspect-video relative">
                 {selectedVideo.thumbnails && (
                   <Image
-                    src={typeof selectedVideo.thumbnails === 'string'
-                      ? JSON.parse(selectedVideo.thumbnails)?.high?.url || ''
-                      : (selectedVideo.thumbnails as { high?: { url: string } })?.high?.url || ''}
+                    src={
+                      typeof selectedVideo.thumbnails === 'string'
+                        ? JSON.parse(selectedVideo.thumbnails)?.high?.url || ''
+                        : (selectedVideo.thumbnails as { high?: { url: string } })?.high?.url || ''
+                    }
                     alt={selectedVideo.title}
-                    fill
+                    fill={true}
                     className="object-cover rounded-lg"
                   />
                 )}
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  {selectedVideo.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{selectedVideo.description}</p>
                 <div className="flex items-center gap-4 text-sm">
                   <span>채널: {selectedVideo.channel_id}</span>
                   <span>게시일: {new Date(selectedVideo.published_at).toLocaleDateString()}</span>
@@ -299,15 +312,13 @@ export default function CollectionViewer({ collectionId, collectionName, onClose
             </div>
           )}
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => selectedVideo && openInYouTube(selectedVideo.video_id)}
             >
               YouTube에서 보기
             </Button>
-            <Button onClick={() => setSelectedVideo(null)}>
-              닫기
-            </Button>
+            <Button onClick={() => setSelectedVideo(null)}>닫기</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

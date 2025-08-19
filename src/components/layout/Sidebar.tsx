@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
-import { ChevronRight, Circle } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useState } from 'react'
-import { useLayoutStore } from '@/store/layout'
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronRight, Circle } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useLayoutStore } from '@/store/layout';
 
 interface SidebarItem {
-  id: string
-  label: string
-  href?: string
-  children?: SidebarItem[]
-  progress?: number
+  id: string;
+  label: string;
+  href?: string;
+  children?: SidebarItem[];
+  progress?: number;
 }
 
 const sidebarData: Record<string, SidebarItem[]> = {
@@ -106,40 +106,38 @@ const sidebarData: Record<string, SidebarItem[]> = {
       href: '/tools/transcribe',
     },
   ],
-}
+};
 
 export function Sidebar() {
-  const pathname = usePathname()
-  const { isSidebarOpen, setSidebarOpen } = useLayoutStore()
-  const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const pathname = usePathname();
+  const { isSidebarOpen, setSidebarOpen } = useLayoutStore();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   // Determine which sidebar data to use based on current path
   const getSidebarItems = () => {
     for (const [path, items] of Object.entries(sidebarData)) {
       if (pathname.startsWith(path)) {
-        return items
+        return items;
       }
     }
-    return null
-  }
+    return null;
+  };
 
-  const sidebarItems = getSidebarItems()
+  const sidebarItems = getSidebarItems();
 
   // Don't show sidebar on mypage (has its own sidebar) or if no matching data
-  if (pathname.startsWith('/mypage') || !sidebarItems) return null
+  if (pathname.startsWith('/mypage') || !sidebarItems) return null;
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
-    )
-  }
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   const renderSidebarItem = (item: SidebarItem, depth = 0) => {
-    const isExpanded = expandedItems.includes(item.id)
-    const isActive = pathname === item.href
-    const hasChildren = item.children && item.children.length > 0
+    const isExpanded = expandedItems.includes(item.id);
+    const isActive = pathname === item.href;
+    const hasChildren = item.children && item.children.length > 0;
 
     return (
       <div key={item.id}>
@@ -153,7 +151,7 @@ export function Sidebar() {
           )}
           onClick={() => {
             if (hasChildren) {
-              toggleExpanded(item.id)
+              toggleExpanded(item.id);
             } else if (item.href) {
               // Navigation handled by Link component
             }
@@ -164,9 +162,7 @@ export function Sidebar() {
               {depth > 0 && <Circle className="h-2 w-2" />}
               <span>{item.label}</span>
               {item.progress !== undefined && (
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {item.progress}%
-                </span>
+                <span className="ml-auto text-xs text-muted-foreground">{item.progress}%</span>
               )}
             </Link>
           ) : (
@@ -174,18 +170,13 @@ export function Sidebar() {
               {depth > 0 && <Circle className="h-2 w-2" />}
               <span>{item.label}</span>
               {item.progress !== undefined && (
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {item.progress}%
-                </span>
+                <span className="ml-auto text-xs text-muted-foreground">{item.progress}%</span>
               )}
             </div>
           )}
           {hasChildren && (
             <ChevronRight
-              className={cn(
-                'h-4 w-4 transition-transform',
-                isExpanded && 'rotate-90'
-              )}
+              className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-90')}
             />
           )}
         </div>
@@ -209,24 +200,23 @@ export function Sidebar() {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all"
-                style={{ width: `${item.progress}%` }}
+                style={{
+                  '--progress-width': `${item.progress}%`,
+                  width: 'var(--progress-width)'
+                } as React.CSSProperties}
               />
             </div>
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside
-        className="hidden lg:block fixed left-0 bottom-0 bg-background border-r overflow-y-auto"
-        style={{
-          top: 'calc(var(--top-banner-height) + var(--header-height))',
-          width: 'var(--sidebar-width)',
-        }}
+        className="hidden lg:block fixed left-0 bottom-0 bg-background border-r overflow-y-auto top-[128px] w-64"
       >
         <div className="p-4">
           <h2 className="mb-4 text-lg font-semibold">
@@ -235,9 +225,7 @@ export function Sidebar() {
             {pathname.startsWith('/mypage') && '마이페이지'}
             {pathname.startsWith('/tools') && '도구 모음'}
           </h2>
-          <nav className="space-y-1">
-            {sidebarItems.map((item) => renderSidebarItem(item))}
-          </nav>
+          <nav className="space-y-1">{sidebarItems.map((item) => renderSidebarItem(item))}</nav>
         </div>
       </aside>
 
@@ -249,12 +237,7 @@ export function Sidebar() {
             onClick={() => setSidebarOpen(false)}
           />
           <aside
-            className="lg:hidden fixed left-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn"
-            style={{
-              top: 'calc(var(--top-banner-height) + var(--header-height))',
-              width: '80vw',
-              maxWidth: 'var(--sidebar-width)',
-            }}
+            className="lg:hidden fixed left-0 bottom-0 bg-background border-r overflow-y-auto z-[1100] animate-slideIn top-[128px] w-[80vw] max-w-[256px]"
           >
             <div className="p-4">
               <h2 className="mb-4 text-lg font-semibold">
@@ -263,13 +246,11 @@ export function Sidebar() {
                 {pathname.startsWith('/mypage') && '마이페이지'}
                 {pathname.startsWith('/tools') && '도구 모음'}
               </h2>
-              <nav className="space-y-1">
-                {sidebarItems.map((item) => renderSidebarItem(item))}
-              </nav>
+              <nav className="space-y-1">{sidebarItems.map((item) => renderSidebarItem(item))}</nav>
             </div>
           </aside>
         </>
       )}
     </>
-  )
+  );
 }

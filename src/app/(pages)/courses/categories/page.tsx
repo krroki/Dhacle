@@ -1,22 +1,23 @@
-import React from 'react';
-import { Metadata } from 'next';
-import { getCourses } from '@/lib/api/courses';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  Grid3x3, 
-  BookOpen, 
-  Lightbulb, 
-  Camera, 
-  TrendingUp, 
-  DollarSign, 
+import {
+  ArrowLeft,
   BarChart3,
+  BookOpen,
+  Camera,
+  DollarSign,
+  Grid3x3,
+  Lightbulb,
   Sparkles,
-  Users
+  TrendingUp,
+  Users,
 } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import type React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getCourses } from '@/lib/api/courses';
+import { mapCourse } from '@/lib/utils/type-mappers';
 
 export const metadata: Metadata = {
   title: '카테고리별 강의 | 디하클',
@@ -85,19 +86,18 @@ const categories = [
 
 export default async function CategoriesPage(): Promise<React.JSX.Element> {
   const response = await getCourses();
-  const allCourses = response.courses;
+  const rawCourses = response.courses;
+  const allCourses = rawCourses.map(mapCourse);
 
   // 카테고리별 강의 수 계산
   const getCourseCountByCategory = (categoryTags: string[]) => {
-    return allCourses.filter(course => {
+    return allCourses.filter((course) => {
       const courseTags = course.tags || [];
       const courseTitle = course.title.toLowerCase();
       const courseDesc = course.description?.toLowerCase() || '';
-      
-      return categoryTags.some(tag => 
-        courseTags.includes(tag) ||
-        courseTitle.includes(tag) ||
-        courseDesc.includes(tag)
+
+      return categoryTags.some(
+        (tag) => courseTags.includes(tag) || courseTitle.includes(tag) || courseDesc.includes(tag)
       );
     }).length;
   };
@@ -157,8 +157,8 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
           </div>
           <h1 className="text-4xl font-bold mb-4">카테고리별 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            관심 있는 주제를 선택하고 체계적으로 학습하세요.
-            입문부터 전문가까지 단계별 커리큘럼을 제공합니다.
+            관심 있는 주제를 선택하고 체계적으로 학습하세요. 입문부터 전문가까지 단계별 커리큘럼을
+            제공합니다.
           </p>
         </div>
 
@@ -174,7 +174,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
           </div>
           <div className="bg-white dark:bg-gray-900 border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-primary">
-              {allCourses.filter(c => c.is_free).length}
+              {allCourses.filter((c) => c.isFree).length}
             </div>
             <p className="text-sm text-muted-foreground">무료 강의</p>
           </div>
@@ -193,37 +193,25 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
           const Icon = category.icon;
           const courseCount = getCourseCountByCategory(category.tags);
           const colors = getColorClasses(category.color);
-          
+
           return (
-            <Link 
-              key={category.id} 
-              href={`/courses?category=${category.id}`}
-              className="group"
-            >
+            <Link key={category.id} href={`/courses?category=${category.id}`} className="group">
               <Card className="h-full hover:shadow-lg transition-all duration-300 group-hover:scale-105 overflow-hidden">
                 <CardHeader className={`${colors.bg} ${colors.border} border-b`}>
                   <div className="flex items-start justify-between">
                     <div className={`p-3 rounded-lg bg-white dark:bg-gray-900 ${colors.text}`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    {courseCount > 0 && (
-                      <Badge variant="secondary">
-                        {courseCount}개 강의
-                      </Badge>
-                    )}
+                    {courseCount > 0 && <Badge variant="secondary">{courseCount}개 강의</Badge>}
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <CardTitle className="text-xl mb-2">{category.name}</CardTitle>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {category.description}
-                  </p>
-                  
+                  <p className="text-muted-foreground text-sm mb-4">{category.description}</p>
+
                   {courseCount > 0 ? (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-primary">
-                        바로 학습하기 →
-                      </span>
+                      <span className="text-sm font-medium text-primary">바로 학습하기 →</span>
                       {courseCount >= 5 && (
                         <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                           <Sparkles className="w-3 h-3 mr-1" />
@@ -232,9 +220,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
                       )}
                     </div>
                   ) : (
-                    <div className="text-sm text-muted-foreground">
-                      곧 공개 예정
-                    </div>
+                    <div className="text-sm text-muted-foreground">곧 공개 예정</div>
                   )}
                 </CardContent>
               </Card>

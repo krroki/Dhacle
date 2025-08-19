@@ -1,10 +1,10 @@
-import React from 'react';
-import { Metadata } from 'next';
+import { ArrowLeft, GraduationCap } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
 import { getCourses } from '@/lib/api/courses';
 import { CourseGrid } from '../../components/CourseGrid';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, GraduationCap } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '입문자 무료 강의 | 디하클',
@@ -16,12 +16,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Element> {
   // 입문자용 무료 강의 필터링
-  const response = await getCourses({ is_free: true });
-  const courses = response.courses.filter(course => 
-    course.level === 'beginner' || 
-    course.tags?.includes('입문') || 
-    course.tags?.includes('초급') ||
-    course.tags?.includes('기초')
+  const response = await getCourses({ isFree: true });
+  const courses = response.courses.filter(
+    (course) =>
+      course.level === 'beginner' ||
+      course.tags?.includes('입문') ||
+      course.tags?.includes('초급') ||
+      course.tags?.includes('기초')
   );
 
   return (
@@ -42,8 +43,7 @@ export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Eleme
           </div>
           <h1 className="text-4xl font-bold mb-4">입문자 무료 강의</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            YouTube Shorts가 처음이신가요? 
-            걱정하지 마세요! 기초부터 차근차근 알려드립니다.
+            YouTube Shorts가 처음이신가요? 걱정하지 마세요! 기초부터 차근차근 알려드립니다.
           </p>
         </div>
 
@@ -54,23 +54,17 @@ export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Eleme
             <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
               <div className="font-semibold text-blue-600 dark:text-blue-400 mb-2">Step 1</div>
               <h4 className="font-medium mb-1">기초 이해하기</h4>
-              <p className="text-sm text-muted-foreground">
-                YouTube Shorts의 개념과 특징 이해
-              </p>
+              <p className="text-sm text-muted-foreground">YouTube Shorts의 개념과 특징 이해</p>
             </div>
             <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
               <div className="font-semibold text-blue-600 dark:text-blue-400 mb-2">Step 2</div>
               <h4 className="font-medium mb-1">첫 콘텐츠 제작</h4>
-              <p className="text-sm text-muted-foreground">
-                간단한 촬영과 편집 기법 학습
-              </p>
+              <p className="text-sm text-muted-foreground">간단한 촬영과 편집 기법 학습</p>
             </div>
             <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
               <div className="font-semibold text-blue-600 dark:text-blue-400 mb-2">Step 3</div>
               <h4 className="font-medium mb-1">채널 성장 시작</h4>
-              <p className="text-sm text-muted-foreground">
-                업로드와 기본 운영 전략 수립
-              </p>
+              <p className="text-sm text-muted-foreground">업로드와 기본 운영 전략 수립</p>
             </div>
           </div>
         </div>
@@ -105,7 +99,8 @@ export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Eleme
         <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 입문자 무료 강의
+              총 <span className="font-semibold text-foreground">{courses.length}개</span>의 입문자
+              무료 강의
             </p>
           </div>
           <CourseGrid initialCourses={courses} />

@@ -29,7 +29,7 @@ dotenv.config({ path: '.env.local' });
 const verbose = process.argv.includes('--verbose');
 
 // 테스트 설정
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -430,6 +430,23 @@ async function main() {
   log('🧪 보안 테스트 자동화 실행', 'cyan');
   log('═'.repeat(60), 'bright');
   log(`\n테스트 환경: ${BASE_URL}`, 'yellow');
+  
+  // 서버 준비 확인 (5초 대기)
+  log('\n서버 준비 확인 중...', 'yellow');
+  await new Promise(resolve => setTimeout(resolve, 5000));
+  
+  // 서버 상태 확인
+  try {
+    const healthResponse = await fetch(`${BASE_URL}/api/health`);
+    if (healthResponse.status === 404) {
+      log('Health 엔드포인트 없음 (정상)', 'yellow');
+    } else {
+      log('서버 준비 완료', 'green');
+    }
+  } catch (error) {
+    log('⚠️  개발 서버가 실행되지 않음. npm run dev 먼저 실행하세요.', 'red');
+    process.exit(1);
+  }
   
   try {
     // 각 카테고리별 테스트 실행

@@ -1,31 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  Award,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Coins,
+  Crown,
+  Gift,
+  Info,
+  Medal,
+  Minus,
+  Star,
+  TrendingUp,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { 
-  Trophy, 
-  Medal, 
-  Award, 
-  Crown, 
-  Star, 
-  TrendingUp,
-  Gift,
-  Coins,
-  Calendar,
-  Users,
-  ChevronUp,
-  ChevronDown,
-  Minus,
-  Info
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface RankingUser {
   rank: number;
@@ -61,7 +61,7 @@ export function RankingDashboard({
   weeklyRankings,
   monthlyRankings,
   rewards,
-  currentMonth
+  currentMonth,
 }: RankingDashboardProps) {
   const [selectedTab, setSelectedTab] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
@@ -137,8 +137,8 @@ export function RankingDashboard({
       <ScrollArea className="h-[600px]">
         <div className="space-y-2 pr-4">
           {rankings.map((user) => (
-            <Card 
-              key={user.user_id} 
+            <Card
+              key={user.user_id}
               className={`transition-all hover:shadow-md ${getRankStyle(user.rank)}`}
             >
               <CardContent className="p-4">
@@ -146,9 +146,7 @@ export function RankingDashboard({
                   <div className="flex items-center gap-4">
                     {/* 순위 */}
                     <div className="flex items-center gap-2 min-w-[60px]">
-                      <span className="text-2xl font-bold">
-                        {user.rank}
-                      </span>
+                      <span className="text-2xl font-bold">{user.rank}</span>
                       {getRankIcon(user.rank)}
                       {getRankChangeIcon(user.rank)}
                     </div>
@@ -157,16 +155,12 @@ export function RankingDashboard({
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={user.user?.avatar_url} />
-                        <AvatarFallback>
-                          {user.user?.username?.[0]?.toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback>{user.user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="font-medium">{user.user?.username}</p>
                         {showProofCount && (
-                          <p className="text-xs text-muted-foreground">
-                            인증 {user.proof_count}회
-                          </p>
+                          <p className="text-xs text-muted-foreground">인증 {user.proof_count}회</p>
                         )}
                       </div>
                     </div>
@@ -174,16 +168,14 @@ export function RankingDashboard({
 
                   {/* 수익 금액 */}
                   <div className="text-right">
-                    <p className="text-xl font-bold">
-                      ₩{user.total_amount.toLocaleString()}
-                    </p>
+                    <p className="text-xl font-bold">₩{user.total_amount.toLocaleString()}</p>
                     {user.rank <= 3 && (
-                      <Badge className={getBadgeColor(
-                        user.rank === 1 ? 'gold' : 
-                        user.rank === 2 ? 'silver' : 'bronze'
-                      )}>
-                        {user.rank === 1 ? '1st' : 
-                         user.rank === 2 ? '2nd' : '3rd'}
+                      <Badge
+                        className={getBadgeColor(
+                          user.rank === 1 ? 'gold' : user.rank === 2 ? 'silver' : 'bronze'
+                        )}
+                      >
+                        {user.rank === 1 ? '1st' : user.rank === 2 ? '2nd' : '3rd'}
                       </Badge>
                     )}
                   </div>
@@ -216,9 +208,11 @@ export function RankingDashboard({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             {rewards.monthly.slice(0, 3).map((reward, index) => (
               <div key={index} className="flex items-center gap-3">
-                <Badge className={getBadgeColor(
-                  index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'
-                )}>
+                <Badge
+                  className={getBadgeColor(
+                    index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'
+                  )}
+                >
                   {typeof reward.rank === 'number' ? `${reward.rank}위` : reward.rank}
                 </Badge>
                 <div className="flex-1">
@@ -230,7 +224,7 @@ export function RankingDashboard({
               </div>
             ))}
           </div>
-          <Button variant="link" className="mt-2 p-0" asChild>
+          <Button variant="link" className="mt-2 p-0" asChild={true}>
             <a href="#rewards">전체 보상 보기 →</a>
           </Button>
         </AlertDescription>
@@ -240,32 +234,24 @@ export function RankingDashboard({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              이번 달 총 인증 수익
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">이번 달 총 인증 수익</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               ₩{monthlyRankings.reduce((sum, user) => sum + user.total_amount, 0).toLocaleString()}
             </div>
-            <p className="text-xs text-muted-foreground">
-              전월 대비 +23.5%
-            </p>
+            <p className="text-xs text-muted-foreground">전월 대비 +23.5%</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              참여 크리에이터
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">참여 크리에이터</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {monthlyRankings.length}명
-            </div>
+            <div className="text-2xl font-bold">{monthlyRankings.length}명</div>
             <p className="text-xs text-muted-foreground">
               일일 평균 {Math.round(dailyRankings.length)}명
             </p>
@@ -274,9 +260,7 @@ export function RankingDashboard({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              최고 수익 인증
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">최고 수익 인증</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -291,7 +275,10 @@ export function RankingDashboard({
       </div>
 
       {/* 랭킹 탭 */}
-      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as 'daily' | 'weekly' | 'monthly')}>
+      <Tabs
+        value={selectedTab}
+        onValueChange={(v) => setSelectedTab(v as 'daily' | 'weekly' | 'monthly')}
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="daily">
             <Calendar className="h-4 w-4 mr-2" />
@@ -312,13 +299,9 @@ export function RankingDashboard({
             <Card>
               <CardHeader>
                 <CardTitle>오늘의 수익 랭킹</CardTitle>
-                <CardDescription>
-                  {new Date().toLocaleDateString('ko-KR')} 기준
-                </CardDescription>
+                <CardDescription>{new Date().toLocaleDateString('ko-KR')} 기준</CardDescription>
               </CardHeader>
-              <CardContent>
-                {renderRankingList(dailyRankings.slice(0, 20))}
-              </CardContent>
+              <CardContent>{renderRankingList(dailyRankings.slice(0, 20))}</CardContent>
             </Card>
           </TabsContent>
 
@@ -326,13 +309,9 @@ export function RankingDashboard({
             <Card>
               <CardHeader>
                 <CardTitle>이번 주 수익 랭킹</CardTitle>
-                <CardDescription>
-                  최근 7일간 누적 수익 기준
-                </CardDescription>
+                <CardDescription>최근 7일간 누적 수익 기준</CardDescription>
               </CardHeader>
-              <CardContent>
-                {renderRankingList(weeklyRankings.slice(0, 50), true)}
-              </CardContent>
+              <CardContent>{renderRankingList(weeklyRankings.slice(0, 50), true)}</CardContent>
             </Card>
           </TabsContent>
 
@@ -340,13 +319,9 @@ export function RankingDashboard({
             <Card>
               <CardHeader>
                 <CardTitle>{currentMonth} 월간 수익 랭킹</CardTitle>
-                <CardDescription>
-                  이번 달 누적 수익 기준 TOP 100
-                </CardDescription>
+                <CardDescription>이번 달 누적 수익 기준 TOP 100</CardDescription>
               </CardHeader>
-              <CardContent>
-                {renderRankingList(monthlyRankings, true)}
-              </CardContent>
+              <CardContent>{renderRankingList(monthlyRankings, true)}</CardContent>
             </Card>
           </TabsContent>
         </div>
@@ -366,11 +341,9 @@ export function RankingDashboard({
         <CardContent>
           <div className="space-y-4">
             {rewards.monthly.map((reward, index) => (
-              <div 
+              <div
                 key={index}
-                className={`p-4 rounded-lg border ${
-                  index < 3 ? getRankStyle(index + 1) : ''
-                }`}
+                className={`p-4 rounded-lg border ${index < 3 ? getRankStyle(index + 1) : ''}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

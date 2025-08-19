@@ -1,19 +1,19 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
+import { getCachedData, setCachedData, siteConfig } from '@/lib/config/site';
 import { createClient } from '@/lib/supabase/server-client';
-import { siteConfig, getCachedData, setCachedData } from '@/lib/config/site';
 
 // 사이트맵 생성 함수 (캐싱 적용)
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
   const { priorities, changeFrequencies } = siteConfig.sitemap;
-  
+
   // 캐시 체크
   const cacheKey = 'sitemap-data';
   const cached = getCachedData<MetadataRoute.Sitemap>(cacheKey, siteConfig.sitemap.cacheTime);
   if (cached) return cached;
-  
+
   const supabase = await createClient();
-  
+
   // 정적 페이지들
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -64,15 +64,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: courses } = await supabase
     .from('courses')
     .select('id, updated_at')
-    .eq('is_published', true)
+    .eq('isPublished', true)
     .order('created_at', { ascending: false });
 
-  const coursePages: MetadataRoute.Sitemap = courses?.map((course) => ({
-    url: `${baseUrl}/courses/${course.id}`,
-    lastModified: new Date(course.updated_at || new Date()),
-    changeFrequency: changeFrequencies.coursesDetail,
-    priority: priorities.coursesDetail,
-  })) || [];
+  const coursePages: MetadataRoute.Sitemap =
+    courses?.map((course) => ({
+      url: `${baseUrl}/courses/${course.id}`,
+      lastModified: new Date(course.updated_at || new Date()),
+      changeFrequency: changeFrequencies.coursesDetail,
+      priority: priorities.coursesDetail,
+    })) || [];
 
   // 동적 페이지들 - 수익 인증
   const { data: revenueProofs } = await supabase
@@ -82,12 +83,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .order('created_at', { ascending: false })
     .limit(siteConfig.sitemap.maxDynamicPages); // 성능을 위한 제한
 
-  const revenueProofPages: MetadataRoute.Sitemap = revenueProofs?.map((proof) => ({
-    url: `${baseUrl}/revenue-proof/${proof.id}`,
-    lastModified: new Date(proof.updated_at || new Date()),
-    changeFrequency: 'weekly',
-    priority: 0.5,
-  })) || [];
+  const revenueProofPages: MetadataRoute.Sitemap =
+    revenueProofs?.map((proof) => ({
+      url: `${baseUrl}/revenue-proof/${proof.id}`,
+      lastModified: new Date(proof.updated_at || new Date()),
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    })) || [];
 
   // 마이페이지 (로그인 필요하지만 SEO를 위해 포함)
   const myPages: MetadataRoute.Sitemap = [
@@ -118,15 +120,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // 모든 페이지 통합
-  const sitemapData = [
-    ...staticPages,
-    ...coursePages,
-    ...revenueProofPages,
-    ...myPages,
-  ];
-  
+  const sitemapData = [...staticPages, ...coursePages, ...revenueProofPages, ...myPages];
+
   // 캐시 저장
   setCachedData(cacheKey, sitemapData);
-  
+
   return sitemapData;
 }

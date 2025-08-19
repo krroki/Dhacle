@@ -1,0 +1,112 @@
+rules:
+  # Supabase 인증 체크 누락 감지
+  - id: missing-auth-check
+    pattern: |
+      export async function $METHOD(request: Request) {
+        ...
+        !supabase.auth.getUser()
+        ...
+      }
+    message: "API Route에 인증 체크가 누락되었습니다. supabase.auth.getUser() 추가 필요"
+    languages: [typescript]
+    severity: ERROR
+    paths:
+      include:
+        - src/app/api/**/*.ts
+      exclude:
+        - src/app/api/health/**
+        - src/app/api/webhook/**
+
+  # 직접 fetch 사용 감지
+  - id: direct-fetch-usage
+    pattern: fetch($URL, ...)
+    message: "직접 fetch() 사용 금지. api-client.ts의 apiGet/apiPost 사용 필요"
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - src/**/*.tsx
+        - src/**/*.ts
+      exclude:
+        - src/lib/api-client.ts
+
+  # any 타입 사용 감지
+  - id: no-any-type
+    pattern: |
+      $VAR: any
+    message: "any 타입 사용 금지. 구체적인 타입 정의 또는 unknown 사용"
+    languages: [typescript]
+    severity: ERROR
+
+  # 하드코딩된 비밀 감지
+  - id: hardcoded-secret
+    patterns:
+      - pattern-regex: '(api[_-]?key|secret|password|token)\s*=\s*["\'][^"\']+["\']'
+    message: "하드코딩된 비밀이 감지되었습니다. 환경 변수 사용 필요"
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # 인라인 스타일 감지
+  - id: inline-style-usage
+    pattern: style={{...}}
+    message: "인라인 스타일 사용 금지. Tailwind CSS 클래스 사용"
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - src/**/*.tsx
+
+  # console.log 감지 (프로덕션)
+  - id: console-log-usage
+    pattern: console.log(...)
+    message: "console.log는 개발 환경에서만 사용. 프로덕션에서는 제거 필요"
+    languages: [typescript, javascript]
+    severity: INFO
+    paths:
+      exclude:
+        - scripts/**
+        - "*.test.ts"
+        - "*.test.tsx"
+
+  # SQL Injection 위험 감지
+  - id: sql-injection-risk
+    patterns:
+      - pattern: |
+          supabase.from($TABLE).select(`... ${$VAR} ...`)
+    message: "SQL Injection 위험. 변수를 직접 쿼리에 삽입하지 마세요"
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # XSS 위험 감지
+  - id: xss-dangerouslySetInnerHTML
+    pattern: dangerouslySetInnerHTML={{__html: $HTML}}
+    message: "XSS 위험. DOMPurify로 정화 필요"
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  # 비동기 함수 Promise 타입 누락
+  - id: async-without-promise-type
+    pattern: |
+      async function $FUNC(...): $TYPE {
+        ...
+      }
+    message: "async 함수는 Promise<T> 반환 타입 명시 필요"
+    languages: [typescript]
+    severity: INFO
+    where:
+      - metavariable: $TYPE
+        regex: ^(?!Promise).*$
+
+  # RLS 테이블 user_id 필터 누락
+  - id: rls-missing-user-filter
+    patterns:
+      - pattern: |
+          supabase.from($TABLE).select(...)
+      - metavariable-regex:
+          metavariable: $TABLE
+          regex: '(profiles|courses|revenue_proof|collections)'
+      - pattern-not: |
+          supabase.from($TABLE).select(...).eq('user_id', ...)
+    message: "RLS 테이블 접근 시 user_id 필터 추가 권장"
+    languages: [typescript]
+    severity: WARNING

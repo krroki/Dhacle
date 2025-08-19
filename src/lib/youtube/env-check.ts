@@ -28,9 +28,11 @@ export function checkYouTubeEnvVars(): EnvCheckResult {
   });
 
   // localhost 경고
-  if (requiredVars.NEXT_PUBLIC_SITE_URL?.includes('localhost') && 
-      typeof window !== 'undefined' && 
-      !window.location.hostname.includes('localhost')) {
+  if (
+    requiredVars.NEXT_PUBLIC_SITE_URL?.includes('localhost') &&
+    typeof window !== 'undefined' &&
+    !window.location.hostname.includes('localhost')
+  ) {
     warnings.push('NEXT_PUBLIC_SITE_URL이 localhost로 설정되어 있지만 프로덕션에서 실행 중입니다.');
   }
 
@@ -63,7 +65,9 @@ export function checkYouTubeServerEnvVars(): EnvCheckResult {
 
   // 암호화 키 길이 체크 (64자 = 32바이트 hex string)
   if (serverVars.ENCRYPTION_KEY && serverVars.ENCRYPTION_KEY.length !== 64) {
-    warnings.push(`ENCRYPTION_KEY가 올바르지 않습니다 (현재: ${serverVars.ENCRYPTION_KEY.length}자, 필요: 64자)`);
+    warnings.push(
+      `ENCRYPTION_KEY가 올바르지 않습니다 (현재: ${serverVars.ENCRYPTION_KEY.length}자, 필요: 64자)`
+    );
   }
 
   return {

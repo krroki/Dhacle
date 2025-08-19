@@ -1,10 +1,7 @@
 declare module '@tosspayments/payment-sdk' {
   export interface TossPaymentsInstance {
-    requestPayment(
-      method: string,
-      options: PaymentRequestOptions
-    ): Promise<void>;
-    
+    requestPayment(method: string, options: PaymentRequestOptions): Promise<void>;
+
     widgets(options: WidgetOptions): PaymentWidget;
   }
 
@@ -38,7 +35,10 @@ declare module '@tosspayments/payment-sdk' {
 
   export interface PaymentWidget {
     setAmount(amount: { currency: string; value: number }): Promise<void>;
-    renderPaymentMethods(selector: string, amount: { value: number; currency: string }): Promise<void>;
+    renderPaymentMethods(
+      selector: string,
+      amount: { value: number; currency: string }
+    ): Promise<void>;
     renderAgreement(selector: string): Promise<void>;
     requestPayment(options: {
       orderId: string;

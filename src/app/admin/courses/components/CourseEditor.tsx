@@ -1,17 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import {
+  Bold,
+  Code,
+  Heading2,
+  Image as ImageIcon,
+  Italic,
+  Link2,
+  List,
+  ListOrdered,
+  Loader2,
+  Quote,
+  Redo,
+  Save,
+  Undo,
+} from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -19,21 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Quote,
-  Heading2,
-  Link2,
-  Image as ImageIcon,
-  Code,
-  Undo,
-  Redo,
-  Save,
-  Loader2
-} from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import type { Course } from '@/types/course';
 
 interface CourseEditorProps {
@@ -47,14 +47,14 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
     title: course?.title || '',
     subtitle: course?.subtitle || '',
     description: course?.description || '',
-    instructor_name: course?.instructor_name || '',
+    instructorName: course?.instructorName || '',
     price: course?.price || 0,
-    is_free: course?.is_free || false,
+    isFree: course?.isFree || false,
     thumbnail_url: course?.thumbnail_url || '',
-    preview_video_url: course?.preview_video_url || '',
-    status: course?.status || 'upcoming' as 'upcoming' | 'active' | 'completed',
+    previewVideoUrl: course?.previewVideoUrl || '',
+    status: course?.status || ('upcoming' as 'upcoming' | 'active' | 'completed'),
     category: course?.category || '',
-    difficulty: course?.difficulty || 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    difficulty: course?.difficulty || ('beginner' as 'beginner' | 'intermediate' | 'advanced'),
     language: course?.language || 'ko',
     requirements: course?.requirements || [],
     objectives: course?.objectives || [],
@@ -76,10 +76,10 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
         },
       }),
     ],
-    content: course?.content_blocks 
-      ? (typeof course.content_blocks === 'string' 
-        ? course.content_blocks 
-        : JSON.stringify(course.content_blocks))
+    content: course?.contentBlocks
+      ? typeof course.contentBlocks === 'string'
+        ? course.contentBlocks
+        : JSON.stringify(course.contentBlocks)
       : '',
     editorProps: {
       attributes: {
@@ -90,23 +90,23 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value
+      [name]: type === 'number' ? Number(value) : value,
     }));
   };
 
   const handleSwitchChange = (name: string) => (checked: boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: checked
+      [name]: checked,
     }));
   };
 
   const handleSelectChange = (name: string) => (value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -114,7 +114,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
     const content = editor?.getJSON();
     await onSave({
       ...formData,
-      content_blocks: JSON.stringify(content)
+      contentBlocks: JSON.stringify(content),
     });
   };
 
@@ -248,7 +248,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                     value={formData.title}
                     onChange={handleInputChange}
                     placeholder="예: YouTube Shorts 마스터 클래스"
-                    required
+                    required={true}
                   />
                 </div>
                 <div className="space-y-2">
@@ -277,14 +277,14 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="instructor_name">강사명 *</Label>
+                  <Label htmlFor="instructorName">강사명 *</Label>
                   <Input
-                    id="instructor_name"
-                    name="instructor_name"
-                    value={formData.instructor_name}
+                    id="instructorName"
+                    name="instructorName"
+                    value={formData.instructorName}
                     onChange={handleInputChange}
                     placeholder="예: 홍길동"
-                    required
+                    required={true}
                   />
                 </div>
                 <div className="space-y-2">
@@ -308,17 +308,17 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                     type="number"
                     value={formData.price}
                     onChange={handleInputChange}
-                    disabled={formData.is_free}
+                    disabled={formData.isFree}
                     min={0}
                   />
                 </div>
                 <div className="flex items-center space-x-2 mt-8">
                   <Switch
-                    id="is_free"
-                    checked={formData.is_free}
-                    onCheckedChange={handleSwitchChange('is_free')}
+                    id="isFree"
+                    checked={formData.isFree}
+                    onCheckedChange={handleSwitchChange('isFree')}
                   />
-                  <Label htmlFor="is_free">무료 강의</Label>
+                  <Label htmlFor="isFree">무료 강의</Label>
                 </div>
               </div>
 
@@ -334,11 +334,11 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="preview_video_url">미리보기 비디오 URL</Label>
+                  <Label htmlFor="previewVideoUrl">미리보기 비디오 URL</Label>
                   <Input
-                    id="preview_video_url"
-                    name="preview_video_url"
-                    value={formData.preview_video_url}
+                    id="previewVideoUrl"
+                    name="previewVideoUrl"
+                    value={formData.previewVideoUrl}
                     onChange={handleInputChange}
                     placeholder="https://..."
                   />
@@ -371,10 +371,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>상태</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={handleSelectChange('status')}
-                  >
+                  <Select value={formData.status} onValueChange={handleSelectChange('status')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -405,10 +402,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
                 <div className="space-y-2">
                   <Label>언어</Label>
-                  <Select
-                    value={formData.language}
-                    onValueChange={handleSelectChange('language')}
-                  >
+                  <Select value={formData.language} onValueChange={handleSelectChange('language')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

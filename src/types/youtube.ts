@@ -177,7 +177,7 @@ export interface YouTubeFavorite {
   id: string;
   user_id: string;
   video_id: string;
-  video_data: FlattenedYouTubeVideo;
+  videoData: FlattenedYouTubeVideo;
   tags: string[];
   notes?: string;
   created_at: string;
@@ -190,7 +190,7 @@ export interface YouTubeSearchHistory {
   user_id: string;
   query: string;
   filters?: YouTubeSearchFilters;
-  results_count: number;
+  resultsCount: number;
   created_at: string;
 }
 
@@ -201,7 +201,7 @@ export interface ApiUsage {
   operation: 'search' | 'videos' | 'channels' | 'playlists';
   units: number;
   timestamp: string;
-  api_type: 'youtube';
+  apiType: 'youtube';
 }
 
 // API 할당량 상태
@@ -219,12 +219,12 @@ export interface QuotaStatus {
 
 // OAuth 토큰 정보
 export interface OAuthToken {
-  access_token: string;
-  refresh_token?: string;
-  expires_in: number;
-  token_type: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresIn: number;
+  tokenType: string;
   scope: string;
-  expires_at?: number;
+  expiresAt?: number;
 }
 
 // 사용자 API 키
@@ -232,9 +232,9 @@ export interface UserApiKey {
   id: string;
   user_id: string;
   provider: 'google' | 'youtube';
-  encrypted_key: string;
-  refresh_token?: string;
-  expires_at?: string;
+  encryptedKey: string;
+  refreshToken?: string;
+  expiresAt?: string;
   created_at: string;
   updated_at: string;
 }
