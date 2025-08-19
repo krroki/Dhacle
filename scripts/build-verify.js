@@ -146,7 +146,7 @@ console.log('-'.repeat(40));
 const apiEndpoints = [
   // 인증 관련
   { path: 'src/app/auth/callback/route.ts', name: 'Auth Callback', needsAuth: false },
-  { path: 'src/app/api/auth/logout/route.ts', name: 'Logout', needsAuth: true },
+  // logout은 클라이언트 측에서 처리 (Supabase signOut)
   
   // 사용자 관련
   { path: 'src/app/api/user/profile/route.ts', name: 'User Profile', needsAuth: true },
