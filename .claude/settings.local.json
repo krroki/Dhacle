@@ -29,6 +29,9 @@
       "Bash(mv:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\My_Claude_Project\\9.Dhacle"
+    ]
   }
 }

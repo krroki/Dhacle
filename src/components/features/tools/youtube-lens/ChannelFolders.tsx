@@ -54,11 +54,10 @@ import {
 } from 'lucide-react';
 
 interface ChannelFoldersProps {
-  userId: string;
   onFolderSelect?: (folder: SourceFolder) => void;
 }
 
-export default function ChannelFolders({ userId, onFolderSelect }: ChannelFoldersProps) {
+export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) {
   const [folders, setFolders] = useState<SourceFolder[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +80,7 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
     setError(null);
 
     try {
-      const data = await apiGet<{ folders?: SourceFolder[] }>(`/api/youtube/folders?userId=${userId}`);
+      const data = await apiGet<{ folders?: SourceFolder[] }>('/api/youtube/folders');
       
       console.log('[ChannelFolders] API Response:', data);
       setFolders(data.folders || []);
@@ -107,15 +106,12 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
   // Initial fetch
   useEffect(() => {
     fetchFolders();
-  }, [userId]);
+  }, []);
 
   // Create folder
   const handleCreateFolder = async () => {
     try {
-      const data = await apiPost<{ folder: SourceFolder }>('/api/youtube/folders', {
-        ...formData,
-        user_id: userId
-      });
+      const data = await apiPost<{ folder: SourceFolder }>('/api/youtube/folders', formData);
 
       console.log('[ChannelFolders] Create response:', data);
       setFolders([data.folder, ...folders]);

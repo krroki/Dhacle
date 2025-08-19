@@ -468,7 +468,7 @@ function YouTubeLensContent() {
 
         {/* 채널 폴더 탭 */}
         <TabsContent value="folders" className="space-y-4">
-          {user && <ChannelFolders userId={user.id} />}
+          {user && <ChannelFolders />}
         </TabsContent>
 
         {/* 알림 설정 탭 */}
