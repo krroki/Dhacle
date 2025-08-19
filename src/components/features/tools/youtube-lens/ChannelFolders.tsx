@@ -89,9 +89,12 @@ export default function ChannelFolders({ userId, onFolderSelect }: ChannelFolder
       console.error('[ChannelFolders] Fetch error:', err);
       
       // Handle 401 errors - redirect to login
-      if (err && typeof err === 'object' && 'status' in err && (err as any).status === 401) {
-        window.location.href = '/auth/login?redirect=/tools/youtube-lens';
-        return;
+      if (err && typeof err === 'object' && 'status' in err) {
+        const errorWithStatus = err as { status: number };
+        if (errorWithStatus.status === 401) {
+          window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+          return;
+        }
       }
       
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
