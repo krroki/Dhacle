@@ -1,9 +1,10 @@
 # 📊 디하클(Dhacle) 프로젝트 코드맵
 
-*목적: 현재 프로젝트의 파일/폴더 구조와 기술 스택*
-*업데이트: 새 파일/폴더 추가 또는 구조 변경 시*
+_목적: 현재 프로젝트의 파일/폴더 구조와 기술 스택_
+_업데이트: 새 파일/폴더 추가 또는 구조 변경 시_
 
 > **13개 핵심 문서 체계**:
+>
 > - 🤖 AI 작업 지침: `/CLAUDE.md`
 > - 📊 프로젝트 현황: `/docs/PROJECT.md`
 > - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md` (이 문서)
@@ -23,6 +24,7 @@
 ## 🚀 빠른 시작 (최상단 필수)
 
 ### 자주 사용하는 명령어
+
 ```bash
 # 개발 명령어
 npm run dev                     # 개발 서버 시작 (자동 검증 포함)
@@ -53,6 +55,7 @@ npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 ```
 
 ### 🔥 자주 수정하는 파일 Top 10
+
 1. `src/lib/api-client.ts` - 클라이언트 API 래퍼
 2. `src/app/page.tsx` - 메인 페이지
 3. `src/app/auth/callback/route.ts` - 인증 콜백
@@ -69,10 +72,12 @@ npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 ## 🔐 공용 유틸/핵심 위치 (Authentication & API)
 
 ### 클라이언트 API 래퍼
+
 - **위치**: `src/lib/api-client.ts`
 - **함수**: `apiGet()`, `apiPost()`, `apiPut()`, `apiDelete()`, `apiPatch()`
 - **특징**: 자동 `credentials: 'same-origin'` 포함, 401 에러 처리
 - **사용법**:
+
 ```typescript
 import { apiGet, apiPost, ApiError } from '@/lib/api-client';
 
@@ -85,8 +90,10 @@ try {
 }
 ```
 
-### 서버 Route 템플릿 패턴
+### 서버 Route 템플릿 패턴 (2025-08-19 표준화 완료)
+
 - **세션 검사 필수**:
+
 ```typescript
 // app/api/**/route.ts
 import { cookies } from 'next/headers';
@@ -94,15 +101,17 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
 export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) {
     return new Response(
       JSON.stringify({ error: 'User not authenticated' }), // 표준화된 에러
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
     );
   }
-  
+
   // 비즈니스 로직...
 }
 ```
@@ -112,6 +121,7 @@ export async function GET(request: Request) {
 ## 📁 프로젝트 구조
 
 > **🔗 관련 문서 링크**:
+>
 > - 컴포넌트 재사용: `/docs/COMPONENT_INVENTORY.md`
 > - 라우트 가드: `/docs/ROUTE_SPEC.md`
 > - 상태 관리: `/docs/STATE_FLOW.md`
@@ -211,8 +221,8 @@ export async function GET(request: Request) {
 │   ├── dev-verify.js              # 개발 시 자동 검증 ✅ NEW (2025-01-30)
 │   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 + API 일치성 ✅ NEW (2025-01-30)
 │   ├── fix-missing-apis.js        # 누락 API 자동 생성 ✅ NEW (2025-01-30)
-│   ├── verify-api-consistency.js  # API 일치성 검사 (35개 API 표준화) ✅ NEW (2025-01-30)
-│   ├── fix-api-consistency.js     # API 일치성 자동 수정 ✅ NEW (2025-01-30)
+│   ├── verify-api-consistency.js  # API 일치성 검사 (38/38 routes 100% 표준화) ✅ (2025-08-19 개선)
+│   ├── fix-api-consistency.js     # API 자동 수정 ⚠️ DEPRECATED - 수동 수정 권장 (2025-08-19)
 │   ├── fix-typescript-errors.js   # TypeScript 에러 자동 수정 ✅ NEW (2025-01-30)
 │   ├── supabase-migration.js     # 기본 마이그레이션 자동화
 │   ├── auto-migrate.js           # 향상된 자동 마이그레이션
@@ -221,18 +231,39 @@ export async function GET(request: Request) {
 │   ├── verify-with-service-role.js # RLS 우회 정확한 검증 ✅
 │   ├── check-tables-simple.js    # 간단한 테이블 체크
 │   ├── check-missing-tables.js   # 누락된 테이블 상세 확인 ✅ NEW (2025-01-29)
+│   ├── verify-database.js         # DB 연결 및 테이블 검증 ✅ NEW (2025-08-19)
+│   ├── verify-dependencies.js    # 패키지 의존성 검증 ✅ NEW (2025-08-19)
+│   ├── verify-imports.js          # import 문 일관성 검증 ✅ NEW (2025-08-19)
+│   ├── verify-parallel.js         # 병렬 검증 실행기 ✅ NEW (2025-08-19)
+│   ├── verify-routes.js           # 라우트 보호 검증 ✅ NEW (2025-08-19)
+│   ├── verify-runtime.js          # 런타임 환경 검증 ✅ NEW (2025-08-19)
+│   ├── verify-types.js            # TypeScript 타입 검증 ✅ NEW (2025-08-19)
+│   ├── verify-ui-consistency.js   # UI 일관성 검증 ✅ NEW (2025-08-19)
 │   └── seed.js                    # DB 시드 데이터
 ├── public/                        # 정적 파일
 │   ├── images/                    # 이미지
 │   └── icons/                     # 아이콘
-├── docs/                          # 프로젝트 문서
+├── docs/                          # 프로젝트 문서 (13개 핵심 문서 체계)
 │   ├── security/                  # 보안 문서 ✅ Wave 0-3
 │   │   ├── coverage.md            # 보안 커버리지 매트릭스
 │   │   ├── security_refactor_plan.md # 보안 리팩토링 계획
 │   │   └── WAVE3_IMPLEMENTATION_REPORT.md # Wave 3 구현 보고서 ✅ NEW
 │   ├── PROJECT.md                 # 프로젝트 현황
-│   └── CODEMAP.md                 # 프로젝트 구조 (이 문서)
-└── package.json                   # 의존성 관리
+│   ├── CODEMAP.md                 # 프로젝트 구조 (이 문서)
+│   ├── CHECKLIST.md               # 작업 검증 체크리스트
+│   ├── DOCUMENT_GUIDE.md          # 문서화 가이드라인
+│   ├── INSTRUCTION_TEMPLATE.md    # 지시서 생성 템플릿
+│   ├── FLOWMAP.md                 # 사용자 플로우맵
+│   ├── WIREFRAME.md               # UI-API 연결 명세
+│   ├── COMPONENT_INVENTORY.md     # 컴포넌트 카탈로그
+│   ├── ROUTE_SPEC.md              # 라우트 구조 명세
+│   ├── STATE_FLOW.md              # 상태 관리 플로우
+│   ├── DATA_MODEL.md              # 데이터 모델 명세
+│   └── ERROR_BOUNDARY.md          # 에러 처리 전략
+├── .husky/                        # Git hooks (2025-08-19 추가)
+│   ├── _/                         # Husky 내부 파일
+│   └── pre-commit                 # Pre-commit 검증 스크립트
+└── package.json                   # 의존성 관리 (husky 추가)
 ```
 
 ---
@@ -240,18 +271,19 @@ export async function GET(request: Request) {
 ## 🛠 기술 스택 상세
 
 ### Frontend
+
 ```yaml
 Core:
   - Framework: Next.js 15.4.6 (App Router)
   - Runtime: React 19.1.1
   - Language: TypeScript 5.x (strict mode)
-  
+
 UI & Styling:
   - Component Library: shadcn/ui (24개 컴포넌트)
   - CSS Framework: Tailwind CSS 3.4.1
   - Animations: Tailwind Animate 1.0.7
   - Utilities: clsx 2.1.1, tailwind-merge 2.2.0
-  
+
 State & Forms:
   - State Management: Zustand 5.0.2
   - Form Management: React Hook Form 7.x
@@ -277,34 +309,36 @@ Icons:
 ```
 
 ### Backend
+
 ```yaml
 Database & Auth:
   - Platform: Supabase (PostgreSQL)
   - Authentication: Supabase Auth + Kakao OAuth 2.0
   - Session: Supabase SSR 0.5.2
-  
+
 API:
   - Routes: Next.js App Router
   - Client: @supabase/supabase-js 2.51.0
   - Type Safety: Generated types
-  
+
 Storage:
   - Files: Supabase Storage
   - Images: Next.js Image Optimization
-  
+
 Security:
   - Encryption: AES-256-CBC (API Keys)
   - RLS: Row Level Security
 ```
 
 ### Development
+
 ```yaml
 Tools:
   - Package Manager: npm
   - Linter: ESLint + Prettier
   - Type Checking: TypeScript (strict)
   - CLI: Supabase CLI
-  
+
 Build & Deploy:
   - Build: Next.js build system
   - Deploy: Vercel-ready
@@ -316,10 +350,12 @@ Build & Deploy:
 ## 📊 DB 테이블 구조
 
 ### 인증 & 사용자
+
 - `users` - 사용자 프로필 (이름, 이메일, 카페 인증)
 - `user_api_keys` - API Key 관리 (암호화 저장)
 
 ### 강의 시스템
+
 - `courses` - 강의 정보 (제목, 가격, 강사)
 - `lessons` - 강의 레슨 (비디오, 자료)
 - `enrollments` - 수강 신청
@@ -327,21 +363,25 @@ Build & Deploy:
 - `course_reviews` - 강의 리뷰
 
 ### YouTube Lens
+
 - `youtube_favorites` - 즐겨찾기 동영상
 - `youtube_history` - 검색 기록
 - `youtube_usage` - API 사용량 추적
 
 ### 수익 인증
+
 - `revenue_proofs` - 수익 인증 게시글
 - `revenue_comments` - 댓글
 - `revenue_likes` - 좋아요
 
 ### 커뮤니티
+
 - `community_posts` - 게시글
 - `community_comments` - 댓글
 - `community_likes` - 좋아요
 
 ### 결제
+
 - `payments` - 결제 내역 (TossPayments)
 - `coupons` - 쿠폰 시스템
 
@@ -350,12 +390,14 @@ Build & Deploy:
 ## 🔗 API 엔드포인트
 
 ### 사용자 관리
+
 - `GET /api/user/profile` - 프로필 조회
 - `PUT /api/user/profile` - 프로필 수정
 - `POST /api/user/cafe-verify` - 네이버 카페 인증
 - `GET/POST/DELETE /api/user/api-keys` - API Key CRUD
 
 ### YouTube API (전체 12개 엔드포인트)
+
 - `GET /api/youtube/search` - 동영상 검색
 - `GET/POST /api/youtube/favorites` - 즐겨찾기 관리
 - `DELETE /api/youtube/favorites/[id]` - 즐겨찾기 삭제
@@ -370,18 +412,21 @@ Build & Deploy:
 - `POST /api/youtube/webhook` - Webhook 처리
 
 ### 강의 시스템
+
 - `GET /api/courses` - 강의 목록
 - `GET /api/courses/[id]` - 강의 상세
 - `POST /api/courses/enroll` - 수강 신청
 - `PUT /api/courses/progress` - 진도 업데이트
 
 ### 커뮤니티
+
 - `GET/POST /api/community/posts` - 게시글 목록/작성
 - `GET/PUT/DELETE /api/community/posts/[id]` - 게시글 CRUD
 - `POST /api/community/posts/[id]/like` - 좋아요
 - `POST /api/community/posts/[id]/comment` - 댓글
 
 ### 결제 (TossPayments)
+
 - `POST /api/payment/request` - 결제 요청
 - `POST /api/payment/confirm` - 결제 승인
 - `POST /api/coupons/validate` - 쿠폰 검증
@@ -391,9 +436,11 @@ Build & Deploy:
 ## 🎨 주요 컴포넌트
 
 ### shadcn/ui 컴포넌트 (28개)
+
 Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Carousel, Checkbox, Dialog, DropdownMenu, Input, Label, NavigationMenu, Popover, Progress, RadioGroup, ScrollArea, Select, Separator, Skeleton, Slider, Sonner, Switch, Tabs, Textarea, TiptapEditor, Tooltip
 
 ### 레이아웃 컴포넌트
+
 - Header - 동적 스크롤 헤더
 - Sidebar - 인프런 스타일 사이드바
 - Footer - 전체 푸터
@@ -401,6 +448,7 @@ Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Carousel, Checkbox, 
 - TopBanner - 그라데이션 배너
 
 ### 기능 컴포넌트
+
 - HeroCarousel - 메인 캐러셀 (자동재생)
 - RevenueGallery - 수익 갤러리 (무한스크롤)
 - CourseGrid - 강의 그리드 (필터/정렬)
@@ -431,4 +479,4 @@ ENCRYPTION_KEY= # 64자 hex (필수!)
 
 ---
 
-*이 문서는 프로젝트 구조도입니다. 현재 상태는 `/docs/PROJECT.md` 참조*
+_이 문서는 프로젝트 구조도입니다. 현재 상태는 `/docs/PROJECT.md` 참조_
