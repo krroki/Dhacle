@@ -29,7 +29,7 @@
 | `/api/user/check-username` | POST | 사용자명 중복 체크 | ✅ | ✅ |
 | `/api/user/naver-cafe` | GET/POST | 네이버 카페 연동 | ✅ | ✅ |
 
-### YouTube 관련 (12개)
+### YouTube 관련 (13개)
 | 엔드포인트 | 메서드 | 용도 | 인증 | 구현 |
 |------------|--------|------|------|------|
 | `/api/youtube/search` | POST | 비디오 검색 | ✅ | ✅ |
@@ -44,6 +44,7 @@
 | `/api/youtube/collections/items` | GET/POST/DELETE | 컬렉션 아이템 | ✅ | ✅ |
 | `/api/youtube/favorites` | GET/POST | 즐겨찾기 | ✅ | ✅ |
 | `/api/youtube/favorites/[id]` | GET/PUT/DELETE | 즐겨찾기 상세 | ✅ | ✅ |
+| `/api/youtube/folders` | GET/POST/PUT/DELETE | 채널 폴더 관리 | ✅ | ✅ |
 
 ### 수익인증 관련 (8개)
 | 엔드포인트 | 메서드 | 용도 | 인증 | 구현 |

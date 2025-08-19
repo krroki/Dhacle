@@ -24,10 +24,15 @@
 
 ### 자주 사용하는 명령어
 ```bash
-npm run dev                     # 개발 서버 시작 (localhost:3000)
+# 개발 명령어
+npm run dev                     # 개발 서버 시작 (자동 검증 포함)
+npm run dev:no-verify          # 검증 없이 개발 서버 시작
 npm run build                   # 빌드 테스트
 npx tsc --noEmit               # TypeScript 체크
 npm run lint                    # ESLint 검사
+
+# 🔧 자동 수정 명령어 (2025-01-30 추가)
+npm run fix:missing-apis       # 누락된 API 엔드포인트 자동 생성
 
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅

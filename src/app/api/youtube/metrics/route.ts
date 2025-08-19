@@ -19,11 +19,11 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication - using getUser() for consistency
     const supabase = await createServerClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -101,11 +101,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication - using getUser() for consistency
     const supabase = await createServerClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     // Save metrics snapshot if requested
     if (body.saveSnapshot) {
-      await saveMetricsSnapshot(session.user.id, videosWithMetrics);
+      await saveMetricsSnapshot(user.id, videosWithMetrics);
     }
 
     return NextResponse.json({

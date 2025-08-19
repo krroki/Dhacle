@@ -38,6 +38,7 @@ import {
 import { useAuth } from '@/lib/auth/AuthContext';
 import { toast } from 'sonner';
 import type { YouTubeSearchFilters, FlattenedYouTubeVideo, QuotaStatus as QuotaStatusType, YouTubeFavorite } from '@/types/youtube';
+import type { VideoStats, TrendAnalysis, EntityExtraction } from '@/types/youtube-lens';
 import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
 
 // API 타입 정의
@@ -182,6 +183,24 @@ function YouTubeLensContent() {
     queryKey: ['youtube-api-key-status'],
     queryFn: fetchApiKeyStatus,
     enabled: !!user,
+    refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
+  });
+
+  // 메트릭 데이터 조회
+  const { data: metricsData, isLoading: isLoadingMetrics, refetch: refetchMetrics } = useQuery({
+    queryKey: ['youtube-metrics'],
+    queryFn: async () => {
+      const response = await apiGet<{
+        success: boolean;
+        data: {
+          metrics: VideoStats[];
+          trends: TrendAnalysis[];
+          entities: EntityExtraction[];
+        };
+      }>('/api/youtube/metrics?type=video');
+      return response.data;
+    },
+    enabled: !!user && !!apiKeyStatus?.hasApiKey,
     refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
   });
 
@@ -433,7 +452,13 @@ function YouTubeLensContent() {
 
         {/* 대시보드 탭 */}
         <TabsContent value="dashboard" className="space-y-4">
-          <MetricsDashboard />
+          <MetricsDashboard 
+            metrics={metricsData?.metrics}
+            trends={metricsData?.trends}
+            entities={metricsData?.entities}
+            onRefresh={() => refetchMetrics()}
+            isLoading={isLoadingMetrics}
+          />
         </TabsContent>
 
         {/* 인기 Shorts 탭 */}

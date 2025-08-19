@@ -19,11 +19,11 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication - using getUser() for consistency
     const supabase = await createServerClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const { data: apiKeyData } = await supabase
       .from('user_api_keys')
       .select('id')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .eq('service_name', 'youtube')
       .eq('is_active', true)
       .single();
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: limit,
-      userId: session.user.id
+      userId: user.id
     });
 
     // Sort by viral score
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     // Save search history (optional) - commented out for now
     // TODO: Implement saveSearchHistory function if needed
-    // await saveSearchHistory(session.user.id, {
+    // await saveSearchHistory(user.id, {
     //   search_type: 'popular_shorts',
     //   region_code: regionCode,
     //   period,
@@ -150,11 +150,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication - using getUser() for consistency
     const supabase = await createServerClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: maxResults * 2, // Fetch more to apply filters
-      userId: session.user.id
+      userId: user.id
     });
 
     // Apply filters
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
 
     // Save to collections if requested
     if (body.saveToCollection) {
-      await saveToCollection(session.user.id, body.collectionId, finalVideos);
+      await saveToCollection(user.id, body.collectionId, finalVideos);
     }
 
     return NextResponse.json({
