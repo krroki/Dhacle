@@ -16,31 +16,62 @@
 ## 📊 HTTP 에러 코드별 처리
 
 ### 🔐 401 Unauthorized (인증 필요)
-```typescript
-// ❌ 현재 구현 (잘못됨)
-if (error.status === 401) {
-  toast.error('Failed to fetch') // 의미없는 메시지
-}
 
-// ✅ 올바른 구현
+#### 개선된 401 처리 전략 (2025-02-02 업데이트)
+```typescript
+// ✅ 개선된 구현 - API 키 문제와 인증 문제 구분
 if (error.status === 401) {
-  // 1. 사용자 친화적 메시지
-  toast.error('로그인이 필요합니다')
+  // 1. 에러 메시지로 문제 유형 판단
+  const errorMessage = error.message?.toLowerCase() || '';
+  const errorData = error.data;
   
-  // 2. 현재 경로 저장
-  const currentPath = window.location.pathname
+  // 2. API 키 문제인지 확인
+  const isApiKeyError = 
+    errorData?.requiresApiKey ||
+    errorData?.errorCode === 'api_key_required' ||
+    errorMessage.includes('api key');
   
-  // 3. 로그인 페이지로 리다이렉트
-  router.push(`/auth/login?from=${currentPath}`)
+  if (isApiKeyError) {
+    // API 키 문제 - 로그인 리다이렉트 X
+    toast.error('YouTube API Key 설정이 필요합니다');
+    // 선택적: API 키 설정 페이지로 안내
+    // router.push('/settings/api-keys');
+  } else {
+    // 3. 실제 인증 문제 - 쿠키로 로그인 상태 확인
+    const isLoggedIn = document.cookie.includes('sb-');
+    
+    if (!isLoggedIn) {
+      // 로그인 필요
+      toast.error('로그인이 필요합니다');
+      const currentPath = window.location.pathname;
+      router.push(`/auth/login?redirect=${currentPath}`);
+    } else {
+      // 세션 만료
+      toast.error('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
+    }
+  }
 }
 ```
 
-**적용 필요 페이지**:
-- /tools/youtube-lens ❌
-- /mypage/* ❌
-- /revenue-proof/create ❌
-- /community/write ❌
-- /settings/api-keys ❌
+**적용 완료 컴포넌트** ✅:
+- /tools/youtube-lens/PopularShortsList.tsx 
+- /tools/youtube-lens/ChannelFolders.tsx
+- /tools/youtube-lens/CollectionBoard.tsx
+
+### 🔑 400 Bad Request (API 키 문제)
+```typescript
+// ✅ API 키 부재 처리
+if (error.status === 400) {
+  const data = error.data;
+  if (data?.requiresApiKey || data?.errorCode === 'api_key_required') {
+    toast.error('API Key 설정이 필요합니다. 설정 페이지에서 등록해주세요.');
+    // API 키 설정 UI 표시 또는 설정 페이지 안내
+    return;
+  }
+  // 일반 400 에러 처리
+  toast.error('요청이 올바르지 않습니다');
+}
+```
 
 ---
 

@@ -59,11 +59,14 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (!apiKeyData) {
+      // Return 400 for missing API key, not 401
+      // 401 should only be for authentication issues
       return NextResponse.json(
         {
           error: 'YouTube API key not configured',
           message: 'Please configure your YouTube API key in settings to use this feature',
           requiresApiKey: true,
+          errorCode: 'api_key_required',
         },
         { status: 400 }
       );

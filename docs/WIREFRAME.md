@@ -116,7 +116,7 @@ _업데이트: 2025-08-19_
 | ----------------- | -------- | -------------------------------------- | ------------------ | ----------- | ---- |
 | ApiKeySetup       | onMount  | GET /api/user/api-keys                 | 키 상태 표시       | 설정 가이드 | ✅   |
 | SearchBar         | onSubmit | POST /api/youtube/search               | VideoGrid 업데이트 | Toast 에러  | ✅   |
-| 인기 Shorts 버튼  | onClick  | GET /api/youtube/popular               | VideoGrid 업데이트 | 401→로그인  | ✅   |
+| 인기 Shorts 버튼  | onClick  | GET /api/youtube/popular               | VideoGrid 업데이트 | 400→API키   | ✅   |
 | VideoCard 좋아요  | onClick  | POST /api/youtube/favorites            | 아이콘 변경        | Toast       | ✅   |
 | FolderManager     | onMount  | GET /api/youtube/folders               | 폴더 목록 표시     | 스켈레톤    | ✅   |
 | 폴더 생성         | onSubmit | POST /api/youtube/folders              | 목록 업데이트      | 검증 에러   | ✅   |
@@ -262,13 +262,14 @@ Return to Original Page
 
 ### 공통 에러 처리
 
-| 에러 코드 | 처리 방법                | UI 표시        |
-| --------- | ------------------------ | -------------- |
-| 401       | 로그인 페이지 리다이렉트 | -              |
-| 403       | 권한 없음 메시지         | Toast 에러     |
-| 404       | 목록 페이지로 이동       | Toast 경고     |
-| 422       | 검증 에러 표시           | 폼 에러 메시지 |
-| 500       | 재시도 버튼 표시         | Toast 에러     |
+| 에러 코드 | 처리 방법                              | UI 표시                | 업데이트 |
+| --------- | -------------------------------------- | ---------------------- | -------- |
+| 401       | API키/인증 구분 → 적절한 안내         | Toast/리다이렉트       | ✅ 2025-02-02 |
+| 400       | API키 문제 → 설정 안내                | Toast + API키 설정 UI  | ✅ 2025-02-02 |
+| 403       | 권한 없음 메시지                      | Toast 에러             | -        |
+| 404       | 목록 페이지로 이동                    | Toast 경고             | -        |
+| 422       | 검증 에러 표시                        | 폼 에러 메시지         | -        |
+| 500       | 재시도 버튼 표시                      | Toast 에러             | -        |
 
 ### 로딩 상태 처리
 
@@ -283,7 +284,7 @@ Return to Original Page
 
 ### 긴급 (Phase 1)
 
-- [ ] 모든 401 에러 → 로그인 리다이렉트 통일
+- [x] 401 에러 처리 개선 - API키와 인증 문제 구분 ✅ (2025-02-02)
 - [ ] api-client.ts 100% 적용 (현재 85%)
 - [ ] 로딩 상태 일관성 확보
 

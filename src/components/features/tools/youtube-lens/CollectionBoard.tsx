@@ -52,18 +52,33 @@ export default function CollectionBoard() {
         };
         if (errorWithStatus.status === 401) {
           // Check if it's an API key issue
+          const errorMessage = (errorWithStatus.data?.error || '').toLowerCase();
           const isApiKeyError =
             errorWithStatus.data?.requiresApiKey ||
             errorWithStatus.data?.errorCode === 'api_key_required' ||
-            errorWithStatus.data?.error?.includes('API Key');
+            errorMessage.includes('api key') ||
+            errorMessage.includes('api 키');
 
           if (isApiKeyError) {
-            toast.error('YouTube API Key \uc124\uc815\uc774 \ud544\uc694\ud569\ub2c8\ub2e4');
+            toast.error('YouTube API Key 설정이 필요합니다');
           } else {
-            // Real authentication issue - redirect to login
-            window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+            // Only redirect to login if truly not authenticated
+            const isLoggedIn = document.cookie.includes('sb-');
+            if (!isLoggedIn) {
+              window.location.href = '/auth/login?redirect=/tools/youtube-lens';
+            } else {
+              toast.error('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
+            }
           }
           return;
+        }
+        // Handle 400 errors for API key issues
+        if (errorWithStatus.status === 400) {
+          const data = errorWithStatus.data;
+          if (data?.requiresApiKey || data?.errorCode === 'api_key_required') {
+            toast.error('YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.');
+            return;
+          }
         }
       }
 
