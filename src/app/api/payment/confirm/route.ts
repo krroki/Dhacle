@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import type { Json } from '@/types';
 import { createClient } from '@/lib/supabase/server-client';
 
 const tossSecretKey = process.env.TOSS_SECRET_KEY;
@@ -63,11 +64,12 @@ export async function POST(req: NextRequest) {
     const { data: purchase, error: updateError } = await supabase
       .from('purchases')
       .update({
-        status: 'completed',
-        completedAt: new Date().toISOString(),
-        paymentKey: paymentKey, // 토스페이먼츠 결제 키 저장
+        payment_status: 'succeeded',
+        updated_at: new Date().toISOString(),
+        payment_method: 'toss', // 토스페이먼츠 결제 방식
+        payment_data: { paymentKey } as unknown as Json, // 토스페이먼츠 결제 키 저장
       })
-      .eq('paymentIntentId', orderId)
+      .eq('payment_id', orderId)
       .select()
       .single();
 
@@ -91,9 +93,9 @@ export async function POST(req: NextRequest) {
       // 수강 등록
       await supabase.from('enrollments').upsert(
         {
-          user_id: purchase.user_id,
-          course_id: purchase.course_id,
-          enrolledAt: new Date().toISOString(),
+          user_id: purchase.user_id || '',
+          course_id: purchase.course_id || '',
+          enrolled_at: new Date().toISOString(),
           is_active: true,
         },
         {
@@ -104,17 +106,17 @@ export async function POST(req: NextRequest) {
       // 강의 수강생 수 증가
       const { data: course } = await supabase
         .from('courses')
-        .select('studentCount')
-        .eq('id', purchase.course_id)
+        .select('total_students')
+        .eq('id', purchase.course_id || '')
         .single();
 
       if (course) {
         await supabase
           .from('courses')
           .update({
-            studentCount: (course.studentCount || 0) + 1,
+            total_students: (course.total_students || 0) + 1,
           })
-          .eq('id', purchase.course_id);
+          .eq('id', purchase.course_id || '');
       }
 
       // 이메일 알림 (추후 구현)

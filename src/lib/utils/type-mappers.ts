@@ -44,21 +44,25 @@ export function mapCourse(dbCourse: DBCourse | Course): Course {
     title: obj.title || course.title || '',
     description: obj.description || course.description || undefined,
     instructorName: obj.instructor_name ?? course.instructorName ?? 'Unknown',
-    instructorId: obj.instructor_id || course.instructorId || '',
-    thumbnailUrl: obj.thumbnail_url || course.thumbnailUrl || undefined,
+    instructorId: obj.instructor_id || course.instructorId || undefined,
+    thumbnail_url: obj.thumbnail_url || course.thumbnail_url || undefined,
     price: Number(obj.price ?? course.price) || 0,
-    isFree: obj.price === 0 || course.isFree || false,
+    isFree: obj.price === 0 || obj.is_free || course.isFree || false,
     isPremium: (obj.price && Number(obj.price) > 0) || course.isPremium || false,
-    totalDuration: (Number(obj.duration_weeks ?? course.totalDuration) || 8) * 7 * 60,
-    difficultyLevel: obj.difficulty_level || course.difficultyLevel || 'beginner',
-    categoryId: obj.category || course.categoryId || '',
+    totalDuration: ((Number(obj.duration_weeks) || 8) * 7 * 60) || course.totalDuration || 0,
+    studentCount: Number(obj.total_students ?? course.studentCount) || 0,
     averageRating: Number(obj.average_rating ?? course.averageRating) || 0,
-    totalStudents: Number(obj.total_students ?? course.totalStudents) || 0,
+    reviewCount: course.reviewCount || 0,
     status: obj.status || course.status || 'active',
-    curriculum: obj.curriculum || course.curriculum || {},
-    whatYoullLearn: obj.what_youll_learn || course.whatYoullLearn || [],
-    createdAt: obj.created_at || course.createdAt || '',
-    updatedAt: obj.updated_at || course.updatedAt || obj.created_at || course.createdAt || ''
+    launchDate: obj.created_at || course.launchDate || new Date().toISOString(),
+    created_at: obj.created_at || course.created_at || new Date().toISOString(),
+    updated_at: obj.updated_at || course.updated_at || obj.created_at || course.created_at || new Date().toISOString(),
+    // Optional fields
+    category: obj.category || course.category || undefined,
+    level: obj.level || course.level || undefined,
+    contentBlocks: obj.curriculum || course.contentBlocks || undefined,
+    whatYouLearn: obj.what_youll_learn || course.whatYouLearn || undefined,
+    requirements: obj.requirements || course.requirements || undefined
   } as Course;
 }
 

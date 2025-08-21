@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import type { Json } from '@/types';
 import { createClient } from '@/lib/supabase/server-client';
 
 export async function POST(req: NextRequest) {
@@ -31,11 +32,11 @@ export async function POST(req: NextRequest) {
     const { data: purchase, error: updateError } = await supabase
       .from('purchases')
       .update({
-        status: 'failed',
-        failedAt: new Date().toISOString(),
-        failureReason: message || code || '결제 실패',
+        payment_status: 'failed',
+        updated_at: new Date().toISOString(),
+        payment_data: { failureReason: message || code || '결제 실패' } as unknown as Json,
       })
-      .eq('paymentIntentId', orderId)
+      .eq('payment_id', orderId)
       .select()
       .single();
 
@@ -43,23 +44,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '주문 상태 업데이트에 실패했습니다.' }, { status: 500 });
     }
 
-    // 쿠폰 사용 횟수 되돌리기
-    if (purchase?.couponId) {
+    // 쿠폰 사용 횟수 되돌리기 (coupons 테이블 생성 후 활성화)
+    // TODO: coupons 테이블 생성 후 아래 코드 활성화
+    /*
+    if (purchase?.coupon_id) {
       const { data: coupon } = await supabase
         .from('coupons')
-        .select('usageCount')
-        .eq('id', purchase.couponId)
+        .select('usage_count')
+        .eq('id', purchase.coupon_id)
         .single();
 
-      if (coupon && coupon.usageCount > 0) {
+      if (coupon && coupon.usage_count > 0) {
         await supabase
           .from('coupons')
           .update({
-            usageCount: coupon.usageCount - 1,
+            usage_count: coupon.usage_count - 1,
           })
-          .eq('id', purchase.couponId);
+          .eq('id', purchase.coupon_id);
       }
     }
+    */
 
     return NextResponse.json({
       success: true,

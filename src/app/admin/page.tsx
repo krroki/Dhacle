@@ -17,16 +17,16 @@ async function getStats() {
     supabase
       .from('purchases')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'completed'),
-    supabase.from('purchases').select('finalAmount').eq('status', 'completed'),
+      .eq('payment_status', 'succeeded'),
+    supabase.from('purchases').select('final_amount').eq('payment_status', 'succeeded'),
   ]);
 
   interface RevenueItem {
-    finalAmount?: number;
+    final_amount?: number;
   }
 
   const totalRevenue =
-    revenueData?.reduce((sum: number, p: RevenueItem) => sum + (p.finalAmount || 0), 0) || 0;
+    revenueData?.reduce((sum: number, p: RevenueItem) => sum + (p.final_amount || 0), 0) || 0;
 
   return {
     totalCourses: totalCourses || 0,

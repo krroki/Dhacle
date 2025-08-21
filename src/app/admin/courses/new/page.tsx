@@ -38,7 +38,7 @@ export default function NewCoursePage() {
           level: courseData.level || courseData.difficulty || 'beginner',
           is_free: courseData.price === 0 || courseData.isFree || false,
           is_published: false,
-          curriculum: courseData.contentBlocks ? courseData.contentBlocks : null,
+          curriculum: courseData.contentBlocks ? JSON.parse(JSON.stringify(courseData.contentBlocks)) : null,
           what_youll_learn: courseData.whatYouLearn || null,
           requirements: courseData.requirements || null
         }])
