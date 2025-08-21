@@ -7,8 +7,8 @@ import { SectionTitle } from '../shared/SectionTitle';
 import { EbookCard } from './EbookCard';
 
 export function EbookSection() {
-  const freeEbooks = dummyEbooks.filter((ebook) => ebook.isFree);
-  const paidEbooks = dummyEbooks.filter((ebook) => !ebook.isFree);
+  const freeEbooks = dummyEbooks.filter((ebook) => ebook.is_free);
+  const paidEbooks = dummyEbooks.filter((ebook) => !ebook.is_free);
 
   return (
     <section className="py-12 bg-muted/30">

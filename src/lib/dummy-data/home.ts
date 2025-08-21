@@ -20,7 +20,7 @@ export interface Instructor {
 
 export interface RevenueProof {
   id: string;
-  userName: string;
+  user_name: string;
   userAvatar: string;
   amount: number;
   date: string;
@@ -35,15 +35,15 @@ export interface Course {
   thumbnail: string;
   duration: string;
   level: 'beginner' | 'intermediate' | 'advanced';
-  isFree: boolean;
+  is_free: boolean;
   price?: number;
   enrollCount: number;
 }
 
 export interface CourseSchedule {
   id: string;
-  courseId: string;
-  courseName: string;
+  course_id: string;
+  course_name: string;
   instructor: string;
   date: string;
   time: string;
@@ -58,10 +58,10 @@ export interface Ebook {
   author: string;
   cover: string;
   description: string;
-  isFree: boolean;
+  is_free: boolean;
   price?: number;
   downloadCount: number;
-  fileSize: string;
+  file_size: string;
 }
 
 export interface FAQ {
@@ -214,7 +214,7 @@ export const dummyInstructors: Instructor[] = [
 export const dummyRevenueProofs: RevenueProof[] = [
   {
     id: '1',
-    userName: '김유튜버',
+    user_name: '김유튜버',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1',
     amount: 15000000,
     date: '2025-01-01',
@@ -223,7 +223,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '2',
-    userName: '이쇼츠',
+    user_name: '이쇼츠',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2',
     amount: 8500000,
     date: '2025-01-03',
@@ -232,7 +232,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '3',
-    userName: '박크리에이터',
+    user_name: '박크리에이터',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3',
     amount: 12000000,
     date: '2025-01-05',
@@ -241,7 +241,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '4',
-    userName: '최틱톡',
+    user_name: '최틱톡',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4',
     amount: 6700000,
     date: '2025-01-07',
@@ -250,7 +250,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '5',
-    userName: '정인플루언서',
+    user_name: '정인플루언서',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5',
     amount: 23000000,
     date: '2025-01-10',
@@ -259,7 +259,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '6',
-    userName: '강미디어',
+    user_name: '강미디어',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user6',
     amount: 9800000,
     date: '2025-01-11',
@@ -268,7 +268,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '7',
-    userName: '윤콘텐츠',
+    user_name: '윤콘텐츠',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user7',
     amount: 14500000,
     date: '2025-01-12',
@@ -277,7 +277,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '8',
-    userName: '장브이로거',
+    user_name: '장브이로거',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user8',
     amount: 7200000,
     date: '2025-01-13',
@@ -286,7 +286,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '9',
-    userName: '임채널',
+    user_name: '임채널',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user9',
     amount: 18900000,
     date: '2025-01-14',
@@ -295,7 +295,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '10',
-    userName: '한스타',
+    user_name: '한스타',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user10',
     amount: 11300000,
     date: '2025-01-14',
@@ -304,7 +304,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '11',
-    userName: '오튜브',
+    user_name: '오튜브',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user11',
     amount: 5600000,
     date: '2025-01-14',
@@ -313,7 +313,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '12',
-    userName: '서크리에이터',
+    user_name: '서크리에이터',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user12',
     amount: 16700000,
     date: '2025-01-14',
@@ -322,7 +322,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '13',
-    userName: '신쇼츠',
+    user_name: '신쇼츠',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user13',
     amount: 8900000,
     date: '2025-01-14',
@@ -331,7 +331,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '14',
-    userName: '유인플루언서',
+    user_name: '유인플루언서',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user14',
     amount: 21000000,
     date: '2025-01-14',
@@ -340,7 +340,7 @@ export const dummyRevenueProofs: RevenueProof[] = [
   },
   {
     id: '15',
-    userName: '노미디어',
+    user_name: '노미디어',
     userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user15',
     amount: 13400000,
     date: '2025-01-14',
@@ -357,7 +357,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-01.jpg',
     duration: '2시간 30분',
     level: 'beginner',
-    isFree: true,
+    is_free: true,
     enrollCount: 1234,
   },
   {
@@ -367,7 +367,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-02.jpg',
     duration: '3시간',
     level: 'intermediate',
-    isFree: true,
+    is_free: true,
     enrollCount: 892,
   },
   {
@@ -377,7 +377,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-03.jpg',
     duration: '1시간 45분',
     level: 'intermediate',
-    isFree: true,
+    is_free: true,
     enrollCount: 1567,
   },
   {
@@ -387,7 +387,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-04.jpg',
     duration: '2시간',
     level: 'beginner',
-    isFree: true,
+    is_free: true,
     enrollCount: 2103,
   },
   {
@@ -397,7 +397,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-01.jpg',
     duration: '4시간',
     level: 'beginner',
-    isFree: true,
+    is_free: true,
     enrollCount: 756,
   },
   {
@@ -407,7 +407,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-02.jpg',
     duration: '1시간 30분',
     level: 'intermediate',
-    isFree: true,
+    is_free: true,
     enrollCount: 945,
   },
   {
@@ -417,7 +417,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-03.jpg',
     duration: '2시간 15분',
     level: 'advanced',
-    isFree: true,
+    is_free: true,
     enrollCount: 623,
   },
   {
@@ -427,7 +427,7 @@ export const dummyFreeCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-04.jpg',
     duration: '1시간',
     level: 'beginner',
-    isFree: true,
+    is_free: true,
     enrollCount: 1789,
   },
 ];
@@ -440,7 +440,7 @@ export const dummyNewCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-01.jpg',
     duration: '3시간 30분',
     level: 'advanced',
-    isFree: false,
+    is_free: false,
     price: 99000,
     enrollCount: 234,
   },
@@ -451,7 +451,7 @@ export const dummyNewCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-02.jpg',
     duration: '5시간',
     level: 'intermediate',
-    isFree: false,
+    is_free: false,
     price: 149000,
     enrollCount: 189,
   },
@@ -462,7 +462,7 @@ export const dummyNewCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-03.jpg',
     duration: '4시간',
     level: 'advanced',
-    isFree: false,
+    is_free: false,
     price: 199000,
     enrollCount: 97,
   },
@@ -473,7 +473,7 @@ export const dummyNewCourses: Course[] = [
     thumbnail: '/images/carousel/carousel-04.jpg',
     duration: '2시간 45분',
     level: 'intermediate',
-    isFree: false,
+    is_free: false,
     price: 79000,
     enrollCount: 412,
   },
@@ -482,8 +482,8 @@ export const dummyNewCourses: Course[] = [
 export const dummyCourseSchedules: CourseSchedule[] = [
   {
     id: '1',
-    courseId: '1',
-    courseName: '[데헷이] 초효율쇼츠 - 최소 시간으로 최대 효과 내는 쇼츠 제작법',
+    course_id: '1',
+    course_name: '[데헷이] 초효율쇼츠 - 최소 시간으로 최대 효과 내는 쇼츠 제작법',
     instructor: '데헷이',
     date: '2025-08-05',
     time: '19:00',
@@ -493,8 +493,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '2',
-    courseId: '2',
-    courseName: '[빠대] 탑클래스 쿠팡 - 쿠팡파트너스 월천만원 돌파 전략',
+    course_id: '2',
+    course_name: '[빠대] 탑클래스 쿠팡 - 쿠팡파트너스 월천만원 돌파 전략',
     instructor: '빠대',
     date: '2025-08-12',
     time: '20:00',
@@ -504,8 +504,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '3',
-    courseId: '3',
-    courseName: '[테일러] 월억 쇼츠 - 수익화 최적화 실전 노하우',
+    course_id: '3',
+    course_name: '[테일러] 월억 쇼츠 - 수익화 최적화 실전 노하우',
     instructor: '테일러',
     date: '2025-08-13',
     time: '19:30',
@@ -515,8 +515,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '4',
-    courseId: '4',
-    courseName: '[룰루랄라릴리] 쇼츠투벤츠 - 쇼츠로 벤츠 타는 수익 전략',
+    course_id: '4',
+    course_name: '[룰루랄라릴리] 쇼츠투벤츠 - 쇼츠로 벤츠 타는 수익 전략',
     instructor: '룰루랄라릴리',
     date: '2025-08-14',
     time: '19:00',
@@ -526,8 +526,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '5',
-    courseId: '5',
-    courseName: '[유쾌한케로로] AI뮤직자동화 - AI로 음악 채널 자동화하기',
+    course_id: '5',
+    course_name: '[유쾌한케로로] AI뮤직자동화 - AI로 음악 채널 자동화하기',
     instructor: '유쾌한케로로',
     date: '2025-08-20',
     time: '18:00',
@@ -537,8 +537,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '6',
-    courseId: '6',
-    courseName: '[한다해] 이지롱폼 - 초보도 쉽게 따라하는 롱폼 콘텐츠',
+    course_id: '6',
+    course_name: '[한다해] 이지롱폼 - 초보도 쉽게 따라하는 롱폼 콘텐츠',
     instructor: '한다해',
     date: '2025-08-21',
     time: '20:00',
@@ -548,8 +548,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '7',
-    courseId: '7',
-    courseName: '[꿍디순디] 셀럽팬튜브 - 팬덤 채널 운영 마스터클래스',
+    course_id: '7',
+    course_name: '[꿍디순디] 셀럽팬튜브 - 팬덤 채널 운영 마스터클래스',
     instructor: '꿍디순디',
     date: '2025-08-27',
     time: '19:30',
@@ -559,8 +559,8 @@ export const dummyCourseSchedules: CourseSchedule[] = [
   },
   {
     id: '8',
-    courseId: '8',
-    courseName: '[그라운드] 실버버튼 챌린지 - 10만 구독자 달성 로드맵',
+    course_id: '8',
+    course_name: '[그라운드] 실버버튼 챌린지 - 10만 구독자 달성 로드맵',
     instructor: '그라운드',
     date: '2025-08-28',
     time: '20:00',
@@ -577,9 +577,9 @@ export const dummyEbooks: Ebook[] = [
     author: '김강사',
     cover: '/images/carousel/carousel-01.jpg',
     description: '초보자를 위한 YouTube Shorts 시작 가이드북',
-    isFree: true,
+    is_free: true,
     downloadCount: 3456,
-    fileSize: '15.2MB',
+    file_size: '15.2MB',
   },
   {
     id: '2',
@@ -587,10 +587,10 @@ export const dummyEbooks: Ebook[] = [
     author: '이멘토',
     cover: '/images/carousel/carousel-02.jpg',
     description: '100만 뷰를 달성하는 콘텐츠 제작 노하우',
-    isFree: false,
+    is_free: false,
     price: 29000,
     downloadCount: 1234,
-    fileSize: '22.8MB',
+    file_size: '22.8MB',
   },
   {
     id: '3',
@@ -598,10 +598,10 @@ export const dummyEbooks: Ebook[] = [
     author: '최전문가',
     cover: '/images/carousel/carousel-03.jpg',
     description: 'YouTube 알고리즘을 이해하고 활용하는 방법',
-    isFree: false,
+    is_free: false,
     price: 39000,
     downloadCount: 892,
-    fileSize: '18.5MB',
+    file_size: '18.5MB',
   },
   {
     id: '4',
@@ -609,9 +609,9 @@ export const dummyEbooks: Ebook[] = [
     author: '강마스터',
     cover: '/images/carousel/carousel-04.jpg',
     description: '단계별 수익화 전략과 실전 팁',
-    isFree: true,
+    is_free: true,
     downloadCount: 2789,
-    fileSize: '12.3MB',
+    file_size: '12.3MB',
   },
   {
     id: '5',
@@ -619,10 +619,10 @@ export const dummyEbooks: Ebook[] = [
     author: '장튜터',
     cover: '/images/carousel/carousel-01.jpg',
     description: '프로처럼 편집하는 비법 대공개',
-    isFree: false,
+    is_free: false,
     price: 49000,
     downloadCount: 567,
-    fileSize: '35.7MB',
+    file_size: '35.7MB',
   },
   {
     id: '6',
@@ -630,9 +630,9 @@ export const dummyEbooks: Ebook[] = [
     author: '정크리에이터',
     cover: '/images/carousel/carousel-02.jpg',
     description: '2025년 콘텐츠 트렌드 완벽 분석',
-    isFree: true,
+    is_free: true,
     downloadCount: 4123,
-    fileSize: '8.9MB',
+    file_size: '8.9MB',
   },
 ];
 

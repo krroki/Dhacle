@@ -35,7 +35,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
     }
   };
 
-  const { course, lessons, isEnrolled, isPurchased } = courseData;
+  const { course, lessons, is_enrolled, is_purchased } = courseData;
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -47,10 +47,10 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
   };
 
   const getLessonIcon = (lesson: (typeof lessons)[0], _index: number) => {
-    if (lesson.isFree) {
+    if (lesson.is_free) {
       return <PlayCircle className="w-4 h-4 text-green-600" />;
     }
-    if (isPurchased || isEnrolled) {
+    if (is_purchased || is_enrolled) {
       return <CheckCircle className="w-4 h-4 text-primary" />;
     }
     return <Lock className="w-4 h-4 text-gray-400" />;
@@ -81,19 +81,19 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                       key={i}
                       className={cn(
                         'w-4 h-4',
-                        i < Math.floor(course.averageRating)
+                        i < Math.floor(course.average_rating)
                           ? 'text-yellow-500 fill-current'
                           : 'text-gray-300'
                       )}
                     />
                   ))}
                   <span className="text-sm ml-1">
-                    {course.averageRating.toFixed(1)} ({course.reviewCount}개)
+                    {course.average_rating.toFixed(1)} ({course.reviewCount}개)
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Users className="w-4 h-4" />
-                  <span>{course.studentCount?.toLocaleString() || 0}명 수강중</span>
+                  <span>{course.student_count?.toLocaleString() || 0}명 수강중</span>
                 </div>
               </div>
 
@@ -109,7 +109,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gray-200" />
                 <div>
-                  <p className="font-medium">{course.instructorName || 'Anonymous'}</p>
+                  <p className="font-medium">{course.instructor_name || 'Anonymous'}</p>
                   <p className="text-sm text-muted-foreground">YouTube 크리에이터</p>
                 </div>
               </div>
@@ -118,7 +118,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <div className="flex flex-wrap gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span>총 {formatDuration(course.totalDuration)}</span>
+                  <span>총 {formatDuration(course.total_duration)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -143,8 +143,8 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <div className="sticky top-4">
                 <PurchaseCard
                   course={course}
-                  isEnrolled={isEnrolled}
-                  isPurchased={isPurchased}
+                  is_enrolled={is_enrolled}
+                  is_purchased={is_purchased}
                   firstLessonId={lessons[0]?.id}
                 />
               </div>
@@ -223,7 +223,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <section id="curriculum">
                 <h2 className="text-2xl font-bold mb-4">커리큘럼</h2>
                 <p className="text-muted-foreground mb-6">
-                  총 {lessons.length}개 레슨 · {formatDuration(course.totalDuration)}
+                  총 {lessons.length}개 레슨 · {formatDuration(course.total_duration)}
                 </p>
 
                 <div className="space-y-2">
@@ -263,7 +263,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                       <div className="w-20 h-20 rounded-full bg-gray-200" />
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">
-                          {course.instructorName || 'Anonymous'}
+                          {course.instructor_name || 'Anonymous'}
                         </h3>
                         <p className="text-muted-foreground mt-2">
                           YouTube Shorts 전문 크리에이터로 100만 구독자를 보유하고 있습니다. 5년간의

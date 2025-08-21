@@ -22,17 +22,17 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
 
       if (filters?.instructor) {
         filtered = filtered.filter(
-          (c) => safeAccess(c, 'instructor_name', 'instructorName', '') === filters.instructor
+          (c) => safeAccess(c, 'instructor_name', 'instructor_name', '') === filters.instructor
         );
       }
-      if (filters?.isFree !== undefined) {
+      if (filters?.is_free !== undefined) {
         filtered = filtered.filter(
-          (c) => safeAccess(c, 'is_free', 'isFree', false) === filters.isFree
+          (c) => safeAccess(c, 'is_free', 'is_free', false) === filters.is_free
         );
       }
       if (filters?.rating !== undefined) {
         filtered = filtered.filter(
-          (c) => safeAccess(c, 'average_rating', 'averageRating', 0) >= filters.rating!
+          (c) => safeAccess(c, 'average_rating', 'average_rating', 0) >= filters.rating!
         );
       }
       if (filters?.search) {

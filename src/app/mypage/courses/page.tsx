@@ -15,7 +15,7 @@ interface CourseEnrollment {
   user_id: string;
   course_id: string;
   enrolledAt: string;
-  completedAt: string | null;
+  completed_at: string | null;
   lastAccessedAt: string | null;
   progressPercentage: number;
   completedLessons: number;
@@ -25,7 +25,7 @@ interface CourseEnrollment {
     title: string;
     description: string;
     thumbnail_url: string | null;
-    instructorName: string;
+    instructor_name: string;
     price: number;
     totalLessons: number;
     durationHours: number;
@@ -70,7 +70,7 @@ export default async function MyCoursesPage() {
     user_id: enrollment.user_id,
     course_id: enrollment.course_id,
     enrolledAt: enrollment.enrolled_at || new Date().toISOString(),
-    completedAt: enrollment.completed_at,
+    completed_at: enrollment.completed_at,
     lastAccessedAt: enrollment.last_accessed_at,
     progressPercentage: enrollment.progress_percentage || 0,
     completedLessons: 0, // This field doesn't exist in the database, using default
@@ -80,7 +80,7 @@ export default async function MyCoursesPage() {
       title: enrollment.courses.title,
       description: enrollment.courses.description || '',
       thumbnail_url: enrollment.courses.thumbnail_url,
-      instructorName: enrollment.courses.instructor_name || '',
+      instructor_name: enrollment.courses.instructor_name || '',
       price: enrollment.courses.price || 0,
       totalLessons: 10, // Default value as this field doesn't exist in DB
       durationHours: (enrollment.courses.duration_weeks || 0) * 5, // Convert weeks to estimated hours
@@ -91,7 +91,7 @@ export default async function MyCoursesPage() {
       title: '',
       description: '',
       thumbnail_url: null,
-      instructorName: '',
+      instructor_name: '',
       price: 0,
       totalLessons: 0,
       durationHours: 0,
@@ -241,7 +241,7 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
   }
 
   const progressPercent = enrollment.progressPercentage || 0;
-  const isCompleted = enrollment.status === 'completed';
+  const is_completed = enrollment.status === 'completed';
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -266,10 +266,10 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">{course.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{course.instructorName}</p>
+              <p className="text-sm text-gray-600 mb-2">{course.instructor_name}</p>
             </div>
             <div className="flex items-center gap-2">
-              {isCompleted && (
+              {is_completed && (
                 <Badge className="bg-green-100 text-green-700">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   완료
@@ -309,7 +309,7 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
               </div>
             </div>
             <Link href={`/courses/${course.id}`}>
-              <Button size="sm">{isCompleted ? '다시 보기' : '이어 학습'}</Button>
+              <Button size="sm">{is_completed ? '다시 보기' : '이어 학습'}</Button>
             </Link>
           </div>
         </div>

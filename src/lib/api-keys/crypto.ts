@@ -35,13 +35,13 @@ function getEncryptionKey(): Buffer {
  * @param apiKey - 암호화할 API Key
  * @returns 암호화된 문자열 (iv:encrypted 형식)
  */
-export function encryptApiKey(apiKey: string): string {
+export function encryptApiKey(api_key: string): string {
   try {
     const key = getEncryptionKey();
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
 
-    let encrypted = cipher.update(apiKey, 'utf8');
+    let encrypted = cipher.update(api_key, 'utf8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
 
     // IV와 암호화된 데이터를 콜론으로 구분하여 저장
@@ -88,19 +88,19 @@ export function decryptApiKey(encryptedKey: string): string {
  * @param apiKey - 마스킹할 API Key
  * @returns 마스킹된 문자열 (예: AIza...XXX)
  */
-export function maskApiKey(apiKey: string): string {
-  if (!apiKey || apiKey.length < 10) {
+export function maskApiKey(api_key: string): string {
+  if (!api_key || api_key.length < 10) {
     return '***';
   }
 
   const visibleStart = 4;
   const visibleEnd = 3;
 
-  if (apiKey.length <= visibleStart + visibleEnd) {
-    return `${apiKey.substring(0, visibleStart)}...`;
+  if (api_key.length <= visibleStart + visibleEnd) {
+    return `${api_key.substring(0, visibleStart)}...`;
   }
 
-  return `${apiKey.substring(0, visibleStart)}...${apiKey.substring(apiKey.length - visibleEnd)}`;
+  return `${api_key.substring(0, visibleStart)}...${api_key.substring(api_key.length - visibleEnd)}`;
 }
 
 /**
@@ -117,8 +117,8 @@ export function generateEncryptionKey(): string {
  * @param service - 서비스 이름 (youtube, openai 등)
  * @returns 유효성 여부
  */
-export function validateApiKeyFormat(apiKey: string, service = 'youtube'): boolean {
-  if (!apiKey || typeof apiKey !== 'string') {
+export function validateApiKeyFormat(api_key: string, service = 'youtube'): boolean {
+  if (!api_key || typeof api_key !== 'string') {
     return false;
   }
 
@@ -126,11 +126,11 @@ export function validateApiKeyFormat(apiKey: string, service = 'youtube'): boole
   switch (service) {
     case 'youtube':
       // YouTube API Key는 일반적으로 AIza로 시작하고 39자
-      return /^AIza[0-9A-Za-z_-]{35}$/.test(apiKey);
+      return /^AIza[0-9A-Za-z_-]{35}$/.test(api_key);
 
     case 'openai':
       // OpenAI API Key는 sk-로 시작
-      return /^sk-[A-Za-z0-9]{48}$/.test(apiKey);
+      return /^sk-[A-Za-z0-9]{48}$/.test(api_key);
 
     default:
       // 기본적으로 최소 길이만 확인

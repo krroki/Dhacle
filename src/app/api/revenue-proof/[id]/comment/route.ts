@@ -158,9 +158,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
-    const commentId = searchParams.get('commentId');
+    const comment_id = searchParams.get('comment_id');
 
-    if (!commentId) {
+    if (!comment_id) {
       return NextResponse.json({ error: '댓글 ID가 필요합니다' }, { status: 400 });
     }
 
@@ -168,7 +168,7 @@ export async function DELETE(request: NextRequest) {
     const { data: comment, error: fetchError } = await supabase
       .from('proof_comments')
       .select('user_id, proof_id')
-      .eq('id', commentId)
+      .eq('id', comment_id)
       .single();
 
     if (fetchError || !comment) {
@@ -184,7 +184,7 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from('proof_comments')
       .delete()
-      .eq('id', commentId);
+      .eq('id', comment_id);
 
     if (deleteError) {
       return NextResponse.json({ error: '댓글 삭제 중 오류가 발생했습니다' }, { status: 500 });

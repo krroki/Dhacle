@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
     // 폼 데이터 파싱
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const courseId = formData.get('courseId') as string;
-    const lessonId = formData.get('lessonId') as string;
+    const course_id = formData.get('course_id') as string;
+    const lesson_id = formData.get('lesson_id') as string;
 
     if (!file) {
       return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
@@ -67,12 +67,12 @@ export async function POST(req: NextRequest) {
     uploadFormData.append('file', file);
 
     // 메타데이터 추가
-    if (courseId) {
+    if (course_id) {
       uploadFormData.append(
         'meta',
         JSON.stringify({
-          courseId,
-          lessonId,
+          course_id,
+          lesson_id,
           uploadedBy: user.id,
           uploadedAt: new Date().toISOString(),
         })
@@ -123,20 +123,20 @@ export async function POST(req: NextRequest) {
       : `https://videodelivery.net/${videoInfo.uid}/manifest/video.m3u8`;
 
     // 썸네일 URL
-    const thumbnailUrl = `https://videodelivery.net/${videoInfo.uid}/thumbnails/thumbnail.jpg`;
+    const thumbnail_url = `https://videodelivery.net/${videoInfo.uid}/thumbnails/thumbnail.jpg`;
 
-    // 레슨 정보 업데이트 (lessonId가 제공된 경우)
-    if (lessonId) {
+    // 레슨 정보 업데이트 (lesson_id가 제공된 경우)
+    if (lesson_id) {
       const { error: updateError } = await supabase
         .from('lessons')
         .update({
-          videoUrl: hlsUrl,
-          thumbnail_url: thumbnailUrl,
+          video_url: hlsUrl,
+          thumbnail_url: thumbnail_url,
           cloudflareVideoId: videoInfo.uid,
           duration: videoInfo.duration || 0,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', lessonId);
+        .eq('id', lesson_id);
 
       if (updateError) {
         // 업로드는 성공했으므로 에러를 반환하지 않고 경고만 포함
@@ -145,9 +145,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      videoId: videoInfo.uid,
+      video_id: videoInfo.uid,
       hlsUrl,
-      thumbnailUrl,
+      thumbnail_url,
       dashUrl: `https://videodelivery.net/${videoInfo.uid}/manifest/video.mpd`,
       embedUrl: `https://iframe.videodelivery.net/${videoInfo.uid}`,
       duration: videoInfo.duration,
@@ -163,9 +163,9 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const videoId = searchParams.get('videoId');
+    const video_id = searchParams.get('video_id');
 
-    if (!videoId) {
+    if (!video_id) {
       return NextResponse.json({ error: '비디오 ID가 필요합니다.' }, { status: 400 });
     }
 
@@ -181,7 +181,7 @@ export async function GET(req: NextRequest) {
 
     // Cloudflare Stream에서 비디오 상태 확인
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream/${videoId}`,
+      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream/${video_id}`,
       {
         headers: {
           Authorization: `Bearer ${STREAM_TOKEN}`,

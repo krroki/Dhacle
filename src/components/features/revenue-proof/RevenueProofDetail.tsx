@@ -192,9 +192,9 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     if (!currentUserId || proof.user_id !== currentUserId) {
       return false;
     }
-    const createdAt = new Date(proof.created_at);
+    const created_at = new Date(proof.created_at);
     const now = new Date();
-    const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    const hoursDiff = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
     return hoursDiff <= 24;
   };
 

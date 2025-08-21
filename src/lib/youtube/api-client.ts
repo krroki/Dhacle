@@ -36,20 +36,20 @@ export class YouTubeAPIClient {
 
   constructor(options: {
     token?: OAuthToken;
-    apiKey?: string;
+    api_key?: string;
     onTokenRefresh?: (token: OAuthToken) => Promise<void>;
     onQuotaUpdate?: (units: number) => Promise<void>;
     useCache?: boolean;
     useBatchQueue?: boolean;
-    userId?: string;
+    user_id?: string;
   }) {
     this.token = options.token;
-    this.apiKey = options.apiKey;
+    this.apiKey = options.api_key;
     this.onTokenRefresh = options.onTokenRefresh;
     this.onQuotaUpdate = options.onQuotaUpdate;
     this.useCache = options.useCache ?? true;
     this.useBatchQueue = options.useBatchQueue ?? false;
-    this.userId = options.userId;
+    this.userId = options.user_id;
   }
 
   /**
@@ -81,7 +81,7 @@ export class YouTubeAPIClient {
         const job = await queueManager.addJob({
           type: jobType,
           params,
-          userId: this.userId,
+          user_id: this.userId,
           priority: JobPriority.HIGH,
         });
 
@@ -224,21 +224,21 @@ export class YouTubeAPIClient {
     if (filters.publishedBefore) {
       params.publishedBefore = filters.publishedBefore;
     }
-    if (filters.channelId) {
-      params.channelId = filters.channelId;
+    if (filters.channel_id) {
+      params.channel_id = filters.channel_id;
     }
     if (filters.pageToken) {
       params.pageToken = filters.pageToken;
     }
 
     const response = await this.makeRequest<{
-      items: { id: { videoId: string } }[];
+      items: { id: { video_id: string } }[];
       nextPageToken?: string;
       pageInfo?: { totalResults: number };
     }>('search', params, YouTubeAPIClient.QUOTA_COSTS.search);
 
     // 검색 결과를 YouTubeVideo 형식으로 변환
-    const videoIds = response.items.map((item) => item.id.videoId).join(',');
+    const videoIds = response.items.map((item) => item.id.video_id).join(',');
 
     // 비디오 상세 정보 가져오기 (통계, 재생시간 등)
     if (videoIds) {
@@ -248,7 +248,7 @@ export class YouTubeAPIClient {
       const videosMap = new Map(videosResponse.items.map((video) => [video.id, video]));
 
       const items = response.items
-        .map((item) => videosMap.get(item.id.videoId))
+        .map((item) => videosMap.get(item.id.video_id))
         .filter(Boolean) as FlattenedYouTubeVideo[];
 
       return {
@@ -304,23 +304,23 @@ export class YouTubeAPIClient {
               ?.url ||
             ''
         ),
-        channelId: String(snippet?.channelId || ''),
-        channelTitle: String(snippet?.channelTitle || ''),
-        publishedAt: String(snippet?.publishedAt || ''),
+        channel_id: String(snippet?.channel_id || ''),
+        channel_title: String(snippet?.channel_title || ''),
+        published_at: String(snippet?.published_at || ''),
         duration: this.parseDuration(String(contentDetails?.duration || '')),
-        viewCount: Number.parseInt(String(statistics?.viewCount || '0'), 10),
-        likeCount: Number.parseInt(String(statistics?.likeCount || '0'), 10),
-        commentCount: Number.parseInt(String(statistics?.commentCount || '0'), 10),
+        view_count: Number.parseInt(String(statistics?.view_count || '0'), 10),
+        like_count: Number.parseInt(String(statistics?.like_count || '0'), 10),
+        comment_count: Number.parseInt(String(statistics?.comment_count || '0'), 10),
         tags: Array.isArray(snippet?.tags) ? (snippet.tags as string[]) : [],
-        categoryId: String(snippet?.categoryId || ''),
+        category_id: String(snippet?.category_id || ''),
         defaultLanguage: String(snippet?.defaultLanguage || ''),
         defaultAudioLanguage: String(snippet?.defaultAudioLanguage || ''),
         statistics: {
-          viewCount: String(statistics?.viewCount || '0'),
-          likeCount: String(statistics?.likeCount || '0'),
+          view_count: String(statistics?.view_count || '0'),
+          like_count: String(statistics?.like_count || '0'),
           dislikeCount: String(statistics?.dislikeCount || '0'),
           favoriteCount: String(statistics?.favoriteCount || '0'),
-          commentCount: String(statistics?.commentCount || '0'),
+          comment_count: String(statistics?.comment_count || '0'),
         },
         contentDetails: {
           duration: String(contentDetails?.duration || ''),
@@ -347,14 +347,14 @@ export class YouTubeAPIClient {
   /**
    * 채널 정보 가져오기
    */
-  async getChannel(channelId: string): Promise<YouTubeChannel | null> {
+  async getChannel(channel_id: string): Promise<YouTubeChannel | null> {
     const response = await this.makeRequest<{
       items?: unknown[];
     }>(
       'channels',
       {
         part: 'snippet,statistics,contentDetails',
-        id: channelId,
+        id: channel_id,
       },
       YouTubeAPIClient.QUOTA_COSTS.channels
     );
@@ -373,7 +373,7 @@ export class YouTubeAPIClient {
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
         customUrl: String(snippet?.customUrl || ''),
-        publishedAt: String(snippet?.publishedAt || ''),
+        published_at: String(snippet?.published_at || ''),
         thumbnails: {
           high: {
             url: String(
@@ -395,8 +395,8 @@ export class YouTubeAPIClient {
         country: String(snippet?.country || ''),
       },
       statistics: {
-        viewCount: String(statistics?.viewCount || '0'),
-        subscriberCount: String(statistics?.subscriberCount || '0'),
+        view_count: String(statistics?.view_count || '0'),
+        subscriber_count: String(statistics?.subscriber_count || '0'),
         hiddenSubscriberCount: Boolean(statistics?.hiddenSubscriberCount),
         videoCount: String(statistics?.videoCount || '0'),
       },
@@ -407,7 +407,7 @@ export class YouTubeAPIClient {
    * 재생목록의 영상 가져오기
    */
   async getPlaylistItems(
-    playlistId: string,
+    playlist_id: string,
     pageToken?: string
   ): Promise<{
     items: FlattenedYouTubeVideo[];
@@ -422,7 +422,7 @@ export class YouTubeAPIClient {
       'playlistItems',
       {
         part: 'snippet',
-        playlistId,
+        playlist_id,
         maxResults: 50,
         pageToken,
       },
@@ -438,7 +438,7 @@ export class YouTubeAPIClient {
         const playlistItem = item as Record<string, unknown>;
         const snippet = playlistItem.snippet as Record<string, unknown> | undefined;
         const resourceId = snippet?.resourceId as Record<string, unknown> | undefined;
-        return String(resourceId?.videoId || '');
+        return String(resourceId?.video_id || '');
       })
       .filter(Boolean)
       .join(',');
@@ -484,12 +484,12 @@ export class YouTubeAPIClient {
   /**
    * 인증 방법 업데이트
    */
-  updateAuth(options: { token?: OAuthToken; apiKey?: string }) {
+  updateAuth(options: { token?: OAuthToken; api_key?: string }) {
     if (options.token) {
       this.token = options.token;
     }
-    if (options.apiKey) {
-      this.apiKey = options.apiKey;
+    if (options.api_key) {
+      this.apiKey = options.api_key;
     }
   }
 

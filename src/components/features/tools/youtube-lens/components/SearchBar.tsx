@@ -321,7 +321,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
               정렬:{' '}
               {searchFilters.order === 'date'
                 ? '최신순'
-                : searchFilters.order === 'viewCount'
+                : searchFilters.order === 'view_count'
                   ? '조회수'
                   : searchFilters.order === 'rating'
                     ? '평점순'

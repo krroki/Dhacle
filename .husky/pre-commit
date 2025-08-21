@@ -45,8 +45,31 @@ if [ -n "$STAGED_API_FILES" ]; then
   }
 fi
 
-# 3단계: Biome 린팅 및 포맷팅 (새로 추가!)
-echo "📋 Step 3/5: Biome 코드 품질 검사..."
+# 3단계: snake_case 금지 패턴 검사
+echo "📋 Step 3/6: React/라이브러리 필드 보호 검사..."
+
+# displayName 오염 검사
+if grep -r "\.display_name\b" src --include="*.tsx" --include="*.ts" --quiet 2>/dev/null; then
+  echo "❌ 오류: display_name 사용이 감지되었습니다!"
+  echo "  React 컴포넌트는 displayName을 사용해야 합니다."
+  echo "  발견 위치:"
+  grep -r "\.display_name\b" src --include="*.tsx" --include="*.ts" -n | head -5
+  exit 1
+fi
+
+# JSX 속성 오염 검사
+if grep -r "class_name\|html_for\|on_click\|on_change\|default_value" src --include="*.tsx" --quiet 2>/dev/null; then
+  echo "❌ 오류: snake_case JSX 속성이 감지되었습니다!"
+  echo "  JSX는 camelCase 속성을 사용해야 합니다."
+  echo "  발견 위치:"
+  grep -r "class_name\|html_for\|on_click" src --include="*.tsx" -n | head -5
+  exit 1
+fi
+
+echo "  ✅ React/라이브러리 필드 정상"
+
+# 4단계: Biome 린팅 및 포맷팅 (새로 추가!)
+echo "📋 Step 4/6: Biome 코드 품질 검사..."
 
 # Biome 설치 확인 및 실행
 if [ -f "biome.json" ]; then
@@ -66,8 +89,8 @@ else
   echo "  ⚠️  Biome 설정 없음 - 건너뜀"
 fi
 
-# 4단계: 테스트 실행 (Vitest)
-echo "📋 Step 4/5: 테스트 실행..."
+# 5단계: 테스트 실행 (Vitest)
+echo "📋 Step 5/6: 테스트 실행..."
 
 # staged된 테스트 가능한 파일 확인
 STAGED_TESTABLE_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/.*\.(ts|tsx)$' | grep -v '\.test\.' | grep -v '\.spec\.' || true)
@@ -98,8 +121,8 @@ else
   echo "  테스트 대상 파일 없음 - 건너뜀"
 fi
 
-# 5단계: 포맷팅 검사 (수정 없이 검사만)
-echo "📋 Step 5/5: 코드 포맷팅 검사..."
+# 6단계: 포맷팅 검사 (수정 없이 검사만)
+echo "📋 Step 6/6: 코드 포맷팅 검사..."
 
 # Prettier 설치 확인
 if command -v npx prettier > /dev/null 2>&1; then

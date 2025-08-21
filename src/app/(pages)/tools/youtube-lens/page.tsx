@@ -49,7 +49,7 @@ import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtub
 // API 타입 정의
 interface ApiKeyData {
   id: string;
-  serviceName: string;
+  service_name: string;
   is_active: boolean;
   usageToday?: number;
   [key: string]: unknown;

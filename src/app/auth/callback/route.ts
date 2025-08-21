@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
 
       console.log('[Auth Callback] User data retrieved', {
         hasUser: !!user,
-        userId: user?.id,
+        user_id: user?.id,
         email: user?.email,
       });
 

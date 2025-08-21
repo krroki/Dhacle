@@ -83,7 +83,7 @@ export function AdminSidebar() {
         <ul className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive =
+            const is_active =
               pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
 
             return (
@@ -92,7 +92,7 @@ export function AdminSidebar() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                    isActive
+                    is_active
                       ? 'bg-primary text-primary-foreground'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   )}

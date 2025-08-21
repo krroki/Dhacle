@@ -153,9 +153,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // 24시간 제한 확인
-    const createdAt = new Date(existingProof.created_at);
+    const created_at = new Date(existingProof.created_at);
     const now = new Date();
-    const hoursSinceCreation = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    const hoursSinceCreation = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
 
     if (hoursSinceCreation > 24) {
       return NextResponse.json(

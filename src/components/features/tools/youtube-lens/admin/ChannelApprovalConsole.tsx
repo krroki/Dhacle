@@ -43,17 +43,17 @@ import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import { formatNumberKo } from '@/lib/youtube-lens/format-number-ko';
 
 interface YLChannel {
-  channelId: string;
+  channel_id: string;
   title: string;
   handle?: string;
   description?: string;
-  thumbnailUrl?: string;
+  thumbnail_url?: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
   approvalNotes?: string;
   approvedBy?: string;
   approvedAt?: string;
   source: 'manual' | 'import' | 'search' | 'recommendation';
-  subscriberCount?: number;
+  subscriber_count?: number;
   viewCountTotal?: number;
   videoCount?: number;
   category?: string;
@@ -61,20 +61,20 @@ interface YLChannel {
   dominantFormat?: '쇼츠' | '롱폼' | '라이브' | null;
   country?: string;
   language?: string;
-  isVerified?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  is_verified?: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ApprovalLog {
   id: number;
-  channelId: string;
+  channel_id: string;
   action: 'approve' | 'reject' | 'pending';
   actorId: string;
   beforeStatus: string;
   afterStatus: string;
   notes?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export function ChannelApprovalConsole() {
@@ -106,14 +106,14 @@ export function ChannelApprovalConsole() {
   // 채널 추가/수정
   const channelMutation = useMutation({
     mutationFn: async (data: {
-      channelId?: string;
+      channel_id?: string;
       status?: string;
       notes?: string;
       category?: string;
       subcategory?: string;
     }) => {
       if (editingChannel) {
-        return apiPut(`/api/youtube-lens/admin/channels/${editingChannel.channelId}`, data);
+        return apiPut(`/api/youtube-lens/admin/channels/${editingChannel.channel_id}`, data);
       }
       return apiPost('/api/youtube-lens/admin/channels', data);
     },
@@ -140,8 +140,8 @@ export function ChannelApprovalConsole() {
 
   // 채널 삭제
   const deleteMutation = useMutation({
-    mutationFn: async (channelId: string) => {
-      return apiDelete(`/api/youtube-lens/admin/channels/${channelId}`);
+    mutationFn: async (channel_id: string) => {
+      return apiDelete(`/api/youtube-lens/admin/channels/${channel_id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['yl/admin/channels'] });
@@ -154,11 +154,11 @@ export function ChannelApprovalConsole() {
 
   // 승인 로그 조회
   const { data: logs = [] } = useQuery({
-    queryKey: ['yl/admin/approval-logs', selectedChannel?.channelId],
+    queryKey: ['yl/admin/approval-logs', selectedChannel?.channel_id],
     queryFn: async () => {
       if (!selectedChannel) return [];
       const response = await apiGet<{ data: ApprovalLog[] }>(
-        `/api/youtube-lens/admin/approval-logs/${selectedChannel.channelId}`
+        `/api/youtube-lens/admin/approval-logs/${selectedChannel.channel_id}`
       );
       return response.data;
     },
@@ -307,11 +307,11 @@ export function ChannelApprovalConsole() {
               </TableRow>
             ) : (
               channels.map((channel) => (
-                <TableRow key={channel.channelId}>
+                <TableRow key={channel.channel_id}>
                   <TableCell>
-                    {channel.thumbnailUrl && (
+                    {channel.thumbnail_url && (
                       <img
-                        src={channel.thumbnailUrl}
+                        src={channel.thumbnail_url}
                         alt={channel.title}
                         className="w-10 h-10 rounded-full"
                       />
@@ -320,7 +320,7 @@ export function ChannelApprovalConsole() {
                   <TableCell>
                     <div className="space-y-1">
                       <div className="font-medium">{channel.title}</div>
-                      <div className="text-xs text-muted-foreground">{channel.channelId}</div>
+                      <div className="text-xs text-muted-foreground">{channel.channel_id}</div>
                       {channel.handle && (
                         <div className="text-xs text-muted-foreground">@{channel.handle}</div>
                       )}
@@ -330,7 +330,7 @@ export function ChannelApprovalConsole() {
                     <div className="space-y-1 text-sm">
                       <div className="flex items-center gap-1">
                         <Users className="w-3 h-3 text-muted-foreground" />
-                        <span>{formatNumberKo(channel.subscriberCount || 0)} 구독</span>
+                        <span>{formatNumberKo(channel.subscriber_count || 0)} 구독</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Eye className="w-3 h-3 text-muted-foreground" />
@@ -362,7 +362,7 @@ export function ChannelApprovalConsole() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(channel.createdAt).toLocaleDateString('ko-KR')}
+                      {new Date(channel.created_at).toLocaleDateString('ko-KR')}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -385,7 +385,7 @@ export function ChannelApprovalConsole() {
                         size="sm"
                         onClick={() => {
                           if (confirm('정말 이 채널을 삭제하시겠습니까?')) {
-                            deleteMutation.mutate(channel.channelId);
+                            deleteMutation.mutate(channel.channel_id);
                           }
                         }}
                       >
@@ -497,7 +497,7 @@ export function ChannelApprovalConsole() {
                   } else {
                     // 추가 처리
                     channelMutation.mutate({
-                      channelId: newChannelId,
+                      channel_id: newChannelId,
                     });
                   }
                 }}
@@ -528,7 +528,7 @@ export function ChannelApprovalConsole() {
                       <span className="text-sm text-muted-foreground">← {log.beforeStatus}</span>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(log.createdAt).toLocaleString('ko-KR')}
+                      {new Date(log.created_at).toLocaleString('ko-KR')}
                     </span>
                   </div>
                   {log.notes && <p className="text-sm mt-2 text-muted-foreground">{log.notes}</p>}

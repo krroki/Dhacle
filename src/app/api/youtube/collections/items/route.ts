@@ -24,13 +24,13 @@ export async function GET(request: NextRequest) {
   }
   try {
     const { searchParams } = new URL(request.url);
-    const collectionId = searchParams.get('collectionId');
+    const collection_id = searchParams.get('collection_id');
 
-    if (!collectionId) {
+    if (!collection_id) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
-    const { data, error } = await collectionManager.getCollectionVideos(collectionId);
+    const { data, error } = await collectionManager.getCollectionVideos(collection_id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const body = await request.json();
-    const { collectionId, videoId, notes, tags } = body;
+    const { collection_id, video_id, notes, tags } = body;
 
-    if (!collectionId || !videoId) {
+    if (!collection_id || !video_id) {
       return NextResponse.json(
         { error: 'Collection ID and Video ID are required' },
         { status: 400 }
@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await collectionManager.addVideoToCollection(
-      collectionId,
-      videoId,
+      collection_id,
+      video_id,
       notes,
       tags
     );
@@ -100,10 +100,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
-    const collectionId = searchParams.get('collectionId');
-    const videoId = searchParams.get('videoId');
+    const collection_id = searchParams.get('collection_id');
+    const video_id = searchParams.get('video_id');
 
-    if (!collectionId || !videoId) {
+    if (!collection_id || !video_id) {
       return NextResponse.json(
         { error: 'Collection ID and Video ID are required' },
         { status: 400 }
@@ -111,8 +111,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { success, error } = await collectionManager.removeVideoFromCollection(
-      collectionId,
-      videoId
+      collection_id,
+      video_id
     );
 
     if (error) {
@@ -141,16 +141,16 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
     const body = await request.json();
-    const { collectionId, items } = body;
+    const { collection_id, items } = body;
 
-    if (!collectionId || !items || !Array.isArray(items)) {
+    if (!collection_id || !items || !Array.isArray(items)) {
       return NextResponse.json(
         { error: 'Collection ID and items array are required' },
         { status: 400 }
       );
     }
 
-    const { success, error } = await collectionManager.reorderCollectionItems(collectionId, items);
+    const { success, error } = await collectionManager.reorderCollectionItems(collection_id, items);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

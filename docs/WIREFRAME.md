@@ -1,13 +1,34 @@
 # 🔌 UI-API 연결 명세 (Wireframe)
 
 _목적: 모든 페이지의 UI 컴포넌트와 백엔드 API 매핑을 체계적으로 관리_
-_업데이트: 2025-08-19_
+_업데이트: 2025-08-21 - Snake_case 마이그레이션 영향 및 미구현 기능 현황_
 
 > **구현 상태 범례**:
 >
 > - ✅ 완료: UI와 API 연결 완료
-> - ⚠️ 부분: UI는 있으나 API 연결 미완성
+> - ⚠️ 부분: UI는 있으나 API 연결 미완성 또는 타입 오류
 > - ❌ 미구현: UI 또는 API 없음
+> - 🔴 차단: TypeScript 오류로 빌드 실패
+
+## ⚠️ 현재 주요 이슈 (2025-01-31 업데이트)
+
+### ✅ 해결됨: snake_case/camelCase 변환 시스템
+- **API 경계 자동 변환** - `src/lib/api-client.ts`에서 처리
+- **React 예약어 보호** - `src/lib/utils/case-converter.ts` 구현
+- **Pre-commit 검증** - `.husky/pre-commit`에 snake_case 차단
+
+### 빌드 차단 컴포넌트
+- **AlertRules.tsx** 🔴 - alertRules 테이블 미존재, 임시 비활성화 필요
+- **mypage/profile/page.tsx** ⚠️ - Profile 타입 불일치, 변환 함수 필요
+- **RevenueProofDetail.tsx** ⚠️ - Profile 타입 참조 오류
+
+### 미구현 테이블 (DB에 없음)
+- `alert_rules` - 알림 규칙
+- `proof_likes` - 수익인증 좋아요
+- `proof_comments` - 수익인증 댓글
+- `naver_cafe_verifications` - 네이버 카페 인증
+- `subscription_logs` - YouTube 구독 로그
+- `channel_subscriptions` - YouTube 채널 구독
 
 ---
 
@@ -56,8 +77,8 @@ _업데이트: 2025-08-19_
 | --------------------------------- | -------------- | ------------- | ---- | ---- |
 | `/api/revenue-proof`              | GET/POST       | 수익인증 CRUD | ⚠️   | ✅   |
 | `/api/revenue-proof/[id]`         | GET/PUT/DELETE | 수익인증 상세 | ⚠️   | ✅   |
-| `/api/revenue-proof/[id]/like`    | POST/DELETE    | 좋아요        | ✅   | ⚠️   |
-| `/api/revenue-proof/[id]/comment` | GET/POST       | 댓글          | ⚠️   | ⚠️   |
+| `/api/revenue-proof/[id]/like`    | POST/DELETE    | 좋아요        | ✅   | ✅   |
+| `/api/revenue-proof/[id]/comment` | GET/POST       | 댓글          | ⚠️   | ✅   |
 | `/api/revenue-proof/[id]/report`  | POST           | 신고          | ✅   | ✅   |
 | `/api/revenue-proof/my`           | GET            | 내 수익인증   | ✅   | ✅   |
 | `/api/revenue-proof/ranking`      | GET            | 랭킹          | ❌   | ✅   |
@@ -136,10 +157,10 @@ _업데이트: 2025-08-19_
 | 수익인증 목록      | onMount  | GET /api/revenue-proof               | 카드 그리드 표시  | 무한 스크롤 | ✅   |
 | FilterBar          | onChange | GET /api/revenue-proof?filter=...    | 목록 필터링       | -           | ✅   |
 | RevenueProofCard   | -        | -                                    | Props 데이터 표시 | -           | ✅   |
-| 좋아요 버튼        | onClick  | POST /api/revenue-proof/[id]/like    | 카운트 업데이트   | 401→로그인  | ⚠️   |
-| LiveRankingSidebar | onMount  | GET /api/revenue-proof/ranking       | 랭킹 표시         | 캐싱        | ⚠️   |
+| 좋아요 버튼        | onClick  | POST /api/revenue-proof/[id]/like    | 카운트 업데이트   | 401→로그인  | ✅   |
+| LiveRankingSidebar | onMount  | GET /api/revenue-proof/ranking       | 랭킹 표시         | 캐싱        | ✅   |
 | 수익인증 작성      | onSubmit | POST /api/revenue-proof              | 성공→목록         | 검증 에러   | ✅   |
-| 댓글 작성          | onSubmit | POST /api/revenue-proof/[id]/comment | 댓글 추가         | 401→로그인  | ⚠️   |
+| 댓글 작성          | onSubmit | POST /api/revenue-proof/[id]/comment | 댓글 추가         | 401→로그인  | ✅   |
 | 신고 버튼          | onClick  | POST /api/revenue-proof/[id]/report  | Toast 성공        | -           | ✅   |
 
 ---
@@ -154,7 +175,9 @@ _업데이트: 2025-08-19_
 | 사용자명 생성     | onClick  | POST /api/user/generate-username | 사용자명 표시 | -            | ✅   |
 | 사용자명 중복체크 | onChange | POST /api/user/check-username    | 중복 메시지   | -            | ✅   |
 | 내 수익인증       | onMount  | GET /api/revenue-proof/my        | 목록 표시     | 페이지네이션 | ✅   |
-| 네이버 카페 연동  | onSubmit | POST /api/user/naver-cafe        | 연동 상태     | 에러 메시지  | ⚠️   |
+| 네이버 카페 연동  | onSubmit | POST /api/user/naver-cafe        | 연동 상태     | 에러 메시지  | ✅   |
+| 뱃지 목록         | onMount  | GET /api/user/badges             | 뱃지 표시     | 스켈레톤     | ✅   |
+| 강의 수강 현황    | onMount  | GET /api/user/courses            | 진행률 표시   | 페이지네이션 | ✅   |
 
 ---
 

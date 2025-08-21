@@ -91,8 +91,8 @@ export function FreeCoursesSchedule() {
   };
 
   // 강의 상세 페이지로 이동
-  const handleCourseClick = (courseId: string) => {
-    router.push(`/courses/${courseId}`);
+  const handleCourseClick = (course_id: string) => {
+    router.push(`/courses/${course_id}`);
   };
 
   // 강의명 포맷팅 (길이 제한)
@@ -212,14 +212,14 @@ export function FreeCoursesSchedule() {
                 monthSchedules.map((schedule) => {
                   const { day, dayOfWeek, dayName } = formatScheduleDate(schedule.date);
                   const isSelected = selectedDate === Number.parseInt(day, 10);
-                  const { instructor, title } = formatCourseName(schedule.courseName);
+                  const { instructor, title } = formatCourseName(schedule.course_name);
 
                   return (
                     <button
                       key={schedule.id}
                       onMouseEnter={() => setHoveredDate(Number.parseInt(day, 10))}
                       onMouseLeave={() => setHoveredDate(null)}
-                      onClick={() => handleCourseClick(schedule.courseId)}
+                      onClick={() => handleCourseClick(schedule.course_id)}
                       className={`
                         w-full text-left px-4 py-3 rounded-lg border transition-all
                         hover:border-primary hover:bg-primary/10 hover:shadow-md

@@ -25,8 +25,8 @@ import { VideoPlayer } from './components/VideoPlayer';
 export default function LearnPage() {
   const params = useParams();
   const router = useRouter();
-  const courseId = params.courseId as string;
-  const lessonId = params.lessonId as string;
+  const course_id = params.course_id as string;
+  const lessonId = params.lesson_id as string;
 
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -35,7 +35,7 @@ export default function LearnPage() {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [userId, setUserId] = useState<string>('');
+  const [user_id, setUserId] = useState<string>('');
 
   const loadCourseData = useCallback(async () => {
     setLoading(true);
@@ -46,7 +46,7 @@ export default function LearnPage() {
       const { data: courseData } = await supabase
         .from('courses')
         .select('*')
-        .eq('id', courseId)
+        .eq('id', course_id)
         .single();
 
       if (courseData) {
@@ -57,8 +57,8 @@ export default function LearnPage() {
       const { data: lessonsData } = await supabase
         .from('lessons')
         .select('*')
-        .eq('course_id', courseId)
-        .order('orderIndex');
+        .eq('course_id', course_id)
+        .order('order_index');
 
       if (lessonsData) {
         const mappedLessons = lessonsData.map(mapLesson);
@@ -79,7 +79,7 @@ export default function LearnPage() {
         //   .from('courseProgressExtended')
         //   .select('*')
         //   .eq('user_id', user.id)
-        //   .eq('course_id', courseId);
+        //   .eq('course_id', course_id);
         const progressData: CourseProgress[] = []; // 임시로 빈 배열 반환
 
         if (progressData.length > 0) {
@@ -96,7 +96,7 @@ export default function LearnPage() {
     } finally {
       setLoading(false);
     }
-  }, [courseId, lessonId]);
+  }, [course_id, lessonId]);
 
   useEffect(() => {
     loadCourseData();
@@ -118,11 +118,11 @@ export default function LearnPage() {
       // const { error } = await supabase.from('courseProgressExtended').upsert(
       //   {
       //     user_id: user.id,
-      //     course_id: courseId,
+      //     course_id: course_id,
       //     lesson_id: lessonId,
       //     progress: Math.floor(time),
       //     completed: time >= currentLesson.duration * 0.9, // 90% 이상 시청 시 완료
-      //     lastWatchedAt: new Date().toISOString(),
+      //     last_watched_at: new Date().toISOString(),
       //   },
       //   {
       //     onConflict: 'user_id,lesson_id',
@@ -146,10 +146,10 @@ export default function LearnPage() {
         return;
       }
 
-      const { error } = await supabase.from('courseProgressExtended').upsert(
+      const { error } = await supabase.from('course_progress_extended').upsert(
         {
           user_id: user.id,
-          course_id: courseId,
+          course_id: course_id,
           lesson_id: lessonId,
           notes,
           progress: 0,
@@ -165,7 +165,7 @@ export default function LearnPage() {
   };
 
   const navigateToLesson = (lesson: Lesson) => {
-    router.push(`/learn/${courseId}/${lesson.id}`);
+    router.push(`/learn/${course_id}/${lesson.id}`);
   };
 
   const getLessonProgress = (lessonId: string): number => {
@@ -233,7 +233,7 @@ export default function LearnPage() {
         <div className="overflow-y-auto h-[calc(100vh-120px)]">
           <div className="p-2">
             {lessons.map((lesson, index) => {
-              const isCompleted = isLessonCompleted(lesson.id);
+              const is_completed = isLessonCompleted(lesson.id);
               const lessonProgress = getLessonProgress(lesson.id);
               const isCurrent = lesson.id === lessonId;
 
@@ -249,7 +249,7 @@ export default function LearnPage() {
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
-                      {isCompleted ? (
+                      {is_completed ? (
                         <CheckCircle className="w-5 h-5 text-green-500" />
                       ) : lessonProgress > 0 ? (
                         <div className="relative w-5 h-5">
@@ -275,7 +275,7 @@ export default function LearnPage() {
                             />
                           </svg>
                         </div>
-                      ) : lesson.isFree ? (
+                      ) : lesson.is_free ? (
                         <PlayCircle className="w-5 h-5 text-gray-400" />
                       ) : (
                         <Lock className="w-5 h-5 text-gray-400" />
@@ -341,9 +341,9 @@ export default function LearnPage() {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto p-6 space-y-6">
             <VideoPlayer
-              streamUrl={currentLesson.videoUrl || ''}
-              lessonId={lessonId}
-              userId={userId}
+              streamUrl={currentLesson.video_url || ''}
+              lesson_id={lessonId}
+              user_id={user_id}
               title={currentLesson.title}
               onProgress={handleProgressUpdate}
               initialProgress={progress.find((p) => p.lesson_id === lessonId)?.progress || 0}

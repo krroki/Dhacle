@@ -11,7 +11,7 @@ export interface ChannelSubscription {
   hubTopic: string;
   status: SubscriptionStatus;
   leaseSeconds: number;
-  expiresAt?: string;
+  expires_at?: string;
   lastNotificationAt?: string;
   notificationCount: number;
   errorCount: number;
@@ -56,7 +56,7 @@ export interface SubscriptionLog {
   action: SubscriptionAction;
   status?: string;
   requestData?: unknown;
-  responseData?: unknown;
+  response_data?: unknown;
   error?: string;
   created_at: string;
 }
@@ -86,12 +86,12 @@ export interface PubSubVerificationParams {
 }
 
 export interface VideoNotification {
-  videoId: string;
-  channelId: string;
+  video_id: string;
+  channel_id: string;
   title: string;
   description?: string;
-  publishedAt: string;
-  updatedAt?: string;
+  published_at: string;
+  updated_at?: string;
   deleted?: boolean;
   thumbnail?: string;
   link?: string;

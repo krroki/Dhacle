@@ -208,7 +208,7 @@ ENCRYPTION_KEY=`;
                   {`-- 테이블 확인
 SELECT table_name FROM information_schema.tables 
 WHERE table_schema = 'public' 
-AND table_name IN ('userApiKeys', 'youtube_favorites');
+AND table_name IN ('user_api_keys', 'youtube_favorites');
 
 -- 마이그레이션 실행 (필요시)
 -- src/lib/supabase/migrations/009_youtube_lens_fix.sql 내용 실행`}

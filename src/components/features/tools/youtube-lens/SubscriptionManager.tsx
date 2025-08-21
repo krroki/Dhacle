@@ -13,9 +13,9 @@ import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api-client
 interface Subscription {
   id: string;
   channel_id: string;
-  channelTitle: string;
+  channel_title: string;
   status: 'pending' | 'verified' | 'active' | 'expired' | 'failed';
-  expiresAt: string | null;
+  expires_at: string | null;
   lastNotificationAt: string | null;
   notificationCount: number;
   created_at: string;
@@ -66,17 +66,17 @@ export function SubscriptionManager() {
       setSubscribing(true);
 
       // Extract channel ID from URL if needed
-      let channelId = channelInput.trim();
+      let channel_id = channelInput.trim();
       if (channelInput.includes('youtube.com')) {
         const match = channelInput.match(/channel\/([^/?]+)/);
         if (match) {
-          channelId = match[1];
+          channel_id = match[1];
         }
       }
 
       const data = await apiPost<{ success: boolean; error?: string }>('/api/youtube/subscribe', {
-        channelId,
-        channelTitle: `Channel ${channelId}`, // Will be updated after verification
+        channel_id,
+        channel_title: `Channel ${channel_id}`, // Will be updated after verification
       });
 
       if (data.success) {
@@ -101,10 +101,10 @@ export function SubscriptionManager() {
     }
   };
 
-  const handleUnsubscribe = async (channelId: string) => {
+  const handleUnsubscribe = async (channel_id: string) => {
     try {
       const data = await apiDelete<{ success: boolean; error?: string }>(
-        `/api/youtube/subscribe?channelId=${channelId}`
+        `/api/youtube/subscribe?channel_id=${channel_id}`
       );
 
       if (data.success) {
@@ -126,10 +126,10 @@ export function SubscriptionManager() {
     }
   };
 
-  const handleRenew = async (channelId: string) => {
+  const handleRenew = async (channel_id: string) => {
     try {
       const data = await apiPatch<{ success: boolean; error?: string }>('/api/youtube/subscribe', {
-        channelId,
+        channel_id,
       });
 
       if (data.success) {
@@ -226,7 +226,7 @@ export function SubscriptionManager() {
               >
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{sub.channelTitle}</span>
+                    <span className="font-medium">{sub.channel_title}</span>
                     {getStatusBadge(sub)}
                   </div>
                   <div className="text-sm text-muted-foreground space-x-4">
@@ -242,17 +242,17 @@ export function SubscriptionManager() {
                         })}
                       </span>
                     )}
-                    {sub.expiresAt && (
+                    {sub.expires_at && (
                       <span>
-                        Expires: {formatDistanceToNow(new Date(sub.expiresAt), { addSuffix: true })}
+                        Expires: {formatDistanceToNow(new Date(sub.expires_at), { addSuffix: true })}
                       </span>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {sub.status === 'active' &&
-                    sub.expiresAt &&
-                    new Date(sub.expiresAt) < new Date(Date.now() + 6 * 60 * 60 * 1000) && (
+                    sub.expires_at &&
+                    new Date(sub.expires_at) < new Date(Date.now() + 6 * 60 * 60 * 1000) && (
                       <Button
                         size="sm"
                         variant="outline"

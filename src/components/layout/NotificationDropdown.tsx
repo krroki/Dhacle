@@ -20,7 +20,7 @@ export interface Notification {
   title: string;
   message: string;
   read: boolean;
-  createdAt: Date;
+  created_at: Date;
   link?: string;
 }
 
@@ -61,7 +61,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       title: '새로운 강의가 출시되었습니다',
       message: 'YouTube Shorts 고급 편집 테크닉 강의가 추가되었습니다.',
       read: false,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000),
       link: '/courses/advanced-editing',
     },
     {
@@ -70,7 +70,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       title: '댓글이 달렸습니다',
       message: '작성하신 게시글에 새로운 댓글이 달렸습니다.',
       read: false,
-      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+      created_at: new Date(Date.now() - 5 * 60 * 60 * 1000),
       link: '/community/post/123',
     },
     {
@@ -79,7 +79,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       title: '새로운 업적 달성!',
       message: '첫 강의 수료 업적을 달성하셨습니다.',
       read: true,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000),
       link: '/mypage/achievements',
     },
     {
@@ -88,7 +88,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       title: '시스템 공지',
       message: '내일 오전 2시부터 4시까지 서버 점검이 예정되어 있습니다.',
       read: true,
-      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+      created_at: new Date(Date.now() - 48 * 60 * 60 * 1000),
     },
   ]);
 
@@ -183,7 +183,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(notification.createdAt, {
+                          {formatDistanceToNow(notification.created_at, {
                             addSuffix: true,
                             locale: ko,
                           })}

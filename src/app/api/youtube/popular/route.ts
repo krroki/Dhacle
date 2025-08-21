@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
 
     // Check if user has API key
     const { data: apiKeyData } = await supabase
-      .from('userApiKeys')
+      .from('user_api_keys')
       .select('id')
       .eq('user_id', user.id)
-      .eq('serviceName', 'youtube')
+      .eq('service_name', 'youtube')
       .eq('is_active', true)
       .single();
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
           error: 'YouTube API key not configured',
           message: 'Please configure your YouTube API key in settings to use this feature',
           requiresApiKey: true,
-          errorCode: 'api_key_required',
+          error_code: 'api_key_required',
         },
         { status: 400 }
       );
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: limit,
-      userId: user.id,
+      user_id: user.id,
     });
 
     // Sort by viral score (using mapVideoStats to handle snake_case)
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: maxResults * 2, // Fetch more to apply filters
-      userId: user.id,
+      user_id: user.id,
     });
 
     // Apply filters (using mapVideoStats to handle snake_case)
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
 
     // Save to collections if requested
     if (body.saveToCollection) {
-      await saveToCollection(user.id, body.collectionId, finalVideos);
+      await saveToCollection(user.id, body.collection_id, finalVideos);
     }
 
     return NextResponse.json({
@@ -252,12 +252,12 @@ export async function POST(request: NextRequest) {
 /**
  * Helper: Save search history
  */
-async function _saveSearchHistory(userId: string, searchData: Record<string, unknown>) {
+async function _saveSearchHistory(user_id: string, searchData: Record<string, unknown>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
     await supabase.from('savedSearches').insert({
-      user_id: userId,
+      user_id: user_id,
       searchName: `Popular Shorts - ${searchData.regionCode}`,
       searchParams: searchData,
       created_at: new Date().toISOString(),
@@ -270,13 +270,13 @@ async function _saveSearchHistory(userId: string, searchData: Record<string, unk
 /**
  * Helper: Save videos to collection
  */
-async function saveToCollection(_userId: string, collectionId: string, videos: unknown[]) {
+async function saveToCollection(_userId: string, collection_id: string, videos: unknown[]) {
   const supabase = createRouteHandlerClient({ cookies });
 
   const collectionItems = videos.map((video) => {
     const videoData = video as { id: string };
     return {
-      collection_id: collectionId,
+      collection_id: collection_id,
       video_id: videoData.id,
       addedAt: new Date().toISOString(),
       itemData: video,

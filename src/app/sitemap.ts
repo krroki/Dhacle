@@ -66,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: courses } = await supabase
     .from('courses')
     .select('id, updated_at')
-    .eq('isPublished', true)
+    .eq('is_published', true)
     .order('created_at', { ascending: false });
 
   const coursePages: MetadataRoute.Sitemap =

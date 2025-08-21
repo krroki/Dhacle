@@ -48,16 +48,16 @@ export default function CollectionBoard() {
       if (error && typeof error === 'object' && 'status' in error) {
         const errorWithStatus = error as {
           status: number;
-          data?: { requiresApiKey?: boolean; errorCode?: string; error?: string };
+          data?: { requiresApiKey?: boolean; error_code?: string; error?: string };
         };
         if (errorWithStatus.status === 401) {
           // Check if it's an API key issue
-          const errorMessage = (errorWithStatus.data?.error || '').toLowerCase();
+          const error_message = (errorWithStatus.data?.error || '').toLowerCase();
           const isApiKeyError =
             errorWithStatus.data?.requiresApiKey ||
-            errorWithStatus.data?.errorCode === 'api_key_required' ||
-            errorMessage.includes('api key') ||
-            errorMessage.includes('api 키');
+            errorWithStatus.data?.error_code === 'api_key_required' ||
+            error_message.includes('api key') ||
+            error_message.includes('api 키');
 
           if (isApiKeyError) {
             toast.error('YouTube API Key 설정이 필요합니다');
@@ -75,7 +75,7 @@ export default function CollectionBoard() {
         // Handle 400 errors for API key issues
         if (errorWithStatus.status === 400) {
           const data = errorWithStatus.data;
-          if (data?.requiresApiKey || data?.errorCode === 'api_key_required') {
+          if (data?.requiresApiKey || data?.error_code === 'api_key_required') {
             toast.error(
               'YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.'
             );
@@ -84,9 +84,9 @@ export default function CollectionBoard() {
         }
       }
 
-      const errorMessage =
+      const error_message =
         error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
-      toast.error(errorMessage);
+      toast.error(error_message);
     } finally {
       setLoading(false);
     }

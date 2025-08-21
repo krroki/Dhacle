@@ -43,15 +43,15 @@ export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>)
     id: obj.id || course.id || '',
     title: obj.title || course.title || '',
     description: obj.description || course.description || undefined,
-    instructorName: obj.instructor_name ?? course.instructorName ?? 'Unknown',
-    instructorId: obj.instructor_id || course.instructorId || undefined,
+    instructor_name: obj.instructor_name ?? course.instructor_name ?? 'Unknown',
+    instructor_id: obj.instructor_id || course.instructor_id || undefined,
     thumbnail_url: obj.thumbnail_url || course.thumbnail_url || undefined,
     price: Number(obj.price ?? course.price) || 0,
-    isFree: obj.price === 0 || obj.is_free || course.isFree || false,
+    is_free: obj.price === 0 || obj.is_free || course.is_free || false,
     isPremium: (obj.price && Number(obj.price) > 0) || course.isPremium || false,
-    totalDuration: (Number(obj.duration_weeks) || 8) * 7 * 60 || course.totalDuration || 0,
-    studentCount: Number(obj.total_students ?? course.studentCount) || 0,
-    averageRating: Number(obj.average_rating ?? course.averageRating) || 0,
+    total_duration: (Number(obj.duration_weeks) || 8) * 7 * 60 || course.total_duration || 0,
+    student_count: Number(obj.total_students ?? course.student_count) || 0,
+    average_rating: Number(obj.average_rating ?? course.average_rating) || 0,
     reviewCount: course.reviewCount || 0,
     status: obj.status || course.status || 'active',
     launchDate: obj.created_at || course.launchDate || new Date().toISOString(),
@@ -85,11 +85,11 @@ export function mapLesson(dbLesson: DBLesson | Lesson | Record<string, unknown>)
   return {
     ...dbLesson,
     // Map snake_case to camelCase
-    videoUrl: obj.video_url ?? lesson.videoUrl,
-    isFree: obj.is_free ?? lesson.isFree ?? false,
-    orderIndex: obj.order_index ?? lesson.orderIndex ?? 0,
+    video_url: obj.video_url ?? lesson.video_url,
+    is_free: obj.is_free ?? lesson.is_free ?? false,
+    order_index: obj.order_index ?? lesson.order_index ?? 0,
     // Ensure proper field names
-    course_id: obj.course_id || obj.courseId || lesson.course_id || '',
+    course_id: obj.course_id || obj.course_id || lesson.course_id || '',
     duration: Number(lesson.duration) || 0,
   } as Lesson;
 }
@@ -368,17 +368,17 @@ export function mapVideoToYouTubeVideo(
     snippet: {
       title: vid.title || (obj.title as string) || '',
       description: vid.description || (obj.description as string) || '',
-      channelId: vid.channel_id || (obj.channel_id as string) || '',
-      channelTitle: (obj.channel_title as string) || (obj.channelTitle as string) || '',
-      publishedAt:
-        vid.published_at || (obj.published_at as string) || (obj.publishedAt as string) || '',
+      channel_id: vid.channel_id || (obj.channel_id as string) || '',
+      channel_title: (obj.channel_title as string) || (obj.channel_title as string) || '',
+      published_at:
+        vid.published_at || (obj.published_at as string) || (obj.published_at as string) || '',
       thumbnails: parsedThumbnails,
       tags: vid.tags || (obj.tags as string[]) || [],
     },
     statistics: {
-      viewCount: video.stats?.view_count || 0,
-      likeCount: video.stats?.like_count || 0,
-      commentCount: video.stats?.comment_count || 0,
+      view_count: video.stats?.view_count || 0,
+      like_count: video.stats?.like_count || 0,
+      comment_count: video.stats?.comment_count || 0,
       favoriteCount: 0,
     },
     contentDetails: {

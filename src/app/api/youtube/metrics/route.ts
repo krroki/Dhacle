@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 /**
  * Helper: Get video metrics from database
  */
-async function getVideoMetrics(videoId: string, period: string) {
+async function getVideoMetrics(video_id: string, period: string) {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Calculate date range
@@ -171,7 +171,7 @@ async function getVideoMetrics(videoId: string, period: string) {
   const { data: stats, error } = await supabase
     .from('videoStats')
     .select('*')
-    .eq('video_id', videoId)
+    .eq('video_id', video_id)
     .gte('snapshotAt', startDate.toISOString())
     .lte('snapshotAt', endDate.toISOString())
     .order('snapshotAt', { ascending: true });
@@ -242,7 +242,7 @@ async function getVideoMetrics(videoId: string, period: string) {
 /**
  * Helper: Get channel metrics
  */
-async function getChannelMetrics(channelId: string, _period: string) {
+async function getChannelMetrics(channel_id: string, _period: string) {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Get channel videos with stats
@@ -256,7 +256,7 @@ async function getChannelMetrics(channelId: string, _period: string) {
         comment_count
       )
     `)
-    .eq('channel_id', channelId)
+    .eq('channel_id', channel_id)
     .order('published_at', { ascending: false })
     .limit(50);
 
@@ -278,7 +278,7 @@ async function getChannelMetrics(channelId: string, _period: string) {
   const { data: channel } = await supabase
     .from('channels')
     .select('*')
-    .eq('channel_id', channelId)
+    .eq('channel_id', channel_id)
     .single();
 
   // Calculate basic metrics
@@ -371,9 +371,9 @@ function calculateAggregateStats(
     };
   }
 
-  const totalViews = videos.reduce((sum, v) => sum + (v.statistics?.viewCount || 0), 0);
-  const totalLikes = videos.reduce((sum, v) => sum + (v.statistics?.likeCount || 0), 0);
-  const totalComments = videos.reduce((sum, v) => sum + (v.statistics?.commentCount || 0), 0);
+  const totalViews = videos.reduce((sum, v) => sum + (v.statistics?.view_count || 0), 0);
+  const totalLikes = videos.reduce((sum, v) => sum + (v.statistics?.like_count || 0), 0);
+  const totalComments = videos.reduce((sum, v) => sum + (v.statistics?.comment_count || 0), 0);
 
   const averageViralScore =
     videos.reduce((sum, v) => sum + (v.metrics?.viralScore || 0), 0) / videos.length;
@@ -412,9 +412,9 @@ async function saveMetricsSnapshot(
 
     const snapshots = videos.map((video) => ({
       video_id: video.id,
-      view_count: video.statistics.viewCount,
-      like_count: video.statistics.likeCount,
-      comment_count: video.statistics.commentCount,
+      view_count: video.statistics.view_count,
+      like_count: video.statistics.like_count,
+      comment_count: video.statistics.comment_count,
       vph: video.metrics?.vph || 0,
       engagementRate: video.metrics?.engagementRate || 0,
       viralScore: video.metrics?.viralScore || 0,

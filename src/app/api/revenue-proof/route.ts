@@ -104,14 +104,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     // 개발 환경에서는 상세한 에러 메시지 제공
-    const errorMessage =
+    const error_message =
       process.env.NODE_ENV === 'development'
         ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
         : '서버 오류가 발생했습니다';
 
     return NextResponse.json(
       {
-        error: errorMessage,
+        error: error_message,
         ...(process.env.NODE_ENV === 'development' && {
           details: error instanceof Error ? error.stack : String(error),
         }),
@@ -173,14 +173,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Supabase Storage에 이미지 업로드
-    const fileName = `${user.id}/${Date.now()}_${validatedData.screenshot.name}`;
+    const file_name = `${user.id}/${Date.now()}_${validatedData.screenshot.name}`;
     const arrayBuffer = await validatedData.screenshot.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     // Storage 버킷에 업로드
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('revenue-proofs')
-      .upload(fileName, buffer, {
+      .upload(file_name, buffer, {
         contentType: validatedData.screenshot.type,
         upsert: false,
       });
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
     // 공개 URL 생성
     const {
       data: { publicUrl },
-    } = supabase.storage.from('revenue-proofs').getPublicUrl(fileName);
+    } = supabase.storage.from('revenue-proofs').getPublicUrl(file_name);
 
     const screenshotUrl = publicUrl;
 
@@ -271,14 +271,14 @@ export async function POST(request: NextRequest) {
     }
 
     // 개발 환경에서는 상세한 에러 메시지 제공
-    const errorMessage =
+    const error_message =
       process.env.NODE_ENV === 'development'
         ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
         : '서버 오류가 발생했습니다';
 
     return NextResponse.json(
       {
-        error: errorMessage,
+        error: error_message,
         ...(process.env.NODE_ENV === 'development' && {
           details: error instanceof Error ? error.stack : String(error),
         }),

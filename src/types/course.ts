@@ -5,18 +5,18 @@ export interface Course {
   title: string;
   subtitle?: string;
   description?: string;
-  instructorId?: string;
-  instructorName: string;
+  instructor_id?: string;
+  instructor_name: string;
   instructor?: InstructorProfile;
   thumbnail_url?: string;
   price: number;
-  discountPrice?: number;
-  isFree: boolean;
+  discount_price?: number;
+  is_free: boolean;
   isPremium: boolean;
   contentBlocks?: ContentBlock[] | string; // Can be JSON string or parsed array
-  totalDuration: number;
-  studentCount: number;
-  averageRating: number;
+  total_duration: number;
+  student_count: number;
+  average_rating: number;
   reviewCount: number;
   previewVideoUrl?: string;
   requirements?: string[];
@@ -40,11 +40,11 @@ export interface Lesson {
   course_id: string;
   title: string;
   description?: string;
-  videoUrl?: string;
+  video_url?: string;
   thumbnail_url?: string;
   duration: number;
-  orderIndex: number;
-  isFree: boolean;
+  order_index: number;
+  is_free: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -89,8 +89,8 @@ export interface CourseProgress {
   lesson_id: string;
   progress: number; // 시청한 초
   completed: boolean;
-  completedAt?: string;
-  lastWatchedAt?: string;
+  completed_at?: string;
+  last_watched_at?: string;
   watchCount: number;
   notes?: string;
 }
@@ -143,14 +143,14 @@ export interface CourseReview {
 export interface InstructorProfile {
   id: string;
   user_id: string;
-  displayName: string;
+  display_name: string;
   bio?: string;
   avatar_url?: string;
   specialty?: string;
   youtubeChannelUrl?: string;
   instagramUrl?: string;
   totalStudents: number;
-  averageRating: number;
+  average_rating: number;
   is_verified: boolean;
 }
 
@@ -165,10 +165,10 @@ export interface Enrollment {
   user_id: string;
   course_id: string;
   payment_id?: string;
-  paymentStatus: string;
+  payment_status: string;
   paymentAmount?: number;
   enrolledAt: string;
-  completedAt?: string;
+  completed_at?: string;
   certificateIssued: boolean;
   certificateIssuedAt?: string;
   certificateUrl?: string;
@@ -186,8 +186,8 @@ export interface CourseListResponse {
 export interface CourseDetailResponse {
   course: Course;
   lessons: Lesson[];
-  isEnrolled: boolean;
-  isPurchased: boolean;
+  is_enrolled: boolean;
+  is_purchased: boolean;
   progress?: CourseProgress[];
 }
 
@@ -196,9 +196,9 @@ export interface CreateCourseInput {
   title: string;
   subtitle?: string;
   description: string;
-  instructorName: string;
+  instructor_name: string;
   price: number;
-  isFree: boolean;
+  is_free: boolean;
   requirements: string[];
   whatYouLearn: string[];
   targetAudience: string[];
@@ -208,17 +208,17 @@ export interface CreateLessonInput {
   course_id: string;
   title: string;
   description?: string;
-  videoUrl?: string;
+  video_url?: string;
   duration: number;
-  orderIndex: number;
-  isFree: boolean;
+  order_index: number;
+  is_free: boolean;
 }
 
 // Filter Types
 export interface CourseFilters {
   instructor?: string;
   priceRange?: [number, number];
-  isFree?: boolean;
+  is_free?: boolean;
   rating?: number;
   duration?: 'short' | 'medium' | 'long';
   status?: 'upcoming' | 'active' | 'completed';
@@ -227,7 +227,7 @@ export interface CourseFilters {
 
 // Payment Types
 export interface PaymentIntentInput {
-  courseId: string;
+  course_id: string;
   couponCode?: string;
 }
 

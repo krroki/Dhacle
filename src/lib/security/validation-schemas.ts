@@ -66,7 +66,7 @@ export const createApiKeySchema = z.object({
 export const youtubeSearchSchema = z.object({
   q: z.string().min(1, '검색어를 입력해주세요.').max(200),
   maxResults: z.number().int().min(1).max(50).default(10),
-  order: z.enum(['relevance', 'date', 'viewCount', 'rating']).optional(),
+  order: z.enum(['relevance', 'date', 'view_count', 'rating']).optional(),
   pageToken: z.string().optional(),
 });
 
@@ -74,7 +74,7 @@ export const youtubeSearchSchema = z.object({
 export const addFavoriteSchema = z.object({
   video_id: z.string().min(1, '비디오 ID가 필요합니다.'),
   title: z.string().min(1).max(500),
-  channelTitle: z.string().max(200).optional(),
+  channel_title: z.string().max(200).optional(),
   thumbnail_url: urlSchema.optional(),
 });
 
@@ -105,14 +105,14 @@ export const trendingSummaryQuerySchema = z.object({
 
 // 채널 승인 관리
 export const channelApprovalSchema = z.object({
-  channelId: z.string().min(1, '채널 ID가 필요합니다.').max(100),
+  channel_id: z.string().min(1, '채널 ID가 필요합니다.').max(100),
   approvalStatus: z.enum(['pending', 'approved', 'rejected']),
   notes: z.string().max(500).optional(),
 });
 
 // 채널 추가
 export const addChannelSchema = z.object({
-  channelId: z.string().min(1, '채널 ID가 필요합니다.').max(100),
+  channel_id: z.string().min(1, '채널 ID가 필요합니다.').max(100),
   title: z.string().min(1).max(200).optional(),
   category: z.string().max(100).optional(),
   subcategory: z.string().max(100).optional(),
@@ -136,7 +136,7 @@ export const createRevenueProofSchema = z.object({
 // 댓글 작성
 export const createCommentSchema = z.object({
   content: z.string().min(1, '댓글을 입력해주세요.').max(500),
-  parentId: uuidSchema.optional(),
+  parent_id: uuidSchema.optional(),
 });
 
 // ============================================
@@ -161,7 +161,7 @@ export const createPaymentSchema = z.object({
   course_id: uuidSchema,
   amount: z.number().positive().int(),
   couponCode: z.string().max(50).optional(),
-  paymentMethod: z.enum(['card', 'transfer', 'virtualAccount', 'mobile']),
+  payment_method: z.enum(['card', 'transfer', 'virtualAccount', 'mobile']),
 });
 
 // 쿠폰 검증

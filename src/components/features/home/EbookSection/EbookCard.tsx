@@ -17,7 +17,7 @@ export function EbookCard({ ebook }: EbookCardProps) {
           fill={true}
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {ebook.isFree && (
+        {ebook.is_free && (
           <Badge className="absolute top-2 right-2 bg-green-500 text-white">무료</Badge>
         )}
       </div>
@@ -34,12 +34,12 @@ export function EbookCard({ ebook }: EbookCardProps) {
           </div>
           <div className="flex items-center gap-1">
             <FileText className="w-3 h-3" />
-            <span>{ebook.fileSize}</span>
+            <span>{ebook.file_size}</span>
           </div>
         </div>
 
-        <Button className="w-full" variant={ebook.isFree ? 'default' : 'secondary'}>
-          {ebook.isFree ? '무료 다운로드' : `₩${ebook.price?.toLocaleString()} 구매하기`}
+        <Button className="w-full" variant={ebook.is_free ? 'default' : 'secondary'}>
+          {ebook.is_free ? '무료 다운로드' : `₩${ebook.price?.toLocaleString()} 구매하기`}
         </Button>
       </div>
     </Card>

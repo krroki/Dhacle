@@ -36,7 +36,7 @@ export function CalendarCell({ day, isCurrentMonth, isToday, events, onClick }: 
       </div>
 
       {events.slice(0, 2).map((event) => (
-        <div key={event.id} className="text-xs truncate mb-1" title={event.courseName}>
+        <div key={event.id} className="text-xs truncate mb-1" title={event.course_name}>
           <span
             className={cn(
               'inline-block w-1 h-1 rounded-full mr-1',

@@ -1,7 +1,7 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
 _목적: 프로젝트 현재 상태와 진행 상황 추적_
-_최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
+_최종 업데이트: 2025-08-21 (Snake_case 마이그레이션 Wave 5)_
 
 ---
 
@@ -33,18 +33,20 @@ _최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-21**: 미구현 기능 주석 처리 - 6개 누락 테이블 관련 코드 주석 처리, TODO 표시 ✅
-2. **2025-08-21**: 위험한 pre-commit 자동 수정 제거 - Biome/Prettier write 모드를 check 모드로 변경 ✅
-3. **2025-08-21**: snake_case/camelCase 근본 해결 - typed-client 래퍼 구현, ESLint 규칙 추가 ✅
-4. **2025-02-02**: TypeScript 타입 시스템 완전 수정 - Course 타입 매핑 문제 해결, import 경로 수정 ✅
-5. **2025-02-02**: 중복 타입 export 오류 해결 - RevenueProof, UserApiKey 중복 제거 ✅
-6. **2025-02-02**: snake_case/camelCase 변환 개선 - mapCourse 함수 완전 재작성 ✅
-7. **2025-02-02**: 🎯 TypeScript v2.0 Single Source of Truth 최종 확정 - Supabase DB → index.ts 체계 ✅
+1. **2025-01-31**: snake_case 마이그레이션 오류 수정 완료 - API 경계 변환 시스템 구축, React 예약어 보호 ✅
+2. **2025-08-21**: Snake_case 마이그레이션 Wave 5 진행 - error_code→errorCode, is_active→isActive 수정 ⚠️
+3. **2025-08-21**: 테이블명 snake_case 통일 - userApiKeys→user_api_keys 등 16개 파일 수정 ⚠️
+4. **2025-08-21**: 빌드 오류 지시서 v2.0 작성 - 117개 TypeScript 오류 해결 방안 문서화 📝
+5. **2025-02-21**: 누락된 테이블 생성 및 TypeScript 타입 오류 해결 - 8개 테이블 SQL 생성/실행 ✅
+6. **2025-08-21**: 미구현 기능 주석 처리 - 6개 누락 테이블 관련 코드 주석 처리, TODO 표시 ✅
+7. **2025-08-21**: 위험한 pre-commit 자동 수정 제거 - Biome/Prettier write 모드를 check 모드로 변경 ✅
 
 ### 🔍 알려진 이슈 (Critical)
-1. **미구현 테이블**: 6개 테이블 누락 (proof_likes, proof_comments, naverCafeVerifications, subscriptionLogs, channelSubscriptions, webhookEvents)
-2. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-3. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+1. **TypeScript 오류**: 117개 타입 오류 (alertRules 테이블 미존재, Profile 타입 불일치 등) 🔴
+2. **Snake_case 마이그레이션**: API 경계 변환 시스템으로 해결 완료 (2025-01-31) ✅
+3. **미구현 테이블**: alertRules, proof_likes, proof_comments, naverCafeVerifications 등 6개 테이블 미존재
+4. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
+5. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
 
 ### 🔑 필수 환경 변수
 ```bash

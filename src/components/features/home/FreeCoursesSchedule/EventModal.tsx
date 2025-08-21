@@ -38,7 +38,7 @@ export function EventModal({ events, date, isOpen, onClose }: EventModalProps) {
           {events.map((event) => (
             <div key={event.id} className="border rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold">{event.courseName}</h3>
+                <h3 className="font-semibold">{event.course_name}</h3>
                 {event.isLive && <Badge className="bg-red-500 text-white">LIVE</Badge>}
               </div>
 

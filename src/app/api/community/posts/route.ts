@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
         { count: 'exact' }
       )
       .eq('category', category)
-      .order('isPinned', { ascending: false })
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

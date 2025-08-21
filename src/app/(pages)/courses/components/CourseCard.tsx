@@ -52,7 +52,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
           {/* 뱃지 오버레이 */}
           <div className="absolute top-2 left-2 flex gap-2">
-            {safeAccess(course, 'is_free', 'isFree', false) && (
+            {safeAccess(course, 'is_free', 'is_free', false) && (
               <Badge className="bg-green-500 text-white">무료</Badge>
             )}
             {safeAccess(course, 'is_premium', 'isPremium', false) && (
@@ -65,7 +65,7 @@ export function CourseCard({ course }: CourseCardProps) {
         <CardContent className="p-4 space-y-3">
           {/* 강사명 */}
           <div className="text-sm text-muted-foreground">
-            {safeAccess(course, 'instructor_name', 'instructorName', '')}
+            {safeAccess(course, 'instructor_name', 'instructor_name', '')}
           </div>
 
           {/* 제목 */}
@@ -78,22 +78,22 @@ export function CourseCard({ course }: CourseCardProps) {
 
           {/* 통계 */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            {course.averageRating > 0 && (
+            {course.average_rating > 0 && (
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span>{course.averageRating.toFixed(1)}</span>
+                <span>{course.average_rating.toFixed(1)}</span>
               </div>
             )}
-            {course.studentCount > 0 && (
+            {course.student_count > 0 && (
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                <span>{course.studentCount.toLocaleString()}</span>
+                <span>{course.student_count.toLocaleString()}</span>
               </div>
             )}
-            {course.totalDuration > 0 && (
+            {course.total_duration > 0 && (
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>{formatDuration(course.totalDuration)}</span>
+                <span>{formatDuration(course.total_duration)}</span>
               </div>
             )}
           </div>
@@ -101,16 +101,16 @@ export function CourseCard({ course }: CourseCardProps) {
           {/* 가격 */}
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="flex items-center gap-2">
-              {course.discountPrice && course.discountPrice < course.price ? (
+              {course.discount_price && course.discount_price < course.price ? (
                 <>
                   <span className="text-lg font-bold text-primary">
-                    {formatPrice(course.discountPrice)}
+                    {formatPrice(course.discount_price)}
                   </span>
                   <span className="text-sm text-muted-foreground line-through">
                     {formatPrice(course.price)}
                   </span>
                   <Badge variant="destructive" className="text-xs">
-                    {Math.round((1 - course.discountPrice / course.price) * 100)}% 할인
+                    {Math.round((1 - course.discount_price / course.price) * 100)}% 할인
                   </Badge>
                 </>
               ) : (

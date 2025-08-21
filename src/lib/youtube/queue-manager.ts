@@ -36,8 +36,8 @@ export enum JobPriority {
 export interface YouTubeJobData {
   type: JobType;
   params: Record<string, unknown>;
-  userId?: string;
-  retryCount?: number;
+  user_id?: string;
+  retry_count?: number;
   priority?: JobPriority;
   metadata?: Record<string, unknown>;
 }

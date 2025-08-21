@@ -14,15 +14,33 @@
 - **이미 올바른 코드는 수정하지 않기** - 최소 수정 원칙
 - **테스트 파일은 테스트 완료 시 반드시 삭제** - 임시 테스트 파일 방치 금지
 
-### ⚡ SQL/DB 오류 시 긴급 대응
+### ⚡ 빌드 오류 시 긴급 대응 (2025-08-21 업데이트)
 ```bash
-# 🔴 SQL/DB/테이블 관련 오류 시 즉시 실행:
-node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
+# 🔴 TypeScript 117개 오류 해결 지시서:
+docs/INSTRUCTION_FIX_BUILD_ERROR_v1.md (v2.0) 참조
 
-# 테이블 확인: node scripts/verify-with-service-role.js
-# 타입 재생성: npm run types:generate
+# 원클릭 자동 수정:
+node scripts/fix-all-typescript-errors.js
+
+# SQL/DB/테이블 관련 오류 시:
+node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
+node scripts/verify-with-service-role.js  # 테이블 확인
+npm run types:generate  # 타입 재생성
 ```
 > **주의**: Supabase Dashboard 사용 권장 금지! 위 명령어로 직접 실행
+
+### 🔥 snake_case/camelCase 변환 시스템 (2025-01-31 중요 업데이트)
+**API 경계에서만 자동 변환 - React 예약어 보호**
+```bash
+# snake_case 일관성 검증 (최우선 실행)
+node scripts/verify-case-consistency.js  # 전체 검증
+node scripts/demo-case-conversion.js     # 변환 시연
+
+# 핵심 파일 위치
+src/lib/api-client.ts        # API 경계 자동 변환
+src/lib/utils/case-converter.ts  # React 보호 변환 유틸
+.husky/pre-commit            # snake_case 차단 Hook
+```
 
 ### 🤖 Claude Code 자동 스크립트 사용 체계
 **상황별 자동 실행 스크립트 (AI가 자동으로 사용)**
@@ -153,15 +171,15 @@ src/types/index.ts (변환 레이어, camelCase)
 Frontend Components (camelCase 사용)
 ```
 
-### ⚠️ 중요: 헷갈리는 파일 제거 필요
+### ⚠️ 중요: 타입 파일 체계
 ```bash
-# 삭제해야 할 파일들 (중복/혼란 유발):
-❌ src/types/database.ts       # 수동 작성 파일, 삭제 필요
-❌ src/types/database.types.ts  # re-export 파일, 삭제 필요
-
 # 유지해야 할 파일들:
 ✅ src/types/database.generated.ts  # Supabase 자동 생성 (절대 수정 금지)
 ✅ src/types/index.ts               # 중앙 타입 정의 (Single Source of Truth)
+
+# 주의: 다른 타입 파일 생성 금지
+❌ src/types/database.ts 생성 금지
+❌ src/types/database.types.ts 생성 금지
 ```
 
 ### 타입 import 규칙 (절대 준수)
@@ -213,8 +231,6 @@ npm run types:auto-fix
 3. 타입 오류 확인 및 수정
 4. 커밋 전 `npm run types:check` 확인
 
-### 16개 파일 import 수정 필요 (긴급)
-현재 `@/types/database` 또는 `@/types/database.types`를 사용하는 파일들을 모두 `@/types`로 수정 필요
 
 ### 🤖 Claude Code 전용 타입 자동 관리 시스템
 

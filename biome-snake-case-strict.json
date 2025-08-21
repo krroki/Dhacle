@@ -1,0 +1,126 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100,
+    "attributePosition": "auto"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": true,
+            "conventions": [
+              {
+                "selector": { "kind": "function" },
+                "formats": ["snake_case", "PascalCase"]
+              },
+              {
+                "selector": { "kind": "variable" },
+                "formats": ["snake_case", "PascalCase", "CONSTANT_CASE"]
+              },
+              {
+                "selector": { "kind": "typeLike" },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": { "kind": "objectLiteralProperty" },
+                "formats": ["snake_case"]
+              },
+              {
+                "selector": { "kind": "objectLiteralMethod" },
+                "formats": ["snake_case"]
+              },
+              {
+                "selector": { "kind": "classProperty" },
+                "formats": ["snake_case"]
+              },
+              {
+                "selector": { "kind": "parameter" },
+                "formats": ["snake_case"]
+              },
+              {
+                "selector": { "kind": "enumMember" },
+                "formats": ["CONSTANT_CASE"]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/node_modules/**"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["**/*.d.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/pages/**/*.tsx", "**/app/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": {
+              "level": "error",
+              "options": {
+                "strictCase": false,
+                "conventions": [
+                  {
+                    "selector": { "kind": "function" },
+                    "formats": ["snake_case", "PascalCase", "camelCase"]
+                  },
+                  {
+                    "selector": { 
+                      "kind": "variable",
+                      "modifiers": ["react_hook"]
+                    },
+                    "formats": ["camelCase"]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.config.{js,ts}", "**/*.config.*.{js,ts}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/src/types/database.generated.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
+    }
+  ]
+}

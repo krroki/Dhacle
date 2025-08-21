@@ -43,9 +43,9 @@ interface DashboardSummary {
     growth: number;
   }>;
   topShorts: Array<{
-    videoId: string;
+    video_id: string;
     title: string;
-    channelTitle: string;
+    channel_title: string;
     viewDelta: number;
   }>;
   followedChannels: DeltaData[];

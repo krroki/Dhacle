@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
     // 파일명 생성 (사용자ID_타임스탬프_원본파일명)
     const timestamp = Date.now();
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}_${timestamp}.${fileExt}`;
-    const filePath = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${fileName}`;
+    const file_name = `${user.id}_${timestamp}.${fileExt}`;
+    const filePath = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${file_name}`;
 
     // ArrayBuffer를 Uint8Array로 변환
     const arrayBuffer = await file.arrayBuffer();
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     // 썸네일 URL 생성 (Supabase 이미지 변환 기능 사용)
     // ?width=320&height=240&resize=cover
-    const thumbnailUrl = `${publicUrl}?width=320&height=240&resize=cover`;
+    const thumbnail_url = `${publicUrl}?width=320&height=240&resize=cover`;
 
     // Blur placeholder 생성 (base64 - 간단한 구현)
     // 실제로는 sharp 등의 라이브러리를 사용해야 함
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       url: publicUrl,
-      thumbnailUrl,
+      thumbnail_url,
       blurDataUrl,
       path: filePath,
       size: file.size,

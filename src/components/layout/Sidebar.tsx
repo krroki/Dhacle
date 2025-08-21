@@ -138,7 +138,7 @@ export function Sidebar() {
 
   const renderSidebarItem = (item: SidebarItem, depth = 0) => {
     const isExpanded = expandedItems.includes(item.id);
-    const isActive = pathname === item.href;
+    const is_active = pathname === item.href;
     const hasChildren = item.children && item.children.length > 0;
 
     return (
@@ -147,7 +147,7 @@ export function Sidebar() {
           className={cn(
             'group flex items-center justify-between px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer',
             depth > 0 && 'pl-8',
-            isActive
+            is_active
               ? 'bg-primary/10 text-primary'
               : 'hover:bg-muted text-muted-foreground hover:text-foreground'
           )}

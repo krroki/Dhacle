@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     // Parse request body
     const body = await request.json();
-    const { username, workType, jobCategory, currentIncome, targetIncome, experienceLevel } = body;
+    const { username, work_type, job_category, current_income, target_income, experience_level } = body;
 
     // Validate username format
     if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
@@ -74,11 +74,11 @@ export async function POST(request: Request) {
         .from('users')
         .update({
           username,
-          // workType, // TODO: Use work_type (snake_case) when field is properly implemented
-          jobCategory,
-          currentIncome,
-          targetIncome,
-          experienceLevel,
+          // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
+          job_category,
+          current_income,
+          target_income,
+          experience_level,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
@@ -91,11 +91,11 @@ export async function POST(request: Request) {
         .insert({
           id: user.id,
           username,
-          // workType, // TODO: Use work_type (snake_case) when field is properly implemented
-          job_category: jobCategory, // Fixed: use snake_case
-          current_income: currentIncome, // Fixed: use snake_case
-          target_income: targetIncome, // Fixed: use snake_case
-          experience_level: experienceLevel, // Fixed: use snake_case
+          // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
+          job_category: job_category, // Fixed: use snake_case
+          current_income: current_income, // Fixed: use snake_case
+          target_income: target_income, // Fixed: use snake_case
+          experience_level: experience_level, // Fixed: use snake_case
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -137,14 +137,14 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const {
       username,
-      fullName,
+      full_name,
       channel_name,
-      channelUrl,
-      workType,
-      jobCategory,
-      currentIncome,
-      targetIncome,
-      experienceLevel,
+      channel_url,
+      work_type,
+      job_category,
+      current_income,
+      target_income,
+      experience_level,
     } = body;
 
     // Validate username format
@@ -157,14 +157,14 @@ export async function PUT(request: Request) {
       .from('users')
       .update({
         username,
-        fullName,
+        full_name,
         channel_name,
-        channelUrl,
-        // workType, // TODO: Use work_type (snake_case) when field is properly implemented
-        jobCategory,
-        currentIncome,
-        targetIncome,
-        experienceLevel,
+        channel_url,
+        // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
+        job_category,
+        current_income,
+        target_income,
+        experience_level,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)

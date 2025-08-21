@@ -19,7 +19,7 @@ import { apiUpload } from '@/lib/api-client';
 
 export default function VideoUploadPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [courseId, setCourseId] = useState('');
+  const [course_id, setCourseId] = useState('');
   const [lessonId, setLessonId] = useState('');
   const [lessonTitle, setLessonTitle] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -41,14 +41,14 @@ export default function VideoUploadPage() {
   };
 
   const handleUpload = async () => {
-    if (!file || !courseId || !lessonId || !lessonTitle) {
+    if (!file || !course_id || !lessonId || !lessonTitle) {
       setError('모든 필드를 입력해주세요');
       return;
     }
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('courseId', courseId);
+    formData.append('course_id', course_id);
     formData.append('lessonId', lessonId);
     formData.append('lessonTitle', lessonTitle);
 
@@ -125,7 +125,7 @@ export default function VideoUploadPage() {
             {/* 강의 선택 */}
             <div className="space-y-2">
               <Label htmlFor="courseId">강의 선택 *</Label>
-              <Select value={courseId} onValueChange={setCourseId} disabled={uploading}>
+              <Select value={course_id} onValueChange={setCourseId} disabled={uploading}>
                 <SelectTrigger id="courseId">
                   <SelectValue placeholder="강의를 선택하세요" />
                 </SelectTrigger>

@@ -253,7 +253,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'summary';
-    const videoId = searchParams.get('video_id');
+    const video_id = searchParams.get('video_id');
     const limit = Number.parseInt(searchParams.get('limit') || '10', 10);
 
     let result: Record<string, unknown> = {};
@@ -311,11 +311,11 @@ export async function GET(request: NextRequest) {
 
       case 'predictions':
         // Get recent predictions
-        if (videoId) {
+        if (video_id) {
           const { data: video } = await supabase
             .from('videos')
             .select('*, videoStats(*)')
-            .eq('video_id', videoId)
+            .eq('video_id', video_id)
             .single();
 
           if (video) {

@@ -47,9 +47,9 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
     title: course?.title || '',
     subtitle: course?.subtitle || '',
     description: course?.description || '',
-    instructorName: course?.instructorName || '',
+    instructor_name: course?.instructor_name || '',
     price: course?.price || 0,
-    isFree: course?.isFree || false,
+    is_free: course?.is_free || false,
     thumbnail_url: course?.thumbnail_url || '',
     previewVideoUrl: course?.previewVideoUrl || '',
     status: course?.status || ('upcoming' as 'upcoming' | 'active' | 'completed'),
@@ -279,11 +279,11 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="instructorName">강사명 *</Label>
+                  <Label htmlFor="instructor_name">강사명 *</Label>
                   <Input
-                    id="instructorName"
-                    name="instructorName"
-                    value={formData.instructorName}
+                    id="instructor_name"
+                    name="instructor_name"
+                    value={formData.instructor_name}
                     onChange={handleInputChange}
                     placeholder="예: 홍길동"
                     required={true}
@@ -310,15 +310,15 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                     type="number"
                     value={formData.price}
                     onChange={handleInputChange}
-                    disabled={formData.isFree}
+                    disabled={formData.is_free}
                     min={0}
                   />
                 </div>
                 <div className="flex items-center space-x-2 mt-8">
                   <Switch
                     id="isFree"
-                    checked={formData.isFree}
-                    onCheckedChange={handleSwitchChange('isFree')}
+                    checked={formData.is_free}
+                    onCheckedChange={handleSwitchChange('is_free')}
                   />
                   <Label htmlFor="isFree">무료 강의</Label>
                 </div>

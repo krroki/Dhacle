@@ -26,7 +26,7 @@ export function MobileNav() {
       <div className="grid grid-cols-4 h-[var(--mobile-nav-height)]">
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive =
+          const is_active =
             pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
           return (
@@ -35,7 +35,7 @@ export function MobileNav() {
               href={item.href}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 transition-colors',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                is_active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Icon className="h-5 w-5" />

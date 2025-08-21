@@ -14,13 +14,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { courseId, couponCode } = body;
+    const { course_id, couponCode } = body;
 
     // 강의 정보 조회
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .select('*')
-      .eq('id', courseId)
+      .eq('id', course_id)
       .single();
 
     if (courseError || !course) {
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       .from('purchases')
       .select('*')
       .eq('user_id', user.id)
-      .eq('course_id', courseId)
+      .eq('course_id', course_id)
       .eq('status', 'completed')
       .single();
 
@@ -78,17 +78,17 @@ export async function POST(req: NextRequest) {
     }
 
     // 주문 ID 생성 (고유해야 함)
-    const orderId = `ORDER_${Date.now()}_${courseId}_${user.id.substring(0, 8)}`;
+    const orderId = `ORDER_${Date.now()}_${course_id}_${user.id.substring(0, 8)}`;
 
     // 구매 레코드 생성 (pending 상태)
     const { data: purchase, error: purchaseError } = await supabase
       .from('purchases')
       .insert({
         user_id: user.id,
-        course_id: courseId,
+        course_id: course_id,
         amount: course.price,
         finalAmount: finalPrice,
-        paymentMethod: 'tosspayments',
+        payment_method: 'tosspayments',
         paymentIntentId: orderId, // 주문 ID 저장
         status: 'pending',
         couponId: appliedCoupon?.id,

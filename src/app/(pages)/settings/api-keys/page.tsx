@@ -17,8 +17,8 @@ import { useAuth } from '@/lib/auth/AuthContext';
 
 interface ApiKeyData {
   id: string;
-  serviceName: string;
-  apiKeyMasked: string;
+  service_name: string;
+  api_key_masked: string;
   created_at: string;
   updated_at: string;
   lastUsedAt: string | null;
@@ -34,7 +34,7 @@ export default function ApiKeysPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [apiKey, setApiKey] = useState('');
+  const [api_key, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
@@ -66,7 +66,7 @@ export default function ApiKeysPage() {
 
   // API Key 유효성 검증
   const handleValidate = async () => {
-    if (!apiKey) {
+    if (!api_key) {
       toast.error('API Key를 입력해주세요');
       return;
     }
@@ -75,7 +75,7 @@ export default function ApiKeysPage() {
     try {
       const data = await apiPost<{ success: boolean; error?: string }>(
         '/api/youtube/validate-key',
-        { apiKey }
+        { api_key }
       );
 
       if (data.success) {
@@ -106,8 +106,8 @@ export default function ApiKeysPage() {
 
       // API Key 저장
       const data = await apiPost<{ success: boolean; error?: string }>('/api/user/api-keys', {
-        apiKey,
-        serviceName: 'youtube',
+        api_key,
+        service_name: 'youtube',
       });
 
       if (data.success) {
@@ -209,7 +209,7 @@ export default function ApiKeysPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">마스킹된 Key</Label>
-                    <p className="font-mono text-sm">{currentKey.apiKeyMasked}</p>
+                    <p className="font-mono text-sm">{currentKey.api_key_masked}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">등록일</Label>
@@ -273,7 +273,7 @@ export default function ApiKeysPage() {
                       id="apiKey"
                       type={showApiKey ? 'text' : 'password'}
                       placeholder="AIzaSy..."
-                      value={apiKey}
+                      value={api_key}
                       onChange={(e) => setApiKey(e.target.value)}
                       className="pr-10"
                     />
@@ -290,7 +290,7 @@ export default function ApiKeysPage() {
                   <Button
                     variant="outline"
                     onClick={handleValidate}
-                    disabled={!apiKey || validating}
+                    disabled={!api_key || validating}
                   >
                     {validating ? (
                       <>
@@ -312,7 +312,7 @@ export default function ApiKeysPage() {
 
               {/* 저장 버튼 */}
               <div className="flex gap-2">
-                <Button onClick={handleSave} disabled={!apiKey || loading}>
+                <Button onClick={handleSave} disabled={!api_key || loading}>
                   {loading ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />

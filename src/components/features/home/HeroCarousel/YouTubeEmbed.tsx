@@ -5,13 +5,13 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 interface YouTubeEmbedProps {
-  videoId: string;
+  video_id: string;
   title?: string;
 }
 
-export function YouTubeEmbed({ videoId, title = 'YouTube video' }: YouTubeEmbedProps) {
+export function YouTubeEmbed({ video_id, title = 'YouTube video' }: YouTubeEmbedProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  const thumbnail_url = `https://img.youtube.com/vi/${video_id}/maxresdefault.jpg`;
 
   if (!isLoaded) {
     return (
@@ -20,7 +20,7 @@ export function YouTubeEmbed({ videoId, title = 'YouTube video' }: YouTubeEmbedP
         onClick={() => setIsLoaded(true)}
       >
         <Image
-          src={thumbnailUrl}
+          src={thumbnail_url}
           alt={title}
           fill={true}
           className="object-cover"
@@ -38,7 +38,7 @@ export function YouTubeEmbed({ videoId, title = 'YouTube video' }: YouTubeEmbedP
 
   return (
     <iframe
-      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+      src={`https://www.youtube.com/embed/${video_id}?autoplay=1&rel=0`}
       title={title}
       className="w-full h-full"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

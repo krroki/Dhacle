@@ -21,22 +21,22 @@ import { cn } from '@/lib/utils';
 
 interface VideoPlayerProps {
   streamUrl: string;
-  lessonId: string;
-  userId: string;
+  lesson_id: string;
+  user_id: string;
   title?: string;
   onProgress?: (progress: number) => void;
   initialProgress?: number;
-  accessToken?: string;
+  access_token?: string;
 }
 
 export function VideoPlayer({
   streamUrl,
-  lessonId,
-  userId,
+  lesson_id,
+  user_id,
   title,
   onProgress,
   initialProgress = 0,
-  accessToken,
+  access_token,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,8 +63,8 @@ export function VideoPlayer({
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr, _url) => {
-          if (accessToken) {
-            xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+          if (access_token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
           }
         },
         maxBufferLength: 30,
@@ -105,7 +105,7 @@ export function VideoPlayer({
         hlsRef.current.destroy();
       }
     };
-  }, [streamUrl, accessToken, initialProgress]);
+  }, [streamUrl, access_token, initialProgress]);
 
   // DRM 보호
   useEffect(() => {
@@ -143,7 +143,7 @@ export function VideoPlayer({
     const saveProgress = debounce(async (time: number) => {
       try {
         await apiPost('/api/lessons/progress', {
-          lessonId,
+          lesson_id,
           progress: Math.floor(time),
         });
         onProgress?.(time);
@@ -174,7 +174,7 @@ export function VideoPlayer({
         video.removeEventListener('timeupdate', handleTimeUpdate);
       }
     };
-  }, [lessonId, onProgress]);
+  }, [lesson_id, onProgress]);
 
   // 컨트롤 함수들
   const togglePlay = useCallback(() => {
@@ -365,7 +365,7 @@ export function VideoPlayer({
 
         {/* 동적 워터마크 */}
         <div className="absolute top-4 right-4 text-white/20 select-none pointer-events-none text-xs">
-          {userId}
+          {user_id}
         </div>
 
         {/* 로딩 스피너 */}

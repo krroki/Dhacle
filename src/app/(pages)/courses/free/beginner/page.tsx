@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function BeginnerFreeCoursesPage(): Promise<React.JSX.Element> {
   // 입문자용 무료 강의 필터링
-  const response = await getCourses({ isFree: true });
+  const response = await getCourses({ is_free: true });
   const courses = response.courses.filter(
     (course) =>
       course.level === 'beginner' ||
