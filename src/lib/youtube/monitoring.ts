@@ -37,9 +37,9 @@ export class ChannelFolderManager {
    * Add channels to a folder
    */
   async addChannelsToFolder(folderId: string, channelIds: string[]): Promise<void> {
-    const folderChannels = channelIds.map((channelId) => ({
+    const folderChannels = channelIds.map((channel_id) => ({
       folder_id: folderId,
-      channel_id: channelId,
+      channel_id: channel_id,
     }));
 
     const { error } = await supabase.from('folderChannels').insert(folderChannels);
@@ -52,7 +52,7 @@ export class ChannelFolderManager {
   /**
    * Get all folders for a user
    */
-  async getUserFolders(userId: string): Promise<SourceFolder[]> {
+  async getUserFolders(user_id: string): Promise<SourceFolder[]> {
     const { data, error } = await supabase
       .from('sourceFolders')
       .select(`
@@ -62,7 +62,7 @@ export class ChannelFolderManager {
           channels(*)
         )
       `)
-      .eq('user_id', userId)
+      .eq('user_id', user_id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -119,11 +119,11 @@ export class AlertRuleEngine {
   /**
    * Get all rules for a user
    */
-  async getUserRules(userId: string): Promise<AlertRule[]> {
+  async getUserRules(user_id: string): Promise<AlertRule[]> {
     const { data, error } = await supabase
       .from('alertRules')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user_id)
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
@@ -146,7 +146,7 @@ export class AlertRuleEngine {
 
       switch (rule.metricType) {
         case 'view_count':
-          actualValue = video.statistics.viewCount;
+          actualValue = video.statistics.view_count;
           triggered = this.compareValue(
             actualValue,
             rule.comparisonOperator || '>',
@@ -205,10 +205,10 @@ export class AlertRuleEngine {
       if (triggered) {
         alerts.push({
           id: crypto.randomUUID(),
-          ruleId: rule.id,
+          rule_id: rule.id,
           user_id: rule.user_id,
           video_id: video.id,
-          channel_id: video.snippet.channelId,
+          channel_id: video.snippet.channel_id,
           alertType: rule.ruleType,
           title: `${rule.name} Alert`,
           message: `Alert: ${video.snippet.title} - ${rule.metricType} is ${actualValue} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
@@ -216,7 +216,7 @@ export class AlertRuleEngine {
           metricValue: actualValue,
           triggeredAt: new Date().toISOString(),
           contextData: { video_title: video.snippet.title },
-          isRead: false,
+          is_read: false,
           readAt: null,
           isArchived: false,
           created_at: new Date().toISOString(),
@@ -252,11 +252,11 @@ export class AlertRuleEngine {
   /**
    * Calculate growth rate from historical stats
    */
-  private async calculateGrowthRate(videoId: string): Promise<number | null> {
+  private async calculateGrowthRate(video_id: string): Promise<number | null> {
     const { data, error } = await supabase
       .from('videoStats')
       .select('view_count, snapshotAt')
-      .eq('video_id', videoId)
+      .eq('video_id', video_id)
       .order('snapshotAt', { ascending: false })
       .limit(2);
 
@@ -303,19 +303,19 @@ export class MonitoringScheduler {
   /**
    * Start monitoring for a user
    */
-  async startMonitoring(userId: string, intervalMinutes = 60): Promise<void> {
+  async startMonitoring(user_id: string, intervalMinutes = 60): Promise<void> {
     // Clear existing interval if any
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
 
     // Run immediately
-    await this.runMonitoringCheck(userId);
+    await this.runMonitoringCheck(user_id);
 
     // Set up periodic checks
     this.intervalId = setInterval(
       async () => {
-        await this.runMonitoringCheck(userId);
+        await this.runMonitoringCheck(user_id);
       },
       intervalMinutes * 60 * 1000
     );
@@ -334,14 +334,14 @@ export class MonitoringScheduler {
   /**
    * Run a single monitoring check
    */
-  private async runMonitoringCheck(userId: string): Promise<void> {
+  private async runMonitoringCheck(user_id: string): Promise<void> {
     try {
-      console.log(`Running monitoring check for user ${userId}`);
+      console.log(`Running monitoring check for user ${user_id}`);
 
       // Get user's folders and rules
       const [folders, rules] = await Promise.all([
-        this.folderManager.getUserFolders(userId),
-        this.ruleEngine.getUserRules(userId),
+        this.folderManager.getUserFolders(user_id),
+        this.ruleEngine.getUserRules(user_id),
       ]);
 
       if (rules.length === 0) {
@@ -381,7 +381,7 @@ export class MonitoringScheduler {
       }
 
       // Update last check timestamp
-      await this.updateLastCheckTime(userId);
+      await this.updateLastCheckTime(user_id);
     } catch (_error) {}
   }
 
@@ -398,13 +398,13 @@ export class MonitoringScheduler {
   /**
    * Update last monitoring check timestamp
    */
-  private async updateLastCheckTime(userId: string): Promise<void> {
+  private async updateLastCheckTime(user_id: string): Promise<void> {
     const { error } = await supabase
       .from('users')
       .update({
         lastMonitoringCheck: new Date().toISOString(),
       })
-      .eq('id', userId);
+      .eq('id', user_id);
 
     if (error) {
     }
@@ -452,15 +452,15 @@ export const monitoringUtils = {
   /**
    * Check monitoring health
    */
-  async checkMonitoringHealth(userId: string): Promise<{
+  async checkMonitoringHealth(user_id: string): Promise<{
     isHealthy: boolean;
     lastCheck?: string;
     activeRules: number;
     monitoredChannels: number;
   }> {
     const [rules, folders] = await Promise.all([
-      alertRuleEngine.getUserRules(userId),
-      channelFolderManager.getUserFolders(userId),
+      alertRuleEngine.getUserRules(user_id),
+      channelFolderManager.getUserFolders(user_id),
     ]);
 
     const channelCount = folders.reduce((count, folder) => {

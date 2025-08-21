@@ -1,122 +1,100 @@
+#!/usr/bin/env node
+
 /**
- * Script to fix remaining TypeScript errors
- * Fixes specific patterns that are causing issues
+ * Fix remaining snake_case/camelCase mismatches
  */
 
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
 
-let totalFixed = 0;
-const fixedFiles = [];
-
-// 1. Fix undefined 'err' references in admin/courses/videos/page.tsx
-const adminVideosFile = path.join(process.cwd(), 'src/app/admin/courses/videos/page.tsx');
-if (fs.existsSync(adminVideosFile)) {
-  let content = fs.readFileSync(adminVideosFile, 'utf8');
-  const originalContent = content;
-  
-  // Replace err with error
-  content = content.replace(/\berr\b(?!or)/g, 'error');
-  
-  if (content !== originalContent) {
-    fs.writeFileSync(adminVideosFile, content, 'utf8');
-    totalFixed++;
-    fixedFiles.push('src/app/admin/courses/videos/page.tsx');
+// Fix specific files with known issues
+const fixes = [
+  {
+    file: 'src/app/admin/courses/components/CourseEditor.tsx',
+    replacements: [
+      { from: /\.is_active/g, to: '.isActive' }
+    ]
+  },
+  {
+    file: 'src/app/(pages)/tools/youtube-lens/page.tsx', 
+    replacements: [
+      { from: /error_code/g, to: 'errorCode' }
+    ]
+  },
+  {
+    file: 'src/components/features/tools/youtube-lens/PopularShortsList.tsx',
+    replacements: [
+      { from: /errorMessage/g, to: 'error_message' }
+    ]
+  },
+  {
+    file: 'src/components/features/tools/youtube-lens/CollectionBoard.tsx',
+    replacements: [
+      { from: /collection_id(?!\w)/g, to: 'collectionId' }
+    ]
+  },
+  {
+    file: 'src/components/features/tools/youtube-lens/CollectionViewer.tsx',
+    replacements: [
+      { from: /videoId(?!\w)/g, to: 'video_id' }
+    ]
+  },
+  {
+    file: 'src/components/layout/Header.tsx',
+    replacements: [
+      { from: /user_role(?!\w)/g, to: 'userRole' }
+    ]
+  },
+  {
+    file: 'src/app/api/revenue-proof/route.ts',
+    replacements: [
+      { from: /content_type:/g, to: 'contentType:' }
+    ]
+  },
+  {
+    file: 'src/app/api/upload/route.ts',
+    replacements: [
+      { from: /content_type:/g, to: 'contentType:' }
+    ]
+  },
+  {
+    file: 'src/app/api/user/api-keys/route.ts',
+    replacements: [
+      { from: /\.api_key_masked/g, to: '.apiKeyMasked' },
+      { from: /service_name(?!\w)/g, to: 'serviceName' }
+    ]
+  },
+  {
+    file: 'src/app/api/youtube/subscribe/route.ts',
+    replacements: [
+      { from: /channel_title:/g, to: 'channelTitle:' }
+    ]
   }
-}
-
-// 2. Fix missing types for array reduce callbacks
-const filesToCheck = [
-  'src/app/admin/page.tsx',
-  'src/app/api/revenue-proof/ranking/route.ts'
 ];
 
-filesToCheck.forEach(filePath => {
-  const fullPath = path.join(process.cwd(), filePath);
-  if (fs.existsSync(fullPath)) {
-    let content = fs.readFileSync(fullPath, 'utf8');
-    const originalContent = content;
-    
-    // Add types to reduce callbacks
-    content = content.replace(
-      /\.reduce\(\s*\(\s*acc\s*,\s*proof\s*\)/g,
-      '.reduce((acc: any, proof: any)'
-    );
-    
-    content = content.replace(
-      /\.reduce\(\s*\(\s*acc\s*,\s*profile\s*\)/g,
-      '.reduce((acc: any, profile: any)'
-    );
-    
-    content = content.replace(
-      /\.reduce\(\s*\(\s*sum\s*,\s*p\s*\)/g,
-      '.reduce((sum: number, p: any)'
-    );
-    
-    if (content !== originalContent) {
-      fs.writeFileSync(fullPath, content, 'utf8');
-      totalFixed++;
-      fixedFiles.push(filePath);
-    }
-  }
-});
+console.log('🔧 Fixing remaining type errors...\n');
 
-// 3. Fix pubsub.ts err reference
-const pubsubFile = path.join(process.cwd(), 'src/lib/youtube/pubsub.ts');
-if (fs.existsSync(pubsubFile)) {
-  let content = fs.readFileSync(pubsubFile, 'utf8');
+fixes.forEach(({ file, replacements }) => {
+  const fullPath = path.join(process.cwd(), file);
+  
+  if (!fs.existsSync(fullPath)) {
+    console.log(`❌ File not found: ${file}`);
+    return;
+  }
+  
+  let content = fs.readFileSync(fullPath, 'utf8');
   const originalContent = content;
   
-  // Replace err with error  
-  content = content.replace(/console\.error\('[^']+',\s*err\)/g, (match) => {
-    return match.replace(', err)', ', error)');
+  replacements.forEach(({ from, to }) => {
+    content = content.replace(from, to);
   });
   
   if (content !== originalContent) {
-    fs.writeFileSync(pubsubFile, content, 'utf8');
-    totalFixed++;
-    fixedFiles.push('src/lib/youtube/pubsub.ts');
+    fs.writeFileSync(fullPath, content);
+    console.log(`✅ Fixed: ${file}`);
+  } else {
+    console.log(`⏭️  No changes needed: ${file}`);
   }
-}
-
-// 4. Fix UserApiKey interface issues in api-keys route
-const apiKeysRoute = path.join(process.cwd(), 'src/app/api/user/api-keys/route.ts');
-if (fs.existsSync(apiKeysRoute)) {
-  let content = fs.readFileSync(apiKeysRoute, 'utf8');
-  const originalContent = content;
-  
-  // Extend UserApiKey interface to include missing properties
-  if (!content.includes('lastUsedAt')) {
-    content = content.replace(
-      /interface UserApiKey \{([^}]+)\}/,
-      (match, body) => {
-        const newProperties = `
-  lastUsedAt?: string | null;
-  usageCount?: number;
-  usageToday?: number;
-  usageDate?: string;
-  validationError?: string | null;`;
-        return `interface UserApiKey {${body}${newProperties}
-}`;
-      }
-    );
-  }
-  
-  if (content !== originalContent) {
-    fs.writeFileSync(apiKeysRoute, content, 'utf8');
-    totalFixed++;
-    fixedFiles.push('src/app/api/user/api-keys/route.ts');
-  }
-}
-
-console.log(`\n✅ Fixed ${totalFixed} files:`);
-fixedFiles.forEach(file => {
-  console.log(`  - ${file}`);
 });
 
-console.log('\n📋 Fixes applied:');
-console.log('  - Replaced undefined err variables with error');
-console.log('  - Added types to reduce() callbacks');
-console.log('  - Extended UserApiKey interface');
-console.log('\n💡 Run "npx tsc --noEmit" to verify fixes');
+console.log('\n✨ Remaining fixes complete!');

@@ -99,12 +99,12 @@ export class CryptoUtil {
   /**
    * API 키 마스킹 (표시용)
    */
-  static maskApiKey(apiKey: string): string {
-    if (!apiKey || apiKey.length < 8) {
+  static maskApiKey(api_key: string): string {
+    if (!api_key || api_key.length < 8) {
       return '***';
     }
     const firstFour = apiKey.substring(0, 4);
-    const lastFour = apiKey.substring(apiKey.length - 4);
+    const lastFour = apiKey.substring(api_key.length - 4);
     return `${firstFour}...${lastFour}`;
   }
 
@@ -119,10 +119,10 @@ export class CryptoUtil {
    * 시간 제한 토큰 생성
    */
   static generateTimeLimitedToken(data: unknown, expiresInMinutes = 15): string {
-    const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
+    const expires_at = Date.now() + expiresInMinutes * 60 * 1000;
     const payload = {
       data,
-      expiresAt,
+      expires_at,
     };
     return CryptoUtil.encryptObject(payload);
   }
@@ -132,9 +132,9 @@ export class CryptoUtil {
    */
   static verifyTimeLimitedToken<T>(token: string): T | null {
     try {
-      const payload = CryptoUtil.decryptObject<{ data: T; expiresAt: number }>(token);
+      const payload = CryptoUtil.decryptObject<{ data: T; expires_at: number }>(token);
 
-      if (Date.now() > payload.expiresAt) {
+      if (Date.now() > payload.expires_at) {
         return null;
       }
 

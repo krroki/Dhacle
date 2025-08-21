@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function WeeklyFreeCoursesPage(): Promise<React.JSX.Element> {
-  // 주간 무료 강의 필터링 (isFree이면서 특별 태그가 있는 강의)
-  const response = await getCourses({ isFree: true });
+  // 주간 무료 강의 필터링 (is_free이면서 특별 태그가 있는 강의)
+  const response = await getCourses({ is_free: true });
   const courses = response.courses.filter(
     (course) => course.tags?.includes('weekly-free') || course.tags?.includes('주간무료')
   );

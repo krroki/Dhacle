@@ -24,7 +24,7 @@ interface YouTubeLensState {
 
   // OAuth & API 키
   oauthToken?: OAuthToken;
-  apiKey?: string;
+  api_key?: string;
   isAuthenticated: boolean;
 
   // API 할당량
@@ -40,13 +40,13 @@ interface YouTubeLensState {
   appendVideos: (videos: FlattenedYouTubeVideo[]) => void;
   clearVideos: () => void;
 
-  toggleVideoSelection: (videoId: string) => void;
+  toggleVideoSelection: (video_id: string) => void;
   selectAllVideos: () => void;
   clearSelectedVideos: () => void;
 
   addFavorite: (video: FlattenedYouTubeVideo, tags?: string[], notes?: string) => void;
-  removeFavorite: (videoId: string) => void;
-  updateFavorite: (videoId: string, updates: Partial<YouTubeFavorite>) => void;
+  removeFavorite: (video_id: string) => void;
+  updateFavorite: (video_id: string, updates: Partial<YouTubeFavorite>) => void;
   loadFavorites: (favorites: YouTubeFavorite[]) => void;
 
   setSearchQuery: (query: string) => void;
@@ -88,7 +88,7 @@ const initialState = {
   nextPageToken: undefined,
 
   oauthToken: undefined,
-  apiKey: undefined,
+  api_key: undefined,
   isAuthenticated: false,
 
   quotaStatus: undefined,
@@ -114,13 +114,13 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
 
         clearVideos: () => set({ videos: [], selectedVideos: new Set() }),
 
-        toggleVideoSelection: (videoId) =>
+        toggleVideoSelection: (video_id) =>
           set((state) => {
             const newSelected = new Set(state.selectedVideos);
-            if (newSelected.has(videoId)) {
-              newSelected.delete(videoId);
+            if (newSelected.has(video_id)) {
+              newSelected.delete(video_id);
             } else {
-              newSelected.add(videoId);
+              newSelected.add(video_id);
             }
             return { selectedVideos: newSelected };
           }),
@@ -150,19 +150,19 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
             return { favoriteVideos: newFavorites };
           }),
 
-        removeFavorite: (videoId) =>
+        removeFavorite: (video_id) =>
           set((state) => {
             const newFavorites = new Map(state.favoriteVideos);
-            newFavorites.delete(videoId);
+            newFavorites.delete(video_id);
             return { favoriteVideos: newFavorites };
           }),
 
-        updateFavorite: (videoId, updates) =>
+        updateFavorite: (video_id, updates) =>
           set((state) => {
             const newFavorites = new Map(state.favoriteVideos);
-            const existing = newFavorites.get(videoId);
+            const existing = newFavorites.get(video_id);
             if (existing) {
-              newFavorites.set(videoId, {
+              newFavorites.set(video_id, {
                 ...existing,
                 ...updates,
                 updated_at: new Date().toISOString(),
@@ -201,7 +201,7 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
 
         setApiKey: (key) =>
           set({
-            apiKey: key,
+            api_key: key,
             isAuthenticated: !!key || !!get().oauthToken,
           }),
 

@@ -33,12 +33,12 @@ export async function GET(request: NextRequest) {
 
     // 서비스 파라미터 (기본값: youtube)
     const searchParams = request.nextUrl.searchParams;
-    const serviceName = searchParams.get('service') || 'youtube';
+    const service_name = searchParams.get('service') || 'youtube';
 
     // API Key 조회
-    const apiKey = await getUserApiKey(user.id, serviceName);
+    const api_key = await getUserApiKey(user.id, service_name as string);
 
-    if (!apiKey) {
+    if (!api_key) {
       return NextResponse.json(
         {
           success: true,
@@ -51,18 +51,18 @@ export async function GET(request: NextRequest) {
 
     // 민감한 정보 제거
     const safeApiKey = {
-      id: apiKey.id,
-      serviceName: apiKey.serviceName,
-      apiKeyMasked: apiKey.apiKeyMasked,
-      created_at: apiKey.created_at,
-      updated_at: apiKey.updated_at,
-      lastUsedAt: apiKey.lastUsedAt,
-      usageCount: apiKey.usageCount,
-      usageToday: apiKey.usageToday,
-      usageDate: apiKey.usageDate,
-      is_active: apiKey.is_active,
-      isValid: apiKey.isValid,
-      validationError: apiKey.validationError,
+      id: api_key.id,
+      service_name: api_key.service_name,
+      api_key_masked: api_key.api_key_masked,
+      created_at: api_key.created_at,
+      updated_at: api_key.updated_at,
+      lastUsedAt: api_key.lastUsedAt,
+      usageCount: api_key.usageCount,
+      usageToday: api_key.usageToday,
+      usageDate: api_key.usageDate,
+      is_active: api_key.is_active,
+      isValid: api_key.isValid,
+      validationError: api_key.validationError,
     };
 
     return NextResponse.json({
@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
 
     // 요청 본문 파싱
     const body = await request.json();
-    const { apiKey, serviceName = 'youtube', metadata = {} } = body;
+    const { api_key, serviceName = 'youtube', metadata = {} } = body;
 
-    if (!apiKey) {
+    if (!api_key) {
       return NextResponse.json(
         {
           success: false,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
 
     // YouTube API Key인 경우 유효성 검증
     if (serviceName === 'youtube') {
-      const validation = await validateYouTubeApiKey(apiKey);
+      const validation = await validateYouTubeApiKey(api_key);
 
       if (!validation.isValid) {
         return NextResponse.json(
@@ -145,8 +145,8 @@ export async function POST(request: NextRequest) {
     // API Key 저장
     console.log('[API Route] Before saveUserApiKey');
     const savedKey = await saveUserApiKey({
-      userId: user.id,
-      apiKey,
+      user_id: user.id,
+      api_key,
       serviceName,
       metadata,
     });
@@ -155,8 +155,8 @@ export async function POST(request: NextRequest) {
     // 민감한 정보 제거
     const safeApiKey = {
       id: savedKey.id,
-      serviceName: savedKey.serviceName,
-      apiKeyMasked: savedKey.apiKeyMasked,
+      service_name: savedKey.service_name,
+      api_key_masked: savedKey.apiKeyMasked,
       created_at: savedKey.created_at,
       isValid: savedKey.isValid,
     };
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     // 더 상세한 에러 메시지 반환
-    const errorMessage =
+    const error_message =
       error instanceof Error
         ? error.message
         : typeof error === 'string'
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: errorMessage,
+        error: error_message,
         details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
@@ -206,10 +206,10 @@ export async function DELETE(request: NextRequest) {
 
     // 서비스 파라미터 (기본값: youtube)
     const searchParams = request.nextUrl.searchParams;
-    const serviceName = searchParams.get('service') || 'youtube';
+    const service_name = searchParams.get('service') || 'youtube';
 
     // API Key 삭제
-    const success = await deleteUserApiKey(user.id, serviceName);
+    const success = await deleteUserApiKey(user.id, service_name as string);
 
     if (!success) {
       return NextResponse.json(

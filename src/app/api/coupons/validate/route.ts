@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { couponCode, courseId } = body;
+    const { couponCode, course_id } = body;
 
-    if (!couponCode || !courseId) {
+    if (!couponCode || !course_id) {
       return NextResponse.json({ error: '쿠폰 코드와 강의 ID가 필요합니다.' }, { status: 400 });
     }
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 강의별 쿠폰인 경우 체크
-    if (coupon.course_id && coupon.course_id !== courseId) {
+    if (coupon.course_id && coupon.course_id !== course_id) {
       return NextResponse.json(
         { error: '이 강의에는 사용할 수 없는 쿠폰입니다.' },
         { status: 400 }
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .select('price')
-      .eq('id', courseId)
+      .eq('id', course_id)
       .single();
 
     if (courseError || !course) {

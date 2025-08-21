@@ -25,7 +25,7 @@ export interface Video {
     maxres?: { url: string; width: number; height: number };
   } | null;
   tags: string[] | null;
-  categoryId: string | null;
+  category_id: string | null;
   languageCode: string | null;
   regionCode: string | null;
   firstSeenAt: string;
@@ -133,7 +133,7 @@ export interface AlertRule {
 
 export interface Alert {
   id: string;
-  ruleId: string;
+  rule_id: string;
   user_id: string;
   video_id?: string;
   channel_id?: string;
@@ -144,7 +144,7 @@ export interface Alert {
   metricValue?: number;
   triggeredAt?: string;
   contextData: Record<string, unknown> | null;
-  isRead: boolean;
+  is_read: boolean;
   readAt: string | null;
   isArchived: boolean;
   created_at: string;
@@ -185,13 +185,13 @@ export interface SavedSearch {
   searchParams: {
     query?: string;
     regionCode?: string;
-    categoryId?: string;
+    category_id?: string;
     order?: string;
     publishedAfter?: string;
     publishedBefore?: string;
     videoDuration?: string;
     maxResults?: number;
-    channelId?: string;
+    channel_id?: string;
     [key: string]: string | number | boolean | undefined;
   };
   searchType: SearchType;
@@ -237,9 +237,9 @@ export interface YouTubeVideo {
   snippet: {
     title: string;
     description: string;
-    channelId: string;
-    channelTitle: string;
-    publishedAt: string;
+    channel_id: string;
+    channel_title: string;
+    published_at: string;
     thumbnails: {
       default?: { url: string; width: number; height: number };
       medium?: { url: string; width: number; height: number };
@@ -250,9 +250,9 @@ export interface YouTubeVideo {
     tags?: string[];
   };
   statistics: {
-    viewCount: number;
-    likeCount: number;
-    commentCount: number;
+    view_count: number;
+    like_count: number;
+    comment_count: number;
     favoriteCount?: number;
   };
   contentDetails: {
@@ -269,7 +269,7 @@ export interface YouTubeChannel {
     title: string;
     description: string;
     customUrl?: string;
-    publishedAt: string;
+    published_at: string;
     thumbnails: {
       default?: { url: string; width: number; height: number };
       medium?: { url: string; width: number; height: number };
@@ -278,8 +278,8 @@ export interface YouTubeChannel {
     country?: string;
   };
   statistics: {
-    viewCount: number;
-    subscriberCount: number;
+    view_count: number;
+    subscriber_count: number;
     videoCount: number;
     hiddenSubscriberCount: boolean;
   };
@@ -329,19 +329,19 @@ export interface AlertWithRule extends Alert {
 export interface SearchVideosParams {
   query?: string;
   regionCode?: string;
-  categoryId?: string;
-  order?: 'date' | 'rating' | 'relevance' | 'title' | 'viewCount';
+  category_id?: string;
+  order?: 'date' | 'rating' | 'relevance' | 'title' | 'view_count';
   publishedAfter?: string;
   publishedBefore?: string;
   videoDuration?: 'short' | 'medium' | 'long';
   maxResults?: number;
   pageToken?: string;
-  channelId?: string;
+  channel_id?: string;
 }
 
 export interface PopularShortsParams {
   regionCode?: string;
-  categoryId?: string;
+  category_id?: string;
   period?: '1h' | '6h' | '24h' | '7d' | '30d' | '1d';
   minViews?: number;
   minVPH?: number;

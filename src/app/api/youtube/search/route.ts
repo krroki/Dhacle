@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       videoEmbeddable: body.videoEmbeddable,
       publishedAfter: body.publishedAfter,
       publishedBefore: body.publishedBefore,
-      channelId: body.channelId,
+      channel_id: body.channel_id,
       relevanceLanguage: body.relevanceLanguage || 'ko',
       regionCode: body.regionCode || 'KR',
       safeSearch: body.safeSearch || 'moderate',
@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 사용자의 YouTube API Key 가져오기
-    const apiKey = await getDecryptedApiKey(user.id, 'youtube');
+    const api_key = await getDecryptedApiKey(user.id, 'youtube');
 
-    if (!apiKey) {
+    if (!api_key) {
       return NextResponse.json(
         {
           error: 'YouTube API Key가 필요합니다. 설정 페이지에서 API Key를 등록해주세요.',
-          errorCode: 'apiKeyRequired',
+          error_code: 'apiKeyRequired',
           actionRequired: 'setupApiKey',
         },
         { status: 401 }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     // YouTube API 클라이언트 생성 (API Key 사용)
     const apiClient = new YouTubeAPIClient({
-      apiKey: apiKey,
+      api_key: api_key,
       onQuotaUpdate: async (_units) => {
         // 할당량 업데이트는 검색 완료 후 처리
       },
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'YouTube API 일일 할당량을 초과했습니다. 내일 다시 시도해주세요.',
-            errorCode: 'quotaExceeded',
+            error_code: 'quotaExceeded',
             resetTime: new Date().setHours(24, 0, 0, 0), // 다음날 자정
           },
           { status: 429 }
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'YouTube API 접근 권한이 없습니다. API Key를 확인해주세요.',
-            errorCode: 'accessForbidden',
+            error_code: 'accessForbidden',
             actionRequired: 'checkApiKey',
           },
           { status: 403 }
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: '잘못된 검색 요청입니다. 검색어를 확인해주세요.',
-            errorCode: 'invalidRequest',
+            error_code: 'invalidRequest',
           },
           { status: 400 }
         );
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'API Key가 유효하지 않습니다. 설정 페이지에서 다시 등록해주세요.',
-            errorCode: 'invalidApiKey',
+            error_code: 'invalidApiKey',
             actionRequired: 'updateApiKey',
           },
           { status: 401 }
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: '저장된 API Key를 읽을 수 없습니다. 다시 등록해주세요.',
-            errorCode: 'decryptionFailed',
+            error_code: 'decryptionFailed',
             actionRequired: 'updateApiKey',
           },
           { status: 500 }
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            errorCode: 'networkError',
+            error_code: 'networkError',
           },
           { status: 503 }
         );
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'YouTube 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-        errorCode: 'searchFailed',
+        error_code: 'searchFailed',
       },
       { status: 500 }
     );

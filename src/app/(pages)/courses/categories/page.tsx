@@ -93,11 +93,11 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
   const getCourseCountByCategory = (categoryTags: string[]) => {
     return allCourses.filter((course) => {
       const courseTags = course.tags || [];
-      const courseTitle = course.title.toLowerCase();
+      const course_title = course.title.toLowerCase();
       const courseDesc = course.description?.toLowerCase() || '';
 
       return categoryTags.some(
-        (tag) => courseTags.includes(tag) || courseTitle.includes(tag) || courseDesc.includes(tag)
+        (tag) => courseTags.includes(tag) || course_title.includes(tag) || courseDesc.includes(tag)
       );
     }).length;
   };
@@ -174,7 +174,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
           </div>
           <div className="bg-white dark:bg-gray-900 border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-primary">
-              {allCourses.filter((c) => c.isFree).length}
+              {allCourses.filter((c) => c.is_free).length}
             </div>
             <p className="text-sm text-muted-foreground">무료 강의</p>
           </div>

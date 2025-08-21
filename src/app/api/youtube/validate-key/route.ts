@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
 
     // 요청 본문 파싱
     const body = await request.json();
-    const { apiKey } = body;
+    const { api_key } = body;
 
-    if (!apiKey) {
+    if (!api_key) {
       return NextResponse.json(
         {
           success: false,
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // API Key 형식 검증 (기본)
-    if (!apiKey.startsWith('AIza') || apiKey.length !== 39) {
+    if (!api_key.startsWith('AIza') || api_key.length !== 39) {
       return NextResponse.json(
         {
           success: false,
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // YouTube API를 통한 실제 검증
-    const validation = await validateYouTubeApiKey(apiKey);
+    const validation = await validateYouTubeApiKey(api_key);
 
     if (!validation.isValid) {
       return NextResponse.json(

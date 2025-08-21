@@ -67,20 +67,20 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-hub-signature') || null;
 
     // Extract channel ID from the XML (simplified parsing)
-    const channelIdMatch = body.match(/<yt:channelId>([^<]+)<\/yt:channelId>/);
+    const channelIdMatch = body.match(/<yt:channel_id>([^<]+)<\/yt:channel_id>/);
 
     if (!channelIdMatch) {
       return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
     }
 
-    const channelId = channelIdMatch[1];
+    const channel_id = channelIdMatch[1];
 
     // Process the notification
-    const result = await pubsubManager.processNotification(body, signature, channelId);
+    const result = await pubsubManager.processNotification(body, signature, channel_id);
 
     if (result.success) {
       console.log('Notification processed:', {
-        channelId,
+        channel_id,
         video: result.video,
       });
 
@@ -116,19 +116,19 @@ async function handleVideoUpdate(video: unknown) {
     // await alertEngine.checkVideoAgainstRules(video, rules);
 
     // Type guard to check if video has expected properties
-    const isVideoObject = (v: unknown): v is { videoId?: string; deleted?: boolean } => {
+    const isVideoObject = (v: unknown): v is { video_id?: string; deleted?: boolean } => {
       return typeof v === 'object' && v !== null;
     };
 
     // Update video statistics if needed
-    if (isVideoObject(video) && video.videoId && !video.deleted) {
+    if (isVideoObject(video) && video.video_id && !video.deleted) {
       // Fetch latest statistics from YouTube API
       // This would need to be implemented with proper YouTube API integration
       // const apiClient = new YouTubeAPIClient();
-      // const videoData = await apiClient.getVideoDetails(video.videoId);
+      // const videoData = await apiClient.getVideoDetails(video.video_id);
 
       // For now, we'll just log the update
-      console.log(`Video update received for ${video.videoId}`);
+      console.log(`Video update received for ${video.video_id}`);
 
       // TODO: Implement proper video data fetching and storage
       // This would require:

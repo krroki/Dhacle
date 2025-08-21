@@ -99,7 +99,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 
     return NextResponse.json({
       isLiked,
-      likesCount: likesCount || 0,
+      likes_count: likesCount || 0,
       message,
     });
   } catch (_error) {

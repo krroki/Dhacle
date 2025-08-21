@@ -14,6 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_rules: {
+        Row: {
+          comparison_period: string | null
+          condition: string
+          cooldown_minutes: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          metric: string
+          name: string
+          notification_channels: Json | null
+          rule_type: string
+          target_id: string | null
+          target_type: string | null
+          threshold_max: number | null
+          threshold_min: number | null
+          threshold_value: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comparison_period?: string | null
+          condition: string
+          cooldown_minutes?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          metric: string
+          name: string
+          notification_channels?: Json | null
+          rule_type: string
+          target_id?: string | null
+          target_type?: string | null
+          threshold_max?: number | null
+          threshold_min?: number | null
+          threshold_value?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comparison_period?: string | null
+          condition?: string
+          cooldown_minutes?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          metric?: string
+          name?: string
+          notification_channels?: Json | null
+          rule_type?: string
+          target_id?: string | null
+          target_type?: string | null
+          threshold_max?: number | null
+          threshold_min?: number | null
+          threshold_value?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          entity_id: string | null
+          entity_name: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean | null
+          is_resolved: boolean | null
+          message: string
+          metric_data: Json | null
+          read_at: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          rule_id: string
+          severity: string | null
+          threshold_value: number | null
+          title: string
+          triggered_value: number | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          message: string
+          metric_data?: Json | null
+          read_at?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          rule_id: string
+          severity?: string | null
+          threshold_value?: number | null
+          title: string
+          triggered_value?: number | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          message?: string
+          metric_data?: Json | null
+          read_at?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          rule_id?: string
+          severity?: string | null
+          threshold_value?: number | null
+          title?: string
+          triggered_value?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "alert_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
           badge_level: string | null
@@ -46,6 +186,33 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      channel_subscriptions: {
+        Row: {
+          channel_id: string
+          channel_name: string | null
+          channel_thumbnail: string | null
+          id: string
+          subscribed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          channel_name?: string | null
+          channel_thumbnail?: string | null
+          id?: string
+          subscribed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          channel_name?: string | null
+          channel_thumbnail?: string | null
+          id?: string
+          subscribed_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1405,6 +1572,30 @@ export type Database = {
           },
         ]
       }
+      subscription_logs: {
+        Row: {
+          action: string
+          channel_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          channel_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          channel_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       test_connection: {
         Row: {
           created_at: string
@@ -1689,6 +1880,36 @@ export type Database = {
           title?: string
           updated_at?: string | null
           view_count?: number | null
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          status?: string | null
         }
         Relationships: []
       }

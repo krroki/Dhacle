@@ -30,11 +30,11 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface OnboardingData {
-  workType: 'main' | 'side' | '';
-  jobCategory: string;
-  currentIncome: string;
-  targetIncome: string;
-  experienceLevel: 'beginner' | 'intermediate' | 'advanced' | '';
+  work_type: 'main' | 'side' | '';
+  job_category: string;
+  current_income: string;
+  target_income: string;
+  experience_level: 'beginner' | 'intermediate' | 'advanced' | '';
 }
 
 const JOB_CATEGORIES = [
@@ -84,11 +84,11 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [_generatedUsername, setGeneratedUsername] = useState('');
   const [data, setData] = useState<OnboardingData>({
-    workType: '',
-    jobCategory: '',
-    currentIncome: '',
-    targetIncome: '',
-    experienceLevel: '',
+    work_type: '',
+    job_category: '',
+    current_income: '',
+    target_income: '',
+    experience_level: '',
   });
 
   // 인증 확인
@@ -120,20 +120,20 @@ export default function OnboardingPage() {
   // 다음 단계로
   const handleNext = async () => {
     if (step === 1) {
-      if (!data.workType || !data.jobCategory) {
+      if (!data.work_type || !data.job_category) {
         alert('모든 필드를 선택해주세요');
         return;
       }
     }
 
     if (step === 2) {
-      if (!data.currentIncome || !data.targetIncome) {
+      if (!data.current_income || !data.target_income) {
         alert('현재 수입과 목표 금액을 선택해주세요');
         return;
       }
     }
 
-    if (step === 3 && !data.experienceLevel) {
+    if (step === 3 && !data.experience_level) {
       alert('경험 수준을 선택해주세요');
       return;
     }
@@ -160,11 +160,11 @@ export default function OnboardingPage() {
       await apiPost('/api/user/profile', {
         id: user.id,
         username: username,
-        workType: data.workType,
-        jobCategory: data.jobCategory,
-        currentIncome: data.currentIncome,
-        targetIncome: data.targetIncome,
-        experienceLevel: data.experienceLevel,
+        work_type: data.work_type,
+        job_category: data.job_category,
+        current_income: data.current_income,
+        target_income: data.target_income,
+        experience_level: data.experience_level,
       });
 
       // 메인 페이지로 이동
@@ -235,9 +235,9 @@ export default function OnboardingPage() {
                     <span className="text-destructive">*</span>
                   </Label>
                   <RadioGroup
-                    value={data.workType}
+                    value={data.work_type}
                     onValueChange={(value) =>
-                      setData((prev) => ({ ...prev, workType: value as 'main' | 'side' }))
+                      setData((prev) => ({ ...prev, work_type: value as 'main' | 'side' }))
                     }
                   >
                     <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
@@ -269,10 +269,10 @@ export default function OnboardingPage() {
                     {JOB_CATEGORIES.map((job) => (
                       <button
                         key={job.value}
-                        onClick={() => setData((prev) => ({ ...prev, jobCategory: job.value }))}
+                        onClick={() => setData((prev) => ({ ...prev, job_category: job.value }))}
                         className={cn(
                           'p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
-                          data.jobCategory === job.value
+                          data.job_category === job.value
                             ? 'border-primary bg-primary/5'
                             : 'border-muted hover:border-muted-foreground'
                         )}
@@ -296,9 +296,9 @@ export default function OnboardingPage() {
                     현재 월 평균 수입은 얼마인가요? <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={data.currentIncome}
+                    value={data.current_income}
                     onValueChange={(value) =>
-                      setData((prev) => ({ ...prev, currentIncome: value }))
+                      setData((prev) => ({ ...prev, current_income: value }))
                     }
                   >
                     <SelectTrigger>
@@ -320,8 +320,8 @@ export default function OnboardingPage() {
                     <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={data.targetIncome}
-                    onValueChange={(value) => setData((prev) => ({ ...prev, targetIncome: value }))}
+                    value={data.target_income}
+                    onValueChange={(value) => setData((prev) => ({ ...prev, target_income: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="목표 수입을 선택해주세요" />
@@ -351,10 +351,10 @@ export default function OnboardingPage() {
                 {EXPERIENCE_LEVELS.map((level) => (
                   <button
                     key={level.value}
-                    onClick={() => setData((prev) => ({ ...prev, experienceLevel: level.value }))}
+                    onClick={() => setData((prev) => ({ ...prev, experience_level: level.value }))}
                     className={cn(
                       'w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
-                      data.experienceLevel === level.value
+                      data.experience_level === level.value
                         ? 'border-primary bg-primary/5'
                         : 'border-muted hover:border-muted-foreground'
                     )}
@@ -365,7 +365,7 @@ export default function OnboardingPage() {
                         <p className="font-semibold">{level.label}</p>
                         <p className="text-sm text-muted-foreground">{level.description}</p>
                       </div>
-                      {data.experienceLevel === level.value && (
+                      {data.experience_level === level.value && (
                         <Check className="h-5 w-5 text-primary" />
                       )}
                     </div>

@@ -5,9 +5,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ channelId: string }> }
+  { params }: { params: Promise<{ channel_id: string }> }
 ) {
-  const { channelId } = await params;
+  const { channel_id } = await params;
   const supabase = createRouteHandlerClient({ cookies });
 
   // 인증 체크
@@ -37,7 +37,7 @@ export async function GET(
         notes,
         created_at
       `)
-      .eq('channel_id', channelId)
+      .eq('channel_id', channel_id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -45,13 +45,13 @@ export async function GET(
     // snake_case를 camelCase로 변환
     const camelCaseData = data?.map((log) => ({
       id: log.id,
-      channelId: log.channel_id,
+      channel_id: log.channel_id,
       action: log.action,
       actorId: log.actor_id,
       beforeStatus: log.before_status,
       afterStatus: log.after_status,
       notes: log.notes,
-      createdAt: log.created_at,
+      created_at: log.created_at,
     }));
 
     return NextResponse.json({ data: camelCaseData || [] });

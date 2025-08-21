@@ -5,9 +5,9 @@ import { createServerClient } from '@/lib/supabase/server-client';
 interface UserApiKey {
   id: string;
   user_id: string;
-  serviceName: string;
-  encryptedKey: string;
-  encryptionIv: string;
+  service_name: string;
+  encrypted_key: string;
+  encryption_iv: string;
   apiKeyMasked?: string;
   is_active: boolean;
   isValid?: boolean;
@@ -25,17 +25,17 @@ const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
 
 export async function getDecryptedApiKey(
-  userId: string,
-  serviceName: string
+  user_id: string,
+  service_name: string
 ): Promise<string | null> {
   try {
     const supabase = await createServerClient();
 
     const { data, error } = await supabase
-      .from('userApiKeys')
-      .select('encryptedKey, encryptionIv')
-      .eq('user_id', userId)
-      .eq('serviceName', serviceName)
+      .from('user_api_keys')
+      .select('encrypted_key, encryption_iv')
+      .eq('user_id', user_id)
+      .eq('service_name', service_name)
       .eq('is_active', true)
       .single();
 
@@ -47,10 +47,10 @@ export async function getDecryptedApiKey(
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
       Buffer.from(ENCRYPTION_KEY, 'hex'),
-      Buffer.from(data.encryptionIv, 'hex')
+      Buffer.from(data?.encryption_iv, 'hex')
     );
 
-    let decrypted = decipher.update(data.encryptedKey, 'hex', 'utf8');
+    let decrypted = decipher.update(data?.encrypted_key, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
 
     return decrypted;
@@ -59,11 +59,11 @@ export async function getDecryptedApiKey(
   }
 }
 
-export async function encryptApiKey(apiKey: string): Promise<{ encrypted: string; iv: string }> {
+export async function encryptApiKey(api_key: string): Promise<{ encrypted: string; iv: string }> {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
 
-  let encrypted = cipher.update(apiKey, 'utf8', 'hex');
+  let encrypted = cipher.update(api_key, 'utf8', 'hex');
   encrypted += cipher.final('hex');
 
   return {
@@ -73,26 +73,26 @@ export async function encryptApiKey(apiKey: string): Promise<{ encrypted: string
 }
 
 export async function saveApiKey(
-  userId: string,
-  serviceName: string,
-  apiKey: string
+  user_id: string,
+  service_name: string,
+  api_key: string
 ): Promise<boolean> {
   const supabase = await createServerClient();
-  const { encrypted, iv } = await encryptApiKey(apiKey);
+  const { encrypted, iv } = await encryptApiKey(api_key);
 
   // 기존 키 비활성화
   await supabase
-    .from('userApiKeys')
+    .from('user_api_keys')
     .update({ is_active: false })
-    .eq('user_id', userId)
-    .eq('serviceName', serviceName);
+    .eq('user_id', user_id)
+    .eq('service_name', service_name);
 
   // 새 키 저장
-  const { error } = await supabase.from('userApiKeys').insert({
-    user_id: userId,
-    serviceName: serviceName,
-    encryptedKey: encrypted,
-    encryptionIv: iv,
+  const { error } = await supabase.from('user_api_keys').insert({
+    user_id: user_id,
+    service_name: serviceName,
+    encrypted_key: encrypted,
+    encryption_iv: iv,
     is_active: true,
   });
 
@@ -103,11 +103,11 @@ export async function saveApiKey(
 }
 
 export async function validateYouTubeApiKey(
-  apiKey: string
+  api_key: string
 ): Promise<{ isValid: boolean; error?: string; quotaInfo?: Record<string, unknown> }> {
   try {
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=jNQXAC9IVRw&key=${apiKey}`
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=jNQXAC9IVRw&key=${api_key}`
     );
 
     if (!response.ok) {
@@ -128,36 +128,36 @@ export async function validateYouTubeApiKey(
 }
 
 export async function saveUserApiKey(params: {
-  userId: string;
-  apiKey: string;
-  serviceName: string;
+  user_id: string;
+  api_key: string;
+  service_name: string;
   metadata?: Record<string, unknown>;
 }): Promise<UserApiKey> {
-  const { userId, apiKey, serviceName, metadata = {} } = params;
+  const { user_id, api_key, service_name, metadata = {} } = params;
   const supabase = await createServerClient();
-  const { encrypted, iv } = await encryptApiKey(apiKey);
+  const { encrypted, iv } = await encryptApiKey(api_key);
 
   // 기존 키 비활성화
   await supabase
-    .from('userApiKeys')
+    .from('user_api_keys')
     .update({ is_active: false })
-    .eq('user_id', userId)
-    .eq('serviceName', serviceName);
+    .eq('user_id', user_id)
+    .eq('service_name', service_name);
 
   // API 키 마스킹 (처음 10자리만 보이고 나머지는 *)
-  const apiKeyMasked = apiKey.substring(0, 10) + '*'.repeat(Math.max(0, apiKey.length - 10));
+  const apiKeyMasked = api_key.substring(0, 10) + '*'.repeat(Math.max(0, api_key.length - 10));
 
   // 새 키 저장
   const { data, error } = await supabase
-    .from('userApiKeys')
+    .from('user_api_keys')
     .insert({
-      user_id: userId,
-      serviceName: serviceName,
-      encryptedKey: encrypted,
-      encryptionIv: iv,
-      apiKeyMasked: apiKeyMasked,
+      user_id: user_id,
+      service_name: serviceName,
+      encrypted_key: encrypted,
+      encryption_iv: iv,
+      api_key_masked: apiKeyMasked,
       is_active: true,
-      isValid: true,
+      is_valid: true,
       metadata,
     })
     .select()
@@ -170,16 +170,16 @@ export async function saveUserApiKey(params: {
 }
 
 export async function getUserApiKey(
-  userId: string,
-  serviceName: string
+  user_id: string,
+  service_name: string
 ): Promise<UserApiKey | null> {
   const supabase = await createServerClient();
 
   const { data, error } = await supabase
-    .from('userApiKeys')
+    .from('user_api_keys')
     .select('*')
-    .eq('user_id', userId)
-    .eq('serviceName', serviceName)
+    .eq('user_id', user_id)
+    .eq('service_name', service_name)
     .eq('is_active', true)
     .single();
 
@@ -189,14 +189,14 @@ export async function getUserApiKey(
   return data;
 }
 
-export async function deleteUserApiKey(userId: string, serviceName: string): Promise<boolean> {
+export async function deleteUserApiKey(user_id: string, service_name: string): Promise<boolean> {
   const supabase = await createServerClient();
 
   const { error } = await supabase
-    .from('userApiKeys')
+    .from('user_api_keys')
     .update({ is_active: false })
-    .eq('user_id', userId)
-    .eq('serviceName', serviceName);
+    .eq('user_id', user_id)
+    .eq('service_name', service_name);
 
   return !error;
 }

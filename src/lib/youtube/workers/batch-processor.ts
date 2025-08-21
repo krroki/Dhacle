@@ -18,10 +18,10 @@ const connection = new Redis({
 });
 
 // YouTube API 클라이언트 생성
-function createYouTubeClient(apiKey: string): youtube_v3.Youtube {
+function createYouTubeClient(api_key: string): youtube_v3.Youtube {
   return google.youtube({
     version: 'v3',
-    auth: apiKey,
+    auth: api_key,
   });
 }
 
@@ -30,9 +30,9 @@ export class YouTubeBatchProcessor {
   private workers: Map<JobType, Worker> = new Map();
   private youtube: youtube_v3.Youtube | null = null;
 
-  constructor(private apiKey?: string) {
-    if (apiKey) {
-      this.youtube = createYouTubeClient(apiKey);
+  constructor(private api_key?: string) {
+    if (api_key) {
+      this.youtube = createYouTubeClient(api_key);
     }
   }
 
@@ -78,15 +78,15 @@ export class YouTubeBatchProcessor {
 
   // 작업 처리
   private async processJob(job: Job<YouTubeJobData>): Promise<unknown> {
-    const { type, params, userId } = job.data;
+    const { type, params, user_id } = job.data;
 
     // API 키 확인
-    const apiKey = this.apiKey || (await this.getUserApiKey(userId));
-    if (!apiKey) {
+    const api_key = this.api_key || (await this.getUserApiKey(user_id));
+    if (!api_key) {
       throw new Error('YouTube API key not found');
     }
 
-    const youtube = this.youtube || createYouTubeClient(apiKey);
+    const youtube = this.youtube || createYouTubeClient(api_key);
 
     // 캐시 확인
     const cacheKey = cacheManager.generateKey(type, params);
@@ -212,7 +212,7 @@ export class YouTubeBatchProcessor {
   ): Promise<youtube_v3.Schema$PlaylistItemListResponse> {
     const playlistParams: youtube_v3.Params$Resource$Playlistitems$List = {
       part: ['snippet', 'contentDetails'],
-      playlistId: params.playlistId as string,
+      playlistId: params.playlist_id as string,
       maxResults: (params.maxResults as number) || 50,
       pageToken: params.pageToken as string | undefined,
     };
@@ -238,8 +238,8 @@ export class YouTubeBatchProcessor {
   }
 
   // 사용자 API 키 가져오기
-  private async getUserApiKey(userId?: string): Promise<string | null> {
-    if (!userId) {
+  private async getUserApiKey(user_id?: string): Promise<string | null> {
+    if (!user_id) {
       return null;
     }
 
@@ -310,9 +310,9 @@ export class YouTubeBatchProcessor {
 // 싱글톤 인스턴스
 let processorInstance: YouTubeBatchProcessor | null = null;
 
-export function initializeBatchProcessor(apiKey?: string): YouTubeBatchProcessor {
+export function initializeBatchProcessor(api_key?: string): YouTubeBatchProcessor {
   if (!processorInstance) {
-    processorInstance = new YouTubeBatchProcessor(apiKey);
+    processorInstance = new YouTubeBatchProcessor(api_key);
   }
   return processorInstance;
 }

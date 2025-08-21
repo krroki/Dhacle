@@ -53,6 +53,15 @@ _업데이트: 새 파일/폴더 추가 또는 구조 변경 시_
 ### 자주 사용하는 명령어
 
 ```bash
+# 🔥 snake_case/camelCase 검증 (2025-01-31 최우선)
+node scripts/verify-case-consistency.js    # 일관성 검증
+node scripts/demo-case-conversion.js       # 변환 시연
+
+# 🚨 빌드 오류 시 긴급 명령어
+node scripts/fix-all-typescript-errors.js  # 117개 오류 원클릭 해결
+npm run types:generate                     # DB에서 타입 재생성
+npm run build                              # 빌드 테스트
+
 # 개발 명령어
 npm run dev                     # 개발 서버 시작 (자동 검증 포함)
 npm run dev:no-verify          # 검증 없이 개발 서버 시작
@@ -107,15 +116,15 @@ npm run types:auto-fix         # 타입 오류 자동 분석 및 수정
 
 ### 🔥 자주 수정하는 파일 Top 10
 
-1. `src/lib/api-client.ts` - 클라이언트 API 래퍼
-2. `src/app/page.tsx` - 메인 페이지
-3. `src/app/auth/callback/route.ts` - 인증 콜백
-4. `src/lib/api-keys.ts` - API 키 암호화/복호화 (2025-01-22 수정)
-5. `src/components/layout/Header.tsx` - 헤더 컴포넌트
-6. `src/app/(pages)/courses/page.tsx` - 강의 목록
+1. `src/types/index.ts` - 중앙 타입 정의 (Single Source of Truth) ⭐⭐⭐⭐⭐
+2. `src/lib/api-client.ts` - 클라이언트 API 래퍼 + snake_case 변환 ⭐⭐⭐⭐⭐
+3. `src/lib/utils/case-converter.ts` - React 보호 변환 유틸리티 ⭐⭐⭐⭐⭐
+4. `src/components/features/tools/youtube-lens/AlertRules.tsx` - 임시 비활성화 필요 ⚠️
+5. `src/app/mypage/profile/page.tsx` - Profile 타입 수정 필요 ⚠️
+6. `src/app/auth/callback/route.ts` - 인증 콜백
 7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
-8. `src/app/(pages)/mypage/page.tsx` - 마이페이지
-9. `src/types/index.ts` - 중앙 타입 정의 (Single Source of Truth)
+8. `src/app/(pages)/courses/page.tsx` - 강의 목록
+9. `src/lib/api-keys.ts` - API 키 암호화/복호화
 10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
 
 ---
@@ -414,43 +423,42 @@ Build & Deploy:
 
 ---
 
-## 📊 DB 테이블 구조
+## 📊 DB 테이블 구조 (21개 테이블)
 
 ### 인증 & 사용자
-
-- `users` - 사용자 프로필 (이름, 이메일, 카페 인증)
-- `user_api_keys` - API Key 관리 (암호화 저장)
+- `profiles` - 사용자 프로필 (이름, 채널 정보)
+- `users` - Supabase 인증 사용자
 
 ### 강의 시스템
-
 - `courses` - 강의 정보 (제목, 가격, 강사)
 - `lessons` - 강의 레슨 (비디오, 자료)
-- `enrollments` - 수강 신청
-- `progress` - 학습 진도
-- `course_reviews` - 강의 리뷰
+- `course_enrollments` - 수강 신청 ✨ NEW
+- `course_progress` - 학습 진도
+- `course_progress_extended` - 확장 진도 정보 ✨ NEW
+- `course_qna` - 강의 Q&A
+- `course_weeks` - 주차별 구성
 
 ### YouTube Lens
-
-- `youtube_favorites` - 즐겨찾기 동영상
-- `youtube_history` - 검색 기록
-- `youtube_usage` - API 사용량 추적
+- `videos` - YouTube 비디오 정보
+- `video_stats` - 비디오 통계 ✨ NEW
+- `collections` - 비디오 컬렉션
+- `source_folders` - 채널 폴더 관리
 
 ### 수익 인증
-
 - `revenue_proofs` - 수익 인증 게시글
-- `revenue_comments` - 댓글
-- `revenue_likes` - 좋아요
+- `revenues` - 수익 데이터 ✨ NEW
+- `proof_likes` - 인증 좋아요 ✨ NEW
+- `proof_comments` - 인증 댓글 ✨ NEW
 
 ### 커뮤니티
-
 - `community_posts` - 게시글
 - `community_comments` - 댓글
 - `community_likes` - 좋아요
 
-### 결제
-
-- `payments` - 결제 내역 (TossPayments)
-- `coupons` - 쿠폰 시스템
+### 기타
+- `badges` - 사용자 뱃지 ✨ NEW
+- `naver_cafe_verifications` - 네이버 카페 인증 ✨ NEW
+- `payments` - 결제 내역
 
 ---
 

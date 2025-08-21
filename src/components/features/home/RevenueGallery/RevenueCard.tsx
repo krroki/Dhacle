@@ -29,7 +29,7 @@ export function RevenueCard({ proof }: RevenueCardProps) {
       <div className="relative w-12 h-12 flex-shrink-0">
         <Image
           src={proof.userAvatar}
-          alt={proof.userName}
+          alt={proof.user_name}
           fill={true}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="rounded-full object-cover"
@@ -38,7 +38,7 @@ export function RevenueCard({ proof }: RevenueCardProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h4 className="font-semibold text-sm truncate">{proof.userName}</h4>
+          <h4 className="font-semibold text-sm truncate">{proof.user_name}</h4>
           <VerifiedBadge verified={proof.verified} />
         </div>
         <p className="text-lg font-bold text-primary">{formattedAmount}</p>

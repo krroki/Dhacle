@@ -31,13 +31,13 @@ export default function NewCoursePage() {
             title: courseData.title || '',
             description: courseData.description || null,
             instructor_id: user.id,
-            instructor_name: courseData.instructorName || user.email?.split('@')[0] || 'Unknown',
+            instructor_name: courseData.instructor_name || user.email?.split('@')[0] || 'Unknown',
             thumbnail_url: courseData.thumbnail_url || null,
             price: courseData.price || 0,
-            duration_weeks: Math.ceil((courseData.totalDuration || 0) / (7 * 60)) || 8, // Convert minutes to weeks
+            duration_weeks: Math.ceil((courseData.total_duration || 0) / (7 * 60)) || 8, // Convert minutes to weeks
             category: courseData.category || null,
             level: courseData.level || courseData.difficulty || 'beginner',
-            is_free: courseData.price === 0 || courseData.isFree || false,
+            is_free: courseData.price === 0 || courseData.is_free || false,
             is_published: false,
             curriculum: courseData.contentBlocks
               ? JSON.parse(JSON.stringify(courseData.contentBlocks))

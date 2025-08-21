@@ -12,10 +12,10 @@ export const handlers = [
         {
           id: 'mock_video_1',
           title: '인기 쇼츠 테스트 #1',
-          channelTitle: '테스트 채널',
-          viewCount: '1234567',
-          likeCount: '98765',
-          publishedAt: new Date().toISOString(),
+          channel_title: '테스트 채널',
+          view_count: '1234567',
+          like_count: '98765',
+          published_at: new Date().toISOString(),
           thumbnails: {
             default: { url: 'https://i.ytimg.com/vi/mock1/default.jpg' },
             medium: { url: 'https://i.ytimg.com/vi/mock1/mqdefault.jpg' },
@@ -25,10 +25,10 @@ export const handlers = [
         {
           id: 'mock_video_2',
           title: '인기 쇼츠 테스트 #2',
-          channelTitle: '샘플 채널',
-          viewCount: '2345678',
-          likeCount: '87654',
-          publishedAt: new Date().toISOString(),
+          channel_title: '샘플 채널',
+          view_count: '2345678',
+          like_count: '87654',
+          published_at: new Date().toISOString(),
           thumbnails: {
             default: { url: 'https://i.ytimg.com/vi/mock2/default.jpg' },
             medium: { url: 'https://i.ytimg.com/vi/mock2/mqdefault.jpg' },
@@ -49,8 +49,8 @@ export const handlers = [
         {
           id: 'search_result_1',
           title: `검색 결과: ${query}`,
-          channelTitle: '검색 테스트 채널',
-          viewCount: '123456',
+          channel_title: '검색 테스트 채널',
+          view_count: '123456',
           description: `"${query}"에 대한 검색 결과입니다.`,
         },
       ],
@@ -65,7 +65,7 @@ export const handlers = [
         name: '트렌드 분석 컬렉션',
         description: '최신 트렌드 비디오 모음',
         videoCount: 10,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
       },
     ]);
   }),
@@ -82,7 +82,7 @@ export const handlers = [
         discountedPrice: 99000,
         thumbnail: '/images/courses/nextjs.jpg',
         rating: 4.8,
-        studentCount: 1234,
+        student_count: 1234,
       },
       {
         id: 2,
@@ -93,7 +93,7 @@ export const handlers = [
         discountedPrice: 89000,
         thumbnail: '/images/courses/react-query.jpg',
         rating: 4.9,
-        studentCount: 987,
+        student_count: 987,
       },
     ]);
   }),
@@ -148,7 +148,7 @@ export const handlers = [
         platform: 'YouTube',
         proofImage: '/images/proof/sample.jpg',
         likes: 123,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
       },
     ]);
   }),

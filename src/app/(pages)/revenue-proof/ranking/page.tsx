@@ -89,17 +89,17 @@ export default async function RankingPage() {
     const userMap = new Map();
 
     proofs.forEach((proof) => {
-      const userId = proof.user_id;
+      const user_id = proof.user_id;
       // Handle both single object and array format from Supabase
       const userObj = Array.isArray(proof.user) ? proof.user[0] : proof.user;
 
-      if (userMap.has(userId)) {
-        const existing = userMap.get(userId);
+      if (userMap.has(user_id)) {
+        const existing = userMap.get(user_id);
         existing.total_amount += proof.amount;
         existing.proof_count += 1;
       } else {
-        userMap.set(userId, {
-          user_id: userId,
+        userMap.set(user_id, {
+          user_id: user_id,
           user: userObj,
           total_amount: proof.amount,
           proof_count: 1,

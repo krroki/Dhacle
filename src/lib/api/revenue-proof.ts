@@ -91,12 +91,12 @@ export async function deleteRevenueProof(id: string) {
 
 // 좋아요 토글
 export async function toggleLike(proofId: string) {
-  return await apiPost(`${API_BASE}/${proofId}/like`);
+  return await apiPost(`${API_BASE}/${proof_id}/like`);
 }
 
 // 댓글 작성
 export async function createComment(
-  proofId: string,
+  proof_id: string,
   content: string
 ): Promise<{
   id: string;
@@ -121,19 +121,19 @@ export async function createComment(
       username: string;
       avatar_url?: string;
     };
-  }>(`${API_BASE}/${proofId}/comment`, { content });
+  }>(`${API_BASE}/${proof_id}/comment`, { content });
 }
 
 // 신고하기
 export async function reportProof(
-  proofId: string,
+  proof_id: string,
   data: {
     reason: string;
     details?: string;
     acknowledged: boolean;
   }
 ) {
-  return await apiPost(`${API_BASE}/${proofId}/report`, data);
+  return await apiPost(`${API_BASE}/${proof_id}/report`, data);
 }
 
 // 랭킹 조회
@@ -170,7 +170,7 @@ export async function uploadImage(
   bucket = 'revenue-proofs'
 ): Promise<{
   url: string;
-  thumbnailUrl: string;
+  thumbnail_url: string;
   blurDataUrl: string;
   path: string;
 }> {

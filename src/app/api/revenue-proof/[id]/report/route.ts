@@ -11,7 +11,7 @@ import { reportSchema } from '@/lib/validations/revenue-proof';
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: proofId } = await params;
+    const { id: proof_id } = await params;
 
     // 인증 확인
     const {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: proof, error: proofError } = await supabase
       .from('revenue_proofs')
       .select('id, user_id, is_hidden, reports_count')
-      .eq('id', proofId)
+      .eq('id', proof_id)
       .single();
 
     if (proofError || !proof) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: existingReport } = await supabase
       .from('proof_reports')
       .select('id')
-      .eq('proof_id', proofId)
+      .eq('proof_id', proof_id)
       .eq('reporterId', user.id)
       .single();
 
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // 신고 등록
     const { error: insertError } = await supabase.from('proof_reports').insert({
-      proof_id: proofId,
+      proof_id: proof_id,
       reporterId: user.id,
       reason: validatedData.reason,
       details: validatedData.details || null,
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         // 3회 이상 신고 시 자동 숨김
         is_hidden: newReportsCount >= 3,
       })
-      .eq('id', proofId);
+      .eq('id', proof_id);
 
     if (updateError) {
     }
@@ -98,13 +98,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // 3회 신고 도달 시 관리자 알림 (추후 구현)
     if (newReportsCount === 3) {
       // TODO: 관리자 알림 시스템 구현
-      console.log(`Alert: Revenue proof ${proofId} has been auto-hidden after 3 reports`);
+      console.log(`Alert: Revenue proof ${proof_id} has been auto-hidden after 3 reports`);
 
       // 관리자 알림 로그 기록
       const { error: notificationError } = await supabase.from('adminNotifications').insert({
         type: 'autoHiddenProof',
         data: {
-          proof_id: proofId,
+          proof_id: proof_id,
           reports_count: newReportsCount,
           hiddenAt: new Date().toISOString(),
         },
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json({
       message: '신고가 접수되었습니다',
-      isHidden: newReportsCount >= 3,
+      is_hidden: newReportsCount >= 3,
       reportsCount: newReportsCount,
     });
   } catch (error) {
@@ -148,7 +148,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
-    const { id: proofId } = await params;
+    const { id: proof_id } = await params;
 
     // 신고 목록 조회
     const { data: reports, error } = await supabase
@@ -160,7 +160,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
           username
         )
       `)
-      .eq('proof_id', proofId)
+      .eq('proof_id', proof_id)
       .order('created_at', { ascending: false });
 
     if (error) {

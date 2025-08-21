@@ -53,7 +53,7 @@ export default function ProfilePage() {
   const [verificationStatus, setVerificationStatus] = useState<
     'idle' | 'pending' | 'success' | 'error'
   >('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error_message, setErrorMessage] = useState('');
   const router = useRouter();
   const supabase = createBrowserClient();
 
@@ -78,12 +78,13 @@ export default function ProfilePage() {
       }
 
       setProfile(data);
-      if (data.naverCafeNickname) {
-        setCafeNickname(data.naverCafeNickname);
-      }
-      if (data.naverCafeMemberUrl) {
-        setCafeMemberUrl(data.naverCafeMemberUrl);
-      }
+      // TODO: 네이버 카페 관련 필드는 profiles 테이블에 추가 필요
+      // if (data.naver_cafe_nickname) {
+      //   setCafeNickname(data.naver_cafe_nickname);
+      // }
+      // if (data.naver_cafe_member_url) {
+      //   setCafeMemberUrl(data.naver_cafe_member_url);
+      // }
     } catch (_error) {
     } finally {
       setLoading(false);
@@ -124,12 +125,13 @@ export default function ProfilePage() {
 
       // 인증 요청 생성
       const { data: verification, error: verificationError } = await supabase
-        .from('naverCafeVerifications')
+        .from('naver_cafe_verifications')
         .insert({
           user_id: user.id,
-          cafeNickname: cafeNickname,
-          cafeMemberUrl: cafeMemberUrl,
-          verificationStatus: 'pending',
+          
+          cafe_nickname: cafeNickname,
+          cafe_member_url: cafeMemberUrl,
+          verification_status: 'pending',
         })
         .select()
         .single();
@@ -143,10 +145,12 @@ export default function ProfilePage() {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          naverCafeNickname: cafeNickname,
-          naverCafeMemberUrl: cafeMemberUrl,
-          naverCafeVerified: true,
-          naverCafeVerifiedAt: new Date().toISOString(),
+          // TODO: profiles 테이블에 네이버 카페 관련 필드 추가 필요
+          // naver_cafe_nickname: cafeNickname,
+          // naver_cafe_nickname: cafeNickname,
+          cafe_member_url: cafeMemberUrl,
+          // naver_cafe_verified: true,
+          // naver_cafe_verified_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
@@ -156,9 +160,9 @@ export default function ProfilePage() {
 
       // 검증 상태 업데이트
       await supabase
-        .from('naverCafeVerifications')
+        .from('naver_cafe_verifications')
         .update({
-          verificationStatus: 'verified',
+          verification_status: 'verified',
           verifiedAt: new Date().toISOString(),
         })
         .eq('id', verification.id);
@@ -190,8 +194,8 @@ export default function ProfilePage() {
       const { error } = await supabase
         .from('profiles')
         .update({
-          naverCafeVerified: false,
-          naverCafeVerifiedAt: null,
+          // naverCafeVerified: false,
+          // naverCafeVerifiedAt: null,
         })
         .eq('id', user.id);
 
@@ -426,10 +430,10 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    {errorMessage && (
+                    {error_message && (
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{errorMessage}</AlertDescription>
+                        <AlertDescription>{error_message}</AlertDescription>
                       </Alert>
                     )}
 

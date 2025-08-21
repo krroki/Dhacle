@@ -27,13 +27,13 @@ import { mapVideo } from '@/lib/utils/type-mappers';
 import type { CollectionItem, Video } from '@/types/youtube-lens';
 
 interface CollectionViewerProps {
-  collectionId: string;
+  collection_id: string;
   collectionName: string;
   onClose?: () => void;
 }
 
 export default function CollectionViewer({
-  collectionId,
+  collection_id,
   collectionName,
   onClose,
 }: CollectionViewerProps) {
@@ -48,7 +48,7 @@ export default function CollectionViewer({
     setLoading(true);
     try {
       const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
-        `/api/youtube/collections/items?collectionId=${collectionId}`
+        `/api/youtube/collections/items?collectionId=${collection_id}`
       );
       setItems(
         (data.items || []).map((item) => ({
@@ -76,17 +76,17 @@ export default function CollectionViewer({
   }, [fetchCollectionVideos]);
 
   // 컬렉션에서 비디오 제거
-  const handleRemoveVideo = async (videoId: string) => {
+  const handleRemoveVideo = async (video_id: string) => {
     if (!confirm('이 비디오를 컬렉션에서 제거하시겠습니까?')) {
       return;
     }
 
     try {
       await apiDelete(
-        `/api/youtube/collections/items?collectionId=${collectionId}&videoId=${videoId}`
+        `/api/youtube/collections/items?collectionId=${collection_id}&video_id=${video_id}`
       );
       toast.success('비디오가 제거되었습니다');
-      setItems(items.filter((item) => item.video_id !== videoId));
+      setItems(items.filter((item) => item.video_id !== video_id));
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
@@ -101,8 +101,8 @@ export default function CollectionViewer({
   };
 
   // YouTube에서 열기
-  const openInYouTube = (videoId: string) => {
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+  const openInYouTube = (video_id: string) => {
+    window.open(`https://www.youtube.com/watch?v=${video_id}`, '_blank');
   };
 
   // 비디오 상세 보기

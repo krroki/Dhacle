@@ -4,8 +4,8 @@
 export interface YouTubeVideo {
   id: string;
   snippet: {
-    publishedAt: string;
-    channelId: string;
+    published_at: string;
+    channel_id: string;
     title: string;
     description: string;
     thumbnails: {
@@ -15,9 +15,9 @@ export interface YouTubeVideo {
       standard?: YouTubeThumbnail;
       maxres?: YouTubeThumbnail;
     };
-    channelTitle: string;
+    channel_title: string;
     tags?: string[];
-    categoryId: string;
+    category_id: string;
     liveBroadcastContent: 'none' | 'live' | 'upcoming';
     defaultLanguage?: string;
     localized?: {
@@ -26,11 +26,11 @@ export interface YouTubeVideo {
     };
   };
   statistics?: {
-    viewCount: string;
-    likeCount?: string;
+    view_count: string;
+    like_count?: string;
     dislikeCount?: string;
     favoriteCount?: string;
-    commentCount?: string;
+    comment_count?: string;
   };
   contentDetails?: {
     duration: string;
@@ -56,23 +56,23 @@ export interface FlattenedYouTubeVideo {
   title: string;
   description: string;
   thumbnail: string;
-  channelId: string;
-  channelTitle: string;
-  publishedAt: string;
+  channel_id: string;
+  channel_title: string;
+  published_at: string;
   duration: number; // 초 단위
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
   tags: string[];
-  categoryId: string;
+  category_id: string;
   defaultLanguage: string;
   defaultAudioLanguage: string;
   statistics: {
-    viewCount: string;
-    likeCount: string;
+    view_count: string;
+    like_count: string;
     dislikeCount: string;
     favoriteCount: string;
-    commentCount: string;
+    comment_count: string;
   };
   contentDetails: {
     duration: string;
@@ -106,7 +106,7 @@ export interface YouTubeChannel {
     title: string;
     description: string;
     customUrl?: string;
-    publishedAt: string;
+    published_at: string;
     thumbnails: {
       default?: YouTubeThumbnail;
       medium?: YouTubeThumbnail;
@@ -120,8 +120,8 @@ export interface YouTubeChannel {
     country?: string;
   };
   statistics?: {
-    viewCount: string;
-    subscriberCount: string;
+    view_count: string;
+    subscriber_count: string;
     hiddenSubscriberCount: boolean;
     videoCount: string;
   };
@@ -133,9 +133,9 @@ export interface YouTubeSearchResult {
   etag: string;
   id: {
     kind: string;
-    videoId?: string;
-    channelId?: string;
-    playlistId?: string;
+    video_id?: string;
+    channel_id?: string;
+    playlist_id?: string;
   };
   snippet: YouTubeVideo['snippet'];
 }
@@ -157,8 +157,8 @@ export interface YouTubeApiResponse<T> {
 // 검색 필터
 export interface YouTubeSearchFilters {
   query: string;
-  channelId?: string;
-  order?: 'date' | 'rating' | 'relevance' | 'title' | 'videoCount' | 'viewCount';
+  channel_id?: string;
+  order?: 'date' | 'rating' | 'relevance' | 'title' | 'videoCount' | 'view_count';
   publishedAfter?: string;
   publishedBefore?: string;
   videoDuration?: 'short' | 'medium' | 'long';
@@ -219,12 +219,12 @@ export interface QuotaStatus {
 
 // OAuth 토큰 정보
 export interface OAuthToken {
-  accessToken: string;
-  refreshToken?: string;
+  access_token: string;
+  refresh_token?: string;
   expiresIn: number;
   tokenType: string;
   scope: string;
-  expiresAt?: number;
+  expires_at?: number;
 }
 
 // 사용자 API 키
@@ -232,9 +232,9 @@ export interface UserApiKey {
   id: string;
   user_id: string;
   provider: 'google' | 'youtube';
-  encryptedKey: string;
-  refreshToken?: string;
-  expiresAt?: string;
+  encrypted_key: string;
+  refresh_token?: string;
+  expires_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -243,7 +243,7 @@ export interface UserApiKey {
 export interface VideoCardProps {
   video: FlattenedYouTubeVideo;
   isSelected?: boolean;
-  onSelect?: (videoId: string) => void;
+  onSelect?: (video_id: string) => void;
   onFavorite?: (video: FlattenedYouTubeVideo) => void;
   isFavorited?: boolean;
 }
@@ -263,7 +263,7 @@ export interface VideoGridProps {
   hasMore?: boolean;
   onLoadMore?: () => void;
   selectedVideos?: Set<string>;
-  onVideoSelect?: (videoId: string) => void;
+  onVideoSelect?: (video_id: string) => void;
   favoriteVideos?: Set<string>;
   onVideoFavorite?: (video: FlattenedYouTubeVideo) => void;
 }

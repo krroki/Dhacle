@@ -43,18 +43,18 @@ export async function GET(request: NextRequest) {
 
     // snake_case를 camelCase로 변환
     const camelCaseData = data?.map((channel) => ({
-      channelId: channel.channel_id,
+      channel_id: channel.channel_id,
       title: channel.title,
       handle: channel.handle,
       description: channel.description,
       customUrl: channel.custom_url,
-      thumbnailUrl: channel.thumbnail_url,
+      thumbnail_url: channel.thumbnail_url,
       approvalStatus: channel.approval_status,
       approvalNotes: channel.approval_notes,
       approvedBy: channel.approved_by,
       approvedAt: channel.approved_at,
       source: channel.source,
-      subscriberCount: channel.subscriber_count,
+      subscriber_count: channel.subscriber_count,
       viewCountTotal: channel.view_count_total,
       videoCount: channel.video_count,
       category: channel.category,
@@ -63,9 +63,9 @@ export async function GET(request: NextRequest) {
       dominantFormat: channel.dominant_format,
       country: channel.country,
       language: channel.language,
-      isVerified: channel.is_verified,
-      createdAt: channel.created_at,
-      updatedAt: channel.updated_at,
+      is_verified: channel.is_verified,
+      created_at: channel.created_at,
+      updated_at: channel.updated_at,
     }));
 
     return NextResponse.json({ data: camelCaseData || [] });
@@ -98,9 +98,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { channelId } = body;
+    const { channel_id } = body;
 
-    if (!channelId) {
+    if (!channel_id) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ytResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${ytAdminKey}`
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channel_id}&key=${ytAdminKey}`
     );
     const ytData = await ytResponse.json();
 
@@ -125,15 +125,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('yl_channels')
       .insert({
-        channel_id: channelId,
+        channel_id: channel_id,
         title: channelInfo.snippet.title,
         handle: channelInfo.snippet.customUrl?.replace('@', ''),
         description: channelInfo.snippet.description,
         thumbnail_url: channelInfo.snippet.thumbnails?.default?.url,
         approval_status: 'pending',
         source: 'manual',
-        subscriber_count: Number.parseInt(channelInfo.statistics.subscriberCount || '0'),
-        view_count_total: Number.parseInt(channelInfo.statistics.viewCount || '0'),
+        subscriber_count: Number.parseInt(channelInfo.statistics.subscriber_count || '0'),
+        view_count_total: Number.parseInt(channelInfo.statistics.view_count || '0'),
         video_count: Number.parseInt(channelInfo.statistics.videoCount || '0'),
         country: channelInfo.snippet.country || 'KR',
         language: channelInfo.snippet.defaultLanguage || 'ko',
@@ -154,9 +154,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        channelId: data.channel_id,
+        channel_id: data.channel_id,
         title: data.title,
-        subscriberCount: data.subscriber_count,
+        subscriber_count: data.subscriber_count,
       },
     });
   } catch (error) {

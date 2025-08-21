@@ -112,23 +112,23 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Label>가격</Label>
               <div className="flex gap-2">
                 <Button
-                  variant={filters.isFree === true ? 'default' : 'outline'}
+                  variant={filters.is_free === true ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ isFree: true })}
+                  onClick={() => handleFilterChange({ is_free: true })}
                 >
                   무료
                 </Button>
                 <Button
-                  variant={filters.isFree === false ? 'default' : 'outline'}
+                  variant={filters.is_free === false ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ isFree: false })}
+                  onClick={() => handleFilterChange({ is_free: false })}
                 >
                   유료
                 </Button>
                 <Button
-                  variant={filters.isFree === undefined ? 'default' : 'outline'}
+                  variant={filters.is_free === undefined ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ isFree: undefined })}
+                  onClick={() => handleFilterChange({ is_free: undefined })}
                 >
                   전체
                 </Button>

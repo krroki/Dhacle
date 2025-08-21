@@ -1,6 +1,7 @@
 # 📦 디하클 데이터 모델 명세
 
 *Frontend TypeScript 타입과 Backend Supabase 스키마 매핑*
+*업데이트: 2025-08-21 - Snake_case 마이그레이션 및 Profile 타입 개선*
 
 ---
 
@@ -41,14 +42,15 @@ import { Database } from '@/types/database.types';     // 금지! (파일 삭제
 // - Course 타입 매핑 함수 완전 재작성
 ```
 
-### 🚨 타입 불일치 체크리스트
-| 문제 | Frontend | Backend | 해결 |
-|-----|----------|---------|------|
-| 키 이름 | camelCase | snake_case | 변환 함수 |
-| 날짜 | Date 객체 | timestamptz 문자열 | new Date() |
-| 숫자 | number | bigint | Number() |
-| NULL | undefined | null | ?? 연산자 |
-| JSON | 객체 | jsonb 문자열 | JSON.parse() |
+### 🚨 타입 불일치 체크리스트 (2025-08-21 업데이트)
+| 문제 | Frontend | Backend | 해결 | 예시 |
+|-----|----------|---------|------|------|
+| 키 이름 | camelCase | snake_case | 변환 함수 | createdAt ↔ created_at |
+| 날짜 | Date 객체 | timestamptz 문자열 | new Date() | new Date(created_at) |
+| 숫자 | number | bigint | Number() | Number(view_count) |
+| NULL | undefined | null | ?? 연산자 | value ?? defaultValue |
+| JSON | 객체 | jsonb 문자열 | JSON.parse() | JSON.parse(metadata) |
+| **Profile** | Profile | ProfileDB | profileDBToProfile() | 🆕 별도 변환 함수 |
 
 ---
 
@@ -65,6 +67,7 @@ import { Database } from '@/types/database.types';     // 금지! (파일 삭제
 - [📚 Course](#-course)
 - [💰 Revenue Proof](#-revenue-proof)
 - [📝 Community Post](#-community-post)
+- [🔍 Naver Cafe Verifications](#-naver-cafe-verifications-2025-02-21-생성)
 - [🔐 API Key](#-api-key)
 
 ### 유틸리티 및 패턴
@@ -170,7 +173,7 @@ const mapResponse = (dbData: DBType | FrontendType): FrontendType => ({
 
 ---
 
-## 👤 User/Profile
+## 👤 User/Profile (2025-08-21 Profile 타입 개선)
 
 ### Frontend Type
 ```typescript
@@ -183,15 +186,51 @@ interface User {
   createdAt: Date
 }
 
+// 🆕 DB에서 오는 snake_case Profile
+interface ProfileDB {
+  id: string
+  username: string | null
+  email: string | null
+  avatar_url: string | null
+  random_nickname: string | null
+  naver_cafe_nickname: string | null
+  naver_cafe_verified: boolean
+  naver_cafe_member_url: string | null
+  naver_cafe_verified_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// 🆕 Frontend용 camelCase Profile
 interface Profile {
-  userId: string
-  nickname: string | null
-  bio: string | null
-  socialLinks: {
-    youtube?: string
-    instagram?: string
+  id: string
+  username: string | null
+  email: string | null
+  avatarUrl: string | null
+  randomNickname: string | null
+  naverCafeNickname: string | null
+  naverCafeVerified: boolean
+  naverCafeMemberUrl: string | null
+  naverCafeVerifiedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+// 🆕 변환 함수 (필수 사용)
+export function profileDBToProfile(db: ProfileDB): Profile {
+  return {
+    id: db.id,
+    username: db.username,
+    email: db.email,
+    avatarUrl: db.avatar_url,
+    randomNickname: db.random_nickname,
+    naverCafeNickname: db.naver_cafe_nickname,
+    naverCafeVerified: db.naver_cafe_verified,
+    naverCafeMemberUrl: db.naver_cafe_member_url,
+    naverCafeVerifiedAt: db.naver_cafe_verified_at,
+    createdAt: db.created_at,
+    updatedAt: db.updated_at
   }
-  isVerified: boolean
 }
 ```
 
@@ -208,6 +247,17 @@ nickname: text
 bio: text
 social_links: jsonb
 is_verified: boolean
+created_at: timestamptz
+updated_at: timestamptz
+
+-- public.badges (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+badge_type: varchar(50)
+badge_level: varchar(20) -- bronze/silver/gold
+title: varchar(255)
+description: text
+earned_at: timestamptz
 created_at: timestamptz
 updated_at: timestamptz
 ```
@@ -263,6 +313,22 @@ like_count: bigint
 published_at: timestamptz
 duration: text
 tags: text[]
+created_at: timestamptz
+
+-- public.video_stats (✨ 2025-02-21 생성)
+id: uuid (PK)
+video_id: varchar(255)
+date: date
+view_count: bigint
+like_count: bigint
+comment_count: bigint
+view_delta: bigint
+like_delta: bigint
+comment_delta: bigint
+viral_score: decimal(5,2)
+engagement_rate: decimal(5,2)
+views_per_hour: decimal(10,2)
+snapshot_at: timestamptz
 created_at: timestamptz
 ```
 
@@ -326,6 +392,30 @@ enrollment_count: integer
 rating: decimal(2,1)
 is_published: boolean
 created_at: timestamptz
+
+-- public.course_enrollments (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+course_id: uuid (FK → courses)
+enrolled_at: timestamptz
+last_accessed_at: timestamptz
+completed_at: timestamptz
+progress_percentage: integer (0-100)
+status: varchar(20) -- active/completed/paused/cancelled
+created_at: timestamptz
+updated_at: timestamptz
+
+-- public.course_progress_extended (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+course_id: uuid (FK → courses)
+lesson_id: uuid (FK → lessons)
+total_lessons: integer
+completed_lessons: integer
+last_position: integer
+notes: text
+created_at: timestamptz
+updated_at: timestamptz
 ```
 
 ### API 매핑 (구현 상태)
@@ -391,6 +481,36 @@ like_count: integer
 comment_count: integer
 is_verified: boolean
 created_at: timestamptz
+
+-- public.revenues (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+amount: decimal(12,2)
+currency: varchar(3) -- KRW/USD
+proof_url: text
+proof_type: varchar(50)
+description: text
+verified: boolean
+verified_at: timestamptz
+created_at: timestamptz
+updated_at: timestamptz
+
+-- public.proof_likes (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+proof_id: uuid (FK → revenue_proofs)
+created_at: timestamptz
+
+-- public.proof_comments (✨ 2025-02-21 생성)
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+proof_id: uuid (FK → revenue_proofs)
+parent_id: uuid (FK → proof_comments) -- 대댓글
+content: text
+is_edited: boolean
+edited_at: timestamptz
+created_at: timestamptz
+updated_at: timestamptz
 ```
 
 ### API 매핑 (구현 상태)
@@ -452,6 +572,52 @@ is_pinned: boolean
 tags: text[]
 created_at: timestamptz
 updated_at: timestamptz
+```
+
+---
+
+## 🔍 Naver Cafe Verifications (✨ 2025-02-21 생성)
+
+### Frontend Type
+```typescript
+interface NaverCafeVerification {
+  id: string
+  userId: string
+  cafeNickname: string
+  cafeMemberUrl: string | null
+  verificationStatus: 'pending' | 'verified' | 'failed'
+  verifiedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Supabase Schema
+```sql
+-- public.naver_cafe_verifications
+id: uuid (PK)
+user_id: uuid (FK → auth.users)
+cafe_nickname: varchar(255)
+cafe_member_url: text
+verification_status: varchar(20) -- pending/verified/failed
+verified_at: timestamptz
+created_at: timestamptz
+updated_at: timestamptz
+```
+
+### API 매핑 (구현 상태)
+```typescript
+// GET /api/verification/naver-cafe
+const mapVerification = (data): NaverCafeVerification => ({
+  id: data.id,                              // ✅
+  userId: data.user_id,                     // ✅
+  cafeNickname: data.cafe_nickname,         // ✅
+  cafeMemberUrl: data.cafe_member_url,      // ✅
+  verificationStatus: data.verification_status, // ✅
+  verifiedAt: data.verified_at ? new Date(data.verified_at) : null,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at)
+})
 ```
 
 ---
@@ -629,32 +795,42 @@ async function fetchPosts(): Promise<ApiResponse<Post[]>> {
 | NULL | undefined | null | ?? 연산자 |
 | JSON | 객체 | jsonb 문자열 | JSON.parse() |
 
-### 구현 상태
+### 구현 상태 (2025-02-21 업데이트)
 - ✅ User/Profile 매핑
+- ✅ Badges 테이블 생성 완료
 - ❌ Video 매핑 함수
-- ⚠️ Course JOIN 처리
-- ❌ Revenue Proof JOIN
+- ✅ video_stats 테이블 생성 완료
+- ✅ Course 매핑 완료 (2025-02-02)
+- ✅ course_enrollments 테이블 생성 완료
+- ✅ course_progress_extended 테이블 생성 완료
+- ⚠️ Revenue Proof JOIN
+- ✅ revenues 테이블 생성 완료
+- ✅ proof_likes 테이블 생성 완료
+- ✅ proof_comments 테이블 생성 완료
 - ❌ Community Post JOIN
+- ✅ naver_cafe_verifications 테이블 생성 완료
 - ⚠️ API Key 암호화/복호화
 
 ---
 
 ## 🎯 구현 우선순위
 
-### Phase 1 (긴급)
-- [ ] Video 매핑 함수 작성
-- [ ] camelCase 변환 유틸리티 적용
-- [ ] 날짜 변환 통일
+### Phase 1 (완료) ✅ 2025-02-21
+- [x] 누락된 8개 테이블 생성 완료
+- [x] TypeScript 타입 재생성
+- [x] Course 매핑 함수 완료
+- [x] snake_case → camelCase 변환 구현
 
-### Phase 2 (중요)
+### Phase 2 (진행 중)
+- [ ] 남은 TypeScript 오류 해결 (~30개)
+- [ ] Video 매핑 함수 작성
 - [ ] JOIN 데이터 처리 (userName 등)
 - [ ] API Key 암호화/복호화
-- [ ] NULL 처리 표준화
 
-### Phase 3 (개선)
+### Phase 3 (예정)
 - [ ] TypeScript 제네릭 타입 정의
 - [ ] Zod 스키마 통합
-- [ ] 자동 타입 생성
+- [ ] 자동 타입 생성 파이프라인
 
 ---
 

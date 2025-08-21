@@ -23,7 +23,7 @@ export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
     .map(mapCourse)
     .filter(
       (course) =>
-        !course.isFree &&
+        !course.is_free &&
         (course.tags?.includes('trial') ||
           course.tags?.includes('체험') ||
           course.tags?.includes('미리보기') ||

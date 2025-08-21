@@ -68,11 +68,11 @@ export async function GET(request: NextRequest) {
         // 오늘 작성 여부 확인
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const createdAt = new Date(proof.created_at);
-        const isToday = createdAt >= today;
+        const created_at = new Date(proof.created_at);
+        const isToday = created_at >= today;
 
         // 24시간 내 수정 가능 여부
-        const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+        const hoursSinceCreation = (Date.now() - created_at.getTime()) / (1000 * 60 * 60);
         const canEdit = hoursSinceCreation <= 24;
 
         return {

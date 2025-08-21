@@ -34,7 +34,7 @@ interface VideoCardProps {
   viewMode?: 'grid' | 'list' | 'compact';
   isSelected?: boolean;
   isFavorite?: boolean;
-  onSelect?: (videoId: string) => void;
+  onSelect?: (video_id: string) => void;
   onToggleFavorite?: (video: FlattenedYouTubeVideo) => void;
   onPlay?: (video: FlattenedYouTubeVideo) => void;
   className?: string;
@@ -218,33 +218,33 @@ export const VideoCard = memo(function VideoCard({
           <h3 className="font-medium line-clamp-2 text-sm">{video.title}</h3>
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="truncate">{video.channelTitle}</span>
+            <span className="truncate">{video.channel_title}</span>
           </div>
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Eye className="h-3 w-3" />
-              <span>{formatViewCount(video.viewCount)}</span>
+              <span>{formatViewCount(video.view_count)}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              <span>{formatDate(video.publishedAt)}</span>
+              <span>{formatDate(video.published_at)}</span>
             </div>
           </div>
 
           {/* 통계 정보 */}
-          {(video.likeCount > 0 || video.commentCount > 0) && (
+          {(video.like_count > 0 || video.comment_count > 0) && (
             <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1 border-t">
-              {video.likeCount > 0 && (
+              {video.like_count > 0 && (
                 <div className="flex items-center gap-1">
                   <ThumbsUp className="h-3 w-3" />
-                  <span>{formatViewCount(video.likeCount)}</span>
+                  <span>{formatViewCount(video.like_count)}</span>
                 </div>
               )}
-              {video.commentCount > 0 && (
+              {video.comment_count > 0 && (
                 <div className="flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />
-                  <span>{formatViewCount(video.commentCount)}</span>
+                  <span>{formatViewCount(video.comment_count)}</span>
                 </div>
               )}
             </div>
@@ -305,12 +305,12 @@ export const VideoCard = memo(function VideoCard({
             {/* 비디오 정보 */}
             <div className="flex-1 space-y-1">
               <h3 className="font-medium line-clamp-2">{video.title}</h3>
-              <p className="text-sm text-muted-foreground">{video.channelTitle}</p>
+              <p className="text-sm text-muted-foreground">{video.channel_title}</p>
 
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>{formatViewCount(video.viewCount)} 조회수</span>
-                <span>{formatDate(video.publishedAt)}</span>
-                {video.likeCount > 0 && <span>좋아요 {formatViewCount(video.likeCount)}</span>}
+                <span>{formatViewCount(video.view_count)} 조회수</span>
+                <span>{formatDate(video.published_at)}</span>
+                {video.like_count > 0 && <span>좋아요 {formatViewCount(video.like_count)}</span>}
               </div>
 
               {/* 설명 미리보기 */}
@@ -408,8 +408,8 @@ export const VideoCard = memo(function VideoCard({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{video.title}</p>
         <p className="text-xs text-muted-foreground truncate">
-          {video.channelTitle} • {formatViewCount(video.viewCount)} •{' '}
-          {formatDate(video.publishedAt)}
+          {video.channel_title} • {formatViewCount(video.view_count)} •{' '}
+          {formatDate(video.published_at)}
         </p>
       </div>
 

@@ -35,7 +35,7 @@ export function CourseCard({ course, showNewBadge = false }: CourseCardProps) {
           {showNewBadge && (
             <Badge className="absolute top-2 left-2 bg-red-500 text-white">NEW</Badge>
           )}
-          {course.isFree && (
+          {course.is_free && (
             <Badge className="absolute top-2 right-2 bg-green-500 text-white">무료</Badge>
           )}
         </div>
@@ -66,7 +66,7 @@ export function CourseCard({ course, showNewBadge = false }: CourseCardProps) {
               <span>{course.enrollCount.toLocaleString()}명</span>
             </div>
 
-            {!course.isFree && course.price && (
+            {!course.is_free && course.price && (
               <p className="font-bold text-lg text-primary">₩{course.price.toLocaleString()}</p>
             )}
           </div>

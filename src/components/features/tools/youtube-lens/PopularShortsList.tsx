@@ -82,17 +82,17 @@ export default function PopularShortsList({
         // Handle 401 errors - distinguish between auth and API key issues
         if (error.status === 401) {
           // Check the error message to determine the issue type
-          const errorMessage = error.message?.toLowerCase() || '';
+          const error_message = error.message?.toLowerCase() || '';
           const errorData = error.data as
-            | { requiresApiKey?: boolean; errorCode?: string; error?: string }
+            | { requiresApiKey?: boolean; error_code?: string; error?: string }
             | undefined;
 
           // If it contains "api key" related messages, it's an API key issue
           const isApiKeyError =
             errorData?.requiresApiKey ||
-            errorData?.errorCode === 'api_key_required' ||
-            errorMessage.includes('api key') ||
-            errorMessage.includes('api 키');
+            errorData?.error_code === 'api_key_required' ||
+            error_message.includes('api key') ||
+            error_message.includes('api 키');
 
           if (isApiKeyError) {
             setRequiresApiKey(true);
@@ -112,9 +112,9 @@ export default function PopularShortsList({
         }
         setError(error.message);
       } else {
-        const errorMessage =
+        const error_message =
           error instanceof Error ? error.message : 'An unexpected error occurred';
-        setError(errorMessage);
+        setError(error_message);
       }
     } finally {
       setLoading(false);
@@ -207,10 +207,10 @@ export default function PopularShortsList({
       ],
       ...filteredVideos.map((video) => [
         video.snippet.title,
-        video.snippet.channelTitle,
-        video.statistics.viewCount,
-        video.statistics.likeCount,
-        video.statistics.commentCount,
+        video.snippet.channel_title,
+        video.statistics.view_count,
+        video.statistics.like_count,
+        video.statistics.comment_count,
         video.metrics?.vph?.toFixed(2) || '0',
         video.metrics?.engagementRate?.toFixed(2) || '0',
         video.metrics?.viralScore?.toFixed(2) || '0',
@@ -399,7 +399,7 @@ export default function PopularShortsList({
 
                     {/* Channel */}
                     <p className="text-xs text-muted-foreground mb-3">
-                      {video.snippet.channelTitle}
+                      {video.snippet.channel_title}
                     </p>
 
                     {/* Metrics */}
@@ -407,15 +407,15 @@ export default function PopularShortsList({
                       <div className="flex items-center justify-between text-xs">
                         <span className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
-                          {formatNumber(video.statistics.viewCount)}
+                          {formatNumber(video.statistics.view_count)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="w-3 h-3" />
-                          {formatNumber(video.statistics.likeCount)}
+                          {formatNumber(video.statistics.like_count)}
                         </span>
                         <span className="flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
-                          {formatNumber(video.statistics.commentCount)}
+                          {formatNumber(video.statistics.comment_count)}
                         </span>
                       </div>
 

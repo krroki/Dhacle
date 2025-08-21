@@ -87,16 +87,16 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       if (error && typeof error === 'object' && 'status' in error) {
         const errorWithStatus = error as {
           status: number;
-          data?: { requiresApiKey?: boolean; errorCode?: string; error?: string };
+          data?: { requiresApiKey?: boolean; error_code?: string; error?: string };
         };
         if (errorWithStatus.status === 401) {
           // Check if it's an API key issue
-          const errorMessage = (errorWithStatus.data?.error || '').toLowerCase();
+          const error_message = (errorWithStatus.data?.error || '').toLowerCase();
           const isApiKeyError =
             errorWithStatus.data?.requiresApiKey ||
-            errorWithStatus.data?.errorCode === 'api_key_required' ||
-            errorMessage.includes('api key') ||
-            errorMessage.includes('api 키');
+            errorWithStatus.data?.error_code === 'api_key_required' ||
+            error_message.includes('api key') ||
+            error_message.includes('api 키');
 
           if (isApiKeyError) {
             setError('YouTube API Key 설정이 필요합니다');
@@ -114,15 +114,15 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
         // Handle 400 errors for API key issues
         if (errorWithStatus.status === 400) {
           const data = errorWithStatus.data;
-          if (data?.requiresApiKey || data?.errorCode === 'api_key_required') {
+          if (data?.requiresApiKey || data?.error_code === 'api_key_required') {
             setError('YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.');
             return;
           }
         }
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setError(errorMessage);
+      const error_message = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(error_message);
     } finally {
       setLoading(false);
     }
@@ -143,8 +143,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       setIsCreateDialogOpen(false);
       resetForm();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder';
-      setError(errorMessage);
+      const error_message = error instanceof Error ? error.message : 'Failed to create folder';
+      setError(error_message);
     }
   };
 

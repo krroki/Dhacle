@@ -53,7 +53,7 @@ const GridCell = memo(function GridCell({
     columns: number;
     selectedVideos: Set<string>;
     favoriteVideos: Map<string, YouTubeFavorite>;
-    onToggleSelect: (videoId: string) => void;
+    onToggleSelect: (video_id: string) => void;
     onToggleFavorite: (video: FlattenedYouTubeVideo) => void;
     onPlay: (video: FlattenedYouTubeVideo) => void;
   };
@@ -92,7 +92,7 @@ const ListRow = memo(function ListRow({
     videos: FlattenedYouTubeVideo[];
     selectedVideos: Set<string>;
     favoriteVideos: Map<string, YouTubeFavorite>;
-    onToggleSelect: (videoId: string) => void;
+    onToggleSelect: (video_id: string) => void;
     onToggleFavorite: (video: FlattenedYouTubeVideo) => void;
     onPlay: (video: FlattenedYouTubeVideo) => void;
   };
@@ -190,18 +190,18 @@ export function VideoGrid({
   const sortedVideos = [...videos].sort((a, b) => {
     switch (sortBy) {
       case 'views':
-        return b.viewCount - a.viewCount;
+        return b.view_count - a.view_count;
       case 'likes':
-        return b.likeCount - a.likeCount;
+        return b.like_count - a.like_count;
       default:
-        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
     }
   });
 
   // 선택 토글
   const handleToggleSelect = useCallback(
-    (videoId: string) => {
-      toggleVideoSelection(videoId);
+    (video_id: string) => {
+      toggleVideoSelection(video_id);
     },
     [toggleVideoSelection]
   );

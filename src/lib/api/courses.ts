@@ -22,16 +22,16 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
     // 필터 적용
     if (filters) {
       if (filters.instructor) {
-        query = query.eq('instructorName', filters.instructor);
+        query = query.eq('instructor_name', filters.instructor);
       }
-      if (filters.isFree !== undefined) {
-        query = query.eq('isFree', filters.isFree);
+      if (filters.is_free !== undefined) {
+        query = query.eq('is_free', filters.is_free);
       }
       if (filters.status) {
         query = query.eq('status', filters.status);
       }
       if (filters.rating) {
-        query = query.gte('averageRating', filters.rating);
+        query = query.gte('average_rating', filters.rating);
       }
       if (filters.search) {
         query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
@@ -64,7 +64,7 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
 /**
  * 강의 상세 정보 조회
  */
-export async function getCourseDetail(courseId: string): Promise<CourseDetailResponse | null> {
+export async function getCourseDetail(course_id: string): Promise<CourseDetailResponse | null> {
   try {
     const supabase = await createSupabaseServerClient();
 
@@ -72,7 +72,7 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .select('*')
-      .eq('id', courseId)
+      .eq('id', course_id)
       .single();
 
     if (courseError || !course) {
@@ -83,16 +83,16 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
     const { data: lessons } = await supabase
       .from('lessons')
       .select('*')
-      .eq('course_id', courseId)
-      .order('orderIndex');
+      .eq('course_id', course_id)
+      .order('order_index');
 
     // 현재 사용자의 구매/수강 상태 확인
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    let isEnrolled = false;
-    let isPurchased = false;
+    let is_enrolled = false;
+    let is_purchased = false;
     let progress: CourseProgress[] = [];
 
     if (user) {
@@ -101,7 +101,7 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
         .from('purchases')
         .select('*')
         .eq('user_id', user.id)
-        .eq('course_id', courseId)
+        .eq('course_id', course_id)
         .eq('status', 'completed')
         .single();
 
@@ -112,19 +112,19 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
         .from('enrollments')
         .select('*')
         .eq('user_id', user.id)
-        .eq('course_id', courseId)
+        .eq('course_id', course_id)
         .eq('is_active', true)
         .single();
 
       isEnrolled = !!enrollment;
 
       // 진도 정보
-      if (isEnrolled || isPurchased) {
+      if (is_enrolled || is_purchased) {
         const { data: progressData } = await supabase
-          .from('courseProgressExtended')
+          .from('course_progress')
           .select('*')
           .eq('user_id', user.id)
-          .eq('course_id', courseId);
+          .eq('course_id', course_id);
 
         progress = progressData || [];
       }
@@ -133,8 +133,8 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
     return {
       course,
       lessons: lessons || [],
-      isEnrolled,
-      isPurchased,
+      is_enrolled,
+      is_purchased,
       progress,
     };
   } catch (_error) {
@@ -145,13 +145,13 @@ export async function getCourseDetail(courseId: string): Promise<CourseDetailRes
 /**
  * 강사별 강의 목록 조회
  */
-export async function getCoursesByInstructor(instructorName: string): Promise<Course[]> {
+export async function getCoursesByInstructor(instructor_name: string): Promise<Course[]> {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from('courses')
     .select('*')
-    .eq('instructorName', instructorName)
+    .eq('instructor_name', instructor_name)
     .eq('status', 'active')
     .order('created_at', { ascending: false });
 
@@ -172,9 +172,9 @@ export async function getFreeCourses(): Promise<Course[]> {
     const { data, error } = await supabase
       .from('courses')
       .select('*')
-      .eq('isFree', true)
+      .eq('is_free', true)
       .eq('status', 'active')
-      .order('studentCount', { ascending: false })
+      .order('student_count', { ascending: false })
       .limit(8);
 
     if (error) {
@@ -198,7 +198,7 @@ export async function getPopularCourses(): Promise<Course[]> {
       .from('courses')
       .select('*')
       .eq('status', 'active')
-      .order('studentCount', { ascending: false })
+      .order('student_count', { ascending: false })
       .limit(8);
 
     if (error) {
@@ -238,7 +238,7 @@ export async function getNewCourses(): Promise<Course[]> {
 /**
  * 사용자의 구매한 강의 목록
  */
-export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
+export async function getMyPurchasedCourses(user_id: string): Promise<Course[]> {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -246,7 +246,7 @@ export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
     .select(`
       course:courses(*)
     `)
-    .eq('user_id', userId)
+    .eq('user_id', user_id)
     .eq('status', 'completed');
 
   if (error) {
@@ -266,7 +266,7 @@ export async function getMyPurchasedCourses(userId: string): Promise<Course[]> {
 /**
  * 사용자의 진행 중인 강의 목록
  */
-export async function getMyActiveCourses(userId: string): Promise<Course[]> {
+export async function getMyActiveCourses(user_id: string): Promise<Course[]> {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -274,9 +274,9 @@ export async function getMyActiveCourses(userId: string): Promise<Course[]> {
     .select(`
       course:courses(*)
     `)
-    .eq('user_id', userId)
+    .eq('user_id', user_id)
     .eq('is_active', true)
-    .is('completedAt', null);
+    .is('completed_at', null);
 
   if (error) {
     return [];
@@ -295,21 +295,21 @@ export async function getMyActiveCourses(userId: string): Promise<Course[]> {
 /**
  * 강의 진도율 계산
  */
-export async function getCourseProgress(userId: string, courseId: string): Promise<number> {
+export async function getCourseProgress(user_id: string, course_id: string): Promise<number> {
   const supabase = await createSupabaseServerClient();
 
   // 전체 레슨 수
   const { count: totalLessons } = await supabase
     .from('lessons')
     .select('*', { count: 'exact', head: true })
-    .eq('course_id', courseId);
+    .eq('course_id', course_id);
 
   // 완료한 레슨 수
   const { count: completedLessons } = await supabase
-    .from('courseProgressExtended')
+    .from('course_progress')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('course_id', courseId)
+    .eq('user_id', user_id)
+    .eq('course_id', course_id)
     .eq('completed', true);
 
   if (!totalLessons || totalLessons === 0) {
@@ -327,7 +327,7 @@ export async function getUniqueInstructors(): Promise<string[]> {
 
   const { data, error } = await supabase
     .from('courses')
-    .select('instructorName')
+    .select('instructor_name')
     .eq('status', 'active');
 
   if (error) {
@@ -338,8 +338,8 @@ export async function getUniqueInstructors(): Promise<string[]> {
     ...new Set(
       data
         ?.map((item: unknown) => {
-          const typedItem = item as { instructorName: string };
-          return typedItem.instructorName;
+          const typedItem = item as { instructor_name: string };
+          return typedItem.instructor_name;
         })
         .filter(Boolean)
     ),

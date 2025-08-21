@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { channelId, channelTitle } = body;
+    const { channel_id, channel_title } = body;
 
-    if (!channelId) {
+    if (!channel_id) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
@@ -72,9 +72,9 @@ export async function POST(request: NextRequest) {
 
     // Subscribe to channel
     const result = await pubsubManager.subscribe({
-      channelId,
-      channelTitle: channelTitle || channelId,
-      userId: user.id,
+      channel_id,
+      channel_title: channel_title || channel_id,
+      user_id: user.id,
       callbackUrl,
     });
 
@@ -116,14 +116,14 @@ export async function DELETE(request: NextRequest) {
 
     // Get channel ID from query params
     const searchParams = request.nextUrl.searchParams;
-    const channelId = searchParams.get('channelId');
+    const channel_id = searchParams.get('channel_id');
 
-    if (!channelId) {
+    if (!channel_id) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
     // Unsubscribe from channel
-    const result = await pubsubManager.unsubscribe(channelId, user.id);
+    const result = await pubsubManager.unsubscribe(channel_id, user.id);
 
     if (result.success) {
       return NextResponse.json({
@@ -162,9 +162,9 @@ export async function PATCH(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { channelId } = body;
+    const { channel_id } = body;
 
-    if (!channelId) {
+    if (!channel_id) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
@@ -172,7 +172,7 @@ export async function PATCH(request: NextRequest) {
     const { data: subscription, error: fetchError } = await supabase
       .from('channelSubscriptions')
       .select('*')
-      .eq('channel_id', channelId)
+      .eq('channel_id', channel_id)
       .eq('user_id', user.id)
       .single();
 
@@ -189,9 +189,9 @@ export async function PATCH(request: NextRequest) {
 
     // Renew subscription
     const result = await pubsubManager.subscribe({
-      channelId,
-      channelTitle: subscription.channelTitle,
-      userId: user.id,
+      channel_id,
+      channel_title: subscription.channel_title,
+      user_id: user.id,
       callbackUrl,
     });
 

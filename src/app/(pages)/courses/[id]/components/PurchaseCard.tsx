@@ -32,15 +32,15 @@ import type { Course } from '@/types/course';
 
 interface PurchaseCardProps {
   course: Course;
-  isEnrolled?: boolean;
-  isPurchased?: boolean;
+  is_enrolled?: boolean;
+  is_purchased?: boolean;
   firstLessonId?: string;
 }
 
 export function PurchaseCard({
   course,
-  isEnrolled,
-  isPurchased,
+  is_enrolled,
+  is_purchased,
   firstLessonId,
 }: PurchaseCardProps) {
   const router = useRouter();
@@ -69,11 +69,11 @@ export function PurchaseCard({
     return `₩${price.toLocaleString()}`;
   };
 
-  const finalPrice = course.discountPrice || course.price;
+  const finalPrice = course.discount_price || course.price;
   const discountedPrice = finalPrice - discount;
 
   const handlePurchase = async (): Promise<void> => {
-    if (course.isFree || isEnrolled || isPurchased) {
+    if (course.is_free || is_enrolled || is_purchased) {
       // 무료 강의나 이미 구매한 경우 바로 학습 페이지로
       // firstLessonId가 있으면 첫 번째 레슨으로, 없으면 강의 ID만으로 이동
       const learnUrl = firstLessonId
@@ -96,7 +96,7 @@ export function PurchaseCard({
         customerEmail: string;
         purchaseId: string;
       }>('/api/payment/create-intent', {
-        courseId: course.id,
+        course_id: course.id,
         couponCode: appliedCoupon?.code || '',
       });
 
@@ -105,12 +105,12 @@ export function PurchaseCard({
       setShowPaymentModal(true);
       setError(null);
     } catch (error) {
-      const errorMessage =
+      const error_message =
         error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.';
-      setError(errorMessage);
+      setError(error_message);
 
       // 로그인 필요 시 로그인 페이지로 리다이렉트
-      if (errorMessage.includes('로그인이 필요')) {
+      if (error_message.includes('로그인이 필요')) {
         setTimeout(() => {
           router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
         }, 2000);
@@ -154,25 +154,25 @@ export function PurchaseCard({
         coupon: { code: string; discount: number };
       }>('/api/coupons/validate', {
         couponCode,
-        courseId: course.id,
+        course_id: course.id,
       });
 
       setDiscount(data.discount.discountAmount);
       setAppliedCoupon(data.coupon);
     } catch (error) {
-      const errorMessage =
+      const error_message =
         error instanceof Error ? error.message : '쿠폰 적용 중 오류가 발생했습니다.';
-      alert(errorMessage);
+      alert(error_message);
     } finally {
       setIsApplyingCoupon(false);
     }
   };
 
   const getButtonText = () => {
-    if (isPurchased || isEnrolled) {
+    if (is_purchased || is_enrolled) {
       return '학습하기';
     }
-    if (course.isFree) {
+    if (course.is_free) {
       return '무료로 시작하기';
     }
     return '수강 신청하기';
@@ -185,12 +185,12 @@ export function PurchaseCard({
           <div className="space-y-3">
             {/* 가격 표시 */}
             <div className="space-y-1">
-              {course.discountPrice && course.discountPrice < course.price ? (
+              {course.discount_price && course.discount_price < course.price ? (
                 <>
                   <div className="flex items-center gap-2">
                     <span className="text-3xl font-bold">{formatPrice(discountedPrice)}</span>
                     <Badge variant="destructive">
-                      {Math.round((1 - course.discountPrice / course.price) * 100)}% 할인
+                      {Math.round((1 - course.discount_price / course.price) * 100)}% 할인
                     </Badge>
                   </div>
                   <span className="text-muted-foreground line-through">
@@ -203,7 +203,7 @@ export function PurchaseCard({
             </div>
 
             {/* 쿠폰 입력 */}
-            {!course.isFree && !isPurchased && !isEnrolled && (
+            {!course.is_free && !is_purchased && !is_enrolled && (
               <div className="flex gap-2">
                 <Input
                   placeholder="쿠폰 코드 입력"
@@ -254,7 +254,7 @@ export function PurchaseCard({
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>총 {Math.floor(course.totalDuration / 3600)}시간 분량</span>
+                <span>총 {Math.floor(course.total_duration / 3600)}시간 분량</span>
               </div>
               <div className="flex items-center gap-2">
                 <PlayCircle className="w-4 h-4 text-muted-foreground" />
@@ -270,7 +270,7 @@ export function PurchaseCard({
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-muted-foreground" />
-                <span>{course.studentCount?.toLocaleString() || 0}명 수강중</span>
+                <span>{course.student_count?.toLocaleString() || 0}명 수강중</span>
               </div>
             </div>
           </div>
@@ -289,7 +289,7 @@ export function PurchaseCard({
           </div>
 
           {/* 미리보기 버튼 */}
-          {course.previewVideoUrl && !isPurchased && !isEnrolled && (
+          {course.previewVideoUrl && !is_purchased && !is_enrolled && (
             <>
               <Separator />
               <Button variant="outline" className="w-full">

@@ -6,7 +6,7 @@ interface CommentWithProfile {
   id: string;
   content: string;
   created_at: string;
-  parentId: string | null;
+  parent_id: string | null;
   users: {
     id: string;
     username: string;
@@ -21,7 +21,7 @@ interface CommentWithProfile {
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: postId } = await params;
+    const { id: post_id } = await params;
 
     // 게시글 조회
     const { data: post, error: postError } = await supabase
@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           id,
           content,
           created_at,
-          parentId,
+          parent_id,
           profiles:user_id (
             id,
             username,
@@ -49,7 +49,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           user_id
         )
       `)
-      .eq('id', postId)
+      .eq('id', post_id)
       .single();
 
     if (postError) {
@@ -60,7 +60,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     // 조회수 증가 (별도 RPC 호출)
-    await supabase.rpc('incrementViewCount', { post_id: postId });
+    await supabase.rpc('incrementViewCount', { post_id: post_id });
 
     // 데이터 가공
     const formattedPost = {
@@ -91,7 +91,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: postId } = await params;
+    const { id: post_id } = await params;
 
     // 인증 확인
     const {
@@ -120,7 +120,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         content,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', postId)
+      .eq('id', post_id)
       .eq('user_id', user.id) // 작성자 확인
       .select()
       .single();
@@ -148,7 +148,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: postId } = await params;
+    const { id: post_id } = await params;
 
     // 인증 확인
     const {
@@ -164,7 +164,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     const { error } = await supabase
       .from('community_posts')
       .delete()
-      .eq('id', postId)
+      .eq('id', post_id)
       .eq('user_id', user.id); // 작성자 확인
 
     if (error) {

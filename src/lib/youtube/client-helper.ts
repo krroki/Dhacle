@@ -14,26 +14,26 @@ let _cachedClient: youtube_v3.Youtube | null = null;
  * Get or create YouTube API client
  * @param userId - Optional user ID for server-side calls
  */
-export async function getYouTubeClient(userId?: string): Promise<youtube_v3.Youtube> {
+export async function getYouTubeClient(user_id?: string): Promise<youtube_v3.Youtube> {
   // For server-side calls, we need to get the API key differently
-  let apiKey: string | null = null;
+  let api_key: string | null = null;
 
-  if (userId) {
+  if (user_id) {
     // Server-side: Get decrypted API key from database
-    apiKey = await getDecryptedApiKey(userId, 'youtube');
+    api_key = await getDecryptedApiKey(user_id, 'youtube');
   } else {
     // Client-side fallback or environment variable
-    apiKey = process.env.YOUTUBE_API_KEY || null;
+    api_key = process.env.YOUTUBE_API_KEY || null;
   }
 
-  if (!apiKey) {
+  if (!api_key) {
     throw new Error('YouTube API key not configured. Please add your API key in settings.');
   }
 
   // Create YouTube client with API key
   const youtube = google.youtube({
     version: 'v3',
-    auth: apiKey,
+    auth: api_key,
   });
 
   return youtube;
@@ -61,7 +61,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
 
       // Check if record exists for today
       const { data: existing } = await supabase
-        .from('apiUsage')
+        .from('api_usage')
         .select('*')
         .eq('user_id', user.id)
         .eq('date', today)
@@ -70,7 +70,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
       if (existing) {
         // Update existing record
         await supabase
-          .from('apiUsage')
+          .from('api_usage')
           .update({
             unitsUsed: existing.unitsUsed + units,
             [`${operation}_count`]: (existing[`${operation}_count`] || 0) + 1,
@@ -78,7 +78,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
           .eq('id', existing.id);
       } else {
         // Create new record
-        await supabase.from('apiUsage').insert({
+        await supabase.from('api_usage').insert({
           user_id: user.id,
           operation,
           units,
@@ -122,7 +122,7 @@ export async function getRemainingQuota(): Promise<{
 
     // Get today's usage
     const { data: usage } = await supabase
-      .from('apiUsage')
+      .from('api_usage')
       .select('unitsUsed')
       .eq('user_id', user.id)
       .eq('date', today)

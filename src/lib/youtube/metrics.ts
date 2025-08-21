@@ -19,11 +19,11 @@ import type {
  * Calculate Views Per Hour (VPH) for a video
  */
 export function calculateVPH(
-  viewCount: number,
-  publishedAt: Date | string,
+  view_count: number,
+  published_at: Date | string,
   currentTime: Date = new Date()
 ): number {
-  const published = typeof publishedAt === 'string' ? new Date(publishedAt) : publishedAt;
+  const published = typeof published_at === 'string' ? new Date(published_at) : published_at;
   const hoursElapsed = (currentTime.getTime() - published.getTime()) / (1000 * 60 * 60);
 
   if (hoursElapsed <= 0) {
@@ -38,15 +38,15 @@ export function calculateVPH(
  * Formula: (likes + comments) / views * 100
  */
 export function calculateEngagementRate(
-  viewCount: number,
-  likeCount: number,
-  commentCount: number
+  view_count: number,
+  like_count: number,
+  comment_count: number
 ): number {
-  if (viewCount === 0) {
+  if (view_count === 0) {
     return 0;
   }
 
-  return ((likeCount + commentCount) / viewCount) * 100;
+  return ((like_count + comment_count) / viewCount) * 100;
 }
 
 /**
@@ -54,26 +54,26 @@ export function calculateEngagementRate(
  * Custom algorithm based on multiple factors
  */
 export function calculateViralScore(params: {
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  publishedAt: Date | string;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  published_at: Date | string;
   channelSubscriberCount?: number;
 }): number {
   const {
-    viewCount,
-    likeCount,
-    commentCount,
-    publishedAt,
+    view_count,
+    like_count,
+    comment_count,
+    published_at,
     channelSubscriberCount = 10000, // Default assumption
   } = params;
 
   const now = new Date();
-  const vph = calculateVPH(viewCount, publishedAt, now);
-  const engagementRate = calculateEngagementRate(viewCount, likeCount, commentCount);
+  const vph = calculateVPH(view_count, published_at, now);
+  const engagementRate = calculateEngagementRate(view_count, like_count, comment_count);
 
   // Calculate hours elapsed
-  const published = typeof publishedAt === 'string' ? new Date(publishedAt) : publishedAt;
+  const published = typeof publishedAt === 'string' ? new Date(published_at) : published_at;
   const hoursElapsed = (now.getTime() - published.getTime()) / (1000 * 60 * 60);
 
   // Scoring components
@@ -88,11 +88,11 @@ export function calculateViralScore(params: {
   score += engagementScore * 0.3;
 
   // 3. Reach Score (20% weight) - Views relative to channel size
-  const reachScore = calculateReachScore(viewCount, channelSubscriberCount);
+  const reachScore = calculateReachScore(view_count, channelSubscriberCount);
   score += reachScore * 0.2;
 
   // 4. Momentum Score (10% weight) - Recent performance
-  const momentumScore = calculateMomentumScore(viewCount, hoursElapsed);
+  const momentumScore = calculateMomentumScore(view_count, hoursElapsed);
   score += momentumScore * 0.1;
 
   // Apply multipliers for exceptional performance
@@ -102,7 +102,7 @@ export function calculateViralScore(params: {
   if (engagementRate > 15) {
     score *= 1.3; // Exceptional engagement
   }
-  if (hoursElapsed < 6 && viewCount > 100000) {
+  if (hoursElapsed < 6 && view_count > 100000) {
     score *= 1.4; // Instant viral
   }
 
@@ -137,8 +137,8 @@ function calculateEngagementScore(engagementRate: number): number {
 /**
  * Calculate reach score (views relative to channel size)
  */
-function calculateReachScore(viewCount: number, subscriberCount: number): number {
-  if (subscriberCount === 0) {
+function calculateReachScore(view_count: number, subscriber_count: number): number {
+  if (subscriber_count === 0) {
     return 50; // Default for unknown
   }
 
@@ -155,14 +155,14 @@ function calculateReachScore(viewCount: number, subscriberCount: number): number
 /**
  * Calculate momentum score (recent performance)
  */
-function calculateMomentumScore(viewCount: number, hoursElapsed: number): number {
+function calculateMomentumScore(view_count: number, hoursElapsed: number): number {
   if (hoursElapsed > 168) {
     return 0; // Older than a week
   }
 
   // Score based on recency and view count
   const recencyFactor = (168 - hoursElapsed) / 168;
-  const viewFactor = Math.min(viewCount / 100000, 1);
+  const viewFactor = Math.min(view_count / 100000, 1);
 
   return recencyFactor * viewFactor * 100;
 }
@@ -280,10 +280,10 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
     stats.comment_count
   );
   const viralScore = calculateViralScore({
-    viewCount: stats.view_count,
-    likeCount: stats.like_count,
-    commentCount: stats.comment_count,
-    publishedAt: video.published_at,
+    view_count: stats.view_count,
+    like_count: stats.like_count,
+    comment_count: stats.comment_count,
+    published_at: video.published_at,
   });
 
   // Calculate velocity (rate of change)
@@ -313,7 +313,7 @@ export async function batchCalculateMetrics(videos: Video[]): Promise<Map<string
     const batch = videos.slice(i, i + batchSize);
     const promises = batch.map((video) =>
       calculateVideoMetrics(video).then((metrics) => ({
-        videoId: video.video_id,
+        video_id: video.video_id,
         metrics,
       }))
     );
@@ -322,7 +322,7 @@ export async function batchCalculateMetrics(videos: Video[]): Promise<Map<string
 
     for (const result of results) {
       if (result.status === 'fulfilled') {
-        metricsMap.set(result.value.videoId, result.value.metrics);
+        metricsMap.set(result.value.video_id, result.value.metrics);
       }
     }
   }
@@ -441,23 +441,23 @@ export function identifyOutliers(
  */
 export function calculateMetrics(
   videos: YouTubeVideo[],
-  options: { subscriberCount?: number } = {}
+  options: { subscriber_count?: number } = {}
 ): YouTubeVideo[] {
   return videos.map((video) => {
-    const vph = calculateVPH(video.statistics.viewCount, video.snippet.publishedAt);
+    const vph = calculateVPH(video.statistics.view_count, video.snippet.published_at);
 
     const engagementRate = calculateEngagementRate(
-      video.statistics.viewCount,
-      video.statistics.likeCount,
-      video.statistics.commentCount
+      video.statistics.view_count,
+      video.statistics.like_count,
+      video.statistics.comment_count
     );
 
     const viralScore = calculateViralScore({
-      viewCount: video.statistics.viewCount,
-      likeCount: video.statistics.likeCount,
-      commentCount: video.statistics.commentCount,
-      publishedAt: video.snippet.publishedAt,
-      channelSubscriberCount: options.subscriberCount,
+      view_count: video.statistics.view_count,
+      like_count: video.statistics.like_count,
+      comment_count: video.statistics.comment_count,
+      published_at: video.snippet.published_at,
+      channelSubscriberCount: options.subscriber_count,
     });
 
     return {

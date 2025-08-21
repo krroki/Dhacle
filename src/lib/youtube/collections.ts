@@ -87,7 +87,7 @@ export class CollectionManager {
    * 특정 컬렉션 조회
    */
   async getCollection(
-    collectionId: string
+    collection_id: string
   ): Promise<{ data: Collection | null; error: Error | null }> {
     try {
       const {
@@ -119,8 +119,8 @@ export class CollectionManager {
    * 컬렉션에 비디오 추가
    */
   async addVideoToCollection(
-    collectionId: string,
-    videoId: string,
+    collection_id: string,
+    video_id: string,
     notes?: string,
     tags?: string[]
   ): Promise<{ data: CollectionItem | null; error: Error | null }> {
@@ -142,7 +142,7 @@ export class CollectionManager {
       const { data: video } = await this.supabase
         .from('videos')
         .select('video_id')
-        .eq('video_id', videoId)
+        .eq('video_id', video_id)
         .single();
 
       if (!video) {
@@ -166,7 +166,7 @@ export class CollectionManager {
         .from('collectionItems')
         .insert({
           collection_id: collectionId,
-          video_id: videoId,
+          video_id: video_id,
           notes: notes || null,
           tags: tags || null,
           position: nextPosition,
@@ -198,8 +198,8 @@ export class CollectionManager {
    * 컬렉션에서 비디오 제거
    */
   async removeVideoFromCollection(
-    collectionId: string,
-    videoId: string
+    collection_id: string,
+    video_id: string
   ): Promise<{ success: boolean; error: Error | null }> {
     try {
       const {
@@ -220,7 +220,7 @@ export class CollectionManager {
         .from('collectionItems')
         .delete()
         .eq('collection_id', collectionId)
-        .eq('video_id', videoId);
+        .eq('video_id', video_id);
 
       if (error) {
         return { success: false, error };
@@ -245,7 +245,7 @@ export class CollectionManager {
    * 컬렉션의 비디오 목록 조회
    */
   async getCollectionVideos(
-    collectionId: string
+    collection_id: string
   ): Promise<{ data: (CollectionItem & { video: Video })[] | null; error: Error | null }> {
     try {
       const {
@@ -285,7 +285,7 @@ export class CollectionManager {
    * 컬렉션 정보 업데이트
    */
   async updateCollection(
-    collectionId: string,
+    collection_id: string,
     updates: Partial<{
       name: string;
       description: string;
@@ -371,7 +371,7 @@ export class CollectionManager {
    * 컬렉션 내 아이템 순서 변경
    */
   async reorderCollectionItems(
-    collectionId: string,
+    collection_id: string,
     items: { video_id: string; position: number }[]
   ): Promise<{ success: boolean; error: Error | null }> {
     try {

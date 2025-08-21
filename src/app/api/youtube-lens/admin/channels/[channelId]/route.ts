@@ -5,9 +5,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 // PUT: 채널 정보 수정 (관리자 전용)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ channelId: string }> }
+  { params }: { params: Promise<{ channel_id: string }> }
 ) {
-  const { channelId } = await params;
+  const { channel_id } = await params;
   const supabase = createRouteHandlerClient({ cookies });
 
   // 인증 체크
@@ -51,7 +51,7 @@ export async function PUT(
     const { data, error } = await supabase
       .from('yl_channels')
       .update(updateData)
-      .eq('channel_id', channelId)
+      .eq('channel_id', channel_id)
       .select()
       .single();
 
@@ -60,9 +60,9 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       data: {
-        channelId: data.channel_id,
+        channel_id: data.channel_id,
         approvalStatus: data.approval_status,
-        updatedAt: data.updated_at,
+        updated_at: data.updated_at,
       },
     });
   } catch (error) {
@@ -77,9 +77,9 @@ export async function PUT(
 // DELETE: 채널 삭제 (관리자 전용)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ channelId: string }> }
+  { params }: { params: Promise<{ channel_id: string }> }
 ) {
-  const { channelId } = await params;
+  const { channel_id } = await params;
   const supabase = createRouteHandlerClient({ cookies });
 
   // 인증 체크
@@ -99,7 +99,7 @@ export async function DELETE(
   try {
     // 삭제 전 로그 남기기
     await supabase.from('yl_approval_logs').insert({
-      channel_id: channelId,
+      channel_id: channel_id,
       action: 'delete',
       actor_id: user.id,
       notes: 'Channel deleted by admin',
@@ -107,7 +107,7 @@ export async function DELETE(
     });
 
     // 채널 삭제 (CASCADE로 관련 데이터도 삭제됨)
-    const { error } = await supabase.from('yl_channels').delete().eq('channel_id', channelId);
+    const { error } = await supabase.from('yl_channels').delete().eq('channel_id', channel_id);
 
     if (error) throw error;
 

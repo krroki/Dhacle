@@ -2,13 +2,11 @@
  * 중앙 타입 정의 파일
  *
  * Single Source of Truth: Supabase 자동 생성 타입 기반
- * 자동 변환: snake_case (DB) → camelCase (Frontend)
+ * 통일된 네이밍: snake_case (DB = Frontend)
  *
  * 사용법:
  * import { User, Course, CommunityPost } from '@/types'
  */
-
-import type { SnakeToCamelCase } from '@/lib/utils/db-types';
 import type { Database, Tables, TablesInsert, TablesUpdate } from './database.generated';
 
 // ============= 기본 Database 타입 =============
@@ -43,32 +41,32 @@ export type DBCommunityLikeUpdate = TablesUpdate<'community_likes'>;
 export type DBRevenueProofUpdate = TablesUpdate<'revenue_proofs'>;
 export type DBUserApiKeyUpdate = TablesUpdate<'user_api_keys'>;
 
-// ============= CamelCase 변환 타입 (Frontend용) =============
+// ============= Frontend 타입 (snake_case 직접 사용) =============
 
-// 메인 엔티티 타입 (camelCase)
-export type User = SnakeToCamelCase<DBUser>;
-export type CommunityPost = SnakeToCamelCase<DBCommunityPost>;
-export type CommunityComment = SnakeToCamelCase<DBCommunityComment>;
-export type CommunityLike = SnakeToCamelCase<DBCommunityLike>;
-export type RevenueProof = SnakeToCamelCase<DBRevenueProof>;
-export type UserApiKey = SnakeToCamelCase<DBUserApiKey>;
-export type Profile = SnakeToCamelCase<DBProfile>;
+// 메인 엔티티 타입 (snake_case)
+export type User = DBUser;
+export type CommunityPost = DBCommunityPost;
+export type CommunityComment = DBCommunityComment;
+export type CommunityLike = DBCommunityLike;
+export type RevenueProof = DBRevenueProof;
+export type UserApiKey = DBUserApiKey;
+export type Profile = DBProfile;
 
-// Insert 타입 (camelCase)
-export type UserInsert = SnakeToCamelCase<DBUserInsert>;
-export type CommunityPostInsert = SnakeToCamelCase<DBCommunityPostInsert>;
-export type CommunityCommentInsert = SnakeToCamelCase<DBCommunityCommentInsert>;
-export type CommunityLikeInsert = SnakeToCamelCase<DBCommunityLikeInsert>;
-export type RevenueProofInsert = SnakeToCamelCase<DBRevenueProofInsert>;
-export type UserApiKeyInsert = SnakeToCamelCase<DBUserApiKeyInsert>;
+// Insert 타입 (snake_case)
+export type UserInsert = DBUserInsert;
+export type CommunityPostInsert = DBCommunityPostInsert;
+export type CommunityCommentInsert = DBCommunityCommentInsert;
+export type CommunityLikeInsert = DBCommunityLikeInsert;
+export type RevenueProofInsert = DBRevenueProofInsert;
+export type UserApiKeyInsert = DBUserApiKeyInsert;
 
-// Update 타입 (camelCase)
-export type UserUpdate = SnakeToCamelCase<DBUserUpdate>;
-export type CommunityPostUpdate = SnakeToCamelCase<DBCommunityPostUpdate>;
-export type CommunityCommentUpdate = SnakeToCamelCase<DBCommunityCommentUpdate>;
-export type CommunityLikeUpdate = SnakeToCamelCase<DBCommunityLikeUpdate>;
-export type RevenueProofUpdate = SnakeToCamelCase<DBRevenueProofUpdate>;
-export type UserApiKeyUpdate = SnakeToCamelCase<DBUserApiKeyUpdate>;
+// Update 타입 (snake_case)
+export type UserUpdate = DBUserUpdate;
+export type CommunityPostUpdate = DBCommunityPostUpdate;
+export type CommunityCommentUpdate = DBCommunityCommentUpdate;
+export type CommunityLikeUpdate = DBCommunityLikeUpdate;
+export type RevenueProofUpdate = DBRevenueProofUpdate;
+export type UserApiKeyUpdate = DBUserApiKeyUpdate;
 
 // ============= 호환성 타입 (기존 코드용) =============
 

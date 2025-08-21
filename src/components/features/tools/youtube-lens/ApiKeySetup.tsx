@@ -15,7 +15,7 @@ interface ApiKeySetupProps {
 }
 
 export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
-  const [apiKey, setApiKey] = useState('');
+  const [api_key, setApiKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -23,7 +23,7 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!apiKey.trim()) {
+    if (!api_key.trim()) {
       setError('API 키를 입력해주세요');
       return;
     }
@@ -34,8 +34,8 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
     try {
       // API 키 검증 및 저장
       await apiPost('/api/user/api-keys', {
-        apiKey: apiKey.trim(),
-        serviceName: 'youtube',
+        api_key: api_key.trim(),
+        service_name: 'youtube',
       });
 
       setSuccess(true);
@@ -138,12 +138,12 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
         {/* API 키 입력 폼 */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="apiKey">YouTube API 키</Label>
+            <Label htmlFor="api_key">YouTube API 키</Label>
             <Input
-              id="apiKey"
+              id="api_key"
               type="text"
               placeholder="AIzaSy..."
-              value={apiKey}
+              value={api_key}
               onChange={(e) => setApiKey(e.target.value)}
               disabled={loading}
               className="font-mono"

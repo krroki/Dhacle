@@ -100,10 +100,10 @@ export async function GET(request: Request) {
     const trendingKeywords: Array<{ keyword: string; count: number }> = [];
 
     // 5. Top 쇼츠 (Phase 2 예정)
-    const topShorts: Array<{ videoId: string; title: string; views: number }> = [];
+    const topShorts: Array<{ video_id: string; title: string; views: number }> = [];
 
     // 6. 팔로우 채널 (Phase 2 예정)
-    const followedChannels: Array<{ channelId: string; title: string }> = [];
+    const followedChannels: Array<{ channel_id: string; title: string }> = [];
 
     return NextResponse.json({
       success: true,

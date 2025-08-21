@@ -25,7 +25,7 @@ interface Post {
   view_count: number;
   comment_count: number;
   like_count: number;
-  isPinned: boolean;
+  is_pinned: boolean;
   created_at: string;
   author: {
     username: string;
@@ -140,7 +140,7 @@ export default function CommunityBoardPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        {post.isPinned && <Badge variant="secondary">공지</Badge>}
+                        {post.is_pinned && <Badge variant="secondary">공지</Badge>}
                         <h3 className="font-semibold text-lg">{post.title}</h3>
                       </div>
                       <p className="text-muted-foreground line-clamp-2 mb-3">{post.content}</p>

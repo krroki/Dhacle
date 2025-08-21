@@ -54,7 +54,7 @@ export const carouselItems: CarouselItem[] = [
 
 // YouTube 썸네일 URL 헬퍼 함수
 export const getYouTubeThumbnail = (
-  videoId: string,
+  video_id: string,
   quality: 'max' | 'high' | 'medium' | 'default' = 'high'
 ) => {
   const qualityMap = {
@@ -64,7 +64,7 @@ export const getYouTubeThumbnail = (
     default: 'sddefault',
   };
 
-  return `https://img.youtube.com/vi/${videoId}/${qualityMap[quality]}.jpg`;
+  return `https://img.youtube.com/vi/${video_id}/${qualityMap[quality]}.jpg`;
 };
 
 // 이미지 프리로드 헬퍼 함수

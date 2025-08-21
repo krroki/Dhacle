@@ -68,7 +68,7 @@ export function MyPageSidebar({ profile }: MyPageSidebarProps) {
       <nav className="space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+          const is_active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -77,7 +77,7 @@ export function MyPageSidebar({ profile }: MyPageSidebarProps) {
               className={cn(
                 'flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors',
                 'hover:bg-white hover:shadow-sm',
-                isActive ? 'bg-white shadow-sm text-purple-600' : 'text-gray-700'
+                is_active ? 'bg-white shadow-sm text-purple-600' : 'text-gray-700'
               )}
             >
               <div className="flex items-center gap-3">

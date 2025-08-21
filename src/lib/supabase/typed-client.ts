@@ -48,10 +48,10 @@ export function camelToSnake<T>(obj: unknown): T {
  * // 자동으로 camelCase로 변환
  * const { data } = await db.from('courses')
  *   .select('*')
- *   .eq('id', courseId);
+ *   .eq('id', course_id);
  *
  * // data는 이미 camelCase
- * console.log(data.instructorName); // OK!
+ * console.log(data.instructor_name); // OK!
  * ```
  */
 class TypedSupabaseClient {

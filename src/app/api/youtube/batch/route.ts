@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       const jobs: YouTubeJobData[] = batch.map((item) => ({
         type: item.type || type,
         params: item.params,
-        userId: user.id,
+        user_id: user.id,
         priority: item.priority || priority || JobPriority.NORMAL,
         metadata: item.metadata,
       }));
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     const jobData: YouTubeJobData = {
       type: type as JobType,
       params,
-      userId: user.id,
+      user_id: user.id,
       priority: priority || JobPriority.NORMAL,
     };
 

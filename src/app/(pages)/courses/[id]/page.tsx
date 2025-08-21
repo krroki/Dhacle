@@ -13,8 +13,8 @@ interface PageProps {
 
 // 동적 메타데이터 생성
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id: courseId } = await params;
-  const courseData = await getCourseDetail(courseId);
+  const { id: course_id } = await params;
+  const courseData = await getCourseDetail(course_id);
 
   if (!courseData) {
     return {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       course.title,
       'YouTube Shorts',
       '동영상 제작',
-      course.instructorName || '전문가',
+      course.instructor_name || '전문가',
       course.difficulty || 'beginner',
     ],
     alternates: {
@@ -64,8 +64,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CourseDetailPage({ params }: PageProps): Promise<React.JSX.Element> {
-  const { id: courseId } = await params;
-  const courseData = await getCourseDetail(courseId);
+  const { id: course_id } = await params;
+  const courseData = await getCourseDetail(course_id);
 
   if (!courseData) {
     notFound();
@@ -88,8 +88,8 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
     },
     instructor: {
       '@type': 'Person',
-      name: course.instructorName || '디하클 전문강사',
-      description: course.instructorName || 'YouTube Shorts 전문강사',
+      name: course.instructor_name || '디하클 전문강사',
+      description: course.instructor_name || 'YouTube Shorts 전문강사',
       image: course.thumbnail_url,
     },
     url: `https://dhacle.com/courses/${course.id}`,
@@ -99,7 +99,7 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
     hasCourseInstance: {
       '@type': 'CourseInstance',
       courseMode: 'online',
-      courseWorkload: course.totalDuration ? `PT${course.totalDuration}H` : undefined,
+      courseWorkload: course.total_duration ? `PT${course.total_duration}H` : undefined,
     },
     offers: {
       '@type': 'Offer',
@@ -109,10 +109,10 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
       url: `${siteConfig.url}/courses/${course.id}`,
       validFrom: course.created_at,
     },
-    aggregateRating: course.averageRating
+    aggregateRating: course.average_rating
       ? {
           '@type': 'AggregateRating',
-          ratingValue: course.averageRating,
+          ratingValue: course.average_rating,
           reviewCount: course.reviewCount || 0,
           bestRating: 5,
           worstRating: 1,

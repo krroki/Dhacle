@@ -68,15 +68,15 @@ export default async function AdminCoursesPage() {
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4">{course.instructorName}</td>
+                    <td className="py-3 px-4">{course.instructor_name}</td>
                     <td className="py-3 px-4">
-                      {course.isFree ? (
+                      {course.is_free ? (
                         <Badge variant="secondary">무료</Badge>
                       ) : (
                         <span>₩{course.price.toLocaleString()}</span>
                       )}
                     </td>
-                    <td className="py-3 px-4">{course.studentCount || 0}명</td>
+                    <td className="py-3 px-4">{course.student_count || 0}명</td>
                     <td className="py-3 px-4">
                       <Badge
                         variant={

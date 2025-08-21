@@ -23,9 +23,9 @@ function PaymentSuccessContent() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadCourseData = useCallback(async (courseId: string) => {
+  const loadCourseData = useCallback(async (course_id: string) => {
     const supabase = createClient();
-    const { data } = await supabase.from('courses').select('*').eq('id', courseId).single();
+    const { data } = await supabase.from('courses').select('*').eq('id', course_id).single();
 
     if (data) {
       // DB 데이터를 Course 타입으로 변환
@@ -33,15 +33,15 @@ function PaymentSuccessContent() {
         id: data.id,
         title: data.title,
         description: data.description ?? undefined,
-        instructorName: data.instructor_name || 'Unknown',
-        instructorId: data.instructor_id ?? undefined,
+        instructor_name: data.instructor_name || 'Unknown',
+        instructor_id: data.instructor_id ?? undefined,
         thumbnail_url: data.thumbnail_url ?? undefined,
         price: data.price,
-        isFree: data.price === 0,
+        is_free: data.price === 0,
         isPremium: data.price > 0,
-        totalDuration: (data.duration_weeks || 8) * 7 * 60, // weeks to minutes
-        studentCount: data.total_students || 0,
-        averageRating: data.average_rating || 0,
+        total_duration: (data.duration_weeks || 8) * 7 * 60, // weeks to minutes
+        student_count: data.total_students || 0,
+        average_rating: data.average_rating || 0,
         reviewCount: 0,
         status: 'active', // DB에 status 컬럼이 없음
         launchDate: data.created_at || new Date().toISOString(),
@@ -162,7 +162,7 @@ function PaymentSuccessContent() {
           </div>
           <div className="flex justify-between py-2">
             <span className="text-muted-foreground">강사</span>
-            <span className="font-medium">{course.instructorName}</span>
+            <span className="font-medium">{course.instructor_name}</span>
           </div>
           <div className="flex justify-between py-2">
             <span className="text-muted-foreground">결제 금액</span>

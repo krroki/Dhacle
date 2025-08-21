@@ -227,7 +227,7 @@ export function findTopOutliers(
  */
 export function analyzeOutlierTrends(
   historicalResults: OutlierDetectionResult[][],
-  videoId: string
+  video_id: string
 ): {
   consistentlyOutlier: boolean;
   outlierFrequency: number;
@@ -235,7 +235,7 @@ export function analyzeOutlierTrends(
   avgScore: number;
 } {
   const videoResults = historicalResults
-    .map((batch) => batch.find((r) => r.video_id === videoId))
+    .map((batch) => batch.find((r) => r.video_id === video_id))
     .filter(Boolean) as OutlierDetectionResult[];
 
   if (videoResults.length === 0) {
