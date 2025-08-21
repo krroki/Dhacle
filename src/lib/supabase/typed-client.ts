@@ -77,20 +77,20 @@ class TypedSupabaseClient {
               }
               return camelToSnake(arg);
             });
-            const result = await originalMethod.apply(target, convertedArgs);
+            const result = await (originalMethod as any).apply(target, convertedArgs);
 
             // 결과를 camelCase로 변환
-            if (result.data) {
+            if (result && result.data) {
               result.data = snakeToCamel(result.data);
             }
             return result;
           }
 
           // select 등 다른 메서드들
-          const result = await originalMethod.apply(target, args);
+          const result = await (originalMethod as any).apply(target, args);
 
           // 결과를 camelCase로 변환
-          if (result.data) {
+          if (result && result.data) {
             result.data = snakeToCamel(result.data);
           }
 

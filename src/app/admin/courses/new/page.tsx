@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/browser-client';
-import type { Course } from '@/types/course';
+import type { Course } from '@/types';
 import { CourseEditor } from '../components/CourseEditor';
 
 export default function NewCoursePage() {

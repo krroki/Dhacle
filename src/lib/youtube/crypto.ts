@@ -103,8 +103,8 @@ export class CryptoUtil {
     if (!api_key || api_key.length < 8) {
       return '***';
     }
-    const firstFour = apiKey.substring(0, 4);
-    const lastFour = apiKey.substring(api_key.length - 4);
+    const firstFour = api_key.substring(0, 4);
+    const lastFour = api_key.substring(api_key.length - 4);
     return `${firstFour}...${lastFour}`;
   }
 

@@ -56,13 +56,13 @@ export async function GET(request: NextRequest) {
       api_key_masked: api_key.api_key_masked,
       created_at: api_key.created_at,
       updated_at: api_key.updated_at,
-      lastUsedAt: api_key.lastUsedAt,
-      usageCount: api_key.usageCount,
-      usageToday: api_key.usageToday,
-      usageDate: api_key.usageDate,
+      last_used_at: api_key.last_used_at,
+      usage_count: api_key.usage_count,
+      usage_today: api_key.usage_today,
+      usage_date: api_key.usage_date,
       is_active: api_key.is_active,
-      isValid: api_key.isValid,
-      validationError: api_key.validationError,
+      is_valid: api_key.is_valid,
+      validation_error: api_key.validation_error,
     };
 
     return NextResponse.json({
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // 요청 본문 파싱
     const body = await request.json();
-    const { api_key, serviceName = 'youtube', metadata = {} } = body;
+    const { api_key, service_name = 'youtube', metadata = {} } = body;
 
     if (!api_key) {
       return NextResponse.json(
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     // YouTube API Key인 경우 유효성 검증
-    if (serviceName === 'youtube') {
+    if (service_name === 'youtube') {
       const validation = await validateYouTubeApiKey(api_key);
 
       if (!validation.isValid) {
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     const savedKey = await saveUserApiKey({
       user_id: user.id,
       api_key,
-      serviceName,
+      service_name,
       metadata,
     });
     console.log('[API Route] After saveUserApiKey:', { savedKeyId: savedKey?.id });
@@ -156,9 +156,9 @@ export async function POST(request: NextRequest) {
     const safeApiKey = {
       id: savedKey.id,
       service_name: savedKey.service_name,
-      api_key_masked: savedKey.apiKeyMasked,
+      api_key_masked: savedKey.api_key_masked,
       created_at: savedKey.created_at,
-      isValid: savedKey.isValid,
+      is_valid: savedKey.is_valid,
     };
 
     return NextResponse.json({

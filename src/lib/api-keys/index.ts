@@ -1,23 +1,7 @@
 import { createServerClient, createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
+import type { UserApiKey } from '@/types';
 import { decryptApiKey, encryptApiKey, maskApiKey, validateApiKeyFormat } from './crypto';
 
-export interface UserApiKey {
-  id: string;
-  user_id: string;
-  service_name: string;
-  api_key_masked: string;
-  encrypted_key: string;
-  created_at: string;
-  updated_at: string;
-  lastUsedAt: string | null;
-  usageCount: number;
-  usageToday: number;
-  usageDate: string;
-  is_active: boolean;
-  is_valid: boolean;
-  validationError: string | null;
-  metadata: Record<string, string | number | boolean | null>;
-}
 
 export interface SaveApiKeyParams {
   user_id: string;
@@ -45,7 +29,7 @@ export async function saveUserApiKey({
   serviceName = 'youtube',
   metadata = {},
 }: SaveApiKeyParams): Promise<UserApiKey> {
-  console.log('[saveUserApiKey] Starting...', { user_id, service_name });
+  console.log('[saveUserApiKey] Starting...', { user_id, serviceName });
 
   // API Key 형식 검증
   if (!validateApiKeyFormat(api_key, serviceName)) {
@@ -66,7 +50,7 @@ export async function saveUserApiKey({
     .from('user_api_keys')
     .select('id')
     .eq('user_id', user_id)
-    .eq('serviceName', serviceName)
+    .eq('service_name', serviceName)
     .single();
 
   let result;
@@ -131,7 +115,7 @@ export async function getUserApiKey(
       .from('user_api_keys')
       .select('*')
       .eq('user_id', user_id)
-      .eq('serviceName', serviceName)
+      .eq('service_name', serviceName)
       .eq('is_active', true)
       .single();
 
@@ -183,7 +167,7 @@ export async function deleteUserApiKey(user_id: string, serviceName = 'youtube')
       .from('user_api_keys')
       .delete()
       .eq('user_id', user_id)
-      .eq('serviceName', serviceName);
+      .eq('service_name', serviceName);
 
     if (error) {
       throw error;
@@ -266,7 +250,7 @@ async function incrementUsage(apiKeyId: string): Promise<void> {
     // userApiKeys에서 user_id와 serviceName 조회
     const { data: keyData, error: fetchError } = await supabase
       .from('user_api_keys')
-      .select('user_id, serviceName')
+      .select('user_id, service_name')
       .eq('id', apiKeyId)
       .single();
 
@@ -276,8 +260,8 @@ async function incrementUsage(apiKeyId: string): Promise<void> {
 
     // PostgreSQL 함수 호출 (올바른 파라미터 사용)
     const { error: rpcError } = await supabase.rpc('increment_api_key_usage', {
-      pUserId: keyData.user_id,
-      pServiceName: keyData.service_name,
+      p_user_id: keyData.user_id,
+      p_service_name: keyData.service_name,
     });
 
     if (rpcError) {
@@ -300,11 +284,11 @@ export async function updateApiKeyValidity(
     await supabase
       .from('user_api_keys')
       .update({
-        is_valid: isValid,
+        is_valid: is_valid,
         validationError: validationError || null,
       })
       .eq('user_id', user_id)
-      .eq('serviceName', serviceName);
+      .eq('service_name', service_name);
   } catch (_error) {}
 }
 

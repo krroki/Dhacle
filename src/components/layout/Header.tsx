@@ -262,16 +262,20 @@ export function Header() {
   useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
-        const supabase = createBrowserClient();
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
+        // TODO: Add 'role' field to profiles table in DB
+        // For now, default to 'user' role
+        setUserRole('user');
+        
+        // const supabase = createBrowserClient();
+        // const { data, error } = await supabase
+        //   .from('profiles')
+        //   .select('role')
+        //   .eq('id', user.id)
+        //   .single();
 
-        if (data && !error) {
-          setUserRole(data.role as 'user' | 'instructor' | 'admin');
-        }
+        // if (data && !error) {
+        //   setUserRole(data.role as 'user' | 'instructor' | 'admin');
+        // }
       } else {
         setUserRole(null);
       }

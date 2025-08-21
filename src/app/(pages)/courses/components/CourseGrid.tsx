@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { safeAccess } from '@/lib/utils/type-mappers';
-import type { Course, CourseFilters } from '@/types/course';
+import type { Course, CourseFilters } from '@/types';
 import { CourseCard } from './CourseCard';
 
 interface CourseGridProps {

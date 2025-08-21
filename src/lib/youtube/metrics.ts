@@ -30,7 +30,7 @@ export function calculateVPH(
     return 0;
   }
 
-  return viewCount / hoursElapsed;
+  return view_count / hoursElapsed;
 }
 
 /**
@@ -46,7 +46,7 @@ export function calculateEngagementRate(
     return 0;
   }
 
-  return ((like_count + comment_count) / viewCount) * 100;
+  return ((like_count + comment_count) / view_count) * 100;
 }
 
 /**
@@ -73,7 +73,7 @@ export function calculateViralScore(params: {
   const engagementRate = calculateEngagementRate(view_count, like_count, comment_count);
 
   // Calculate hours elapsed
-  const published = typeof publishedAt === 'string' ? new Date(published_at) : published_at;
+  const published = typeof published_at === 'string' ? new Date(published_at) : published_at;
   const hoursElapsed = (now.getTime() - published.getTime()) / (1000 * 60 * 60);
 
   // Scoring components
@@ -142,7 +142,7 @@ function calculateReachScore(view_count: number, subscriber_count: number): numb
     return 50; // Default for unknown
   }
 
-  const ratio = viewCount / subscriberCount;
+  const ratio = view_count / subscriber_count;
 
   // If views exceed subscriber count, it's viral
   if (ratio > 1) {
@@ -253,7 +253,7 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
   } else {
     // Fetch from database
     const { data } = await supabase
-      .from('videoStats')
+      .from('video_stats')
       .select('*')
       .eq('video_id', video.video_id)
       .order('snapshotAt', { ascending: false })

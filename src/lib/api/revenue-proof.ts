@@ -91,7 +91,7 @@ export async function deleteRevenueProof(id: string) {
 
 // 좋아요 토글
 export async function toggleLike(proofId: string) {
-  return await apiPost(`${API_BASE}/${proof_id}/like`);
+  return await apiPost(`${API_BASE}/${proofId}/like`);
 }
 
 // 댓글 작성
@@ -178,11 +178,18 @@ export async function uploadImage(
   formData.append('file', file);
   formData.append('bucket', bucket);
 
-  return await apiUpload<{
+  const result = await apiUpload<{
     url: string;
     path: string;
     bucket: string;
   }>('/api/upload', formData);
+  
+  // 필수 필드 추가
+  return {
+    ...result,
+    thumbnail_url: result.url,
+    blurDataUrl: '',
+  };
 }
 
 // 이미지 삭제 헬퍼 함수

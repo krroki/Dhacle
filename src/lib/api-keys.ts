@@ -1,25 +1,6 @@
 import crypto from 'node:crypto';
 import { createServerClient } from '@/lib/supabase/server-client';
-
-// Type definition for UserApiKey
-interface UserApiKey {
-  id: string;
-  user_id: string;
-  service_name: string;
-  encrypted_key: string;
-  encryption_iv: string;
-  apiKeyMasked?: string;
-  is_active: boolean;
-  isValid?: boolean;
-  metadata?: Record<string, unknown>;
-  created_at?: string;
-  updated_at?: string;
-  lastUsedAt?: string | null;
-  usageCount?: number;
-  usageToday?: number;
-  usageDate?: string;
-  validationError?: string | null;
-}
+import type { UserApiKey, Json } from '@/types';
 
 const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
@@ -33,7 +14,7 @@ export async function getDecryptedApiKey(
 
     const { data, error } = await supabase
       .from('user_api_keys')
-      .select('encrypted_key, encryption_iv')
+      .select('encrypted_key')
       .eq('user_id', user_id)
       .eq('service_name', service_name)
       .eq('is_active', true)
@@ -44,13 +25,22 @@ export async function getDecryptedApiKey(
     }
 
     // AES-256 복호화
+    // The encrypted_key field contains IV (first 32 chars) + encrypted data
+    const combinedData = data?.encrypted_key;
+    if (!combinedData || combinedData.length < 33) {
+      return null;
+    }
+    
+    const iv = combinedData.slice(0, 32);
+    const encryptedData = combinedData.slice(32);
+    
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
       Buffer.from(ENCRYPTION_KEY, 'hex'),
-      Buffer.from(data?.encryption_iv, 'hex')
+      Buffer.from(iv, 'hex')
     );
 
-    let decrypted = decipher.update(data?.encrypted_key, 'hex', 'utf8');
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
 
     return decrypted;
@@ -87,12 +77,14 @@ export async function saveApiKey(
     .eq('user_id', user_id)
     .eq('service_name', service_name);
 
-  // 새 키 저장
+  // 새 키 저장 (IV와 encrypted data를 concatenate)
+  const maskedKey = `****${api_key.slice(-4)}`; // Show last 4 chars
+  
   const { error } = await supabase.from('user_api_keys').insert({
     user_id: user_id,
-    service_name: serviceName,
-    encrypted_key: encrypted,
-    encryption_iv: iv,
+    service_name: service_name,
+    encrypted_key: iv + encrypted, // Store IV + encrypted data together
+    api_key_masked: maskedKey,
     is_active: true,
   });
 
@@ -147,18 +139,17 @@ export async function saveUserApiKey(params: {
   // API 키 마스킹 (처음 10자리만 보이고 나머지는 *)
   const apiKeyMasked = api_key.substring(0, 10) + '*'.repeat(Math.max(0, api_key.length - 10));
 
-  // 새 키 저장
+  // 새 키 저장 (IV와 encrypted data를 concatenate)
   const { data, error } = await supabase
     .from('user_api_keys')
     .insert({
       user_id: user_id,
-      service_name: serviceName,
-      encrypted_key: encrypted,
-      encryption_iv: iv,
+      service_name: service_name as string,
+      encrypted_key: iv + encrypted, // Store IV + encrypted data together
       api_key_masked: apiKeyMasked,
       is_active: true,
       is_valid: true,
-      metadata,
+      metadata: metadata as unknown as Json | null,
     })
     .select()
     .single();

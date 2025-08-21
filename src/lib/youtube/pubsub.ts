@@ -81,7 +81,7 @@ export class PubSubHubbubManager {
     params: SubscriptionParams
   ): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
     try {
-      const { channel_id, channel_title, user_id, callbackUrl } = params;
+      const { channel_id, channelTitle, user_id, callbackUrl } = params;
 
       // Generate secret for this subscription
       const hubSecret = this.generateSecret();
@@ -105,7 +105,7 @@ export class PubSubHubbubManager {
 
       if (existing) {
         // TODO: Update existing subscription (channelSubscriptions table)
-        subscriptionId = existing.id;
+        subscriptionId = (existing as { id: string }).id;
         // await this.supabase
         //   .from('channelSubscriptions')
         //   .update({
@@ -450,6 +450,7 @@ export class PubSubHubbubManager {
       //   throw error;
       // }
       interface SubscriptionData {
+        id: string;
         hubTopic: string;
         hubCallbackUrl: string;
         hubSecret: string;

@@ -12,7 +12,6 @@ interface DBCollection {
   item_count: number | null;
   created_at: string | null;
   updated_at: string | null;
-  deleted_at: string | null;
 }
 
 /**
@@ -28,9 +27,9 @@ function mapDbCollectionToCollection(dbCollection: DBCollection): Collection {
     coverImage: dbCollection.cover_image_url,
     tags: dbCollection.tags,
     itemCount: dbCollection.item_count ?? 0,
-    created_at: dbCollection.created_at,
-    updated_at: dbCollection.updated_at,
-    deleted_at: dbCollection.deleted_at,
+    created_at: dbCollection.created_at ?? new Date().toISOString(),
+    updated_at: dbCollection.updated_at ?? new Date().toISOString(),
+    deleted_at: null,
   };
 }
 
@@ -137,7 +136,7 @@ export class ServerCollectionManager {
       const { data: collection, error } = await supabase
         .from('collections')
         .select('*')
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id)
         .is('deleted_at', null)
         .single();
@@ -172,7 +171,7 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
@@ -191,9 +190,9 @@ export class ServerCollectionManager {
 
       // 최대 position 값 조회
       const { data: maxPositionItem } = await supabase
-        .from('collectionItems')
+        .from('collection_items')
         .select('position')
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .order('position', { ascending: false })
         .limit(1)
         .single();
@@ -202,9 +201,9 @@ export class ServerCollectionManager {
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await supabase
-        .from('collectionItems')
+        .from('collection_items')
         .insert({
-          collection_id: collectionId,
+          collection_id: collection_id,
           video_id: video_id,
           notes: notes || null,
           tags: tags || null,
@@ -225,7 +224,7 @@ export class ServerCollectionManager {
           itemCount: collection.itemCount + 1,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { data: item, error: null };
     } catch (error) {
@@ -251,16 +250,16 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
 
       // 아이템 삭제
       const { error } = await supabase
-        .from('collectionItems')
+        .from('collection_items')
         .delete()
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .eq('video_id', video_id);
 
       if (error) {
@@ -274,7 +273,7 @@ export class ServerCollectionManager {
           itemCount: Math.max(0, collection.itemCount - 1),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { success: true, error: null };
     } catch (error) {
@@ -299,19 +298,19 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
 
       // 컬렉션 아이템과 비디오 정보 조인
       const { data: items, error } = await supabase
-        .from('collectionItems')
+        .from('collection_items')
         .select(`
           *,
           video:videos(*)
         `)
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .order('position', { ascending: true });
 
       if (error) {
@@ -348,7 +347,7 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: existingCollection } = await this.getCollection(collectionId);
+      const { data: existingCollection } = await this.getCollection(collection_id);
       if (!existingCollection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
@@ -359,7 +358,7 @@ export class ServerCollectionManager {
           ...updates,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id)
         .select()
         .single();
@@ -377,7 +376,7 @@ export class ServerCollectionManager {
   /**
    * 컬렉션 삭제 (소프트 삭제)
    */
-  async deleteCollection(collectionId: string): Promise<{ success: boolean; error: Error | null }> {
+  async deleteCollection(collection_id: string): Promise<{ success: boolean; error: Error | null }> {
     try {
       const supabase = await this.getSupabase();
       const {
@@ -389,7 +388,7 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
@@ -401,7 +400,7 @@ export class ServerCollectionManager {
           deleted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id);
 
       if (error) {
@@ -432,7 +431,7 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
@@ -440,9 +439,9 @@ export class ServerCollectionManager {
       // 각 아이템의 position 업데이트
       const updatePromises = items.map((item) =>
         supabase
-          .from('collectionItems')
+          .from('collection_items')
           .update({ position: item.position })
-          .eq('collection_id', collectionId)
+          .eq('collection_id', collection_id)
           .eq('video_id', item.video_id)
       );
 
@@ -457,7 +456,7 @@ export class ServerCollectionManager {
       await supabase
         .from('collections')
         .update({ updated_at: new Date().toISOString() })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { success: true, error: null };
     } catch (error) {

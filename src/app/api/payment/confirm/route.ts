@@ -6,7 +6,7 @@ import type { Json } from '@/types';
 
 const tossSecretKey = process.env.TOSS_SECRET_KEY;
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
   const {

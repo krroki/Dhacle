@@ -2,7 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // 인증 확인
     const supabase = createRouteHandlerClient({ cookies });
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
 }
 
 // 업로드 상태 확인 API
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);
     const video_id = searchParams.get('video_id');

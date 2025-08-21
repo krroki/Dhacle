@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { sanitizeRichHTML } from '@/lib/security/sanitizer';
-import type { ContentBlock } from '@/types/course';
+import type { ContentBlock } from '@/types';
 
 interface ContentBlocksProps {
   blocks?: ContentBlock[];

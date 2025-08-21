@@ -59,7 +59,9 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
     if (user) {
       const today = new Date().toISOString().split('T')[0];
 
-      // Check if record exists for today
+      // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
+      // API 사용량 추적 기능은 추후 구현 필요
+      /*
       const { data: existing } = await supabase
         .from('api_usage')
         .select('*')
@@ -77,7 +79,10 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
           })
           .eq('id', existing.id);
       } else {
+      */
+      if (false) { // 임시 비활성화
         // Create new record
+        /*
         await supabase.from('api_usage').insert({
           user_id: user.id,
           operation,
@@ -86,6 +91,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
           unitsUsed: units,
           [`${operation}_count`]: 1,
         });
+        */
       }
     }
   } catch (_error) {}
@@ -112,23 +118,29 @@ export async function getRemainingQuota(): Promise<{
     const today = new Date().toISOString().split('T')[0];
 
     // Get user's subscription limits
+    // TODO: subscriptions 테이블이 없으므로 임시로 주석 처리
+    /*
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('apiQuotaDaily')
       .eq('user_id', user.id)
       .single();
+    */
 
-    const limit = subscription?.apiQuotaDaily || 1000;
+    const limit = 1000; // subscription?.apiQuotaDaily || 1000;
 
     // Get today's usage
+    // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
+    /*
     const { data: usage } = await supabase
       .from('api_usage')
       .select('unitsUsed')
       .eq('user_id', user.id)
       .eq('date', today)
       .single();
+    */
 
-    const used = usage?.unitsUsed || 0;
+    const used = 0; // usage?.unitsUsed || 0;
 
     return {
       used,

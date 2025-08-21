@@ -6,7 +6,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  * GET /api/community/posts
  * 게시글 목록 조회
  */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const searchParams = req.nextUrl.searchParams;
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
  * POST /api/community/posts
  * 게시글 작성
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

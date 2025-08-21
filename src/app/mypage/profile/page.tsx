@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createBrowserClient } from '@/lib/supabase/browser-client';
+import { snakeToCamelCase } from '@/lib/utils/case-converter';;
 import {
   DINOHIGHCLASS_CAFE,
   getDisplayNickname,
@@ -31,17 +32,28 @@ import {
 } from '@/lib/utils/nickname-generator';
 
 interface Profile {
-  id: string;
+  id: string | null;
   username: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  randomNickname: string | null;
-  naverCafeNickname: string | null;
-  naverCafeVerified: boolean;
-  naverCafeMemberUrl: string | null;
-  naverCafeVerifiedAt: string | null;
-  created_at: string;
-  updated_at: string;
+  full_name: string | null;
+  channel_name: string | null;
+  channel_url: string | null;
+  current_income: string | null;
+  target_income: string | null;
+  experience_level: string | null;
+  job_category: string | null;
+  work_type: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  // Fields used by utility functions but not in DB yet (made optional)
+  randomNickname?: string | null;
+  naverCafeNickname?: string | null;
+  naverCafeVerified?: boolean;
+  // TODO: These fields still need to be added to the profiles table in DB:
+  // email: string | null;
+  // avatar_url: string | null;
+  // naverCafeMemberUrl: string | null;
+  // naverCafeVerifiedAt: string | null;
+  // role: string | null;
 }
 
 export default function ProfilePage() {
@@ -77,7 +89,7 @@ export default function ProfilePage() {
         throw error;
       }
 
-      setProfile(data);
+      setProfile(data as Profile);
       // TODO: 네이버 카페 관련 필드는 profiles 테이블에 추가 필요
       // if (data.naver_cafe_nickname) {
       //   setCafeNickname(data.naver_cafe_nickname);
@@ -130,7 +142,7 @@ export default function ProfilePage() {
           user_id: user.id,
           
           cafe_nickname: cafeNickname,
-          cafe_member_url: cafeMemberUrl,
+          // cafe_member_url: cafeMemberUrl, // TODO: 테이블에 필드 추가 필요
           verification_status: 'pending',
         })
         .select()
@@ -148,7 +160,7 @@ export default function ProfilePage() {
           // TODO: profiles 테이블에 네이버 카페 관련 필드 추가 필요
           // naver_cafe_nickname: cafeNickname,
           // naver_cafe_nickname: cafeNickname,
-          cafe_member_url: cafeMemberUrl,
+          // cafe_member_url: cafeMemberUrl, // TODO: 테이블에 필드 추가 필요
           // naver_cafe_verified: true,
           // naver_cafe_verified_at: new Date().toISOString(),
         })
@@ -271,7 +283,7 @@ export default function ProfilePage() {
                     <Mail className="h-4 w-4" />
                     이메일
                   </Label>
-                  <p className="text-sm text-gray-900">{profile.email || '미등록'}</p>
+                  <p className="text-sm text-gray-900">{/* TODO: Add email field to profiles table */ '미등록'}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -280,7 +292,7 @@ export default function ProfilePage() {
                     가입일
                   </Label>
                   <p className="text-sm text-gray-900">
-                    {new Date(profile.created_at).toLocaleDateString('ko-KR')}
+                    {profile.created_at ? new Date(profile.created_at).toLocaleDateString('ko-KR') : '정보 없음'}
                   </p>
                 </div>
               </div>
@@ -309,7 +321,8 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {profile.randomNickname && (
+                {/* TODO: Add randomNickname field to profiles table
+                profile.randomNickname && */ false && (
                   <Alert>
                     <Info className="h-4 w-4" />
                     <AlertDescription>
@@ -335,7 +348,8 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {profile.naverCafeVerified ? (
+              {/* TODO: Add naverCafeVerified field to profiles table
+              profile.naverCafeVerified */ false ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center gap-2 mb-3">
@@ -347,20 +361,20 @@ export default function ProfilePage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">카페 닉네임</span>
-                        <span className="font-medium">{profile.naverCafeNickname}</span>
+                        <span className="font-medium">{/* TODO: profile.naverCafeNickname */ '-'}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">인증일</span>
                         <span className="font-medium">
-                          {profile.naverCafeVerifiedAt
+                          {/* TODO: profile.naverCafeVerifiedAt
                             ? new Date(profile.naverCafeVerifiedAt).toLocaleDateString('ko-KR')
-                            : '-'}
+                            : */ '-'}
                         </span>
                       </div>
-                      {profile.naverCafeMemberUrl && (
+                      {/* TODO: profile.naverCafeMemberUrl */ false && (
                         <div className="pt-2">
                           <a
-                            href={profile.naverCafeMemberUrl}
+                            href={/* TODO: profile.naverCafeMemberUrl */ '#'}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import type { CourseDetailResponse } from '@/types/course';
+import type { CourseDetailResponse } from '@/types';
 import { ContentBlocks } from './ContentBlocks';
 import { PurchaseCard } from './PurchaseCard';
 

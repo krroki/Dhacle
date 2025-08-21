@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { createProofSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 수익인증 목록 조회
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
   const {
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST: 수익인증 생성 (일일 1회 제한)
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });

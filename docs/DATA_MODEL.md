@@ -1,7 +1,8 @@
 # 📦 디하클 데이터 모델 명세
 
-*Frontend TypeScript 타입과 Backend Supabase 스키마 매핑*
-*업데이트: 2025-08-21 - Snake_case 마이그레이션 및 Profile 타입 개선*
+*목적: Frontend-Backend 타입 매핑*
+*핵심 질문: "DB 스키마와 TS 타입이 일치하나?"*
+*업데이트: 2025-01-31 - DOCUMENT_GUIDE 지침 반영*
 
 ---
 
@@ -42,15 +43,21 @@ import { Database } from '@/types/database.types';     // 금지! (파일 삭제
 // - Course 타입 매핑 함수 완전 재작성
 ```
 
-### 🚨 타입 불일치 체크리스트 (2025-08-21 업데이트)
-| 문제 | Frontend | Backend | 해결 | 예시 |
+### 🚨 타입 불일치 체크리스트 (2025-08-21 Wave 2 완료)
+| 문제 | Frontend | Backend | 해결 | 상태 |
 |-----|----------|---------|------|------|
-| 키 이름 | camelCase | snake_case | 변환 함수 | createdAt ↔ created_at |
-| 날짜 | Date 객체 | timestamptz 문자열 | new Date() | new Date(created_at) |
-| 숫자 | number | bigint | Number() | Number(view_count) |
-| NULL | undefined | null | ?? 연산자 | value ?? defaultValue |
-| JSON | 객체 | jsonb 문자열 | JSON.parse() | JSON.parse(metadata) |
-| **Profile** | Profile | ProfileDB | profileDBToProfile() | 🆕 별도 변환 함수 |
+| 키 이름 | camelCase | snake_case | 변환 함수 | ✅ Wave 1 완료 |
+| 날짜 | Date 객체 | timestamptz 문자열 | new Date() | ⚠️ 일부 수정 필요 |
+| 숫자 | number | bigint | Number() | ⚠️ 타입 확장 필요 |
+| NULL | undefined | null | ?? 연산자 | ⚠️ 옵셔널 처리 필요 |
+| JSON | 객체 | jsonb 문자열 | JSON.parse() | ✅ 작동 중 |
+| **Profile** | Profile | ProfileDB | profileDBToProfile() | ⚠️ 변환 함수 필요 |
+| **Course** | Course | DB Row | course.ts import | ✅ Wave 2 - Frontend 필드 확장 |
+| **Lesson** | Lesson | DB Row | course.ts import | ✅ Wave 2 - 필드 매핑 완료 |
+| **CourseProgress** | CourseProgress | DB Row | 인터페이스 정의 | ✅ Wave 2 - 타입 정의 완료 |
+| **VideoStats** | VideoStats | Tables<'video_stats'> + 추가 필드 | 타입 확장 | ✅ Wave 2 - 확장 완료 |
+| **RevenueProof** | ExtendedRevenueProof | Tables<'revenue_proofs'> | 옵셔널 필드 추가 | ✅ Wave 2 - 완료 |
+| **Collection** | Collection | DB Row | mapCollection() | ⚠️ TS2322 오류 |
 
 ---
 

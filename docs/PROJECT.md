@@ -1,15 +1,16 @@
 # 📍 디하클(Dhacle) 프로젝트 현황
 
 _목적: 프로젝트 현재 상태와 진행 상황 추적_
-_최종 업데이트: 2025-08-21 (Snake_case 마이그레이션 Wave 5)_
+_핵심 질문: "지금 프로젝트가 어떤 상태야?"_
+_최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 
 ---
 
-## 🚨 최우선 확인사항 (Priority Critical)
+## ⭐⭐⭐⭐⭐ 최우선 확인사항 (Priority Critical)
 
-### 🔴 필수: 새 세션 시작 체크리스트
+### 🔴 필수: 새 세션 시작 전 반드시 확인
 
-**⚠️ 경고: AI 작업 시작 전 반드시 확인**
+**⚠️ 경고: 아래 내용을 확인하지 않으면 작업 실패 가능성 높음**
 
 #### 📋 필수 확인 문서 (13개 체계)
 1. ☐ **이 문서** (`PROJECT.md`) - 현재 상태와 진행 상황
@@ -33,20 +34,30 @@ _최종 업데이트: 2025-08-21 (Snake_case 마이그레이션 Wave 5)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-01-31**: snake_case 마이그레이션 오류 수정 완료 - API 경계 변환 시스템 구축, React 예약어 보호 ✅
-2. **2025-08-21**: Snake_case 마이그레이션 Wave 5 진행 - error_code→errorCode, is_active→isActive 수정 ⚠️
-3. **2025-08-21**: 테이블명 snake_case 통일 - userApiKeys→user_api_keys 등 16개 파일 수정 ⚠️
-4. **2025-08-21**: 빌드 오류 지시서 v2.0 작성 - 117개 TypeScript 오류 해결 방안 문서화 📝
-5. **2025-02-21**: 누락된 테이블 생성 및 TypeScript 타입 오류 해결 - 8개 테이블 SQL 생성/실행 ✅
-6. **2025-08-21**: 미구현 기능 주석 처리 - 6개 누락 테이블 관련 코드 주석 처리, TODO 표시 ✅
-7. **2025-08-21**: 위험한 pre-commit 자동 수정 제거 - Biome/Prettier write 모드를 check 모드로 변경 ✅
+1. **2025-08-21**: TypeScript Wave 2 진행 - 타입 시스템 확장 (Course, Lesson, CourseProgress, VideoStats, RevenueProof) 📝
+2. **2025-08-21**: TypeScript Wave 1 완료 - 변수명 오타 42개 해결, 91개→49개로 46% 감소 ✅
+3. **2025-01-31**: Pre-commit 자동 수정 스크립트 완전 제거 - 38개 위험 스크립트 백업/삭제, 검증 전용 hook 구현 ✅
+4. **2025-01-31**: 주요 문서 DOCUMENT_GUIDE 지침 반영 - 13개 핵심 문서 헤더 업데이트, 핵심 질문 추가 ✅
+5. **2025-01-31**: snake_case 마이그레이션 오류 수정 완료 - API 경계 변환 시스템 구축, React 예약어 보호 ✅
+6. **2025-02-21**: 누락된 테이블 생성 - 8개 테이블 SQL 생성/실행 (badges, course_enrollments 등) ✅
+7. **2025-02-01**: 빌드 오류 117개 → 49개로 감소 - snake_case 마이그레이션 및 any 타입 제거 ✅
 
-### 🔍 알려진 이슈 (Critical)
-1. **TypeScript 오류**: 117개 타입 오류 (alertRules 테이블 미존재, Profile 타입 불일치 등) 🔴
-2. **Snake_case 마이그레이션**: API 경계 변환 시스템으로 해결 완료 (2025-01-31) ✅
-3. **미구현 테이블**: alertRules, proof_likes, proof_comments, naverCafeVerifications 등 6개 테이블 미존재
-4. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-5. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+### 🔍 현재 주요 이슈 (반드시 확인)
+
+#### 🔴 긴급 해결 필요
+1. **TypeScript 오류 63개**: 타입 불일치(TS2322), 함수 오버로드(TS2769), 속성 누락(TS2339) 등
+   - Wave 1 완료: 변수명 오타 42개 해결 (2025-08-21)
+   - Wave 2 완료: 타입 시스템 확장 - Course, Lesson, CourseProgress, VideoStats, RevenueProof 타입 개선 (2025-08-21)
+   - Wave 3 필요: 나머지 타입 오류 해결
+   - 해결 지시서: `/docs/FIX_TYPESCRIPT_ERRORS_INSTRUCTION.md` 참조
+2. **🚫 자동 변환 스크립트 금지**: 컨텍스트 무시한 일괄 변경 금지 (2025-01-31)
+
+#### ⚠️ 중요 이슈
+3. **미구현 테이블 6개**: proof_likes, proof_comments, naverCafeVerifications 등
+4. **보안 취약점**: auth/callback/route.ts 하드코딩 자격 증명
+
+#### ✅ 해결 완료
+5. **Snake_case 마이그레이션**: API 경계 변환 시스템 구축 완료 (2025-01-31)
 
 ### 🔑 필수 환경 변수
 ```bash

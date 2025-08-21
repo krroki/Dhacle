@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { createClient } from '@/lib/supabase/browser-client';
 import { mapCourse, mapLesson } from '@/lib/utils/type-mappers';
-import type { Course, CourseProgress, Lesson } from '@/types/course';
+import type { Course, CourseProgress, Lesson } from '@/types';
 import { VideoPlayer } from './components/VideoPlayer';
 
 export default function LearnPage() {

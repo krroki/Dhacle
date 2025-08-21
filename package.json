@@ -34,7 +34,6 @@
     "supabase:auto-migrate": "node scripts/auto-migrate.js",
     "supabase:check": "node scripts/auto-migrate.js --check",
     "supabase:validate": "node scripts/auto-migrate.js --validate",
-    "supabase:verify": "node scripts/verify-tables.js",
     "supabase:migrate-complete": "node scripts/supabase-migrate-complete.js",
     "supabase:link": "npx supabase link --project-ref golbwnsytwbyoneucunx",
     "prebuild": "node scripts/build-verify.js",

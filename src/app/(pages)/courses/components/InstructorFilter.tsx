@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { CourseFilters } from '@/types/course';
+import type { CourseFilters } from '@/types';
 
 interface InstructorFilterProps {
   instructors: string[];

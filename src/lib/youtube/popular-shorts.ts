@@ -156,7 +156,7 @@ async function executeSearchStrategy(
 
     // Get video details for the found items
     const videoIds = searchResponse.data.items
-      .map((item) => item.id?.video_id)
+      .map((item) => item.id?.videoId)
       .filter(Boolean) as string[];
 
     if (videoIds.length === 0) {
@@ -220,17 +220,17 @@ async function enrichWithMetrics(
       continue;
     }
 
-    const published_at = new Date(video.snippet.published_at || '');
+    const published_at = new Date(video.snippet.publishedAt || '');
     const now = new Date();
-    const hoursElapsed = (now.getTime() - publishedAt.getTime()) / (1000 * 60 * 60);
+    const hoursElapsed = (now.getTime() - published_at.getTime()) / (1000 * 60 * 60);
 
-    const view_count = Number.parseInt(video.statistics.view_count || '0', 10);
-    const like_count = Number.parseInt(video.statistics.like_count || '0', 10);
-    const comment_count = Number.parseInt(video.statistics.comment_count || '0', 10);
+    const view_count = Number.parseInt(video.statistics.viewCount || '0', 10);
+    const like_count = Number.parseInt(video.statistics.likeCount || '0', 10);
+    const comment_count = Number.parseInt(video.statistics.commentCount || '0', 10);
 
     // Calculate metrics
-    const vph = hoursElapsed > 0 ? viewCount / hoursElapsed : 0;
-    const engagementRate = viewCount > 0 ? ((like_count + comment_count) / viewCount) * 100 : 0;
+    const vph = hoursElapsed > 0 ? view_count / hoursElapsed : 0;
+    const engagementRate = view_count > 0 ? ((like_count + comment_count) / view_count) * 100 : 0;
 
     // Calculate viral score (custom algorithm)
     const viralScore = calculateViralScore({
@@ -247,13 +247,13 @@ async function enrichWithMetrics(
       video_id: video.id,
       title: video.snippet.title || '',
       description: video.snippet.description || null,
-      channel_id: video.snippet.channel_id || '',
-      published_at: video.snippet.published_at || '',
+      channel_id: video.snippet.channelId || '',
+      published_at: video.snippet.publishedAt || '',
       durationSeconds: parseDuration(video.contentDetails?.duration || ''),
       isShort: true,
       thumbnails: (video.snippet.thumbnails as unknown as Video['thumbnails']) || null,
       tags: video.snippet.tags || null,
-      category_id: video.snippet.category_id || null,
+      category_id: video.snippet.categoryId || null,
       languageCode: video.snippet.defaultLanguage || null,
       regionCode: null,
       firstSeenAt: now.toISOString(),
@@ -357,41 +357,44 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
   try {
     // Store videos
     const videoData = videos.map((v) => ({
-      video_id: v.video_id,
+      id: v.video_id, // Map video_id to id
       title: v.title,
       description: v.description,
       channel_id: v.channel_id,
       published_at: v.published_at,
-      durationSeconds: v.durationSeconds,
-      isShort: v.isShort,
-      thumbnails: v.thumbnails,
+      duration: v.durationSeconds ? `PT${v.durationSeconds}S` : null, // Convert to ISO 8601 duration
+      thumbnail_url: v.thumbnails?.default?.url || null, // Get thumbnail URL
       tags: v.tags,
       category_id: v.category_id,
-      languageCode: v.languageCode,
-      regionCode: v.regionCode,
+      default_language: v.languageCode, // Map to correct field name
+      // Fields not in our data but exist in DB
+      comment_count: null,
+      like_count: null,
+      view_count: null,
     }));
 
     const { error: videoError } = await supabase
       .from('videos')
-      .upsert(videoData, { onConflict: 'video_id' });
+      .upsert(videoData, { onConflict: 'id' });
 
     if (videoError) {
     }
 
-    // Store stats
+    // Store stats (using snake_case to match DB schema)
     const statsData = videos
       .filter((v) => v.stats)
       .map((v) => ({
         video_id: v.video_id,
+        date: new Date().toISOString().split('T')[0], // Add required date field
         view_count: v.stats?.view_count,
         like_count: v.stats?.like_count,
         comment_count: v.stats?.comment_count,
-        viewsPerHour: v.stats?.viewsPerHour,
-        engagementRate: v.stats?.engagementRate,
-        viralScore: v.stats?.viralScore,
-        viewDelta: v.stats?.viewDelta,
-        likeDelta: v.stats?.likeDelta,
-        commentDelta: v.stats?.commentDelta,
+        views_per_hour: v.stats?.viewsPerHour,  // Convert to snake_case
+        engagement_rate: v.stats?.engagementRate,  // Convert to snake_case
+        viral_score: v.stats?.viralScore,  // Convert to snake_case
+        view_delta: v.stats?.viewDelta,  // Already snake_case
+        like_delta: v.stats?.likeDelta,  // Already snake_case
+        comment_delta: v.stats?.commentDelta,  // Already snake_case
       }));
 
     const { error: statsError } = await supabase.from('video_stats').insert(statsData);
@@ -432,7 +435,7 @@ export async function getCachedPopularShorts(
     // Transform to VideoWithStats format
     const videosWithStats: VideoWithStats[] = (data || []).map((item) => ({
       ...item,
-      stats: item.video_stats?.[0] || undefined,
+      stats: item.videoStats?.[0] || undefined,
     }));
 
     return videosWithStats;

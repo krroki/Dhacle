@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     // Subscribe to channel
     const result = await pubsubManager.subscribe({
       channel_id,
-      channel_title: channel_title || channel_id,
+      channelTitle: channel_title || channel_id,
       user_id: user.id,
       callbackUrl,
     });
@@ -190,7 +190,7 @@ export async function PATCH(request: NextRequest) {
     // Renew subscription
     const result = await pubsubManager.subscribe({
       channel_id,
-      channel_title: subscription.channel_title,
+      channelTitle: subscription.channel_title,
       user_id: user.id,
       callbackUrl,
     });

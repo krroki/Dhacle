@@ -134,7 +134,7 @@ export function validateApiKeyFormat(api_key: string, service = 'youtube'): bool
 
     default:
       // 기본적으로 최소 길이만 확인
-      return apiKey.length >= 20;
+      return api_key.length >= 20;
   }
 }
 

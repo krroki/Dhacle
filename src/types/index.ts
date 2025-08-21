@@ -70,22 +70,61 @@ export type UserApiKeyUpdate = DBUserApiKeyUpdate;
 
 // ============= 호환성 타입 (기존 코드용) =============
 
-// Course 타입은 course.ts에서 import
+// ============= Extended Course Types (DB + Frontend) =============
+
+// Course 타입은 course.ts에서 가져옴 (충돌 방지)
+
+// Lesson 타입도 course.ts에서 가져옴
+
+// CourseProgress 타입 정의 - course_progress 테이블과 매칭
+export interface CourseProgress {
+  id: string;
+  user_id: string;
+  course_id: string;
+  lesson_id?: string | null;
+  progress: number;
+  completed: boolean;
+  watchCount?: number;
+  last_watched_at?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// VideoStats 타입 정의 - video_stats 테이블과 매칭
+export interface VideoStats extends Tables<'video_stats'> {
+  // 추가 필드
+  subscriber_count?: number;
+  published_at: string;
+  channel_id: string;
+  duration: number;
+  tags?: string[];
+  updated_at: string;
+}
+
+// RevenueProof 타입 확장 - 옵셔널 필드 추가
+export interface ExtendedRevenueProof extends Tables<'revenue_proofs'> {
+  // 옵셔널 필드로 변경
+  thumbnail_url?: string;
+  blurDataUrl?: string;
+}
+
+// Course 관련 타입은 course.ts에서 import (기존 타입들)
 export type {
   ContentBlock,
   Coupon,
-  Course,
+  Course, // course.ts의 Course 사용
   CourseBadge,
   CourseDetailResponse,
   CourseFilters,
   CourseListResponse,
-  CourseProgress,
+  // CourseProgress, // 위에서 새로 정의했으므로 제외
   CourseReview,
   CreateCourseInput,
   CreateLessonInput,
   Enrollment,
   InstructorProfile,
-  Lesson,
+  Lesson, // course.ts의 Lesson 사용
   PaymentIntentInput,
   PaymentIntentResponse,
   Purchase,
@@ -149,7 +188,7 @@ export type {
   TrendAnalysis,
   Video,
   VideoMetrics,
-  VideoStats,
+  // VideoStats, // 위에서 새로 정의했으므로 제외
   VideoWithStats,
   YouTubeLensError,
   YouTubeLensState,

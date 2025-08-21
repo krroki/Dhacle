@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server-client';
 import { mapCourse } from '@/lib/utils/type-mappers';
-import type { Course } from '@/types/course';
+import type { Course } from '@/types';
 
 async function getCourses() {
   const supabase = await createClient();

@@ -82,7 +82,7 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
     }
 
     // API 응답을 camelCase로 변환 (skipCaseConversion이 false인 경우)
-    return skipCaseConversion ? (data as T) : snakeToCamelCase(data) as T;
+    return options?.skipCaseConversion ? (data as T) : snakeToCamelCase(data) as T;
   } catch (error) {
     // fetch 자체 실패 (네트워크 에러 등)
     if (error instanceof ApiError) {
@@ -223,8 +223,8 @@ export async function apiUpload<T = unknown>(
       throw new ApiError(error_message, response.status, data);
     }
 
-    // API 응답을 camelCase로 변환 (skipCaseConversion이 false인 경우)
-    return skipCaseConversion ? (data as T) : snakeToCamelCase(data) as T;
+    // API 응답을 camelCase로 변환
+    return snakeToCamelCase(data) as T;
   } catch (error) {
     // fetch 자체 실패 (네트워크 에러 등)
     if (error instanceof ApiError) {

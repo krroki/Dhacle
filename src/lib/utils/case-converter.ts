@@ -55,7 +55,7 @@ export function snakeToCamelCase<T>(obj: T): T {
   }
   
   // 기본 변환 함수 사용
-  return baseSnakeToCamel(obj);
+  return baseSnakeToCamel(obj) as T;
 }
 
 /**
@@ -68,7 +68,7 @@ export function camelToSnakeCase<T>(obj: T): T {
   }
   
   // 기본 변환 함수 사용
-  return baseCamelToSnake(obj);
+  return baseCamelToSnake(obj) as T;
 }
 
 // 기존 함수와의 호환성을 위해 re-export

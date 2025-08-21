@@ -100,7 +100,7 @@ export class CollectionManager {
       const { data: collection, error } = await this.supabase
         .from('collections')
         .select('*')
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id)
         .is('deleted_at', null)
         .single();
@@ -133,7 +133,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
@@ -154,7 +154,7 @@ export class CollectionManager {
       const { data: maxPositionItem } = await this.supabase
         .from('collectionItems')
         .select('position')
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .order('position', { ascending: false })
         .limit(1)
         .single();
@@ -165,7 +165,7 @@ export class CollectionManager {
       const { data: item, error } = await this.supabase
         .from('collectionItems')
         .insert({
-          collection_id: collectionId,
+          collection_id: collection_id,
           video_id: video_id,
           notes: notes || null,
           tags: tags || null,
@@ -186,7 +186,7 @@ export class CollectionManager {
           itemCount: collection.itemCount + 1,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { data: item, error: null };
     } catch (error) {
@@ -210,7 +210,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
@@ -219,7 +219,7 @@ export class CollectionManager {
       const { error } = await this.supabase
         .from('collectionItems')
         .delete()
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .eq('video_id', video_id);
 
       if (error) {
@@ -233,7 +233,7 @@ export class CollectionManager {
           itemCount: Math.max(0, collection.itemCount - 1),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { success: true, error: null };
     } catch (error) {
@@ -256,7 +256,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
@@ -268,7 +268,7 @@ export class CollectionManager {
           *,
           video:videos(*)
         `)
-        .eq('collection_id', collectionId)
+        .eq('collection_id', collection_id)
         .order('position', { ascending: true });
 
       if (error) {
@@ -303,7 +303,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: existingCollection } = await this.getCollection(collectionId);
+      const { data: existingCollection } = await this.getCollection(collection_id);
       if (!existingCollection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
@@ -314,7 +314,7 @@ export class CollectionManager {
           ...updates,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id)
         .select()
         .single();
@@ -332,7 +332,7 @@ export class CollectionManager {
   /**
    * 컬렉션 삭제 (소프트 삭제)
    */
-  async deleteCollection(collectionId: string): Promise<{ success: boolean; error: Error | null }> {
+  async deleteCollection(collection_id: string): Promise<{ success: boolean; error: Error | null }> {
     try {
       const {
         data: { user },
@@ -342,7 +342,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
@@ -354,7 +354,7 @@ export class CollectionManager {
           deleted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', collectionId)
+        .eq('id', collection_id)
         .eq('user_id', user.id);
 
       if (error) {
@@ -383,7 +383,7 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: collection } = await this.getCollection(collectionId);
+      const { data: collection } = await this.getCollection(collection_id);
       if (!collection) {
         return { success: false, error: new Error('Collection not found or access denied') };
       }
@@ -393,7 +393,7 @@ export class CollectionManager {
         this.supabase
           .from('collectionItems')
           .update({ position: item.position })
-          .eq('collection_id', collectionId)
+          .eq('collection_id', collection_id)
           .eq('video_id', item.video_id)
       );
 
@@ -408,7 +408,7 @@ export class CollectionManager {
       await this.supabase
         .from('collections')
         .update({ updated_at: new Date().toISOString() })
-        .eq('id', collectionId);
+        .eq('id', collection_id);
 
       return { success: true, error: null };
     } catch (error) {

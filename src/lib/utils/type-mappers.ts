@@ -3,7 +3,7 @@
  * Maps between database snake_case and frontend camelCase conventions
  */
 
-import type { Course, Lesson } from '@/types/course';
+import type { Course, Lesson } from '@/types';
 import type {
   AlertCondition,
   Collection,
@@ -40,34 +40,39 @@ export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>)
   const course = dbCourse as Course;
 
   return {
-    id: obj.id || course.id || '',
-    title: obj.title || course.title || '',
-    description: obj.description || course.description || undefined,
-    instructor_name: obj.instructor_name ?? course.instructor_name ?? 'Unknown',
-    instructor_id: obj.instructor_id || course.instructor_id || undefined,
-    thumbnail_url: obj.thumbnail_url || course.thumbnail_url || undefined,
+    // All DB fields from Tables<'courses'>
+    id: obj.id as string || course.id || '',
+    title: obj.title as string || course.title || '',
+    subtitle: course.subtitle || '',
+    description: obj.description as string || course.description || undefined,
+    instructor_name: obj.instructor_name as string ?? course.instructor_name ?? 'Unknown',
+    instructor_id: obj.instructor_id as string || course.instructor_id || undefined,
+    thumbnail_url: obj.thumbnail_url as string || course.thumbnail_url || undefined,
     price: Number(obj.price ?? course.price) || 0,
-    is_free: obj.price === 0 || obj.is_free || course.is_free || false,
-    isPremium: (obj.price && Number(obj.price) > 0) || course.isPremium || false,
-    total_duration: (Number(obj.duration_weeks) || 8) * 7 * 60 || course.total_duration || 0,
-    student_count: Number(obj.total_students ?? course.student_count) || 0,
+    is_free: obj.price === 0 || obj.is_free as boolean || course.is_free || false,
     average_rating: Number(obj.average_rating ?? course.average_rating) || 0,
-    reviewCount: course.reviewCount || 0,
-    status: obj.status || course.status || 'active',
-    launchDate: obj.created_at || course.launchDate || new Date().toISOString(),
-    created_at: obj.created_at || course.created_at || new Date().toISOString(),
+    created_at: obj.created_at as string || course.created_at || new Date().toISOString(),
     updated_at:
-      obj.updated_at ||
+      obj.updated_at as string ||
       course.updated_at ||
-      obj.created_at ||
+      obj.created_at as string ||
       course.created_at ||
       new Date().toISOString(),
-    // Optional fields
-    category: obj.category || course.category || undefined,
-    level: obj.level || course.level || undefined,
+    category: obj.category as string || course.category || undefined,
+    level: obj.level as any || course.level || undefined,
+    requirements: Array.isArray(obj.requirements) ? obj.requirements as string[] : course.requirements || undefined,
+    
+    // Frontend enhancement fields
+    isPremium: Boolean((obj.price && Number(obj.price) > 0) || course.isPremium || false),
+    total_duration: obj.duration_weeks ? (Number(obj.duration_weeks) * 7 * 60) : course.total_duration || 0,
+    student_count: Number(obj.total_students ?? course.student_count) || 0,
+    reviewCount: course.reviewCount || 0,
+    status: (obj.status as any || course.status || 'active') as 'upcoming' | 'active' | 'completed',
+    launchDate: obj.created_at as string || course.launchDate || new Date().toISOString(),
+    
+    // Additional optional fields
     contentBlocks: obj.curriculum || course.contentBlocks || undefined,
     whatYouLearn: obj.what_youll_learn || course.whatYouLearn || undefined,
-    requirements: obj.requirements || course.requirements || undefined,
   } as Course;
 }
 

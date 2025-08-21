@@ -14,13 +14,36 @@
 - **이미 올바른 코드는 수정하지 않기** - 최소 수정 원칙
 - **테스트 파일은 테스트 완료 시 반드시 삭제** - 임시 테스트 파일 방치 금지
 
+### 🚫 코드 자동 변환 스크립트 절대 금지 (2025-01-31 추가)
+**❌ 절대 금지: 코드를 일괄 변경하는 자동 스크립트 생성**
+- **위험한 점**:
+  1. 일괄 변경: 파일별 컨텍스트 무시하고 패턴만 보고 바꿔버림
+  2. 예측 불가: 어떤 부수효과가 생길지 모름
+  3. 되돌리기 어려움: Git에 커밋 안했으면 복구 힘듦
+
+**✅ 허용되는 것**:
+- 검증 스크립트 (verify-*.js): 문제 찾기만 하고 수정 안함
+- 검사 스크립트 (check-*.js): 상태 확인만 함
+- 수동 수정: 파일 컨텍스트 이해하고 필요한 부분만 수정
+
+**올바른 접근법**:
+```bash
+# ❌ 금지: 자동 변환 스크립트
+node scripts/fix-all-errors.js  # 금지!
+node scripts/migrate-to-snake-case.js  # 금지!
+
+# ✅ 권장: 검증 후 수동 수정
+npm run verify:types  # 문제 확인
+# 각 파일을 Read로 읽고 컨텍스트 이해 후 Edit로 수정
+```
+
 ### ⚡ 빌드 오류 시 긴급 대응 (2025-08-21 업데이트)
 ```bash
 # 🔴 TypeScript 117개 오류 해결 지시서:
 docs/INSTRUCTION_FIX_BUILD_ERROR_v1.md (v2.0) 참조
 
-# 원클릭 자동 수정:
-node scripts/fix-all-typescript-errors.js
+# ❌ 삭제됨 (2025-01-31): 자동 수정 스크립트 사용 금지
+# node scripts/fix-all-typescript-errors.js (삭제됨)
 
 # SQL/DB/테이블 관련 오류 시:
 node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
@@ -52,8 +75,8 @@ node scripts/security/validate-rls.js                                # RLS 상�
 
 # TypeScript 타입 오류 시
 npm run types:generate    # DB에서 타입 재생성
-npm run types:auto-fix    # 타입 오류 자동 수정
 npm run types:check       # 타입 체크
+# npm run types:auto-fix  # ⚠️ 주의: 자동 수정 사용 신중히
 
 # 보안 점검 필요 시
 npm run security:test            # 보안 테스트
@@ -62,7 +85,7 @@ node scripts/security/validate-rls.js  # RLS 검증
 
 # API 일치성 문제 시
 node scripts/verify-api-consistency.js  # API 일치성 검사
-node scripts/fix-api-consistency.js     # API 자동 수정
+# node scripts/fix-api-consistency.js   # ❌ 삭제됨 (2025-01-31)
 
 # 빌드/검증 시
 npm run verify:parallel          # 병렬 검증
