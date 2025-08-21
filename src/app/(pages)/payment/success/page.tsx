@@ -32,23 +32,21 @@ function PaymentSuccessContent() {
       const courseData: Course = {
         id: data.id,
         title: data.title,
-        description: data.description || undefined,
+        description: data.description ?? undefined,
         instructorName: data.instructor_name || 'Unknown',
-        instructorId: data.instructor_id,
-        thumbnailUrl: data.thumbnail_url || undefined,
+        instructorId: data.instructor_id ?? undefined,
+        thumbnail_url: data.thumbnail_url ?? undefined,
         price: data.price,
         isFree: data.price === 0,
         isPremium: data.price > 0,
         totalDuration: (data.duration_weeks || 8) * 7 * 60, // weeks to minutes
-        difficultyLevel: 'beginner', // DB에 difficulty_level 컬럼이 없음
-        categoryId: data.category,
+        studentCount: data.total_students || 0,
         averageRating: data.average_rating || 0,
-        totalStudents: data.total_students || 0,
+        reviewCount: 0,
         status: 'active', // DB에 status 컬럼이 없음
-        curriculum: data.curriculum,
-        whatYoullLearn: data.what_youll_learn,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at || data.created_at
+        launchDate: data.created_at || new Date().toISOString(),
+        created_at: data.created_at || new Date().toISOString(),
+        updated_at: data.updated_at || data.created_at || new Date().toISOString()
       };
       setCourse(courseData);
     }

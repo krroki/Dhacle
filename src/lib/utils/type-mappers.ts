@@ -31,7 +31,7 @@ type DBVideoMetrics = Partial<VideoMetrics> & Record<string, unknown>;
 /**
  * Maps database Course data (snake_case) to frontend Course type (camelCase)
  */
-export function mapCourse(dbCourse: DBCourse | Course | any): Course {
+export function mapCourse(dbCourse: DBCourse | Course): Course {
   if (!dbCourse) {
     return dbCourse;
   }
