@@ -28,7 +28,29 @@ function PaymentSuccessContent() {
     const { data } = await supabase.from('courses').select('*').eq('id', courseId).single();
 
     if (data) {
-      setCourse(data);
+      // DB 데이터를 Course 타입으로 변환
+      const courseData: Course = {
+        id: data.id,
+        title: data.title,
+        description: data.description || undefined,
+        instructorName: data.instructor_name || 'Unknown',
+        instructorId: data.instructor_id,
+        thumbnailUrl: data.thumbnail_url || undefined,
+        price: data.price,
+        isFree: data.price === 0,
+        isPremium: data.price > 0,
+        totalDuration: (data.duration_weeks || 8) * 7 * 60, // weeks to minutes
+        difficultyLevel: 'beginner', // DB에 difficulty_level 컬럼이 없음
+        categoryId: data.category,
+        averageRating: data.average_rating || 0,
+        totalStudents: data.total_students || 0,
+        status: 'active', // DB에 status 컬럼이 없음
+        curriculum: data.curriculum,
+        whatYoullLearn: data.what_youll_learn,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at || data.created_at
+      };
+      setCourse(courseData);
     }
   }, []);
 

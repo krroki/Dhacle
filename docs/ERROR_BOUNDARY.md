@@ -394,21 +394,61 @@ if (process.env.NODE_ENV === 'production') {
 
 ---
 
-## 🔧 TypeScript 빌드 에러 처리 (2025-01-30 추가)
+## 🔧 TypeScript 타입 시스템 & 에러 처리 (2025-02-02 업데이트)
+
+### 🎯 Single Source of Truth 타입 시스템
+```
+Supabase DB (snake_case)
+     ↓
+database.generated.ts (자동 생성)
+     ↓
+src/types/index.ts (변환 레이어)
+     ↓
+Frontend Components (camelCase)
+```
+
+### 타입 import 규칙
+```typescript
+// ✅ 올바른 import - @/types에서만
+import { User, CommunityPost, snakeToCamelCase } from '@/types';
+
+// ❌ 잘못된 import - generated 파일 직접 참조 금지
+import { Database } from '@/types/database.generated';
+```
+
+### API 에러 응답 타입 정의
+```typescript
+// 표준 에러 응답 타입
+import { ApiResponse } from '@/types';
+
+interface ErrorResponse {
+  error: string;
+  errorCode?: string;
+  requiresApiKey?: boolean;
+  details?: unknown;
+}
+
+// API 호출 시 타입 지정
+try {
+  const data = await apiGet<User>('/api/user/profile');
+} catch (error) {
+  // 타입 안전한 에러 처리
+  if (error instanceof Error) {
+    console.error(error.message);
+  }
+}
+```
 
 ### @typescript-eslint/no-explicit-any 에러
 **해결 전략:**
-1. **구체적 타입 정의**
+1. **@/types에서 타입 import**
    ```typescript
    // ❌ 금지
    apiPost<any>('/api/endpoint')
    
-   // ✅ 권장
-   interface ResponseType {
-     id: string;
-     data: DataType;
-   }
-   apiPost<ResponseType>('/api/endpoint')
+   // ✅ 권장 - @/types에서 타입 가져오기
+   import { CommunityPost } from '@/types';
+   apiPost<CommunityPost>('/api/community/posts', data)
    ```
 
 2. **타입 추론 활용 (타입 제거)**
@@ -429,10 +469,17 @@ if (process.env.NODE_ENV === 'production') {
    }
    ```
 
-4. **기존 타입 import 재사용**
+4. **snake_case ↔ camelCase 변환**
    ```typescript
-   import { ExistingType } from '@/types'
-   apiGet<{ success: boolean, data?: ExistingType }>()
+   import { snakeToCamelCase, camelToSnakeCase } from '@/types';
+   
+   // DB에서 데이터 읽기
+   const dbData = await supabase.from('users').select();
+   const userData = snakeToCamelCase<User>(dbData.data);
+   
+   // DB에 데이터 저장
+   const saveData = camelToSnakeCase(userData);
+   await supabase.from('users').insert(saveData);
    ```
 
 ### ZodError 처리

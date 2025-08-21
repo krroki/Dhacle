@@ -31,7 +31,7 @@ type DBVideoMetrics = Partial<VideoMetrics> & Record<string, unknown>;
 /**
  * Maps database Course data (snake_case) to frontend Course type (camelCase)
  */
-export function mapCourse(dbCourse: DBCourse | Course): Course {
+export function mapCourse(dbCourse: DBCourse | Course | any): Course {
   if (!dbCourse) {
     return dbCourse;
   }
@@ -40,21 +40,25 @@ export function mapCourse(dbCourse: DBCourse | Course): Course {
   const course = dbCourse as Course;
 
   return {
-    ...dbCourse,
-    // Map snake_case to camelCase
-    studentCount: obj.student_count ?? course.studentCount ?? 0,
-    instructorName: obj.instructor_name ?? course.instructorName ?? '',
-    previewVideoUrl: obj.preview_video_url ?? course.previewVideoUrl,
-    totalDuration: obj.total_duration ?? course.totalDuration ?? 0,
-    averageRating: obj.average_rating ?? course.averageRating ?? 0,
-    reviewCount: obj.review_count ?? course.reviewCount ?? 0,
-    isFree: obj.is_free ?? course.isFree ?? false,
-    isPremium: obj.is_premium ?? course.isPremium ?? false,
-    previewEnabled: obj.preview_enabled ?? course.previewEnabled ?? false,
-    // Ensure other fields are properly typed
-    price: Number(course.price) || 0,
-    launchDate: course.launchDate || obj.launch_date || '',
-    status: course.status || 'upcoming',
+    id: obj.id || course.id || '',
+    title: obj.title || course.title || '',
+    description: obj.description || course.description || undefined,
+    instructorName: obj.instructor_name ?? course.instructorName ?? 'Unknown',
+    instructorId: obj.instructor_id || course.instructorId || '',
+    thumbnailUrl: obj.thumbnail_url || course.thumbnailUrl || undefined,
+    price: Number(obj.price ?? course.price) || 0,
+    isFree: obj.price === 0 || course.isFree || false,
+    isPremium: (obj.price && Number(obj.price) > 0) || course.isPremium || false,
+    totalDuration: (Number(obj.duration_weeks ?? course.totalDuration) || 8) * 7 * 60,
+    difficultyLevel: obj.difficulty_level || course.difficultyLevel || 'beginner',
+    categoryId: obj.category || course.categoryId || '',
+    averageRating: Number(obj.average_rating ?? course.averageRating) || 0,
+    totalStudents: Number(obj.total_students ?? course.totalStudents) || 0,
+    status: obj.status || course.status || 'active',
+    curriculum: obj.curriculum || course.curriculum || {},
+    whatYoullLearn: obj.what_youll_learn || course.whatYoullLearn || [],
+    createdAt: obj.created_at || course.createdAt || '',
+    updatedAt: obj.updated_at || course.updatedAt || obj.created_at || course.createdAt || ''
   } as Course;
 }
 

@@ -3,12 +3,15 @@
 _목적: 프로젝트 현재 상태와 진행 상황 추적_
 _최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
 
-## 🔴 필수: 새 세션 시작 체크리스트
+---
+
+## 🚨 최우선 확인사항 (Priority Critical)
+
+### 🔴 필수: 새 세션 시작 체크리스트
 
 **⚠️ 경고: AI 작업 시작 전 반드시 확인**
 
-### 📋 필수 확인 문서 (13개 체계)
-
+#### 📋 필수 확인 문서 (13개 체계)
 1. ☐ **이 문서** (`PROJECT.md`) - 현재 상태와 진행 상황
 2. ☐ **`/CLAUDE.md`** - AI 작업 지침서 + 3단계 검증 시스템
 3. ☐ **`/docs/CODEMAP.md`** - 프로젝트 구조 지도
@@ -22,6 +25,79 @@ _최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
 11. ☐ **`/docs/STATE_FLOW.md`** - 상태 관리 플로우
 12. ☐ **`/docs/DATA_MODEL.md`** - 데이터 모델 매핑
 13. ☐ **`/docs/ERROR_BOUNDARY.md`** - 에러 처리 전략
+
+### 🔒 인증/오리진 불변식 - 절대 준수
+- **로컬 개발**: 반드시 `http://localhost:<port>`만 사용 (127.0.0.1 사용 금지)
+- **프로덕션**: HTTPS 필수, `NEXT_PUBLIC_SITE_URL`은 실제 접근 도메인과 동일
+- **세션 식별**: 항상 쿠키 + 서버 검사, 클라이언트에서 `userId` 전달 금지
+- **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
+
+### 🆕 최근 변경사항 (최신 7개)
+1. **2025-02-02**: TypeScript 타입 시스템 완전 수정 - Course 타입 매핑 문제 해결, import 경로 수정 ✅
+2. **2025-02-02**: 중복 타입 export 오류 해결 - RevenueProof, UserApiKey 중복 제거 ✅
+3. **2025-02-02**: snake_case/camelCase 변환 개선 - mapCourse 함수 완전 재작성 ✅
+4. **2025-02-02**: 🎯 TypeScript v2.0 Single Source of Truth 최종 확정 - Supabase DB → index.ts 체계 ✅
+5. **2025-02-02**: 13개 핵심 문서에 TypeScript 타입 시스템 완전 반영 - 모든 문서 업데이트 ✅
+6. **2025-02-02**: YouTube Lens 인증 문제 해결 - 401 에러 처리 개선, API 키 문제 구분 ✅
+7. **2025-02-02**: Vercel 빌드 오류 해결 - build-verify.js 문법 수정, use-toast.tsx 추가 ✅
+
+### 🔍 알려진 이슈 (Critical)
+1. ✅ **TypeScript 타입 오류**: 모두 해결됨 - Course 타입 매핑, 중복 export, import 경로 수정 완료
+2. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
+3. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+
+### 🔑 필수 환경 변수
+```bash
+# Supabase (필수)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_key
+
+# API Key 암호화 (필수) ⚠️ 정확히 64자
+ENCRYPTION_KEY=fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660
+
+# TossPayments (결제 시스템)
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_...
+TOSS_SECRET_KEY=test_sk_...
+```
+
+---
+
+## 📚 목차 (Table of Contents)
+
+### 기본 정보
+- [🎯 프로젝트 개요](#-프로젝트-개요)
+- [✅ 프로젝트 상태](#-프로젝트-상태)
+- [📊 반복 실수 추적](#-반복-실수-추적)
+
+### 이슈 및 진행
+- [🔍 이슈 관리](#-이슈-관리)
+- [📈 Phase별 진행 요약](#-phase별-진행-요약)
+
+### 기술 및 구조
+- [🛠 기술 스택](#-기술-스택)
+- [📁 프로젝트 구조](#-프로젝트-구조)
+
+### 데이터베이스
+- [🔄 Supabase 마이그레이션 관리](#-supabase-마이그레이션-관리)
+- [📋 Supabase 테이블 현황](#-supabase-테이블-현황)
+
+### 개발 가이드
+- [📦 의존성 체크리스트](#-의존성-체크리스트)
+- [🚀 개발 가이드](#-개발-가이드)
+- [📐 API 엔드포인트 패턴](#-api-엔드포인트-패턴)
+
+### 보안 및 성능
+- [🔒 보안 시스템 운영 가이드](#-보안-시스템-운영-가이드)
+- [📊 성능 벤치마크 목표](#-성능-벤치마크-목표)
+
+### 테스트 및 문제해결
+- [🧪 테스트 시나리오](#-테스트-시나리오)
+- [🔥 자주 발생하는 문제](#-자주-발생하는-문제)
+- [⚠️ 알려진 이슈 (2025-01-30)](#️-알려진-이슈-2025-01-30)
+
+### 참고사항
+- [📌 중요 참고사항](#-중요-참고사항)
 
 ---
 
@@ -94,14 +170,13 @@ _최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
 
 > **관리 규칙**: 최신 7개만 유지, 오래된 항목 자동 삭제
 
-1. **2025-02-02**: YouTube Lens 인증 문제 해결 - 401 에러 처리 개선, API 키 문제 구분 ✅
-2. **2025-02-02**: Vercel 빌드 오류 해결 - build-verify.js 문법 수정, use-toast.tsx 추가 ✅
-3. **2025-08-19**: 코드 품질 대폭 개선 - Biome 오류 67% 감소, TypeScript 오류 93% 해결 ✅
-4. **2025-02-01**: TypeScript `any` 타입 완전 제거 - 13개 → 0개, 컴파일 오류 0개 달성 ✅
-5. **2025-02-01**: 타입 관리 시스템 v2.0 구축 - 자동 수정, VS Code 스니펫, 오류 설명 도구 ✅
-5. **2025-02-01**: 테스트 도구 3종 통합 (MSW, Vitest, Playwright) - AI 코딩 품질 향상 ✅
-6. **2025-02-01**: MSW 모킹 시스템 구축 - YouTube API 할당량 절약, 오프라인 개발 가능 ✅
-7. **2025-02-01**: Vitest 단위/컴포넌트 테스트 환경 구축 - 80% 커버리지 목표 ✅
+1. **2025-02-02**: TypeScript 타입 시스템 완전 수정 - Course 타입 매핑 문제 해결, import 경로 수정 ✅
+2. **2025-02-02**: 중복 타입 export 오류 해결 - RevenueProof, UserApiKey 중복 제거 ✅
+3. **2025-02-02**: snake_case/camelCase 변환 개선 - mapCourse 함수 완전 재작성 ✅
+4. **2025-02-02**: 🎯 TypeScript v2.0 Single Source of Truth 최종 확정 - Supabase DB → index.ts 체계 ✅
+5. **2025-02-02**: 13개 핵심 문서에 TypeScript 타입 시스템 완전 반영 - 모든 문서 업데이트 ✅
+6. **2025-02-02**: YouTube Lens 인증 문제 해결 - 401 에러 처리 개선, API 키 문제 구분 ✅
+7. **2025-02-02**: Vercel 빌드 오류 해결 - build-verify.js 문법 수정, use-toast.tsx 추가 ✅
 
 ---
 
@@ -109,9 +184,10 @@ _최종 업데이트: 2025-08-19 (코드 품질 개선 작업)_
 
 ### 알려진 이슈
 
-1. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
-2. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
-3. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
+1. ✅ **TypeScript 타입 오류**: 모두 해결됨 - Course 타입 매핑, 중복 export, import 경로 수정 완료
+2. **보안**: auth/callback/route.ts의 하드코딩된 자격 증명 (환경 변수 이관 필요)
+3. **구조**: 일부 layout.tsx, page.tsx 미구현 상황 있음 (사용자와 협의)
+4. **클라이언트**: browser-client.ts Mock 반환 로직 불완전
 
 ### 진행 중인 이슈 (2025-08-19)
 

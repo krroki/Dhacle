@@ -1,8 +1,9 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { validateQueryParams, trendingSummaryQuerySchema, createValidationErrorResponse } from '@/lib/security/validation-schemas';
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
   
   // 인증 체크
@@ -14,7 +15,17 @@ export async function GET() {
     );
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  // 쿼리 파라미터 검증
+  const url = new URL(request.url);
+  const params = url.searchParams;
+  const validation = validateQueryParams(params, trendingSummaryQuerySchema);
+  
+  if (!validation.success) {
+    return createValidationErrorResponse(validation.error);
+  }
+
+  const { date, limit = 10 } = validation.data;
+  const today = date || new Date().toISOString().split('T')[0];
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
   try {
@@ -62,7 +73,7 @@ export async function GET() {
       `)
       .eq('date', today)
       .order('delta_views', { ascending: false })
-      .limit(10);
+      .limit(limit);
 
     // 3. 신흥 채널 (최근 7일 내 승인)
     const { data: newcomers } = await supabase

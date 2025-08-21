@@ -3,6 +3,53 @@
 *목적: 프로젝트의 모든 상태 관리 패턴과 데이터 플로우를 체계적으로 문서화*
 *업데이트: 2025-01-30*
 
+---
+
+## 🚨 최우선 이해사항 (Critical Understanding)
+
+### 🎯 TypeScript 타입 시스템 v2.0 - Single Source of Truth
+
+#### 필수 타입 import 패턴 (절대 준수)
+```typescript
+// ✅ 올바른 import - 반드시 @/types에서만
+import { 
+  User, CommunityPost,         // camelCase 타입 (Frontend용)
+  DBUser, DBCommunityPost,      // snake_case 타입 (DB용)
+  snakeToCamelCase,            // 변환 유틸리티
+  camelToSnakeCase             // 변환 유틸리티
+} from '@/types';
+
+// ❌ 절대 금지 패턴
+import { Database } from '@/types/database.generated'; // 금지!
+import { Database } from '@/types/database';           // 금지!
+import { Database } from '@/types/database.types';     // 금지!
+```
+
+### 🔄 전체 데이터 플로우 (핵심 아키텍처)
+```
+[Supabase DB] ← Row Level Security (snake_case)
+      ↓
+[database.generated.ts] ← Auto-generated Types
+      ↓
+[src/types/index.ts] ← Type Transformation (snake → camel)
+      ↓
+[API Routes] ← Session Check (getUser() 필수)
+      ↓
+[api-client.ts] ← Error Handler (401 표준화)
+      ↓
+[Zustand Store] ← Global State
+      ↓
+[React Component] ← Context + Hooks
+      ↓
+[UI State]
+```
+
+### 🏁 상태 관리 현황
+- **Global State**: layout.ts, youtube-lens.ts (✅ 100% 완료)
+- **Auth State**: AuthContext (✅ 100% 완료)
+- **Server State**: 37개 API 엔드포인트 (✅ 완료)
+- **Cache State**: localStorage/Memory (⚠️ 부분 구현)
+
 > **구현 상태 범례**:
 > - ✅ 완료: Store와 관련 로직 모두 구현됨
 > - ⚠️ 부분: Store는 있으나 일부 기능 미완성
@@ -10,24 +57,37 @@
 
 ---
 
+## 📚 목차 (Table of Contents)
+
+### 아키텍처 및 패턴
+- [🏗️ 상태 관리 아키텍처](#️-상태-관리-아키텍처)
+- [🌍 Global State (Zustand)](#-global-state-zustand)
+- [🔐 Auth State (Context API)](#-auth-state-context-api)
+- [🗜️ Server State 관리 패턴](#️-server-state-관리-패턴)
+- [📍 Local State 패턴](#-local-state-패턴)
+
+### 페이지별 상태
+- [📊 페이지별 상태 관리 매핑](#-페이지별-상태-관리-매핑)
+  - [🎬 YouTube Lens](#-youtube-lens-toolsyoutube-lens)
+  - [👤 마이페이지](#-마이페이지-mypage)
+  - [💰 수익인증](#-수익인증-revenue-proof)
+  - [💬 커뮤니티](#-커뮤니티-community)
+
+### 동기화 및 최적화
+- [🔀 상태 동기화 규칙](#-상태-동기화-규칙)
+- [🛟️ 에러 상태 관리](#️-에러-상태-관리)
+- [📈 성능 최적화 패턴](#-성능-최적화-패턴)
+- [🐛 안티패턴](#-안티패턴-피해야-할-것)
+
+### 통계 및 개선
+- [📊 상태 관리 통계](#-상태-관리-통계)
+- [🚨 개선 필요 사항](#-개선-필요-사항)
+
+---
+
 ## 🏗️ 상태 관리 아키텍처
 
-### 전체 데이터 플로우
-```
-[Supabase DB] ← Row Level Security
-      ↓
-[API Routes] ← Session Check (Wave 1)
-      ↓
-[api-client.ts] ← Error Handler
-      ↓
-[Zustand Store] ← DevTools
-      ↓
-[React Component] ← Context API
-      ↓
-[UI State (useState/useReducer)]
-```
-
-### 상태 타입별 관리 전략
+### 상태 타입별 관리 전략 세부
 
 | 타입 | 저장소 | 범위 | 지속성 | 예시 | 구현 |
 |------|--------|------|--------|------|------|
@@ -45,6 +105,9 @@
 ### 1. Layout Store (/src/store/layout.ts)
 
 ```typescript
+// 타입 import는 필요 시 @/types에서
+import type { User } from '@/types';
+
 interface LayoutState {
   // Banner State
   isBannerVisible: boolean
@@ -156,6 +219,9 @@ interface YouTubeLensState {
 ### AuthContext (/src/lib/auth/AuthContext.tsx)
 
 ```typescript
+// 타입 import는 @/types에서
+import type { User } from '@/types';
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -177,13 +243,18 @@ interface AuthContextType {
 
 #### 1. 읽기 (GET)
 ```typescript
-// 표준 패턴
+// 타입 import
+import { apiGet } from '@/lib/api-client';
+import type { User, CommunityPost } from '@/types';
+
+// 표준 패턴 - 타입 지정
 useEffect(() => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const data = await apiGet('/api/endpoint')
-      setData(data)
+      // API 응답은 이미 camelCase로 변환됨
+      const data = await apiGet<CommunityPost[]>('/api/community/posts')
+      setData(data) // data는 이미 camelCase
     } catch (error) {
       setError(error.message)
     } finally {
@@ -196,15 +267,18 @@ useEffect(() => {
 
 #### 2. 쓰기 (POST/PUT)
 ```typescript
-// 낙관적 업데이트 패턴
-const handleUpdate = async (newData) => {
-  // 1. Optimistic Update
+import { apiPost } from '@/lib/api-client';
+import type { CommunityPostInsert } from '@/types';
+
+// 낙관적 업데이트 패턴 - 타입 지정
+const handleUpdate = async (newData: CommunityPostInsert) => {
+  // 1. Optimistic Update (camelCase 사용)
   setLocalData(newData)
   
   try {
-    // 2. API Call
-    const result = await apiPost('/api/endpoint', newData)
-    // 3. Confirm with server data
+    // 2. API Call - 자동으로 snake_case 변환 후 전송
+    const result = await apiPost<CommunityPost>('/api/community/posts', newData)
+    // 3. Confirm with server data (camelCase로 수신)
     setLocalData(result)
   } catch (error) {
     // 4. Rollback on error
@@ -275,13 +349,17 @@ const [pagination, setPagination] = useState({
 
 ### 🎬 YouTube Lens (/tools/youtube-lens)
 ```typescript
+// 필요한 타입 import
+import type { User } from '@/types';
+import type { FlattenedYouTubeVideo, Collection, Favorite } from '@/types/youtube';
+
 // Global State (Zustand)
 - videos: FlattenedYouTubeVideo[] (youtube-lens store)
 - apiKey: string | null (youtube-lens store)
 - quotaInfo: { used, limit } (youtube-lens store)
 
 // Auth State (Context)
-- user: User (AuthContext)
+- user: User (AuthContext - @/types에서 import)
 
 // Server State (API)
 - collections: Collection[] (GET /api/youtube/collections)
@@ -299,18 +377,21 @@ const [pagination, setPagination] = useState({
 
 ### 👤 마이페이지 (/mypage)
 ```typescript
+// 필요한 타입 import
+import type { User, Course, RevenueProof } from '@/types';
+
 // Auth State (필수)
-- user: User (AuthContext)
+- user: User (AuthContext - @/types에서 import)
 
 // Server State  
-- profile: UserProfile (GET /api/user/profile)
-- enrollments: Course[] (미구현)
-- revenues: Revenue[] (GET /api/revenue-proof/my)
+- profile: User (GET /api/user/profile - User 타입 사용)
+- enrollments: Course[] (미구현 - @/types에서 정의)
+- revenues: RevenueProof[] (GET /api/revenue-proof/my)
 
 // Local State
 - activeTab: string
 - isEditMode: boolean
-- formData: ProfileForm
+- formData: Partial<User> // User 타입 활용
 
 // UI State
 - isSaving: boolean

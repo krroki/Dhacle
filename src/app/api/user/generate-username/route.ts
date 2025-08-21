@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomUsername } from '@/lib/utils/username-generator';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 
 // POST: Generate unique username
 export async function POST(_request: NextRequest) {

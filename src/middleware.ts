@@ -7,7 +7,7 @@ import {
   createRateLimitResponse,
   getClientIp,
 } from '@/lib/security/rate-limiter';
-import type { Database } from '@/types/database.types';
+import type { Database } from '@/types';
 
 /**
  * 🔐 보안 미들웨어

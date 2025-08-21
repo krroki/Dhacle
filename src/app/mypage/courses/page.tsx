@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 
 interface CourseEnrollment {
   id: string;

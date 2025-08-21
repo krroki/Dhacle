@@ -7,7 +7,7 @@ import {
   isDinoHighClassCafeUrl,
   isValidNaverCafeUrl,
 } from '@/lib/utils/nickname-generator';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 
 // 네이버 카페 연동 상태 확인
 export async function GET(_request: NextRequest) {

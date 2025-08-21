@@ -14,7 +14,7 @@ import {
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 
 // 뱃지 아이콘 매핑
 const badgeIcons: Record<string, React.ComponentType<{ className?: string }>> = {

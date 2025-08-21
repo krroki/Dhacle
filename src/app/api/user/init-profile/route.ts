@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomNickname } from '@/lib/utils/nickname-generator';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 
 /**
  * 신규 회원가입 시 프로필 초기화

@@ -1,7 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import type { Database } from '@/types/database.types';
+import type { Database } from '@/types';
 
 // POST: Check username availability
 export async function POST(request: Request) {

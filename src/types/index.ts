@@ -72,43 +72,92 @@ export type UserApiKeyUpdate = SnakeToCamelCase<DBUserApiKeyUpdate>;
 
 // ============= 호환성 타입 (기존 코드용) =============
 
-// 기존 코드와의 호환성을 위한 별칭
-export type Course = {
-  id: string;
-  title: string;
-  description: string | null;
-  instructorId: string | null;
-  price: number;
-  discountRate: number;
-  thumbnailUrl: string | null;
-  videoUrl: string | null;
-  durationMinutes: number | null;
-  difficultyLevel: 'beginner' | 'intermediate' | 'advanced' | null;
-  category: 'shorts' | 'marketing' | 'editing' | 'monetization' | 'analytics' | null;
-  rating: number;
-  studentCount: number;
-  isPublished: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type Enrollment = {
-  id: string;
-  userId: string;
-  courseId: string;
-  enrolledAt: string;
-  completedAt: string | null;
-  progressPercentage: number;
-  isCompleted: boolean;
-  rating: number | null;
-  reviewText: string | null;
-  reviewDate: string | null;
-};
+// Course 타입은 course.ts에서 import
+export type { 
+  Course, 
+  Lesson,
+  Purchase,
+  Coupon,
+  CourseProgress,
+  CourseBadge,
+  UserCertificate,
+  CourseReview,
+  InstructorProfile,
+  ContentBlock,
+  Enrollment,
+  CourseListResponse,
+  CourseDetailResponse,
+  CreateCourseInput,
+  CreateLessonInput,
+  CourseFilters,
+  PaymentIntentInput,
+  PaymentIntentResponse
+} from './course';
 
 // Community 타입 별칭 (기존 코드 호환)
 export type Community = CommunityPost;
 export type Comment = CommunityComment;
+
+// Revenue Proof 타입 re-export
+export type { 
+  ProofComment,
+  ProofLike,
+  ProofReport,
+  MonthlyRanking
+} from './revenue-proof';
+
+// YouTube Lens 타입 re-export
+export type {
+  Video,
+  VideoStats,
+  Channel,
+  SourceFolder,
+  FolderChannel,
+  AlertRule,
+  Alert,
+  Collection,
+  CollectionItem,
+  SavedSearch,
+  Subscription,
+  VideoWithStats,
+  ChannelWithVideos,
+  FolderWithChannels,
+  CollectionWithItems,
+  AlertWithRule,
+  SearchVideosParams,
+  PopularShortsParams,
+  MonitoringConfig,
+  VideoMetrics,
+  ChannelMetrics,
+  YouTubeLensState,
+  YouTubeLensError,
+  OutlierDetectionResult,
+  TrendAnalysis,
+  EntityExtraction,
+  PredictionModel,
+  AnalyticsConfig,
+  BatchAnalysisResult
+} from './youtube-lens';
+
+// YouTube API 타입 re-export
+export type {
+  YouTubeVideo,
+  FlattenedYouTubeVideo,
+  YouTubeThumbnail,
+  YouTubeChannel,
+  YouTubeSearchResult,
+  YouTubeApiResponse,
+  YouTubeSearchFilters,
+  YouTubeFavorite,
+  YouTubeSearchHistory,
+  ApiUsage,
+  QuotaStatus,
+  OAuthToken,
+  VideoCardProps,
+  SearchBarProps,
+  VideoGridProps,
+  ApiError
+} from './youtube';
 
 // ============= Enum 타입 =============
 

@@ -21,6 +21,33 @@ _업데이트: 새 파일/폴더 추가 또는 구조 변경 시_
 
 ---
 
+## 📚 목차 (Table of Contents)
+
+### 빠른 참조
+- [🚀 빠른 시작 (최상단 필수)](#-빠른-시작-최상단-필수)
+  - [자주 사용하는 명령어](#자주-사용하는-명령어)
+  - [🔥 자주 수정하는 파일 Top 10](#-자주-수정하는-파일-top-10)
+
+### 핵심 설정
+- [🔐 공용 유틸/핵심 위치 (Authentication & API)](#-공용-유틸핵심-위치-authentication--api)
+- [📁 프로젝트 구조](#-프로젝트-구조)
+
+### 기술 스택
+- [📦 사용 패키지](#-사용-패키지)
+- [🎮 테스트 환경 설정](#-테스트-환경-설정)
+- [🔧 프로젝트 설정 파일](#-프로젝트-설정-파일)
+
+### 폴더 구조
+- [📂 폴더 상세 설명](#-폴더-상세-설명)
+- [🎯 파일 명명 규칙](#-파일-명명-규칙)
+- [🍃 환경 변수](#-환경-변수)
+
+### 통계 및 보안
+- [📊 프로젝트 통계](#-프로젝트-통계)
+- [🔒 보안 설정](#-보안-설정)
+
+---
+
 ## 🚀 빠른 시작 (최상단 필수)
 
 ### 자주 사용하는 명령어
@@ -67,6 +94,15 @@ npm run security:ttl           # TTL 정책 실행
 npm run security:apply-rls-all # 새 테이블 RLS 적용
 npm run security:scan-secrets  # 비밀키 스캔
 npm run security:complete      # 전체 보안 점검 (배포 전 필수)
+
+# 🎯 TypeScript 타입 관리 (2025-02-02 추가)
+npm run types:generate         # 프로덕션 DB에서 타입 생성
+npm run types:generate:local   # 로컬 DB에서 타입 생성
+npm run types:check            # 타입 오류 체크
+npm run types:sync             # DB와 타입 동기화
+npm run types:auto-fix         # 타입 오류 자동 분석 및 수정
+# Single Source of Truth: Supabase DB → database.generated.ts → index.ts
+# 사용법: import { User, CommunityPost } from '@/types';
 ```
 
 ### 🔥 자주 수정하는 파일 Top 10
@@ -79,7 +115,7 @@ npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 6. `src/app/(pages)/courses/page.tsx` - 강의 목록
 7. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
 8. `src/app/(pages)/mypage/page.tsx` - 마이페이지
-9. `src/lib/types/database.types.ts` - DB 타입 정의
+9. `src/types/index.ts` - 중앙 타입 정의 (Single Source of Truth)
 10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
 
 ---
@@ -192,6 +228,10 @@ export async function GET(request: Request) {
 │   │   └── MSWProvider.tsx        # MSW Provider 컴포넌트 ✅ NEW
 │   ├── test/                      # 테스트 설정 ✅ NEW (2025-02-01)
 │   │   └── setup.ts               # Vitest 테스트 셋업
+│   ├── types/                     # TypeScript 타입 시스템 ✅ (2025-02-02)
+│   │   ├── database.generated.ts  # Supabase 자동 생성 타입 (snake_case)
+│   │   ├── index.ts               # 중앙 타입 정의 (camelCase 변환)
+│   │   └── youtube.d.ts           # YouTube 관련 타입
 │   ├── components/
 │   │   ├── ui/                    # shadcn/ui (24개 컴포넌트)
 │   │   ├── layout/                # 레이아웃 컴포넌트
@@ -243,7 +283,8 @@ export async function GET(request: Request) {
 │   │   ├── fix-session-types.js  # TypeScript 수정 ✅ Wave 1
 │   │   ├── scan-secrets.js       # 비밀키 스캔 도구 ✅ Wave 2
 │   │   ├── apply-rls-wave2.js    # Wave 2 RLS 적용 ✅ Wave 2
-│   │   └── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
+│   │   ├── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
+│   │   └── validate-rls.js       # RLS 상태 검증 도구 ✅ NEW (2025-08-20)
 │   ├── dev-verify.js              # 개발 시 자동 검증 ✅ NEW (2025-01-30)
 │   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 + API 일치성 ✅ NEW (2025-01-30)
 │   ├── fix-missing-apis.js        # 누락 API 자동 생성 ✅ NEW (2025-01-30)

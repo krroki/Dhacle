@@ -4,23 +4,151 @@
 
 ---
 
-## 🎯 TypeScript 타입 시스템 v2.0 (2025-02-01 구축)
+## 🚨 필수 숙지 사항 (Critical Understanding)
 
-### 자동 타입 생성 시스템
+### 🎯 Single Source of Truth - DB가 유일한 진실
+- **DB가 진실의 원천**: Supabase DB 스키마가 모든 타입의 기준
+- **자동 생성**: 수동 타입 정의 최소화, DB 변경시 자동 반영
+- **타입 안전성**: any 타입 완전 제거 (0개 달성)
+- **일관성**: snake_case (DB) ↔ camelCase (Frontend) 자동 변환
+
+### 📦 타입 관리 필수 명령어
+```bash
+# 타입 생성 및 동기화 (반드시 실행)
+npm run types:generate      # Supabase → TypeScript 타입 생성
+npm run types:sync          # 생성 + 타입 체크
+npm run types:check         # TypeScript 컴파일 체크
+
+# 타입 오류 자동 수정 (AI 전용)
+npm run types:auto-fix      # 타입 오류 자동 수정
+npm run types:explain       # 타입 오류 상세 설명
+```
+
+### 🆕 필수 import 패턴 (절대 준수)
 ```typescript
-// Supabase DB에서 자동 생성
-npm run types:generate      // 프로덕션 DB에서 타입 생성
-npm run types:generate:local // 로컬 DB에서 타입 생성
+// ✅ 올바른 import - 반드시 @/types에서만
+import { User, Course, Video } from '@/types';  // camelCase로 자동 변환됨
+import { snakeToCamelCase, camelToSnakeCase } from '@/types';
 
-// 생성된 타입 사용
-import { User, Course, Video } from '@/types';
+// ❌ 절대 금지 패턴
+import { Database } from '@/types/database.generated'; // 금지!
+import { Database } from '@/types/database';           // 금지! (파일 삭제됨)
+import { Database } from '@/types/database.types';     // 금지! (파일 삭제됨)
+
+// ✅ 2025-02-02 수정 사항
+// - database.ts, database.types.ts 파일 제거
+// - 모든 타입은 @/types/index.ts에서만 import
+// - Course 타입 매핑 함수 완전 재작성
+```
+
+### 🚨 타입 불일치 체크리스트
+| 문제 | Frontend | Backend | 해결 |
+|-----|----------|---------|------|
+| 키 이름 | camelCase | snake_case | 변환 함수 |
+| 날짜 | Date 객체 | timestamptz 문자열 | new Date() |
+| 숫자 | number | bigint | Number() |
+| NULL | undefined | null | ?? 연산자 |
+| JSON | 객체 | jsonb 문자열 | JSON.parse() |
+
+---
+
+## 📚 목차 (Table of Contents)
+
+### 타입 시스템
+- [🎯 TypeScript 타입 시스템 v2.0](#-typescript-타입-시스템-v20-2025-02-01-구축)
+- [🔄 데이터 변환 레이어](#-데이터-변환-레이어)
+- [🛟️ Zod 스키마와의 관계](#️-zod-스키마와의-관계)
+
+### 데이터 모델
+- [👤 User/Profile](#-userprofile)
+- [🎬 YouTube Video](#-youtube-video)
+- [📚 Course](#-course)
+- [💰 Revenue Proof](#-revenue-proof)
+- [📝 Community Post](#-community-post)
+- [🔐 API Key](#-api-key)
+
+### 유틸리티 및 패턴
+- [📊 공통 변환 유틸리티](#-공통-변환-유틸리티-2025-02-01-typescript-개선)
+- [📌 API 응답 타입 정의 패턴](#-api-응답-타입-정의-패턴-2025-01-30-추가)
+- [🎯 구현 우선순위](#-구현-우선순위)
+
+---
+
+## 🎯 TypeScript 타입 시스템 v2.0 (2025-02-02 완전 수정)
+
+### 📐 타입 시스템 아키텍처
+```
+Supabase Database (PostgreSQL)
+         ↓
+    [types:generate 명령어]
+         ↓
+database.generated.ts (자동 생성, snake_case)
+         ↓
+    [index.ts 변환 레이어]
+         ↓
+Frontend Types (camelCase 자동 변환)
+         ↓
+React Components + API Routes
+```
+
+### 🔄 타입 생성 프로세스
+```typescript
+// 1. Supabase DB에서 타입 자동 생성 (Single Source of Truth)
+npm run types:generate      // 프로덕션 DB → database.generated.ts
+npm run types:generate:local // 로컬 DB → database.generated.ts
+
+// 2. 자동 생성된 타입 (src/types/database.generated.ts)
+// - Tables, Views, Functions, Enums 모두 포함
+// - snake_case 형태로 생성됨
+
+// 3. Frontend에서 사용 (src/types/index.ts가 자동 변환)
+import { User, Course, Video } from '@/types';  // camelCase로 자동 변환됨
 import { snakeToCamelCase, camelToSnakeCase } from '@/types';
 ```
 
-### Single Source of Truth
-- **원칙**: Supabase DB가 유일한 타입 소스
-- **자동 변환**: snake_case (DB) ↔ camelCase (Frontend) 자동
+### 🛡️ Zod 스키마와의 관계
+```typescript
+// Zod는 타입 정의가 아닌 런타임 입력 검증용
+// src/lib/security/validation-schemas.ts
+
+// 1. TypeScript 타입 (컴파일 타임)
+import { User } from '@/types';  // Supabase에서 생성된 타입
+
+// 2. Zod 스키마 (런타임 검증)
+import { updateProfileSchema } from '@/lib/security/validation-schemas';
+
+// 3. API Route에서 함께 사용
+export async function POST(request: Request) {
+  // Zod로 입력 검증
+  const validation = await validateRequestBody(request, updateProfileSchema);
+  if (!validation.success) {
+    return createValidationErrorResponse(validation.error);
+  }
+  
+  // TypeScript 타입으로 데이터 처리
+  const userData: User = validation.data;
+  // ...
+}
+```
+
+### 📦 타입 관리 명령어
+```bash
+# 타입 생성 및 동기화
+npm run types:generate      # Supabase → TypeScript 타입 생성
+npm run types:sync          # 생성 + 타입 체크
+npm run types:check         # TypeScript 컴파일 체크
+
+# 타입 오류 자동 수정
+npm run types:auto-fix      # 타입 오류 자동 수정
+npm run types:explain       # 타입 오류 상세 설명
+npm run types:help          # 타입 명령어 도움말
+```
+
+### 🎯 Single Source of Truth 원칙
+- **DB가 진실의 원천**: Supabase DB 스키마가 모든 타입의 기준
+- **자동 생성**: 수동 타입 정의 최소화, DB 변경시 자동 반영
 - **타입 안전성**: any 타입 완전 제거 (0개 달성)
+- **일관성**: snake_case (DB) ↔ camelCase (Frontend) 자동 변환
 
 ## 🔄 데이터 변환 레이어
 
@@ -203,25 +331,27 @@ created_at: timestamptz
 ### API 매핑 (구현 상태)
 ```typescript
 // GET /api/courses
+// ✅ 2025-02-02 mapCourse 함수 완전 재작성
 const mapCourse = (data): Course => ({
   id: data.id,                      // ✅ 구현됨
   title: data.title,                // ✅ 구현됨
   description: data.description,     // ✅ 구현됨
-  instructor: data.instructor_name,  // ⚠️ JOIN 처리 필요
+  instructorName: data.instructor_name || 'Unknown',  // ✅ 수정 완료
+  instructorId: data.instructor_id,  // ✅ 수정 완료
   price: data.price,                // ✅ 구현됨
   thumbnailUrl: data.thumbnail_url,  // ✅ 구현됨
-  duration: data.duration_minutes,   // ⚠️ 키 이름 변환 필요
-  level: data.level,                // ✅ 구현됨
+  totalDuration: data.duration_minutes || 0,   // ✅ 수정 완료
+  difficultyLevel: data.difficulty_level || 'beginner', // ✅ 수정 완료
   category: data.category,          // ✅ 구현됨
-  enrollmentCount: data.enrollment_count, // ✅ 구현됨
-  rating: data.rating,              // ✅ 구현됨
-  isPublished: data.is_published    // ✅ 구현됨
+  totalStudents: data.total_students || 0, // ✅ 수정 완료
+  averageRating: data.average_rating || 0, // ✅ 수정 완료
+  status: data.status || 'active'    // ✅ 수정 완료
 })
 ```
 
 **변환 함수 상태**: 
-- ✅ 대부분 구현됨
-- ⚠️ instructor JOIN 처리 미구현
+- ✅ 완전 구현됨 (2025-02-02)
+- ✅ 모든 필드 snake_case → camelCase 변환 완료
 
 ---
 

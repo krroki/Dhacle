@@ -94,6 +94,27 @@ export const addCollectionItemSchema = z.object({
   notes: z.string().max(1000).optional(),
 });
 
+// YouTube Lens Delta System 관련 스키마
+export const trendingSummaryQuerySchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식은 YYYY-MM-DD여야 합니다.').optional(),
+  limit: z.number().int().min(1).max(100).default(10).optional(),
+});
+
+// 채널 승인 관리
+export const channelApprovalSchema = z.object({
+  channelId: z.string().min(1, '채널 ID가 필요합니다.').max(100),
+  approvalStatus: z.enum(['pending', 'approved', 'rejected']),
+  notes: z.string().max(500).optional(),
+});
+
+// 채널 추가
+export const addChannelSchema = z.object({
+  channelId: z.string().min(1, '채널 ID가 필요합니다.').max(100),
+  title: z.string().min(1).max(200).optional(),
+  category: z.string().max(100).optional(),
+  subcategory: z.string().max(100).optional(),
+});
+
 // ============================================
 // 수익 인증 관련 스키마
 // ============================================

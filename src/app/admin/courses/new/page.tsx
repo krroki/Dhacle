@@ -23,13 +23,22 @@ export default function NewCoursePage() {
         throw new Error('로그인이 필요합니다.');
       }
 
-      // 강의 생성
+      // 강의 생성 - snake_case로 변환
       const { data, error } = await supabase
         .from('courses')
         .insert({
-          ...courseData,
-          instructorId: user.id,
+          title: courseData.title,
+          description: courseData.description,
+          instructor_id: user.id,
+          instructor_name: courseData.instructorName,
+          thumbnail_url: courseData.thumbnailUrl,
+          price: courseData.price,
+          duration_weeks: courseData.durationWeeks || 8,
+          category: courseData.category,
+          difficulty_level: courseData.difficultyLevel || 'beginner',
           status: 'upcoming',
+          curriculum: courseData.curriculum,
+          what_youll_learn: courseData.whatYoullLearn
         })
         .select()
         .single();

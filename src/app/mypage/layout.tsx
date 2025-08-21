@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
-import type { Database } from '@/types/database';
+import type { Database } from '@/types';
 import { MyPageSidebar } from './components/MyPageSidebar';
 
 export const metadata: Metadata = {
