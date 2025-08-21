@@ -64,9 +64,18 @@ export default async function MyBadgesPage() {
     .from('badges')
     .select('*')
     .eq('user_id', user.id)
-    .order('earnedAt', { ascending: false });
+    .order('earned_at', { ascending: false });
 
-  const badges = userBadges || [];
+  // Map snake_case from database to camelCase for the component
+  const badges: UserBadge[] = (userBadges || []).map(badge => ({
+    id: badge.id,
+    user_id: badge.user_id,
+    badgeType: badge.badge_type,
+    badgeLevel: badge.badge_level || 'bronze',
+    earnedAt: badge.earned_at || new Date().toISOString(),
+    title: badge.title,
+    description: badge.description || ''
+  }));
 
   // 획득 가능한 뱃지 목록 (더미 데이터)
   const availableBadges = [

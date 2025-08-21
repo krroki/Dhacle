@@ -31,9 +31,9 @@ type DBVideoMetrics = Partial<VideoMetrics> & Record<string, unknown>;
 /**
  * Maps database Course data (snake_case) to frontend Course type (camelCase)
  */
-export function mapCourse(dbCourse: DBCourse | Course): Course {
+export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>): Course {
   if (!dbCourse) {
-    return dbCourse;
+    return dbCourse as Course;
   }
 
   const obj = dbCourse as Record<string, unknown>;
@@ -74,9 +74,9 @@ export function mapCourse(dbCourse: DBCourse | Course): Course {
 /**
  * Maps database Lesson data (snake_case) to frontend Lesson type (camelCase)
  */
-export function mapLesson(dbLesson: DBLesson | Lesson): Lesson {
+export function mapLesson(dbLesson: DBLesson | Lesson | Record<string, unknown>): Lesson {
   if (!dbLesson) {
-    return dbLesson;
+    return dbLesson as Lesson;
   }
 
   const obj = dbLesson as Record<string, unknown>;

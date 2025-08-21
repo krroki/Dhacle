@@ -54,18 +54,51 @@ export default async function MyCoursesPage() {
         title,
         description,
         thumbnail_url,
-        instructorName,
+        instructor_name,
         price,
-        totalLessons,
-        durationHours,
+        duration_weeks,
         level,
         category
       )
     `)
     .eq('user_id', user.id)
-    .order('lastAccessedAt', { ascending: false });
+    .order('last_accessed_at', { ascending: false });
 
-  const allCourses: CourseEnrollment[] = enrollments || [];
+  // Map snake_case from database to camelCase for the component
+  const allCourses: CourseEnrollment[] = (enrollments || []).map(enrollment => ({
+    id: enrollment.id,
+    user_id: enrollment.user_id,
+    course_id: enrollment.course_id,
+    enrolledAt: enrollment.enrolled_at || new Date().toISOString(),
+    completedAt: enrollment.completed_at,
+    lastAccessedAt: enrollment.last_accessed_at,
+    progressPercentage: enrollment.progress_percentage || 0,
+    completedLessons: 0, // This field doesn't exist in the database, using default
+    status: enrollment.status as 'active' | 'completed' | 'paused' || 'active',
+    courses: enrollment.courses ? {
+      id: enrollment.courses.id,
+      title: enrollment.courses.title,
+      description: enrollment.courses.description || '',
+      thumbnail_url: enrollment.courses.thumbnail_url,
+      instructorName: enrollment.courses.instructor_name || '',
+      price: enrollment.courses.price || 0,
+      totalLessons: 10, // Default value as this field doesn't exist in DB
+      durationHours: (enrollment.courses.duration_weeks || 0) * 5, // Convert weeks to estimated hours
+      level: enrollment.courses.level || '',
+      category: enrollment.courses.category || ''
+    } : {
+      id: '',
+      title: '',
+      description: '',
+      thumbnail_url: null,
+      instructorName: '',
+      price: 0,
+      totalLessons: 0,
+      durationHours: 0,
+      level: '',
+      category: ''
+    }
+  }));
   const activeCourses = allCourses.filter((e: CourseEnrollment) => e.status === 'active');
   const completedCourses = allCourses.filter((e: CourseEnrollment) => e.status === 'completed');
 

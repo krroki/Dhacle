@@ -22,7 +22,18 @@ export default async function MyPageLayout({ children }: { children: React.React
   }
 
   // 프로필 정보 가져오기
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  const { data: dbProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  
+  // Map database profile to component Profile interface
+  const profile = dbProfile ? {
+    id: dbProfile.id || user.id,
+    username: dbProfile.username,
+    displayNickname: dbProfile.full_name, // Using full_name as display nickname
+    naverCafeVerified: false, // This field doesn't exist in DB, using default
+    created_at: dbProfile.created_at || '',
+    updated_at: dbProfile.updated_at || '',
+    full_name: dbProfile.full_name // Also keep full_name for template usage
+  } : null;
 
   return (
     <div className="min-h-screen bg-gray-50">

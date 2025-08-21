@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          badge_level: string | null
+          badge_type: string
+          created_at: string | null
+          description: string | null
+          earned_at: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          badge_level?: string | null
+          badge_type: string
+          created_at?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          badge_level?: string | null
+          badge_type?: string
+          created_at?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       channels: {
         Row: {
           country: string | null
@@ -335,6 +371,107 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_enrollments: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          created_at: string | null
+          enrolled_at: string | null
+          id: string
+          last_accessed_at: string | null
+          progress_percentage: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          created_at?: string | null
+          enrolled_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string | null
+          enrolled_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress_extended: {
+        Row: {
+          completed_lessons: number | null
+          course_id: string
+          created_at: string | null
+          id: string
+          last_position: number | null
+          lesson_id: string | null
+          notes: string | null
+          total_lessons: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_lessons?: number | null
+          course_id: string
+          created_at?: string | null
+          id?: string
+          last_position?: number | null
+          lesson_id?: string | null
+          notes?: string | null
+          total_lessons?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_lessons?: number | null
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          last_position?: number | null
+          lesson_id?: string | null
+          notes?: string | null
+          total_lessons?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_extended_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_extended_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -765,6 +902,39 @@ export type Database = {
           },
         ]
       }
+      naver_cafe_verifications: {
+        Row: {
+          cafe_member_url: string | null
+          cafe_nickname: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          cafe_member_url?: string | null
+          cafe_nickname: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          cafe_member_url?: string | null
+          cafe_nickname?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       progress: {
         Row: {
           completed: boolean | null
@@ -839,6 +1009,86 @@ export type Database = {
             columns: ["week_id"]
             isOneToOne: false
             referencedRelation: "course_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proof_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          edited_at: string | null
+          id: string
+          is_edited: boolean | null
+          parent_id: string | null
+          proof_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          parent_id?: string | null
+          proof_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          is_edited?: boolean | null
+          parent_id?: string | null
+          proof_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proof_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "proof_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proof_comments_proof_id_fkey"
+            columns: ["proof_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_proofs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proof_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          proof_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          proof_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          proof_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proof_likes_proof_id_fkey"
+            columns: ["proof_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_proofs"
             referencedColumns: ["id"]
           },
         ]
@@ -1058,6 +1308,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      revenues: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          proof_type: string | null
+          proof_url: string | null
+          updated_at: string | null
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          proof_type?: string | null
+          proof_url?: string | null
+          updated_at?: string | null
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          proof_type?: string | null
+          proof_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       source_folders: {
         Row: {

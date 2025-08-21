@@ -48,12 +48,11 @@ export default async function MyPageDashboard() {
         id,
         title,
         thumbnail_url,
-        instructorName,
-        totalLessons
+        instructor_name
       )
     `)
     .eq('user_id', user.id)
-    .order('lastAccessedAt', { ascending: false })
+    .order('last_accessed_at', { ascending: false })
     .limit(3);
 
   // 대시보드 통계 카드
@@ -143,16 +142,14 @@ export default async function MyPageDashboard() {
                   return null;
                 }
 
-                const progressPercent = course.totalLessons
-                  ? (enrollment.completedLessons / course.totalLessons) * 100
-                  : 0;
+                const progressPercent = enrollment.progress_percentage || 0;
 
                 return (
                   <div key={enrollment.id} className="flex items-center gap-4">
                     <div className="flex-shrink-0 w-20 h-14 bg-gray-200 rounded-lg overflow-hidden">
-                      {course.thumbnailUrl ? (
+                      {course.thumbnail_url ? (
                         <img
-                          src={course.thumbnailUrl}
+                          src={course.thumbnail_url}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />
@@ -164,12 +161,12 @@ export default async function MyPageDashboard() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{course.title}</h4>
-                      <p className="text-sm text-gray-600">{course.instructorName}</p>
+                      <p className="text-sm text-gray-600">{course.instructor_name}</p>
                       <div className="mt-2">
                         <div className="flex items-center justify-between text-sm mb-1">
                           <span className="text-gray-600">진행률</span>
                           <span className="font-medium">
-                            {enrollment.completedLessons}/{course.totalLessons}강
+                            {Math.round(enrollment.progress_percentage || 0)}%
                           </span>
                         </div>
                         <Progress value={progressPercent} className="h-2" />
