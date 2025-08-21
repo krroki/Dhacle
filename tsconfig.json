@@ -13,6 +13,23 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    
+    /* Wave 4: 엄격한 타입 체크 추가 설정 */
+    "noImplicitAny": true,              /* any 타입 암묵적 사용 금지 */
+    "strictNullChecks": true,           /* null과 undefined 엄격 체크 */
+    "strictFunctionTypes": true,        /* 함수 타입 엄격 체크 */
+    "strictBindCallApply": true,        /* bind, call, apply 엄격 체크 */
+    "strictPropertyInitialization": true, /* 클래스 속성 초기화 체크 */
+    "noImplicitThis": true,             /* this 타입 암묵적 any 금지 */
+    "alwaysStrict": true,               /* 모든 파일 strict mode */
+    
+    /* 추가 품질 체크 */
+    "noUnusedLocals": true,             /* 사용하지 않는 로컬 변수 오류 */
+    "noUnusedParameters": true,         /* 사용하지 않는 매개변수 오류 */
+    "noImplicitReturns": true,          /* 암묵적 return 금지 */
+    "noFallthroughCasesInSwitch": true, /* switch fallthrough 금지 */
+    "noUncheckedIndexedAccess": true,   /* 인덱스 접근 시 undefined 포함 */
+    "forceConsistentCasingInFileNames": true, /* 파일명 대소문자 일관성 */
     "plugins": [
       {
         "name": "next"

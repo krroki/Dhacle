@@ -24,6 +24,10 @@ npm run types:check         # TypeScript 컴파일 체크
 # 타입 오류 자동 수정 (AI 전용)
 npm run types:auto-fix      # 타입 오류 자동 수정
 npm run types:explain       # 타입 오류 상세 설명
+
+# Wave 3-4 검증 도구 (2025-02-21 추가)
+node scripts/type-validator.js    # 타입 시스템 전체 검증
+node scripts/type-suggester.js <파일>  # 파일별 타입 제안
 ```
 
 ### 🆕 필수 import 패턴 (절대 준수)
@@ -43,21 +47,18 @@ import { Database } from '@/types/database.types';     // 금지! (파일 삭제
 // - Course 타입 매핑 함수 완전 재작성
 ```
 
-### 🚨 타입 불일치 체크리스트 (2025-08-21 Wave 2 완료)
+### 🚨 타입 불일치 체크리스트 (2025-01-31 Wave 3 완료)
 | 문제 | Frontend | Backend | 해결 | 상태 |
 |-----|----------|---------|------|------|
 | 키 이름 | camelCase | snake_case | 변환 함수 | ✅ Wave 1 완료 |
-| 날짜 | Date 객체 | timestamptz 문자열 | new Date() | ⚠️ 일부 수정 필요 |
-| 숫자 | number | bigint | Number() | ⚠️ 타입 확장 필요 |
-| NULL | undefined | null | ?? 연산자 | ⚠️ 옵셔널 처리 필요 |
+| NULL | undefined | null | null → undefined 변환 | ✅ Wave 3 완료 |
 | JSON | 객체 | jsonb 문자열 | JSON.parse() | ✅ 작동 중 |
-| **Profile** | Profile | ProfileDB | profileDBToProfile() | ⚠️ 변환 함수 필요 |
-| **Course** | Course | DB Row | course.ts import | ✅ Wave 2 - Frontend 필드 확장 |
-| **Lesson** | Lesson | DB Row | course.ts import | ✅ Wave 2 - 필드 매핑 완료 |
-| **CourseProgress** | CourseProgress | DB Row | 인터페이스 정의 | ✅ Wave 2 - 타입 정의 완료 |
-| **VideoStats** | VideoStats | Tables<'video_stats'> + 추가 필드 | 타입 확장 | ✅ Wave 2 - 확장 완료 |
-| **RevenueProof** | ExtendedRevenueProof | Tables<'revenue_proofs'> | 옵셔널 필드 추가 | ✅ Wave 2 - 완료 |
-| **Collection** | Collection | DB Row | mapCollection() | ⚠️ TS2322 오류 |
+| **Course** | Course | DB Row | mapCourse() 함수 | ✅ Wave 3 - 완전 통합 |
+| **Lesson** | Lesson | DB Row | 인라인 인터페이스 | ✅ Wave 3 - 매핑 완료 |
+| **CourseProgress** | CourseProgress | progress 테이블 | notes 필드 추가 | ✅ Wave 3 - 완료 |
+| **Collection** | Collection | collections 테이블 | collection_items 수정 | ✅ Wave 3 - 테이블명 수정 |
+| **UserApiKey** | UserApiKey | user_api_keys | Json 타입 캐스팅 | ✅ Wave 3 - 완료 |
+| **테이블명** | camelCase | snake_case | 정확한 테이블명 사용 | ✅ Wave 3 - 100% 수정 |
 
 ---
 

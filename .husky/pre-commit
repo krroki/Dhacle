@@ -1,11 +1,42 @@
 #!/bin/sh
-# Pre-commit Hook v2.0 - 검증 전용 (자동 수정 없음)
-# 2025-01-31: 모든 자동 수정 기능 제거, 검증만 수행
+# Pre-commit Hook v3.0 - Wave 4 재발 방지 체계
+# 2025-02-21: 타입 시스템 재발 방지 강화
 
 echo "🔍 Pre-commit 검증 시작..."
 
-# 1단계: 빠른 핵심 검증
-echo "📋 Step 1/4: 핵심 검증 실행 중..."
+# 1단계: Any 타입 차단 (최우선 검사)
+echo "📋 Step 1/5: Any 타입 차단..."
+STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' || true)
+
+if [ -n "$STAGED_TS_FILES" ]; then
+  # staged 파일에서 any 타입 검색
+  for file in $STAGED_TS_FILES; do
+    if grep -q ": any" "$file" 2>/dev/null; then
+      if ! grep -q "eslint-disable" "$file" 2>/dev/null; then
+        echo "❌ any 타입 사용 금지!"
+        echo "  파일: $file"
+        echo ""
+        echo "💡 해결 방법:"
+        echo "  1. 구체적 타입으로 교체"
+        echo "  2. unknown 사용 후 타입 가드"
+        echo "  3. 제안 도구 사용: node scripts/type-suggester.js $file"
+        exit 1
+      fi
+    fi
+  done
+fi
+
+# 2단계: 타입 시스템 검증
+echo "📋 Step 2/5: 타입 시스템 검증..."
+node scripts/type-validator.js || {
+  echo "❌ 타입 시스템 검증 실패!"
+  echo ""
+  echo "💡 자세한 정보는 위 메시지 참조"
+  exit 1
+}
+
+# 3단계: 빠른 핵심 검증
+echo "📋 Step 3/5: 핵심 검증 실행 중..."
 npm run verify:quick || {
   echo "❌ 핵심 검증 실패! 다음 문제를 수정하세요:"
   echo "  - API 인증 일치성 문제"
@@ -17,9 +48,8 @@ npm run verify:quick || {
   exit 1
 }
 
-# 2단계: TypeScript 컴파일 체크 (staged 파일만)
-echo "📋 Step 2/4: TypeScript 컴파일 검증..."
-STAGED_TS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' || true)
+# 4단계: TypeScript 컴파일 체크 (staged 파일만)
+echo "📋 Step 4/5: TypeScript 컴파일 검증..."
 
 if [ -n "$STAGED_TS_FILES" ]; then
   echo "  검증 대상: $(echo $STAGED_TS_FILES | wc -w)개 파일"
@@ -37,8 +67,8 @@ if [ -n "$STAGED_TS_FILES" ]; then
   }
 fi
 
-# 3단계: API Route 보안 검증 (staged API 파일만)
-echo "📋 Step 3/4: API Route 보안 검증..."
+# 5단계: API Route 보안 검증 (staged API 파일만)
+echo "📋 Step 5/5: API Route 보안 검증..."
 STAGED_API_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/app/api/.*route\.(ts|tsx)$' || true)
 
 if [ -n "$STAGED_API_FILES" ]; then
@@ -59,8 +89,8 @@ if [ -n "$STAGED_API_FILES" ]; then
   }
 fi
 
-# 4단계: Biome 코드 품질 검사 (검사만, 수정 없음)
-echo "📋 Step 4/4: 코드 품질 검사..."
+# 추가: Biome 코드 품질 검사 (선택적)
+echo "📋 추가: 코드 품질 검사..."
 if [ -f "biome.json" ]; then
   STAGED_SRC_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/.*\.(ts|tsx|js|jsx)$' || true)
   

@@ -76,20 +76,7 @@ export type UserApiKeyUpdate = DBUserApiKeyUpdate;
 
 // Lesson 타입도 course.ts에서 가져옴
 
-// CourseProgress 타입 정의 - course_progress 테이블과 매칭
-export interface CourseProgress {
-  id: string;
-  user_id: string;
-  course_id: string;
-  lesson_id?: string | null;
-  progress: number;
-  completed: boolean;
-  watchCount?: number;
-  last_watched_at?: string | null;
-  notes?: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// CourseProgress는 course.ts에서 import (중복 제거)
 
 // VideoStats 타입 정의 - video_stats 테이블과 매칭
 export interface VideoStats extends Tables<'video_stats'> {
@@ -118,7 +105,7 @@ export type {
   CourseDetailResponse,
   CourseFilters,
   CourseListResponse,
-  // CourseProgress, // 위에서 새로 정의했으므로 제외
+  CourseProgress, // course.ts의 CourseProgress 사용
   CourseReview,
   CreateCourseInput,
   CreateLessonInput,

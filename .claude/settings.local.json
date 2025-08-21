@@ -53,7 +53,8 @@
       "Bash(if [ -d \"C:/My_Claude_Project/9.Dhacle/scripts/backup-conflicting\" ])",
       "Bash(else)",
       "Bash(for file in check-alert-rules-detail.js check-db-tables.js check-new-tables.js test-youtube-lens-delta.js verify-youtube-lens-phases.js)",
-      "mcp__desktop-commander__read_file"
+      "mcp__desktop-commander__read_file",
+      "Bash(npm run verify:all:*)"
     ],
     "deny": [],
     "ask": [],

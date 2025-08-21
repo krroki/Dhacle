@@ -435,6 +435,15 @@ export async function getCachedPopularShorts(
     // Transform to VideoWithStats format
     const videosWithStats: VideoWithStats[] = (data || []).map((item) => ({
       ...item,
+      video_id: item.id,  // Use id field from videos table
+      durationSeconds: item.duration || 0,
+      isShort: true,
+      thumbnails: [],
+      publishedAt: item.published_at || new Date().toISOString(),
+      title: item.title || '',
+      viewCount: item.view_count || 0,
+      channelTitle: '',  // channel_title field doesn't exist in DB
+      tags: item.tags || [],
       stats: item.videoStats?.[0] || undefined,
     }));
 

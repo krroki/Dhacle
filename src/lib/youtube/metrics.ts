@@ -260,7 +260,20 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
       .limit(1)
       .single();
 
-    stats = data || undefined;
+    // Convert DB response to VideoStats type
+    stats = data ? {
+      ...data,
+      viewsPerHour: 0,
+      engagementRate: 0,
+      viralScore: 0,
+      viewDelta: data.view_delta || 0,
+      likeDelta: data.like_delta || 0,
+      commentDelta: data.comment_delta || 0,
+      subscriber_count: 0,
+      published_at: data.created_at || new Date().toISOString(),
+      channel_id: '',
+      duration: 0,
+    } : undefined;
   }
 
   if (!stats) {

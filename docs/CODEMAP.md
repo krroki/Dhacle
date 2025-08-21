@@ -60,8 +60,10 @@ node scripts/verify-case-consistency.js    # 일관성 검증
 node scripts/demo-case-conversion.js       # 변환 시연
 
 # 🚨 빌드 오류 시 긴급 명령어
-node scripts/fix-all-typescript-errors.js  # 117개 오류 원클릭 해결
+# ❌ 자동 수정 스크립트 사용 금지! (2025-01-31)
+# node scripts/fix-all-typescript-errors.js  # 삭제됨 - 사용 금지!
 npm run types:generate                     # DB에서 타입 재생성
+npm run verify:types                       # 타입 오류 확인
 npm run build                              # 빌드 테스트
 
 # 개발 명령어
@@ -73,11 +75,11 @@ npm run build:no-verify        # 검증 없이 빌드
 npx tsc --noEmit               # TypeScript 체크
 npm run lint                    # ESLint 검사
 
-# 🔧 자동 수정 명령어 (2025-01-30 추가)
-npm run fix:missing-apis       # 누락된 API 엔드포인트 자동 생성
-node scripts/verify-api-consistency.js  # API 일치성 검사 (빌드에 통합됨)
-node scripts/fix-api-consistency.js     # API 일치성 문제 자동 수정
-node scripts/fix-typescript-errors.js   # TypeScript 에러 자동 수정
+# 🔧 검증 명령어 (2025-01-31 업데이트)
+# ⚠️ 자동 수정 스크립트 모두 백업 폴더로 이동됨
+node scripts/verify-api-consistency.js  # API 일치성 검사만
+node scripts/verify-case-consistency.js # snake_case 일관성 검사
+node scripts/verify-types.js           # TypeScript 타입 검증
 
 # 🎯 코드 품질 도구 (2025-08-20 추가)
 npm run lint:biome             # Biome 코드 검사
@@ -106,12 +108,14 @@ npm run security:apply-rls-all # 새 테이블 RLS 적용
 npm run security:scan-secrets  # 비밀키 스캔
 npm run security:complete      # 전체 보안 점검 (배포 전 필수)
 
-# 🎯 TypeScript 타입 관리 (2025-02-02 추가)
+# 🎯 TypeScript 타입 관리 (2025-02-21 Wave 3-4 추가)
 npm run types:generate         # 프로덕션 DB에서 타입 생성
 npm run types:generate:local   # 로컬 DB에서 타입 생성
 npm run types:check            # 타입 오류 체크
 npm run types:sync             # DB와 타입 동기화
 npm run types:auto-fix         # 타입 오류 자동 분석 및 수정
+node scripts/type-validator.js  # 타입 시스템 검증 도구 (Wave 3)
+node scripts/type-suggester.js <파일>  # 타입 제안 도구 (Wave 3)
 # Single Source of Truth: Supabase DB → database.generated.ts → index.ts
 # 사용법: import { User, CommunityPost } from '@/types';
 ```
@@ -285,38 +289,28 @@ export async function GET(request: Request) {
 │   │   ├── 20250123000002_wave2_security_rls.sql # Wave 2 RLS 정책 ✅ NEW
 │   │   └── ... (기존 마이그레이션 파일들)
 │   └── config.toml                # Supabase 설정
-├── scripts/                      # 자동화 스크립트
-│   ├── security/                 # 보안 스크립트 ✅ Wave 0-3
-│   │   ├── standardize-errors.js # 에러 메시지 표준화 ✅ Wave 0
-│   │   ├── apply-rls-wave0.sql   # RLS 정책 SQL ✅ Wave 0
-│   │   ├── apply-rls.js          # RLS 적용 스크립트
-│   │   ├── verify-session-checks.js # 세션 검사 확인 ✅ Wave 1
-│   │   ├── fix-session-types.js  # TypeScript 수정 ✅ Wave 1
-│   │   ├── scan-secrets.js       # 비밀키 스캔 도구 ✅ Wave 2
-│   │   ├── apply-rls-wave2.js    # Wave 2 RLS 적용 ✅ Wave 2
-│   │   ├── security-test.js      # 보안 테스트 자동화 (38% 통과) ✅ Wave 3
-│   │   └── validate-rls.js       # RLS 상태 검증 도구 ✅ NEW (2025-08-20)
-│   ├── dev-verify.js              # 개발 시 자동 검증 ✅ NEW (2025-01-30)
-│   ├── build-verify.js            # 빌드 시 종합 검증 v2.0 + API 일치성 ✅ NEW (2025-01-30)
-│   ├── fix-missing-apis.js        # 누락 API 자동 생성 ✅ NEW (2025-01-30)
-│   ├── verify-api-consistency.js  # API 일치성 검사 (38/38 routes 100% 표준화) ✅ (2025-08-19 개선)
-│   ├── fix-api-consistency.js     # API 자동 수정 ⚠️ DEPRECATED - 수동 수정 권장 (2025-08-19)
-│   ├── fix-typescript-errors.js   # TypeScript 에러 자동 수정 ✅ NEW (2025-01-30)
-│   ├── supabase-migration.js     # 기본 마이그레이션 자동화
-│   ├── auto-migrate.js           # 향상된 자동 마이그레이션
-│   ├── supabase-migrate-complete.js # Service Role Key 활용 완벽 실행 ✅
-│   ├── verify-tables.js          # 테이블 생성 검증
+├── scripts/                      # 자동화 스크립트 (검증 스크립트만 유지)
+│   ├── backup-unused-scripts-20250131/  # 자동 변환 스크립트 백업 (38개) ⚠️ 사용 금지
+│   │   ├── fix-type-system.js    # ❌ 자동 변환 금지
+│   │   ├── fix-type-system-v2.js # ❌ 자동 변환 금지
+│   │   ├── fix-all-typescript-errors.js # ❌ 자동 변환 금지
+│   │   └── ... (35개 추가 자동 변환 스크립트)
+│   ├── security/                 # 보안 스크립트 (검증만)
+│   │   ├── validate-rls.js       # RLS 상태 검증 도구 ✅
+│   │   └── apply-rls-wave2.js    # Wave 2 RLS 적용 (검증용) ✅
+│   ├── verify-api-consistency.js  # API 일치성 검사 ✅
+│   ├── verify-case-consistency.js # snake_case 일관성 검증 ✅ (2025-01-31)
+│   ├── demo-case-conversion.js    # 변환 시연 (읽기 전용) ✅
 │   ├── verify-with-service-role.js # RLS 우회 정확한 검증 ✅
-│   ├── check-tables-simple.js    # 간단한 테이블 체크
-│   ├── check-missing-tables.js   # 누락된 테이블 상세 확인 ✅ NEW (2025-01-29)
-│   ├── verify-database.js         # DB 연결 및 테이블 검증 ✅ NEW (2025-08-19)
-│   ├── verify-dependencies.js    # 패키지 의존성 검증 ✅ NEW (2025-08-19)
-│   ├── verify-imports.js          # import 문 일관성 검증 ✅ NEW (2025-08-19)
-│   ├── verify-parallel.js         # 병렬 검증 실행기 ✅ NEW (2025-08-19)
-│   ├── verify-routes.js           # 라우트 보호 검증 ✅ NEW (2025-08-19)
-│   ├── verify-runtime.js          # 런타임 환경 검증 ✅ NEW (2025-08-19)
-│   ├── verify-types.js            # TypeScript 타입 검증 ✅ NEW (2025-08-19)
-│   ├── verify-ui-consistency.js   # UI 일관성 검증 ✅ NEW (2025-08-19)
+│   ├── verify-database.js         # DB 연결 및 테이블 검증 ✅
+│   ├── verify-dependencies.js    # 패키지 의존성 검증 ✅
+│   ├── verify-imports.js          # import 문 일관성 검증 ✅
+│   ├── verify-parallel.js         # 병렬 검증 실행기 ✅
+│   ├── verify-routes.js           # 라우트 보호 검증 ✅
+│   ├── verify-runtime.js          # 런타임 환경 검증 ✅
+│   ├── verify-types.js            # TypeScript 타입 검증 ✅
+│   ├── verify-ui-consistency.js   # UI 일관성 검증 ✅
+│   ├── supabase-sql-executor.js   # SQL 실행 도구 ✅
 │   └── seed.js                    # DB 시드 데이터
 ├── public/                        # 정적 파일
 │   ├── images/                    # 이미지

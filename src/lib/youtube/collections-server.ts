@@ -197,7 +197,7 @@ export class ServerCollectionManager {
         .limit(1)
         .single();
 
-      const nextPosition = maxPositionItem ? maxPositionItem.position + 1 : 0;
+      const nextPosition = maxPositionItem ? (maxPositionItem.position || 0) + 1 : 0;
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await supabase
@@ -206,9 +206,8 @@ export class ServerCollectionManager {
           collection_id: collection_id,
           video_id: video_id,
           notes: notes || null,
-          tags: tags || null,
           position: nextPosition,
-          addedBy: user.id,
+          added_by: user.id,
         })
         .select()
         .single();
@@ -226,7 +225,16 @@ export class ServerCollectionManager {
         })
         .eq('id', collection_id);
 
-      return { data: item, error: null };
+      // Convert DB response to CollectionItem type
+      const collectionItem = item ? {
+        ...item,
+        position: item.position || 0,
+        tags: [],  // tags 필드가 DB에 없음
+        addedAt: item.created_at || new Date().toISOString(),
+        addedBy: item.added_by || user.id,
+      } : null;
+      
+      return { data: collectionItem, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -317,7 +325,16 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: items, error: null };
+      // Convert DB response to CollectionItem type
+      const collectionItems = (items || []).map(item => ({
+        ...item,
+        position: item.position || 0,
+        tags: [],  // tags 필드가 DB에 없음
+        addedAt: item.created_at || new Date().toISOString(),
+        addedBy: item.added_by || '',
+      }));
+      
+      return { data: collectionItems, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }

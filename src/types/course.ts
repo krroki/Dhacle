@@ -3,14 +3,14 @@
 export interface Course {
   id: string;
   title: string;
-  subtitle?: string;
-  description?: string;
-  instructor_id?: string;
+  subtitle?: string | null;
+  description?: string | null;
+  instructor_id?: string | null;  // Allow null for database compatibility
   instructor_name: string;
   instructor?: InstructorProfile;
-  thumbnail_url?: string;
+  thumbnail_url?: string | null;
   price: number;
-  discount_price?: number;
+  discount_price?: number | null;
   is_free: boolean;
   isPremium: boolean;
   contentBlocks?: ContentBlock[] | string; // Can be JSON string or parsed array
@@ -86,13 +86,15 @@ export interface CourseProgress {
   id: string;
   user_id: string;
   course_id: string;
-  lesson_id: string;
+  lesson_id?: string | null;  // Optional to handle cases where lesson_id might not exist
   progress: number; // 시청한 초
   completed: boolean;
-  completed_at?: string;
-  last_watched_at?: string;
-  watchCount: number;
-  notes?: string;
+  completed_at?: string | null;
+  last_watched_at?: string | null;
+  watchCount?: number;  // Also making this optional for compatibility
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CourseBadge {
