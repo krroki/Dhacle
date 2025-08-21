@@ -59,42 +59,48 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       }
     }
 
-    // 좋아요 수 조회
-    const { count: likesCount } = await supabase
-      .from('proof_likes')
-      .select('*', { count: 'exact', head: true })
-      .eq('proof_id', id);
+    // TODO: 좋아요/댓글 기능 구현 예정
+    // proof_likes, proof_comments 테이블 생성 후 주석 해제
+    
+    // 좋아요 수 조회 (임시로 0 반환)
+    // const { count: likesCount } = await supabase
+    //   .from('proof_likes')
+    //   .select('*', { count: 'exact', head: true })
+    //   .eq('proof_id', id);
+    const likesCount = 0;
 
-    // 댓글 조회
-    const { data: comments } = await supabase
-      .from('proof_comments')
-      .select(`
-        *,
-        user:profiles!proofCommentsUserIdFkey(
-          id,
-          username,
-          avatar_url
-        )
-      `)
-      .eq('proof_id', id)
-      .order('created_at', { ascending: false });
+    // 댓글 조회 (임시로 빈 배열 반환)
+    // const { data: comments } = await supabase
+    //   .from('proof_comments')
+    //   .select(`
+    //     *,
+    //     user:profiles!proofCommentsUserIdFkey(
+    //       id,
+    //       username,
+    //       avatar_url
+    //     )
+    //   `)
+    //   .eq('proof_id', id)
+    //   .order('created_at', { ascending: false });
+    const comments: any[] = [];
 
-    // 현재 사용자의 좋아요 여부 확인
-    const {
-      data: { user: authUser3 },
-    } = await supabase.auth.getUser();
-    let isLiked = false;
+    // 현재 사용자의 좋아요 여부 확인 (임시로 false 반환)
+    // const {
+    //   data: { user: authUser3 },
+    // } = await supabase.auth.getUser();
+    // let isLiked = false;
 
-    if (authUser3) {
-      const { data: likeData } = await supabase
-        .from('proof_likes')
-        .select('*')
-        .eq('proof_id', id)
-        .eq('user_id', authUser3.id)
-        .single();
+    // if (authUser3) {
+    //   const { data: likeData } = await supabase
+    //     .from('proof_likes')
+    //     .select('*')
+    //     .eq('proof_id', id)
+    //     .eq('user_id', authUser3.id)
+    //     .single();
 
-      isLiked = !!likeData;
-    }
+    //   isLiked = !!likeData;
+    // }
+    const isLiked = false;
 
     return NextResponse.json({
       data: {

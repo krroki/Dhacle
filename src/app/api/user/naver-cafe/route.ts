@@ -24,12 +24,13 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
-    // 프로필 정보 가져오기
+    // TODO: 네이버 카페 인증 기능 구현 예정
+    // naverCafeVerifications 테이블 및 관련 필드 생성 후 주석 해제
+    
+    // 프로필 정보 가져오기 (임시로 기본 필드만)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select(
-        'naverCafeId, naverCafeNickname, naverCafeVerified, naverCafeMemberUrl, naverCafeVerifiedAt'
-      )
+      .select('id, username')
       .eq('id', user.id)
       .single();
 
@@ -37,22 +38,23 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
 
-    // 인증 요청 내역 가져오기
-    const { data: verifications, error: verificationError } = await supabase
-      .from('naverCafeVerifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(5);
+    // 인증 요청 내역 가져오기 (임시로 빈 배열 반환)
+    // const { data: verifications, error: verificationError } = await supabase
+    //   .from('naverCafeVerifications')
+    //   .select('*')
+    //   .eq('user_id', user.id)
+    //   .order('created_at', { ascending: false })
+    //   .limit(5);
+    const verifications: any[] = [];
 
     return NextResponse.json({
-      verified: profile?.naverCafeVerified || false,
-      cafeId: profile?.naverCafeId || null,
-      cafeName: profile?.naverCafeId === DINOHIGHCLASS_CAFE.id ? DINOHIGHCLASS_CAFE.name : null,
-      nickname: profile?.naverCafeNickname || null,
-      memberUrl: profile?.naverCafeMemberUrl || null,
-      verifiedAt: profile?.naverCafeVerifiedAt || null,
-      verificationHistory: verifications || [],
+      verified: false, // 임시로 false 반환
+      cafeId: null,
+      cafeName: null,
+      nickname: null,
+      memberUrl: null,
+      verifiedAt: null,
+      verificationHistory: verifications,
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -98,77 +100,83 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 닉네임 중복 체크
-    const { data: existingNickname } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('naverCafeNickname', nickname)
-      .neq('id', user.id)
-      .single();
+    // TODO: 네이버 카페 닉네임 필드 추가 후 중복 체크 구현
+    // 닉네임 중복 체크 (임시로 스킵)
+    // const { data: existingNickname } = await supabase
+    //   .from('profiles')
+    //   .select('id')
+    //   .eq('naverCafeNickname', nickname)
+    //   .neq('id', user.id)
+    //   .single();
 
-    if (existingNickname) {
-      return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
-    }
+    // if (existingNickname) {
+    //   return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
+    // }
 
-    // 이미 인증된 상태인지 확인
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('naverCafeVerified')
-      .eq('id', user.id)
-      .single();
+    // 이미 인증된 상태인지 확인 (임시로 false 반환)
+    // const { data: profile } = await supabase
+    //   .from('profiles')
+    //   .select('naverCafeVerified')
+    //   .eq('id', user.id)
+    //   .single();
 
-    if (profile?.naverCafeVerified) {
-      return NextResponse.json({ error: 'Naver Cafe is already verified' }, { status: 400 });
-    }
+    // if (profile?.naverCafeVerified) {
+    //   return NextResponse.json({ error: 'Naver Cafe is already verified' }, { status: 400 });
+    // }
 
-    // 인증 요청 생성 (dinohighclass 카페 전용)
-    const { data: verification, error: verificationError } = await supabase
-      .from('naverCafeVerifications')
-      .insert({
-        user_id: user.id,
-        cafeId: DINOHIGHCLASS_CAFE.id,
-        cafeNickname: nickname,
-        cafeMemberUrl: memberUrl,
-        verificationStatus: 'pending',
-      })
-      .select()
-      .single();
+    // TODO: naverCafeVerifications 테이블 생성 후 주석 해제
+    // 인증 요청 생성 (임시로 스킵)
+    // const { data: verification, error: verificationError } = await supabase
+    //   .from('naverCafeVerifications')
+    //   .insert({
+    //     user_id: user.id,
+    //     cafeId: DINOHIGHCLASS_CAFE.id,
+    //     cafeNickname: nickname,
+    //     cafeMemberUrl: memberUrl,
+    //     verificationStatus: 'pending',
+    //   })
+    //   .select()
+    //   .single();
 
-    if (verificationError) {
-      return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
-    }
+    // if (verificationError) {
+    //   return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
+    // }
+    
+    // 임시 verification 객체
+    const verification = { id: 'temp-id' };
 
     // 자동 승인 (실제 환경에서는 관리자 검증 필요)
     // TODO: 실제 네이버 카페 API 연동 또는 관리자 수동 검증 구현
     const autoApprove = true;
 
     if (autoApprove) {
-      // 프로필 업데이트 (dinohighclass 카페 정보와 함께)
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          naverCafeId: DINOHIGHCLASS_CAFE.id,
-          naverCafeNickname: nickname,
-          naverCafeMemberUrl: memberUrl,
-          naverCafeVerified: true,
-          naverCafeVerifiedAt: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+      // TODO: 네이버 카페 관련 필드 추가 후 주석 해제
+      // 프로필 업데이트 (임시로 스킵)
+      // const { error: updateError } = await supabase
+      //   .from('profiles')
+      //   .update({
+      //     naverCafeId: DINOHIGHCLASS_CAFE.id,
+      //     naverCafeNickname: nickname,
+      //     naverCafeMemberUrl: memberUrl,
+      //     naverCafeVerified: true,
+      //     naverCafeVerifiedAt: new Date().toISOString(),
+      //     updated_at: new Date().toISOString(),
+      //   })
+      //   .eq('id', user.id);
 
-      if (updateError) {
-        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
-      }
+      // if (updateError) {
+      //   return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+      // }
 
-      // 인증 요청 상태 업데이트
-      await supabase
-        .from('naverCafeVerifications')
-        .update({
-          verificationStatus: 'verified',
-          verifiedAt: new Date().toISOString(),
-          verifiedBy: user.id, // 자동 승인이므로 본인이 승인
-        })
-        .eq('id', verification.id);
+      // 인증 요청 상태 업데이트 (임시로 스킵)
+      // await supabase
+      //   .from('naverCafeVerifications')
+      //   .update({
+      //     verificationStatus: 'verified',
+      //     verifiedAt: new Date().toISOString(),
+      //     verifiedBy: user.id,
+      //   })
+      //   .eq('id', verification.id);
 
       return NextResponse.json({
         verified: true,
@@ -203,15 +211,17 @@ export async function DELETE(_request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
-    // 프로필 업데이트 (인증 해제만, 닉네임은 보존)
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({
-        naverCafeVerified: false,
-        naverCafeVerifiedAt: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
+    // TODO: 네이버 카페 관련 필드 추가 후 주석 해제
+    // 프로필 업데이트 (임시로 스킵)
+    // const { error: updateError } = await supabase
+    //   .from('profiles')
+    //   .update({
+    //     naverCafeVerified: false,
+    //     naverCafeVerifiedAt: null,
+    //     updated_at: new Date().toISOString(),
+    //   })
+    //   .eq('id', user.id);
+    const updateError = null;
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });

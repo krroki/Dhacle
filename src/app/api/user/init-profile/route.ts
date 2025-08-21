@@ -26,38 +26,39 @@ export async function POST(_request: NextRequest) {
     // 프로필이 이미 있는지 확인
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, randomNickname')
+      .select('id') // TODO: Add randomNickname when field is implemented
       .eq('id', user.id)
       .single();
 
     // 프로필이 없으면 생성
     if (profileError?.code === 'PGRST116' || !existingProfile) {
+      // TODO: Implement randomNickname field when ready
       // 중복되지 않는 랜덤 닉네임 생성
-      let randomNickname = '';
-      let attempts = 0;
-      const maxAttempts = 10;
+      // let randomNickname = '';
+      // let attempts = 0;
+      // const maxAttempts = 10;
 
-      while (attempts < maxAttempts) {
-        randomNickname = generateRandomNickname();
+      // while (attempts < maxAttempts) {
+      //   randomNickname = generateRandomNickname();
 
-        // 중복 체크
-        const { data: duplicateCheck } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('randomNickname', randomNickname)
-          .single();
+      //   // 중복 체크
+      //   const { data: duplicateCheck } = await supabase
+      //     .from('profiles')
+      //     .select('id')
+      //     .eq('randomNickname', randomNickname)
+      //     .single();
 
-        if (!duplicateCheck) {
-          break;
-        }
+      //   if (!duplicateCheck) {
+      //     break;
+      //   }
 
-        attempts++;
-      }
+      //   attempts++;
+      // }
 
-      if (!randomNickname) {
-        // 랜덤 닉네임 생성 실패 시 기본값 사용
-        randomNickname = `user_${user.id.substring(0, 8)}`;
-      }
+      // if (!randomNickname) {
+      //   // 랜덤 닉네임 생성 실패 시 기본값 사용
+      //   randomNickname = `user_${user.id.substring(0, 8)}`;
+      // }
 
       // 프로필 생성
       const { data: newProfile, error: createError } = await supabase
@@ -66,7 +67,7 @@ export async function POST(_request: NextRequest) {
           id: user.id,
           email: user.email,
           username: user.email?.split('@')[0] || 'user',
-          randomNickname: randomNickname,
+          // randomNickname: randomNickname, // TODO: Uncomment when field is implemented
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -83,54 +84,56 @@ export async function POST(_request: NextRequest) {
         isNew: true,
       });
     }
-    if (existingProfile && !existingProfile.randomNickname) {
-      // 프로필은 있지만 랜덤 닉네임이 없는 경우
-      let randomNickname = '';
-      let attempts = 0;
-      const maxAttempts = 10;
+    
+    // TODO: Implement randomNickname field logic when ready
+    // if (existingProfile && !existingProfile.randomNickname) {
+    //   // 프로필은 있지만 랜덤 닉네임이 없는 경우
+    //   let randomNickname = '';
+    //   let attempts = 0;
+    //   const maxAttempts = 10;
 
-      while (attempts < maxAttempts) {
-        randomNickname = generateRandomNickname();
+    //   while (attempts < maxAttempts) {
+    //     randomNickname = generateRandomNickname();
 
-        // 중복 체크
-        const { data: duplicateCheck } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('randomNickname', randomNickname)
-          .single();
+    //     // 중복 체크
+    //     const { data: duplicateCheck } = await supabase
+    //       .from('profiles')
+    //       .select('id')
+    //       .eq('randomNickname', randomNickname)
+    //       .single();
 
-        if (!duplicateCheck) {
-          break;
-        }
+    //     if (!duplicateCheck) {
+    //       break;
+    //     }
 
-        attempts++;
-      }
+    //     attempts++;
+    //   }
 
-      if (!randomNickname) {
-        randomNickname = `user_${user.id.substring(0, 8)}`;
-      }
+    //   if (!randomNickname) {
+    //     randomNickname = `user_${user.id.substring(0, 8)}`;
+    //   }
 
-      // 랜덤 닉네임 업데이트
-      const { data: updatedProfile, error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          randomNickname: randomNickname,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id)
-        .select()
-        .single();
+    //   // 랜덤 닉네임 업데이트
+    //   const { data: updatedProfile, error: updateError } = await supabase
+    //     .from('profiles')
+    //     .update({
+    //       randomNickname: randomNickname,
+    //       updated_at: new Date().toISOString(),
+    //     })
+    //     .eq('id', user.id)
+    //     .select()
+    //     .single();
 
-      if (updateError) {
-        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
-      }
+    //   if (updateError) {
+    //     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+    //   }
 
-      return NextResponse.json({
-        message: 'Random nickname added successfully',
-        profile: updatedProfile,
-        isNew: false,
-      });
-    }
+    //   return NextResponse.json({
+    //     message: 'Random nickname added successfully',
+    //     profile: updatedProfile,
+    //     isNew: false,
+    //   });
+    // }
 
     // 이미 완전한 프로필이 있는 경우
     return NextResponse.json({
@@ -174,14 +177,15 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json({
       exists: true,
-      needsInitialization: !profile.randomNickname,
+      needsInitialization: false, // TODO: Set to !profile.randomNickname when field is implemented
       profile: {
         id: profile.id,
         username: profile.username,
-        randomNickname: profile.randomNickname,
-        naverCafeNickname: profile.naverCafeNickname,
-        naverCafeVerified: profile.naverCafeVerified,
-        displayNickname: profile.displayNickname,
+        // TODO: Uncomment when fields are implemented
+        // randomNickname: profile.randomNickname,
+        // naverCafeNickname: profile.naverCafeNickname,
+        // naverCafeVerified: profile.naverCafeVerified,
+        // displayNickname: profile.displayNickname,
       },
     });
   } catch (_error) {

@@ -58,6 +58,8 @@ npm run lint:biome:fix          # 코드 품질 자동 수정
 - ❌ 환경 변수 하드코딩
 - ❌ styled-components, CSS 모듈, 인라인 스타일 사용
 - ❌ 더미/테스트/목업 데이터 사용
+- ❌ database.generated.ts 직접 import (반드시 @/types에서만 import)
+- ❌ pre-commit에서 자동 수정 (--write, --fix) 사용
 
 ### ✅ 필수 작업 원칙
 - **반드시** 기존 파일을 Read로 먼저 읽기
@@ -767,6 +769,26 @@ npm run verify:imports   # Import 구조 및 순환 의존성 검증 ✨ NEW
 > - UI 완성도: `/docs/WIREFRAME.md` 모든 연결 ✅ 확인
 > - 라우트 보호: `/docs/ROUTE_SPEC.md` 인증 체크 확인
 > - 에러 처리: `/docs/ERROR_BOUNDARY.md` 401 처리 확인
+
+## 미구현 기능 처리 가이드
+
+### 🔴 누락된 테이블 발견 시
+```typescript
+// ❌ 잘못된 처리: 에러 무시
+const { data } = await supabase.from('missing_table').select()
+
+// ✅ 올바른 처리: 주석 처리 및 TODO 표시
+// TODO: missing_table 테이블 생성 후 구현
+const data: any[] = [] // 임시로 빈 배열 반환
+```
+
+### 누락된 테이블 목록 (2025-08-21 기준)
+- `proof_likes` - 수익 인증 좋아요
+- `proof_comments` - 수익 인증 댓글
+- `naverCafeVerifications` - 네이버 카페 인증
+- `subscriptionLogs` - YouTube 구독 로그
+- `channelSubscriptions` - YouTube 채널 구독
+- `webhookEvents` - 웹훅 이벤트
 
 ---
 

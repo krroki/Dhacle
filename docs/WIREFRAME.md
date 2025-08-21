@@ -30,7 +30,7 @@ _업데이트: 2025-08-19_
 | `/api/user/generate-username` | POST            | 사용자명 생성      | ✅   | ✅   |
 | `/api/user/generate-nickname` | POST            | 닉네임 생성        | ✅   | ✅   |
 | `/api/user/check-username`    | POST            | 사용자명 중복 체크 | ❌   | ✅   |
-| `/api/user/naver-cafe`        | GET/POST        | 네이버 카페 연동   | ✅   | ✅   |
+| `/api/user/naver-cafe`        | GET/POST        | 네이버 카페 연동   | ✅   | ⚠️   |
 
 ### YouTube 관련 (13개)
 
@@ -56,8 +56,8 @@ _업데이트: 2025-08-19_
 | --------------------------------- | -------------- | ------------- | ---- | ---- |
 | `/api/revenue-proof`              | GET/POST       | 수익인증 CRUD | ⚠️   | ✅   |
 | `/api/revenue-proof/[id]`         | GET/PUT/DELETE | 수익인증 상세 | ⚠️   | ✅   |
-| `/api/revenue-proof/[id]/like`    | POST/DELETE    | 좋아요        | ✅   | ✅   |
-| `/api/revenue-proof/[id]/comment` | GET/POST       | 댓글          | ⚠️   | ✅   |
+| `/api/revenue-proof/[id]/like`    | POST/DELETE    | 좋아요        | ✅   | ⚠️   |
+| `/api/revenue-proof/[id]/comment` | GET/POST       | 댓글          | ⚠️   | ⚠️   |
 | `/api/revenue-proof/[id]/report`  | POST           | 신고          | ✅   | ✅   |
 | `/api/revenue-proof/my`           | GET            | 내 수익인증   | ✅   | ✅   |
 | `/api/revenue-proof/ranking`      | GET            | 랭킹          | ❌   | ✅   |
@@ -136,10 +136,10 @@ _업데이트: 2025-08-19_
 | 수익인증 목록      | onMount  | GET /api/revenue-proof               | 카드 그리드 표시  | 무한 스크롤 | ✅   |
 | FilterBar          | onChange | GET /api/revenue-proof?filter=...    | 목록 필터링       | -           | ✅   |
 | RevenueProofCard   | -        | -                                    | Props 데이터 표시 | -           | ✅   |
-| 좋아요 버튼        | onClick  | POST /api/revenue-proof/[id]/like    | 카운트 업데이트   | 401→로그인  | ✅   |
-| LiveRankingSidebar | onMount  | GET /api/revenue-proof/ranking       | 랭킹 표시         | 캐싱        | ✅   |
+| 좋아요 버튼        | onClick  | POST /api/revenue-proof/[id]/like    | 카운트 업데이트   | 401→로그인  | ⚠️   |
+| LiveRankingSidebar | onMount  | GET /api/revenue-proof/ranking       | 랭킹 표시         | 캐싱        | ⚠️   |
 | 수익인증 작성      | onSubmit | POST /api/revenue-proof              | 성공→목록         | 검증 에러   | ✅   |
-| 댓글 작성          | onSubmit | POST /api/revenue-proof/[id]/comment | 댓글 추가         | 401→로그인  | ✅   |
+| 댓글 작성          | onSubmit | POST /api/revenue-proof/[id]/comment | 댓글 추가         | 401→로그인  | ⚠️   |
 | 신고 버튼          | onClick  | POST /api/revenue-proof/[id]/report  | Toast 성공        | -           | ✅   |
 
 ---
@@ -154,7 +154,7 @@ _업데이트: 2025-08-19_
 | 사용자명 생성     | onClick  | POST /api/user/generate-username | 사용자명 표시 | -            | ✅   |
 | 사용자명 중복체크 | onChange | POST /api/user/check-username    | 중복 메시지   | -            | ✅   |
 | 내 수익인증       | onMount  | GET /api/revenue-proof/my        | 목록 표시     | 페이지네이션 | ✅   |
-| 네이버 카페 연동  | onSubmit | POST /api/user/naver-cafe        | 연동 상태     | 에러 메시지  | ✅   |
+| 네이버 카페 연동  | onSubmit | POST /api/user/naver-cafe        | 연동 상태     | 에러 메시지  | ⚠️   |
 
 ---
 

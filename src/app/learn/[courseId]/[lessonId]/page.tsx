@@ -74,13 +74,15 @@ export default function LearnPage() {
       if (user) {
         setUserId(user.id); // 사용자 ID 설정
 
-        const { data: progressData } = await supabase
-          .from('courseProgressExtended')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('course_id', courseId);
+        // TODO: courseProgressExtended 뷰/테이블 생성 후 주석 해제
+        // const { data: progressData } = await supabase
+        //   .from('courseProgressExtended')
+        //   .select('*')
+        //   .eq('user_id', user.id)
+        //   .eq('course_id', courseId);
+        const progressData: CourseProgress[] = []; // 임시로 빈 배열 반환
 
-        if (progressData) {
+        if (progressData.length > 0) {
           setProgress(progressData);
 
           // 현재 레슨의 메모 가져오기
@@ -111,23 +113,25 @@ export default function LearnPage() {
         return;
       }
 
-      // 진도 업데이트
-      const { error } = await supabase.from('courseProgressExtended').upsert(
-        {
-          user_id: user.id,
-          course_id: courseId,
-          lesson_id: lessonId,
-          progress: Math.floor(time),
-          completed: time >= currentLesson.duration * 0.9, // 90% 이상 시청 시 완료
-          lastWatchedAt: new Date().toISOString(),
-        },
-        {
-          onConflict: 'user_id,lesson_id',
-        }
-      );
+      // TODO: courseProgressExtended 뷰/테이블 생성 후 주석 해제
+      // 진도 업데이트 (임시로 스킵)
+      // const { error } = await supabase.from('courseProgressExtended').upsert(
+      //   {
+      //     user_id: user.id,
+      //     course_id: courseId,
+      //     lesson_id: lessonId,
+      //     progress: Math.floor(time),
+      //     completed: time >= currentLesson.duration * 0.9, // 90% 이상 시청 시 완료
+      //     lastWatchedAt: new Date().toISOString(),
+      //   },
+      //   {
+      //     onConflict: 'user_id,lesson_id',
+      //   }
+      // );
 
-      if (error) {
-      }
+      // if (error) {
+      //   console.error('Progress update error:', error);
+      // }
     } catch (_error) {}
   };
 

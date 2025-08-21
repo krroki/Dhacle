@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
         // Check if user profile exists in public.profiles table
         const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
-          .select('id, randomNickname, naverCafeVerified')
+          .select('id') // TODO: Add randomNickname, naverCafeVerified when fields are implemented
           .eq('id', user.id)
           .single();
 
@@ -112,20 +112,22 @@ export async function GET(request: NextRequest) {
           } else {
             console.log('[Auth Callback] Profile initialized successfully');
           }
-        } else if (userProfile && !userProfile.randomNickname) {
-          // Profile exists but no random nickname, add one
-          console.log('[Auth Callback] Adding random nickname to existing profile');
+        // TODO: Uncomment when randomNickname field is implemented
+        // } else if (userProfile && !userProfile.randomNickname) {
+        //   // Profile exists but no random nickname, add one
+        //   console.log('[Auth Callback] Adding random nickname to existing profile');
 
-          const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Cookie: request.headers.get('cookie') || '',
-            },
-          });
+        //   const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       Cookie: request.headers.get('cookie') || '',
+        //     },
+        //   });
 
-          if (!initResponse.ok) {
-          }
+        //   if (!initResponse.ok) {
+        //   }
+        // }
         }
       }
     } catch (error) {

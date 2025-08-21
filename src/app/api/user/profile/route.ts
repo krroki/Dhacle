@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         .from('users')
         .update({
           username,
-          workType,
+          // workType, // TODO: Use work_type (snake_case) when field is properly implemented
           jobCategory,
           currentIncome,
           targetIncome,
@@ -87,15 +87,15 @@ export async function POST(request: Request) {
     } else {
       // Create new profile
       result = await supabase
-        .from('users')
+        .from('profiles')
         .insert({
           id: user.id,
           username,
-          workType,
-          jobCategory,
-          currentIncome,
-          targetIncome,
-          experienceLevel,
+          // workType, // TODO: Use work_type (snake_case) when field is properly implemented
+          job_category: jobCategory, // Fixed: use snake_case
+          current_income: currentIncome, // Fixed: use snake_case
+          target_income: targetIncome, // Fixed: use snake_case
+          experience_level: experienceLevel, // Fixed: use snake_case
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -160,7 +160,7 @@ export async function PUT(request: Request) {
         fullName,
         channel_name,
         channelUrl,
-        workType,
+        // workType, // TODO: Use work_type (snake_case) when field is properly implemented
         jobCategory,
         currentIncome,
         targetIncome,
