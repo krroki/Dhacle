@@ -86,7 +86,7 @@ export default function PopularShortsList({
           const errorData = error.data as
             | { requiresApiKey?: boolean; errorCode?: string; error?: string }
             | undefined;
-          
+
           // If it contains "api key" related messages, it's an API key issue
           const isApiKeyError =
             errorData?.requiresApiKey ||

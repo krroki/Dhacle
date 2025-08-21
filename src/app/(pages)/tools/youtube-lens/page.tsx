@@ -25,10 +25,10 @@ import {
   VideoGrid,
   YouTubeLensErrorBoundary,
 } from '@/components/features/tools/youtube-lens';
-import { DeltaDashboard } from '@/components/features/tools/youtube-lens/DeltaDashboard';
 import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
 import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
+import { DeltaDashboard } from '@/components/features/tools/youtube-lens/DeltaDashboard';
 import PopularShortsList from '@/components/features/tools/youtube-lens/PopularShortsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';

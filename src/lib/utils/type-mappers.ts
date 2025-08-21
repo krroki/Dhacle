@@ -49,20 +49,25 @@ export function mapCourse(dbCourse: DBCourse | Course): Course {
     price: Number(obj.price ?? course.price) || 0,
     isFree: obj.price === 0 || obj.is_free || course.isFree || false,
     isPremium: (obj.price && Number(obj.price) > 0) || course.isPremium || false,
-    totalDuration: ((Number(obj.duration_weeks) || 8) * 7 * 60) || course.totalDuration || 0,
+    totalDuration: (Number(obj.duration_weeks) || 8) * 7 * 60 || course.totalDuration || 0,
     studentCount: Number(obj.total_students ?? course.studentCount) || 0,
     averageRating: Number(obj.average_rating ?? course.averageRating) || 0,
     reviewCount: course.reviewCount || 0,
     status: obj.status || course.status || 'active',
     launchDate: obj.created_at || course.launchDate || new Date().toISOString(),
     created_at: obj.created_at || course.created_at || new Date().toISOString(),
-    updated_at: obj.updated_at || course.updated_at || obj.created_at || course.created_at || new Date().toISOString(),
+    updated_at:
+      obj.updated_at ||
+      course.updated_at ||
+      obj.created_at ||
+      course.created_at ||
+      new Date().toISOString(),
     // Optional fields
     category: obj.category || course.category || undefined,
     level: obj.level || course.level || undefined,
     contentBlocks: obj.curriculum || course.contentBlocks || undefined,
     whatYouLearn: obj.what_youll_learn || course.whatYouLearn || undefined,
-    requirements: obj.requirements || course.requirements || undefined
+    requirements: obj.requirements || course.requirements || undefined,
   } as Course;
 }
 

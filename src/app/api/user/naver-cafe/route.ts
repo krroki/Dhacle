@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest) {
 
     // TODO: 네이버 카페 인증 기능 구현 예정
     // naverCafeVerifications 테이블 및 관련 필드 생성 후 주석 해제
-    
+
     // 프로필 정보 가져오기 (임시로 기본 필드만)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -45,7 +45,14 @@ export async function GET(_request: NextRequest) {
     //   .eq('user_id', user.id)
     //   .order('created_at', { ascending: false })
     //   .limit(5);
-    const verifications: any[] = [];
+    interface VerificationData {
+      id: string;
+      user_id: string;
+      cafe_url: string;
+      is_verified: boolean;
+      created_at: string;
+    }
+    const verifications: VerificationData[] = [];
 
     return NextResponse.json({
       verified: false, // 임시로 false 반환
@@ -141,7 +148,7 @@ export async function POST(request: NextRequest) {
     // if (verificationError) {
     //   return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
     // }
-    
+
     // 임시 verification 객체
     const verification = { id: 'temp-id' };
 

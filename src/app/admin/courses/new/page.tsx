@@ -26,22 +26,26 @@ export default function NewCoursePage() {
       // 강의 생성 - snake_case로 변환
       const { data, error } = await supabase
         .from('courses')
-        .insert([{
-          title: courseData.title || '',
-          description: courseData.description || null,
-          instructor_id: user.id,
-          instructor_name: courseData.instructorName || user.email?.split('@')[0] || 'Unknown',
-          thumbnail_url: courseData.thumbnail_url || null,
-          price: courseData.price || 0,
-          duration_weeks: Math.ceil((courseData.totalDuration || 0) / (7 * 60)) || 8, // Convert minutes to weeks
-          category: courseData.category || null,
-          level: courseData.level || courseData.difficulty || 'beginner',
-          is_free: courseData.price === 0 || courseData.isFree || false,
-          is_published: false,
-          curriculum: courseData.contentBlocks ? JSON.parse(JSON.stringify(courseData.contentBlocks)) : null,
-          what_youll_learn: courseData.whatYouLearn || null,
-          requirements: courseData.requirements || null
-        }])
+        .insert([
+          {
+            title: courseData.title || '',
+            description: courseData.description || null,
+            instructor_id: user.id,
+            instructor_name: courseData.instructorName || user.email?.split('@')[0] || 'Unknown',
+            thumbnail_url: courseData.thumbnail_url || null,
+            price: courseData.price || 0,
+            duration_weeks: Math.ceil((courseData.totalDuration || 0) / (7 * 60)) || 8, // Convert minutes to weeks
+            category: courseData.category || null,
+            level: courseData.level || courseData.difficulty || 'beginner',
+            is_free: courseData.price === 0 || courseData.isFree || false,
+            is_published: false,
+            curriculum: courseData.contentBlocks
+              ? JSON.parse(JSON.stringify(courseData.contentBlocks))
+              : null,
+            what_youll_learn: courseData.whatYouLearn || null,
+            requirements: courseData.requirements || null,
+          },
+        ])
         .select()
         .single();
 

@@ -1,6 +1,39 @@
 import { createServerClient } from '@/lib/supabase/server';
 import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
 
+interface DBCollection {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  is_public: boolean | null;
+  cover_image_url: string | null;
+  tags: string[] | null;
+  item_count: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
+/**
+ * DB 컬렉션 데이터를 Frontend Collection 타입으로 변환
+ */
+function mapDbCollectionToCollection(dbCollection: DBCollection): Collection {
+  return {
+    id: dbCollection.id,
+    user_id: dbCollection.user_id,
+    name: dbCollection.name,
+    description: dbCollection.description,
+    is_public: dbCollection.is_public ?? false,
+    coverImage: dbCollection.cover_image_url,
+    tags: dbCollection.tags,
+    itemCount: dbCollection.item_count ?? 0,
+    created_at: dbCollection.created_at,
+    updated_at: dbCollection.updated_at,
+    deleted_at: dbCollection.deleted_at,
+  };
+}
+
 /**
  * ServerCollectionManager - 서버 사이드용 YouTube Lens 컬렉션 관리 클래스
  * API Route에서 사용하기 위한 서버 버전
@@ -38,8 +71,8 @@ export class ServerCollectionManager {
           description: data.description || null,
           is_public: data.is_public || false,
           tags: data.tags || null,
-          coverImage: data.coverImage || null,
-          itemCount: 0,
+          cover_image_url: data.coverImage || null,
+          item_count: 0,
         })
         .select()
         .single();
@@ -48,7 +81,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -79,7 +112,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collections, error: null };
+      return { data: collections ? collections.map(mapDbCollectionToCollection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -113,7 +146,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -335,7 +368,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }

@@ -1,6 +1,6 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
@@ -9,23 +9,19 @@ export async function GET(
 ) {
   const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
   if (!adminEmails.includes(user.email || '')) {
-    return NextResponse.json(
-      { error: 'Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
@@ -47,7 +43,7 @@ export async function GET(
     if (error) throw error;
 
     // snake_case를 camelCase로 변환
-    const camelCaseData = data?.map(log => ({
+    const camelCaseData = data?.map((log) => ({
       id: log.id,
       channelId: log.channel_id,
       action: log.action,

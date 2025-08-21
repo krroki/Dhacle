@@ -81,10 +81,7 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
         return (
           <ListTag className="my-6 space-y-2">
             {listContent.items.map((item, index) => (
-              <li
-                key={`list-item-${block.order}-${index}`}
-                className="flex items-start gap-2"
-              >
+              <li key={`list-item-${block.order}-${index}`} className="flex items-start gap-2">
                 <span className="text-primary mt-1">
                   {listContent.ordered ? `${index + 1}.` : '•'}
                 </span>
@@ -116,9 +113,7 @@ export function ContentBlocks({ blocks }: ContentBlocksProps) {
       {blocks
         .sort((a, b) => a.order - b.order)
         .map((block) => (
-          <div key={`content-block-${block.order}`}>
-            {renderBlock(block)}
-          </div>
+          <div key={`content-block-${block.order}`}>{renderBlock(block)}</div>
         ))}
     </div>
   );

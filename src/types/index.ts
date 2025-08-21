@@ -73,25 +73,25 @@ export type UserApiKeyUpdate = SnakeToCamelCase<DBUserApiKeyUpdate>;
 // ============= 호환성 타입 (기존 코드용) =============
 
 // Course 타입은 course.ts에서 import
-export type { 
-  Course, 
-  Lesson,
-  Purchase,
-  Coupon,
-  CourseProgress,
-  CourseBadge,
-  UserCertificate,
-  CourseReview,
-  InstructorProfile,
+export type {
   ContentBlock,
-  Enrollment,
-  CourseListResponse,
+  Coupon,
+  Course,
+  CourseBadge,
   CourseDetailResponse,
+  CourseFilters,
+  CourseListResponse,
+  CourseProgress,
+  CourseReview,
   CreateCourseInput,
   CreateLessonInput,
-  CourseFilters,
+  Enrollment,
+  InstructorProfile,
+  Lesson,
   PaymentIntentInput,
-  PaymentIntentResponse
+  PaymentIntentResponse,
+  Purchase,
+  UserCertificate,
 } from './course';
 
 // Community 타입 별칭 (기존 코드 호환)
@@ -99,65 +99,63 @@ export type Community = CommunityPost;
 export type Comment = CommunityComment;
 
 // Revenue Proof 타입 re-export
-export type { 
+export type {
+  MonthlyRanking,
   ProofComment,
   ProofLike,
   ProofReport,
-  MonthlyRanking
 } from './revenue-proof';
-
-// YouTube Lens 타입 re-export
-export type {
-  Video,
-  VideoStats,
-  Channel,
-  SourceFolder,
-  FolderChannel,
-  AlertRule,
-  Alert,
-  Collection,
-  CollectionItem,
-  SavedSearch,
-  Subscription,
-  VideoWithStats,
-  ChannelWithVideos,
-  FolderWithChannels,
-  CollectionWithItems,
-  AlertWithRule,
-  SearchVideosParams,
-  PopularShortsParams,
-  MonitoringConfig,
-  VideoMetrics,
-  ChannelMetrics,
-  YouTubeLensState,
-  YouTubeLensError,
-  OutlierDetectionResult,
-  TrendAnalysis,
-  EntityExtraction,
-  PredictionModel,
-  AnalyticsConfig,
-  BatchAnalysisResult
-} from './youtube-lens';
-
 // YouTube API 타입 re-export
 export type {
-  YouTubeVideo,
-  FlattenedYouTubeVideo,
-  YouTubeThumbnail,
-  YouTubeChannel,
-  YouTubeSearchResult,
-  YouTubeApiResponse,
-  YouTubeSearchFilters,
-  YouTubeFavorite,
-  YouTubeSearchHistory,
+  ApiError,
   ApiUsage,
-  QuotaStatus,
+  FlattenedYouTubeVideo,
   OAuthToken,
-  VideoCardProps,
+  QuotaStatus,
   SearchBarProps,
+  VideoCardProps,
   VideoGridProps,
-  ApiError
+  YouTubeApiResponse,
+  YouTubeChannel,
+  YouTubeFavorite,
+  YouTubeSearchFilters,
+  YouTubeSearchHistory,
+  YouTubeSearchResult,
+  YouTubeThumbnail,
+  YouTubeVideo,
 } from './youtube';
+// YouTube Lens 타입 re-export
+export type {
+  Alert,
+  AlertRule,
+  AlertWithRule,
+  AnalyticsConfig,
+  BatchAnalysisResult,
+  Channel,
+  ChannelMetrics,
+  ChannelWithVideos,
+  Collection,
+  CollectionItem,
+  CollectionWithItems,
+  EntityExtraction,
+  FolderChannel,
+  FolderWithChannels,
+  MonitoringConfig,
+  OutlierDetectionResult,
+  PopularShortsParams,
+  PredictionModel,
+  SavedSearch,
+  SearchVideosParams,
+  SourceFolder,
+  Subscription,
+  TrendAnalysis,
+  Video,
+  VideoMetrics,
+  VideoStats,
+  VideoWithStats,
+  YouTubeLensError,
+  YouTubeLensState,
+} from './youtube-lens';
 
 // ============= Enum 타입 =============
 

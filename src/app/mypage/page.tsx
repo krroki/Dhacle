@@ -150,9 +150,9 @@ export default async function MyPageDashboard() {
                 return (
                   <div key={enrollment.id} className="flex items-center gap-4">
                     <div className="flex-shrink-0 w-20 h-14 bg-gray-200 rounded-lg overflow-hidden">
-                      {course.thumbnail_url ? (
+                      {course.thumbnailUrl ? (
                         <img
-                          src={course.thumbnail_url}
+                          src={course.thumbnailUrl}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />

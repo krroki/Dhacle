@@ -76,7 +76,9 @@ export default function CollectionBoard() {
         if (errorWithStatus.status === 400) {
           const data = errorWithStatus.data;
           if (data?.requiresApiKey || data?.errorCode === 'api_key_required') {
-            toast.error('YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.');
+            toast.error(
+              'YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.'
+            );
             return;
           }
         }

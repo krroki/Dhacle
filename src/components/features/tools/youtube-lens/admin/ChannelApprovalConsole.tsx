@@ -1,7 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Edit,
+  Eye,
+  History,
+  Plus,
+  Search,
+  Trash2,
+  Users,
+  XCircle,
+  Youtube,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -10,41 +37,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Plus, 
-  Edit, 
-  Trash2,
-  Search,
-  AlertCircle,
-  Eye,
-  History,
-  Users,
-  Youtube
-} from 'lucide-react';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import { formatNumberKo } from '@/lib/youtube-lens/format-number-ko';
 
 interface YLChannel {
@@ -100,7 +95,7 @@ export function ChannelApprovalConsole() {
       const params = new URLSearchParams();
       if (filterStatus !== 'all') params.append('status', filterStatus);
       if (searchQuery) params.append('q', searchQuery);
-      
+
       const response = await apiGet<{ data: YLChannel[] }>(
         `/api/youtube-lens/admin/channels?${params}`
       );
@@ -110,7 +105,7 @@ export function ChannelApprovalConsole() {
 
   // 채널 추가/수정
   const channelMutation = useMutation({
-    mutationFn: async (data: { 
+    mutationFn: async (data: {
       channelId?: string;
       status?: string;
       notes?: string;
@@ -119,15 +114,14 @@ export function ChannelApprovalConsole() {
     }) => {
       if (editingChannel) {
         return apiPut(`/api/youtube-lens/admin/channels/${editingChannel.channelId}`, data);
-      } else {
-        return apiPost('/api/youtube-lens/admin/channels', data);
       }
+      return apiPost('/api/youtube-lens/admin/channels', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['yl/admin/channels'] });
       toast({
         title: editingChannel ? '채널 정보 수정됨' : '채널 추가됨',
-        description: editingChannel 
+        description: editingChannel
           ? '채널 정보가 성공적으로 수정되었습니다.'
           : '새 채널이 추가되었습니다. YouTube API로 정보를 가져오는 중...',
       });
@@ -205,14 +199,9 @@ export function ChannelApprovalConsole() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">채널 승인 콘솔</h2>
-          <p className="text-muted-foreground mt-1">
-            YouTube 채널 승인 관리 및 감사 로그
-          </p>
+          <p className="text-muted-foreground mt-1">YouTube 채널 승인 관리 및 감사 로그</p>
         </div>
-        <Button 
-          onClick={() => setIsAddDialogOpen(true)}
-          className="gap-2"
-        >
+        <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
           <Plus className="w-4 h-4" />
           채널 추가
         </Button>
@@ -239,7 +228,7 @@ export function ChannelApprovalConsole() {
             <SelectItem value="rejected">반려됨</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
           <Input
@@ -258,9 +247,7 @@ export function ChannelApprovalConsole() {
             <Youtube className="w-4 h-4" />
             <span className="text-sm">전체 채널</span>
           </div>
-          <div className="text-2xl font-bold">
-            {channels.length}
-          </div>
+          <div className="text-2xl font-bold">{channels.length}</div>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-2 text-green-600 mb-2">
@@ -268,7 +255,7 @@ export function ChannelApprovalConsole() {
             <span className="text-sm">승인됨</span>
           </div>
           <div className="text-2xl font-bold text-green-700">
-            {channels.filter(c => c.approvalStatus === 'approved').length}
+            {channels.filter((c) => c.approvalStatus === 'approved').length}
           </div>
         </div>
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -277,7 +264,7 @@ export function ChannelApprovalConsole() {
             <span className="text-sm">대기중</span>
           </div>
           <div className="text-2xl font-bold text-yellow-700">
-            {channels.filter(c => c.approvalStatus === 'pending').length}
+            {channels.filter((c) => c.approvalStatus === 'pending').length}
           </div>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -286,7 +273,7 @@ export function ChannelApprovalConsole() {
             <span className="text-sm">반려됨</span>
           </div>
           <div className="text-2xl font-bold text-red-700">
-            {channels.filter(c => c.approvalStatus === 'rejected').length}
+            {channels.filter((c) => c.approvalStatus === 'rejected').length}
           </div>
         </div>
       </div>
@@ -333,13 +320,9 @@ export function ChannelApprovalConsole() {
                   <TableCell>
                     <div className="space-y-1">
                       <div className="font-medium">{channel.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {channel.channelId}
-                      </div>
+                      <div className="text-xs text-muted-foreground">{channel.channelId}</div>
                       {channel.handle && (
-                        <div className="text-xs text-muted-foreground">
-                          @{channel.handle}
-                        </div>
+                        <div className="text-xs text-muted-foreground">@{channel.handle}</div>
                       )}
                     </div>
                   </TableCell>
@@ -384,11 +367,7 @@ export function ChannelApprovalConsole() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedChannel(channel)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedChannel(channel)}>
                         <History className="w-4 h-4" />
                       </Button>
                       <Button
@@ -425,9 +404,7 @@ export function ChannelApprovalConsole() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {editingChannel ? '채널 정보 수정' : '새 채널 추가'}
-            </DialogTitle>
+            <DialogTitle>{editingChannel ? '채널 정보 수정' : '새 채널 추가'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {!editingChannel && (
@@ -444,12 +421,12 @@ export function ChannelApprovalConsole() {
                 </p>
               </div>
             )}
-            
+
             {editingChannel && (
               <>
                 <div>
                   <Label>승인 상태</Label>
-                  <Select 
+                  <Select
                     defaultValue={editingChannel.approvalStatus}
                     onValueChange={(value) => {
                       // 상태 변경 처리
@@ -465,7 +442,7 @@ export function ChannelApprovalConsole() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label>승인/반려 사유</Label>
                   <Textarea
@@ -473,7 +450,7 @@ export function ChannelApprovalConsole() {
                     defaultValue={editingChannel.approvalNotes}
                   />
                 </div>
-                
+
                 <div>
                   <Label>카테고리</Label>
                   <Input
@@ -481,7 +458,7 @@ export function ChannelApprovalConsole() {
                     defaultValue={editingChannel.category}
                   />
                 </div>
-                
+
                 <div>
                   <Label>주요 형식</Label>
                   <Select defaultValue={editingChannel.dominantFormat || ''}>
@@ -497,7 +474,7 @@ export function ChannelApprovalConsole() {
                 </div>
               </>
             )}
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -537,36 +514,24 @@ export function ChannelApprovalConsole() {
       <Dialog open={!!selectedChannel} onOpenChange={() => setSelectedChannel(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {selectedChannel?.title} - 승인 이력
-            </DialogTitle>
+            <DialogTitle>{selectedChannel?.title} - 승인 이력</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {logs.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">
-                승인 이력이 없습니다.
-              </p>
+              <p className="text-center text-muted-foreground py-4">승인 이력이 없습니다.</p>
             ) : (
               logs.map((log) => (
                 <div key={log.id} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(log.afterStatus)}>
-                        {log.afterStatus}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        ← {log.beforeStatus}
-                      </span>
+                      <Badge className={getStatusColor(log.afterStatus)}>{log.afterStatus}</Badge>
+                      <span className="text-sm text-muted-foreground">← {log.beforeStatus}</span>
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {new Date(log.createdAt).toLocaleString('ko-KR')}
                     </span>
                   </div>
-                  {log.notes && (
-                    <p className="text-sm mt-2 text-muted-foreground">
-                      {log.notes}
-                    </p>
-                  )}
+                  {log.notes && <p className="text-sm mt-2 text-muted-foreground">{log.notes}</p>}
                 </div>
               ))
             )}

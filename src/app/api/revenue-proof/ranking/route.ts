@@ -114,13 +114,13 @@ export async function GET(request: NextRequest) {
 
     // 사용자 정보 조회 및 정렬
     const userIds = Object.keys(userRevenues);
-    
+
     // TODO: avatar_url 필드 추가 후 주석 해제
     // const { data: profiles } = await supabase
     //   .from('profiles')
     //   .select('id, username, avatar_url')
     //   .in('id', userIds);
-    
+
     // 임시로 avatar_url 없이 조회
     const { data: profiles } = await supabase
       .from('profiles')
@@ -134,11 +134,12 @@ export async function GET(request: NextRequest) {
     }
 
     const profileMap = (profiles || []).reduce(
-      (acc: Record<string, ProfileData>, profile: ProfileData) => {
+      (acc: Record<string, ProfileData>, profile: { id: string | null; username: string | null }) => {
+        if (!profile.id) return acc;
         acc[profile.id] = {
           id: profile.id,
-          username: profile.username,
-          avatar_url: undefined // undefined로 변경 (타입 호환성)
+          username: profile.username || undefined, // null을 undefined로 변환
+          avatar_url: undefined, // undefined로 변경 (타입 호환성)
         };
         return acc;
       },

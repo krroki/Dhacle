@@ -30,7 +30,7 @@ export default async function MyPageLayout({ children }: { children: React.React
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">마이페이지</h1>
           <p className="mt-2 text-gray-600">
-            안녕하세요, {profile?.displayNickname || profile?.username || '회원'}님
+            안녕하세요, {profile?.username || profile?.full_name || '회원'}님
           </p>
         </div>
 

@@ -96,7 +96,10 @@ export const addCollectionItemSchema = z.object({
 
 // YouTube Lens Delta System 관련 스키마
 export const trendingSummaryQuerySchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식은 YYYY-MM-DD여야 합니다.').optional(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식은 YYYY-MM-DD여야 합니다.')
+    .optional(),
   limit: z.number().int().min(1).max(100).default(10).optional(),
 });
 

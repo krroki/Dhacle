@@ -1,15 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { 
-  TrendingUp, PieChart, Hash, Sparkles, Youtube, FolderOpen, Lightbulb
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FolderOpen, Hash, Lightbulb, PieChart, Sparkles, TrendingUp, Youtube } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiGet } from '@/lib/api-client';
-import { formatNumberKo, formatDelta, formatPercent } from '@/lib/youtube-lens/format-number-ko';
+import { formatDelta, formatNumberKo, formatPercent } from '@/lib/youtube-lens/format-number-ko';
 
 interface ChannelData {
   channel_id: string;
@@ -56,9 +54,9 @@ interface DashboardSummary {
 // 7필드 표시 컴포넌트
 function ChannelCard({ data }: { data: DeltaData }) {
   const formatMap = {
-    '쇼츠': '⚡',
-    '롱폼': '🎬',
-    '라이브': '🔴'
+    쇼츠: '⚡',
+    롱폼: '🎬',
+    라이브: '🔴',
   };
 
   return (
@@ -70,24 +68,30 @@ function ChannelCard({ data }: { data: DeltaData }) {
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span className="text-gray-500">구독:</span> {formatNumberKo(data.channel.subscriber_count)}
+            <span className="text-gray-500">구독:</span>{' '}
+            {formatNumberKo(data.channel.subscriber_count)}
           </div>
           <div>
-            <span className="text-gray-500">일일Δ:</span> 
+            <span className="text-gray-500">일일Δ:</span>
             <span className="text-green-600 font-medium ml-1">{formatDelta(data.delta_views)}</span>
           </div>
           <div>
-            <span className="text-gray-500">총:</span> {formatNumberKo(data.channel.view_count_total)}
+            <span className="text-gray-500">총:</span>{' '}
+            {formatNumberKo(data.channel.view_count_total)}
           </div>
           <div>
-            <span className="text-gray-500">성장:</span> 
+            <span className="text-gray-500">성장:</span>
             <span className="text-blue-600 ml-1">{formatPercent(data.growth_rate)}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">{data.channel.category}</Badge>
+          <Badge variant="outline" className="text-xs">
+            {data.channel.category}
+          </Badge>
           {data.channel.subcategory && (
-            <Badge variant="secondary" className="text-xs">{data.channel.subcategory}</Badge>
+            <Badge variant="secondary" className="text-xs">
+              {data.channel.subcategory}
+            </Badge>
           )}
         </div>
       </div>
@@ -97,7 +101,7 @@ function ChannelCard({ data }: { data: DeltaData }) {
 
 export function DeltaDashboard() {
   const today = new Date().toISOString().split('T')[0];
-  
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['yl/dash/summary', today],
     queryFn: async () => {
@@ -131,7 +135,9 @@ export function DeltaDashboard() {
     return (
       <div className="text-center py-8">
         <p className="text-red-500">데이터 로드 실패</p>
-        <Button onClick={() => refetch()} className="mt-4">다시 시도</Button>
+        <Button onClick={() => refetch()} className="mt-4">
+          다시 시도
+        </Button>
       </div>
     );
   }
@@ -144,12 +150,13 @@ export function DeltaDashboard() {
           <h2 className="text-2xl font-bold">오늘의 30초</h2>
           <p className="text-muted-foreground">승인된 채널의 일일 델타 요약</p>
         </div>
-        <Button variant="outline" onClick={() => refetch()}>새로고침</Button>
+        <Button variant="outline" onClick={() => refetch()}>
+          새로고침
+        </Button>
       </div>
 
       {/* 6블록 그리드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        
         {/* 1. 카테고리 점유율 */}
         <Card>
           <CardHeader>

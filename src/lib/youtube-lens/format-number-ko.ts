@@ -9,33 +9,35 @@
  * @param decimals 소수점 자리수 (기본값: 1)
  * @returns 포맷된 문자열 (예: "1.2천", "12.3만", "1234만")
  */
-export function formatNumberKo(num: number | null | undefined, decimals: number = 1): string {
+export function formatNumberKo(num: number | null | undefined, decimals = 1): string {
   // null/undefined 처리
   if (num == null) return '0';
-  
+
   // 음수 처리
   const isNegative = num < 0;
   const absNum = Math.abs(num);
-  
+
   // 1000 미만
   if (absNum < 1000) {
     return isNegative ? `-${absNum}` : `${absNum}`;
   }
-  
+
   // 1천 ~ 1만 미만
   if (absNum < 10000) {
     const value = (absNum / 1000).toFixed(decimals);
-    const formatted = parseFloat(value) === Math.floor(parseFloat(value)) 
-      ? Math.floor(parseFloat(value)).toString() 
-      : value;
+    const formatted =
+      Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
+        ? Math.floor(Number.parseFloat(value)).toString()
+        : value;
     return isNegative ? `-${formatted}천` : `${formatted}천`;
   }
-  
+
   // 1만 이상
   const value = (absNum / 10000).toFixed(decimals);
-  const formatted = parseFloat(value) === Math.floor(parseFloat(value)) 
-    ? Math.floor(parseFloat(value)).toString() 
-    : value;
+  const formatted =
+    Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
+      ? Math.floor(Number.parseFloat(value)).toString()
+      : value;
   return isNegative ? `-${formatted}만` : `${formatted}만`;
 }
 
@@ -46,7 +48,7 @@ export function formatNumberKo(num: number | null | undefined, decimals: number 
  */
 export function formatDelta(delta: number | null | undefined): string {
   if (delta == null || delta === 0) return '0';
-  
+
   const formatted = formatNumberKo(Math.abs(delta));
   return delta > 0 ? `+${formatted}` : `-${formatted}`;
 }
@@ -57,14 +59,15 @@ export function formatDelta(delta: number | null | undefined): string {
  * @param decimals 소수점 자리수
  * @returns 포맷된 퍼센트 문자열
  */
-export function formatPercent(value: number | null | undefined, decimals: number = 1): string {
+export function formatPercent(value: number | null | undefined, decimals = 1): string {
   if (value == null) return '0%';
-  
+
   const formatted = value.toFixed(decimals);
-  const cleanFormatted = parseFloat(formatted) === Math.floor(parseFloat(formatted))
-    ? Math.floor(parseFloat(formatted)).toString()
-    : formatted;
-  
+  const cleanFormatted =
+    Number.parseFloat(formatted) === Math.floor(Number.parseFloat(formatted))
+      ? Math.floor(Number.parseFloat(formatted)).toString()
+      : formatted;
+
   return `${cleanFormatted}%`;
 }
 
@@ -75,7 +78,7 @@ export function formatPercent(value: number | null | undefined, decimals: number
  */
 export function formatGrowthRate(rate: number | null | undefined): string {
   if (rate == null || rate === 0) return '0%';
-  
+
   const formatted = formatPercent(Math.abs(rate));
   return rate > 0 ? `+${formatted}` : `-${formatted}`;
 }
@@ -87,18 +90,19 @@ export function formatGrowthRate(rate: number | null | undefined): string {
  */
 export function formatLargeNumber(num: number | null | undefined): string {
   if (num == null) return '0';
-  
+
   const absNum = Math.abs(num);
-  
+
   // 1억 이상
   if (absNum >= 100000000) {
     const value = (absNum / 100000000).toFixed(1);
-    const formatted = parseFloat(value) === Math.floor(parseFloat(value))
-      ? Math.floor(parseFloat(value)).toString()
-      : value;
+    const formatted =
+      Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
+        ? Math.floor(Number.parseFloat(value)).toString()
+        : value;
     return num < 0 ? `-${formatted}억` : `${formatted}억`;
   }
-  
+
   // 일반 포맷팅
   return formatNumberKo(num);
 }
@@ -112,12 +116,12 @@ export function formatTimeAgo(date: Date | string): string {
   const now = new Date();
   const target = typeof date === 'string' ? new Date(date) : date;
   const diff = now.getTime() - target.getTime();
-  
+
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  
+
   if (days > 0) return `${days}일 전`;
   if (hours > 0) return `${hours}시간 전`;
   if (minutes > 0) return `${minutes}분 전`;

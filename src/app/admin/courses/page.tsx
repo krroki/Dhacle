@@ -19,7 +19,7 @@ async function getCourses() {
   }
 
   // Type assertion to match mapCourse expectations
-  return data.map(course => mapCourse(course as Record<string, unknown>)) as Course[];
+  return data.map((course) => mapCourse(course as Record<string, unknown>)) as Course[];
 }
 
 export default async function AdminCoursesPage() {

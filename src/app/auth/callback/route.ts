@@ -112,22 +112,22 @@ export async function GET(request: NextRequest) {
           } else {
             console.log('[Auth Callback] Profile initialized successfully');
           }
-        // TODO: Uncomment when randomNickname field is implemented
-        // } else if (userProfile && !userProfile.randomNickname) {
-        //   // Profile exists but no random nickname, add one
-        //   console.log('[Auth Callback] Adding random nickname to existing profile');
+          // TODO: Uncomment when randomNickname field is implemented
+          // } else if (userProfile && !userProfile.randomNickname) {
+          //   // Profile exists but no random nickname, add one
+          //   console.log('[Auth Callback] Adding random nickname to existing profile');
 
-        //   const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       Cookie: request.headers.get('cookie') || '',
-        //     },
-        //   });
+          //   const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
+          //     method: 'POST',
+          //     headers: {
+          //       'Content-Type': 'application/json',
+          //       Cookie: request.headers.get('cookie') || '',
+          //     },
+          //   });
 
-        //   if (!initResponse.ok) {
-        //   }
-        // }
+          //   if (!initResponse.ok) {
+          //   }
+          // }
         }
       }
     } catch (error) {

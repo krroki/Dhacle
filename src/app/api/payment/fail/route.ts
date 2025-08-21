@@ -1,8 +1,8 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import type { Json } from '@/types';
 import { createClient } from '@/lib/supabase/server-client';
+import type { Json } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {

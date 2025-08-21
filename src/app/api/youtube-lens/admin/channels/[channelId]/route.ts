@@ -1,6 +1,6 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // PUT: 채널 정보 수정 (관리자 전용)
 export async function PUT(
@@ -9,23 +9,19 @@ export async function PUT(
 ) {
   const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
   if (!adminEmails.includes(user.email || '')) {
-    return NextResponse.json(
-      { error: 'Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
@@ -40,7 +36,7 @@ export async function PUT(
     if (status) {
       updateData.approval_status = status;
       updateData.approval_notes = notes;
-      
+
       if (status === 'approved') {
         updateData.approved_by = user.id;
         updateData.approved_at = new Date().toISOString();
@@ -61,13 +57,13 @@ export async function PUT(
 
     if (error) throw error;
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       data: {
         channelId: data.channel_id,
         approvalStatus: data.approval_status,
         updatedAt: data.updated_at,
-      }
+      },
     });
   } catch (error) {
     console.error('Admin channel PUT error:', error);
@@ -85,48 +81,39 @@ export async function DELETE(
 ) {
   const { channelId } = await params;
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
   if (!adminEmails.includes(user.email || '')) {
-    return NextResponse.json(
-      { error: 'Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
     // 삭제 전 로그 남기기
-    await supabase
-      .from('yl_approval_logs')
-      .insert({
-        channel_id: channelId,
-        action: 'delete',
-        actor_id: user.id,
-        notes: 'Channel deleted by admin',
-        created_at: new Date().toISOString(),
-      });
+    await supabase.from('yl_approval_logs').insert({
+      channel_id: channelId,
+      action: 'delete',
+      actor_id: user.id,
+      notes: 'Channel deleted by admin',
+      created_at: new Date().toISOString(),
+    });
 
     // 채널 삭제 (CASCADE로 관련 데이터도 삭제됨)
-    const { error } = await supabase
-      .from('yl_channels')
-      .delete()
-      .eq('channel_id', channelId);
+    const { error } = await supabase.from('yl_channels').delete().eq('channel_id', channelId);
 
     if (error) throw error;
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: 'Channel deleted successfully'
+      message: 'Channel deleted successfully',
     });
   } catch (error) {
     console.error('Admin channel DELETE error:', error);

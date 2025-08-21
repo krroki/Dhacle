@@ -1,27 +1,23 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // GET: 채널 목록 조회 (관리자 전용)
 export async function GET(request: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
   if (!adminEmails.includes(user.email || '')) {
-    return NextResponse.json(
-      { error: 'Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
@@ -29,10 +25,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const searchQuery = searchParams.get('q');
 
-    let query = supabase
-      .from('yl_channels')
-      .select('*')
-      .order('created_at', { ascending: false });
+    let query = supabase.from('yl_channels').select('*').order('created_at', { ascending: false });
 
     // 상태 필터
     if (status && status !== 'all') {
@@ -41,9 +34,7 @@ export async function GET(request: NextRequest) {
 
     // 검색
     if (searchQuery) {
-      query = query.or(
-        `title.ilike.%${searchQuery}%,channel_id.ilike.%${searchQuery}%`
-      );
+      query = query.or(`title.ilike.%${searchQuery}%,channel_id.ilike.%${searchQuery}%`);
     }
 
     const { data, error } = await query;
@@ -51,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     // snake_case를 camelCase로 변환
-    const camelCaseData = data?.map(channel => ({
+    const camelCaseData = data?.map((channel) => ({
       channelId: channel.channel_id,
       title: channel.title,
       handle: channel.handle,
@@ -90,23 +81,19 @@ export async function GET(request: NextRequest) {
 // POST: 새 채널 추가 (관리자 전용)
 export async function POST(request: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
   if (!adminEmails.includes(user.email || '')) {
-    return NextResponse.json(
-      { error: 'Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
@@ -114,10 +101,7 @@ export async function POST(request: NextRequest) {
     const { channelId } = body;
 
     if (!channelId) {
-      return NextResponse.json(
-        { error: 'Channel ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
     }
 
     // YouTube API로 채널 정보 가져오기
@@ -132,14 +116,11 @@ export async function POST(request: NextRequest) {
     const ytData = await ytResponse.json();
 
     if (!ytData.items || ytData.items.length === 0) {
-      return NextResponse.json(
-        { error: 'Channel not found on YouTube' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Channel not found on YouTube' }, { status: 404 });
     }
 
     const channelInfo = ytData.items[0];
-    
+
     // DB에 채널 추가
     const { data, error } = await supabase
       .from('yl_channels')
@@ -151,9 +132,9 @@ export async function POST(request: NextRequest) {
         thumbnail_url: channelInfo.snippet.thumbnails?.default?.url,
         approval_status: 'pending',
         source: 'manual',
-        subscriber_count: parseInt(channelInfo.statistics.subscriberCount || '0'),
-        view_count_total: parseInt(channelInfo.statistics.viewCount || '0'),
-        video_count: parseInt(channelInfo.statistics.videoCount || '0'),
+        subscriber_count: Number.parseInt(channelInfo.statistics.subscriberCount || '0'),
+        view_count_total: Number.parseInt(channelInfo.statistics.viewCount || '0'),
+        video_count: Number.parseInt(channelInfo.statistics.videoCount || '0'),
         country: channelInfo.snippet.country || 'KR',
         language: channelInfo.snippet.defaultLanguage || 'ko',
         created_at: new Date().toISOString(),
@@ -165,21 +146,18 @@ export async function POST(request: NextRequest) {
     if (error) {
       // 중복 채널인 경우
       if (error.code === '23505') {
-        return NextResponse.json(
-          { error: 'Channel already exists' },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: 'Channel already exists' }, { status: 409 });
       }
       throw error;
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       data: {
         channelId: data.channel_id,
         title: data.title,
         subscriberCount: data.subscriber_count,
-      }
+      },
     });
   } catch (error) {
     console.error('Admin channel POST error:', error);

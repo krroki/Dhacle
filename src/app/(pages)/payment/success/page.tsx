@@ -46,7 +46,7 @@ function PaymentSuccessContent() {
         status: 'active', // DB에 status 컬럼이 없음
         launchDate: data.created_at || new Date().toISOString(),
         created_at: data.created_at || new Date().toISOString(),
-        updated_at: data.updated_at || data.created_at || new Date().toISOString()
+        updated_at: data.updated_at || data.created_at || new Date().toISOString(),
       };
       setCourse(courseData);
     }

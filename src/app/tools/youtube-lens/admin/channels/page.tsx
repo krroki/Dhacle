@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { ChannelApprovalConsole } from '@/components/features/tools/youtube-lens/admin/ChannelApprovalConsole';
 
 export const metadata: Metadata = {
@@ -12,7 +12,9 @@ export const metadata: Metadata = {
 export default async function AdminChannelsPage() {
   // 서버 컴포넌트에서 인증 체크
   const supabase = createServerComponentClient({ cookies });
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // 로그인 체크
   if (!user) {

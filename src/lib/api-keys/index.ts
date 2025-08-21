@@ -276,7 +276,7 @@ async function incrementUsage(apiKeyId: string): Promise<void> {
 
     // PostgreSQL 함수 호출 (올바른 파라미터 사용)
     const { error: rpcError } = await supabase.rpc('incrementApiKeyUsage', {
-      pUserId: keyData.user_id,
+      pUserId: keyData.userId,
       pServiceName: keyData.serviceName,
     });
 

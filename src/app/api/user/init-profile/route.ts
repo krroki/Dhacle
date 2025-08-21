@@ -84,7 +84,7 @@ export async function POST(_request: NextRequest) {
         isNew: true,
       });
     }
-    
+
     // TODO: Implement randomNickname field logic when ready
     // if (existingProfile && !existingProfile.randomNickname) {
     //   // 프로필은 있지만 랜덤 닉네임이 없는 경우

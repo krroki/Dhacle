@@ -191,7 +191,7 @@ export class PubSubHubbubManager {
         id: crypto.randomUUID(),
         hubTopic: this.getTopicUrl(channelId),
         hubCallbackUrl: '',
-        hubSecret: ''
+        hubSecret: '',
       }; // Default subscription object
 
       // Send unsubscribe request to hub
@@ -286,7 +286,7 @@ export class PubSubHubbubManager {
       // }
       const subscription = {
         id: crypto.randomUUID(),
-        hubSecret: null
+        hubSecret: null,
       }; // Default subscription object
 
       // Update subscription status
@@ -351,7 +351,7 @@ export class PubSubHubbubManager {
       const subscription = {
         id: crypto.randomUUID(),
         hubSecret: null,
-        notificationCount: 0
+        notificationCount: 0,
       }; // Default subscription object
 
       // Verify HMAC signature if provided
@@ -449,7 +449,12 @@ export class PubSubHubbubManager {
       // if (error) {
       //   throw error;
       // }
-      const subscriptions: any[] = []; // Default: no subscriptions need renewal
+      interface SubscriptionData {
+        hubTopic: string;
+        hubCallbackUrl: string;
+        hubSecret: string;
+      }
+      const subscriptions: SubscriptionData[] = []; // Default: no subscriptions need renewal
 
       for (const sub of subscriptions || []) {
         await this.sendHubRequest(

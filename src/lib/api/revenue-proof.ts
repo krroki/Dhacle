@@ -1,7 +1,7 @@
 // revenue-proof.ts
 // 수익인증 API 클라이언트 함수
 
-import { ApiError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
+import { ApiError, apiDelete, apiGet, apiPost, apiPut, apiUpload } from '@/lib/api-client';
 import type { CreateProofInput } from '@/lib/validations/revenue-proof';
 import type { RevenueProof } from '@/types/revenue-proof';
 
@@ -62,19 +62,15 @@ export async function createRevenueProof(data: CreateProofInput) {
   formData.append('signature', data.signature);
   formData.append('screenshot', data.screenshot);
 
-  const response = await fetch(API_BASE, {
-    method: 'POST',
-    body: formData,
-    credentials: 'same-origin',
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    return { error: result.error || 'Failed to create revenue proof', data: null };
+  try {
+    const result = await apiUpload<RevenueProof>(API_BASE, formData);
+    return { error: null, data: result };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { error: error.message, data: null };
+    }
+    return { error: 'Failed to create revenue proof', data: null };
   }
-
-  return { error: null, data: result };
 }
 
 // 인증 수정 (24시간 내)
@@ -182,18 +178,11 @@ export async function uploadImage(
   formData.append('file', file);
   formData.append('bucket', bucket);
 
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-    credentials: 'same-origin',
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new ApiError(error.error || 'Failed to upload image', 400);
-  }
-
-  return response.json();
+  return await apiUpload<{
+    url: string;
+    path: string;
+    bucket: string;
+  }>('/api/upload', formData);
 }
 
 // 이미지 삭제 헬퍼 함수
@@ -203,15 +192,5 @@ export async function deleteImage(path: string, bucket = 'revenue-proofs') {
     bucket,
   });
 
-  const response = await fetch(`/api/upload?${params.toString()}`, {
-    method: 'DELETE',
-    credentials: 'same-origin',
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new ApiError(error.error || 'Failed to delete image', 400);
-  }
-
-  return response.json();
+  return await apiDelete(`/api/upload?${params.toString()}`);
 }

@@ -167,15 +167,12 @@ export const handlers = [
   // ========== 결제 API Mocks ==========
   http.post('/api/payment/create-intent', async ({ request }) => {
     const body = await request.json();
-    
+
     // Type guard to ensure body is an object
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      return HttpResponse.json(
-        { error: 'Invalid request body' },
-        { status: 400 }
-      );
+      return HttpResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
-    
+
     const paymentData = body as Record<string, unknown>;
 
     return HttpResponse.json({

@@ -1,25 +1,28 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { validateQueryParams, trendingSummaryQuerySchema, createValidationErrorResponse } from '@/lib/security/validation-schemas';
+import {
+  createValidationErrorResponse,
+  trendingSummaryQuerySchema,
+  validateQueryParams,
+} from '@/lib/security/validation-schemas';
 
 export async function GET(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
-  
+
   // 인증 체크
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 쿼리 파라미터 검증
   const url = new URL(request.url);
   const params = url.searchParams;
   const validation = validateQueryParams(params, trendingSummaryQuerySchema);
-  
+
   if (!validation.success) {
     return createValidationErrorResponse(validation.error);
   }
@@ -35,20 +38,27 @@ export async function GET(request: Request) {
       .select('category, subcategory')
       .eq('approval_status', 'approved');
 
-    const categoryStats = channels?.reduce((acc: Array<{ category: string; channelCount: number; totalDelta: number; share: number }>, ch) => {
-      const cat = ch.category || '기타';
-      const existing = acc.find(s => s.category === cat);
-      if (existing) {
-        existing.channelCount += 1;
-      } else {
-        acc.push({ category: cat, channelCount: 1, totalDelta: 0, share: 0 });
-      }
-      return acc;
-    }, []) || [];
+    const categoryStats =
+      channels?.reduce(
+        (
+          acc: Array<{ category: string; channelCount: number; totalDelta: number; share: number }>,
+          ch
+        ) => {
+          const cat = ch.category || '기타';
+          const existing = acc.find((s) => s.category === cat);
+          if (existing) {
+            existing.channelCount += 1;
+          } else {
+            acc.push({ category: cat, channelCount: 1, totalDelta: 0, share: 0 });
+          }
+          return acc;
+        },
+        []
+      ) || [];
 
     // 점유율 계산
     const totalChannels = categoryStats.reduce((sum, s) => sum + s.channelCount, 0);
-    categoryStats.forEach(stat => {
+    categoryStats.forEach((stat) => {
       stat.share = totalChannels > 0 ? (stat.channelCount / totalChannels) * 100 : 0;
     });
 
@@ -78,7 +88,9 @@ export async function GET(request: Request) {
     // 3. 신흥 채널 (최근 7일 내 승인)
     const { data: newcomers } = await supabase
       .from('yl_channels')
-      .select('channel_id, title, subscriber_count, view_count_total, category, subcategory, dominant_format')
+      .select(
+        'channel_id, title, subscriber_count, view_count_total, category, subcategory, dominant_format'
+      )
       .eq('approval_status', 'approved')
       .gte('created_at', sevenDaysAgo)
       .order('created_at', { ascending: false })
@@ -101,14 +113,11 @@ export async function GET(request: Request) {
         newcomers: newcomers || [],
         trendingKeywords,
         topShorts,
-        followedChannels
-      }
+        followedChannels,
+      },
     });
   } catch (error) {
     console.error('Dashboard summary error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch summary' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch summary' }, { status: 500 });
   }
 }

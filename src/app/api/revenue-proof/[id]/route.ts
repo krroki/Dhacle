@@ -61,7 +61,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     // TODO: 좋아요/댓글 기능 구현 예정
     // proof_likes, proof_comments 테이블 생성 후 주석 해제
-    
+
     // 좋아요 수 조회 (임시로 0 반환)
     // const { count: likesCount } = await supabase
     //   .from('proof_likes')
@@ -82,7 +82,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     //   `)
     //   .eq('proof_id', id)
     //   .order('created_at', { ascending: false });
-    const comments: any[] = [];
+    interface CommentData {
+      id: string;
+      content: string;
+      user_id: string;
+      created_at: string;
+    }
+    const comments: CommentData[] = [];
 
     // 현재 사용자의 좋아요 여부 확인 (임시로 false 반환)
     // const {
