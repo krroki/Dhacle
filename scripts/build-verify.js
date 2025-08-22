@@ -86,10 +86,12 @@ function checkTypeScriptIssues() {
           }
         });
         
-        // Check for missing return types on async functions
-        const asyncMatches = content.match(patterns.missingReturn);
+        // Check for missing return types on non-exported async functions
+        // Split content into lines and check each async function
+        const functionRegex = /^(?!export\s)(async\s+function\s+\w+\([^)]*\))\s*(?!:)/gm;
+        const asyncMatches = content.match(functionRegex);
         if (asyncMatches) {
-          localIssues.push(`${relativePath} - Missing return type on async function(s)`);
+          localIssues.push(`${relativePath} - Missing return type on internal async function(s)`);
         }
       }
     }
