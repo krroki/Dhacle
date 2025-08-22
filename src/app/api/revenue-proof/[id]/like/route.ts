@@ -1,12 +1,15 @@
 // revenue-proof/[id]/like/route.ts
 // 좋아요 토글 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // POST: 좋아요 토글
-export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;

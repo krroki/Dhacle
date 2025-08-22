@@ -49,7 +49,7 @@ interface UserBadge {
   description: string;
 }
 
-export default async function MyBadgesPage() {
+export default async function MyBadgesPage(): Promise<React.JSX.Element> {
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {
     data: { user },

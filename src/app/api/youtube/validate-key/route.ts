@@ -1,5 +1,7 @@
 // Next.js App Router에서 환경 변수가 동적으로 로드되도록 설정
 export const dynamic = 'force-dynamic';
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
 
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';

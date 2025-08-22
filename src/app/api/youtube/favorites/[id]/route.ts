@@ -1,3 +1,6 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -6,7 +9,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  * 즐겨찾기 업데이트
  * PATCH /api/youtube/favorites/[id]
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -82,7 +85,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -126,7 +129,7 @@ export async function DELETE(
  * 즐겨찾기 단일 항목 조회
  * GET /api/youtube/favorites/[id]
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

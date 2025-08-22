@@ -1,6 +1,9 @@
 // revenue-proof/[id]/report/route.ts
 // 신고 처리 API (3회 신고 시 자동 숨김)
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -8,7 +11,7 @@ import { z } from 'zod';
 import { reportSchema } from '@/lib/validations/revenue-proof';
 
 // POST: 신고 처리
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: proof_id } = await params;
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 // GET: 신고 사유 목록 조회 (관리자용)
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });

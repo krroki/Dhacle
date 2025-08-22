@@ -17,7 +17,7 @@ import {
  * GET /api/user/api-keys
  * 사용자의 API Key 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
  * POST /api/user/api-keys
  * API Key 저장
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   // 환경 변수 디버깅
   console.log('[API Route] Environment check:', {
     hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
  * DELETE /api/user/api-keys
  * API Key 삭제
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

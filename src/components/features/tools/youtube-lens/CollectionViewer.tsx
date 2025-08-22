@@ -2,7 +2,7 @@
 
 import { ExternalLink, Eye, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ export default function CollectionViewer({
   const [_notes, _setNotes] = useState('');
 
   // 컬렉션 비디오 목록 조회
-  const fetchCollectionVideos = async () => {
+  const fetchCollectionVideos = useCallback(async () => {
     setLoading(true);
     try {
       const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
@@ -69,7 +69,7 @@ export default function CollectionViewer({
     } finally {
       setLoading(false);
     }
-  };
+  }, [collection_id]);
 
   useEffect(() => {
     fetchCollectionVideos();

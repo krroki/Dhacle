@@ -1,3 +1,6 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -7,7 +10,7 @@ import { ServerCollectionManager } from '@/lib/youtube/collections-server';
  * GET /api/youtube/collections/items
  * 특정 컬렉션의 비디오 목록 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   // 세션 검사
   const supabase = createRouteHandlerClient({ cookies });
   const {
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
  * POST /api/youtube/collections/items
  * 컬렉션에 비디오 추가
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
  * DELETE /api/youtube/collections/items
  * 컬렉션에서 비디오 제거
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -130,7 +133,7 @@ export async function DELETE(request: NextRequest) {
  * PUT /api/youtube/collections/items/reorder
  * 컬렉션 아이템 순서 변경
  */
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });

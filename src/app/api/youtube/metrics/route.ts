@@ -16,7 +16,7 @@ export const runtime = 'nodejs';
  * GET /api/youtube/metrics
  * Get metrics for videos or channels
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
  * POST /api/youtube/metrics/batch
  * Calculate metrics for multiple videos
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });

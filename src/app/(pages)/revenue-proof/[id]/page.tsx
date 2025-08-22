@@ -4,6 +4,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { RevenueProofDetail } from '@/components/features/revenue-proof/RevenueProofDetail';
+import type { Metadata } from 'next';
 import type { RevenueProof } from '@/types';
 
 interface PageProps {
@@ -11,7 +12,7 @@ interface PageProps {
 }
 
 // 서버 컴포넌트로 초기 데이터 페치
-export default async function RevenueProofDetailPage({ params }: PageProps) {
+export default async function RevenueProofDetailPage({ params }: PageProps): Promise<React.JSX.Element> {
   const { id } = await params;
   const supabase = createServerComponentClient({ cookies });
 
@@ -77,7 +78,7 @@ export default async function RevenueProofDetailPage({ params }: PageProps) {
 }
 
 // 메타데이터 생성
-export async function generateMetadata({ params }: PageProps): Promise<unknown> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const supabase = createServerComponentClient({ cookies });
 

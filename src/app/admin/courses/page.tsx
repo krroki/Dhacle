@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server-client';
 import { mapCourse } from '@/lib/utils/type-mappers';
 import type { Course } from '@/types';
 
-async function getCourses() {
+async function getCourses(): Promise<Course[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('courses')
@@ -22,7 +22,7 @@ async function getCourses() {
   return data.map((course) => mapCourse(course as Record<string, unknown>)) as Course[];
 }
 
-export default async function AdminCoursesPage() {
+export default async function AdminCoursesPage(): Promise<React.JSX.Element> {
   const courses = await getCourses();
 
   return (

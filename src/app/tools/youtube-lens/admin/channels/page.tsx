@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: '관리자 전용 YouTube 채널 승인 관리',
 };
 
-export default async function AdminChannelsPage() {
+export default async function AdminChannelsPage(): Promise<React.JSX.Element> {
   // 서버 컴포넌트에서 인증 체크
   const supabase = createServerComponentClient({ cookies });
   const {

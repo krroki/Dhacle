@@ -5,6 +5,9 @@
  * Provides endpoints for outlier detection, NLP analysis, trend analysis, and predictions
  */
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -30,7 +33,7 @@ import type { BatchAnalysisResult, YouTubeLensVideo as Video, VideoStats } from 
  *   config?: Partial<AnalyticsConfig>;
  * }
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -238,7 +241,7 @@ export async function POST(request: NextRequest) {
  * - video_id: Specific video ID (optional)
  * - limit: Number of results
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

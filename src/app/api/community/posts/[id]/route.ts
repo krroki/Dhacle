@@ -1,3 +1,6 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -18,7 +21,7 @@ interface CommentWithProfile {
  * GET /api/community/posts/[id]
  * 게시글 상세 조회
  */
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;
@@ -88,7 +91,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
  * PUT /api/community/posts/[id]
  * 게시글 수정
  */
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;
@@ -145,7 +148,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
  * DELETE /api/community/posts/[id]
  * 게시글 삭제
  */
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;

@@ -1,6 +1,9 @@
 // revenue-proof/[id]/route.ts
 // 수익인증 상세 조회, 수정, 삭제 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -9,7 +12,7 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 수익인증 상세 조회
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     // 세션 검사
     const authSupabase = createRouteHandlerClient({ cookies });
@@ -123,7 +126,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 // PUT: 수익인증 수정 (작성자만, 24시간 내)
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = await createRouteHandlerClient({ cookies });
     const { id } = await params;
@@ -210,7 +213,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   try {
     const supabase = await createRouteHandlerClient({ cookies });
     const { id } = await params;

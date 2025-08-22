@@ -1,10 +1,13 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { Database } from '@/types';
 
 // GET: Get user profile
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const supabase = createRouteHandlerClient<Database>({ cookies });
 
   try {
@@ -36,7 +39,7 @@ export async function GET() {
 }
 
 // POST: Create or update user profile (for onboarding)
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   const supabase = createRouteHandlerClient<Database>({ cookies });
 
   try {
@@ -119,7 +122,7 @@ export async function POST(request: Request) {
 }
 
 // PUT: Update user profile
-export async function PUT(request: Request) {
+export async function PUT(request: Request): Promise<NextResponse> {
   const supabase = createRouteHandlerClient<Database>({ cookies });
 
   try {

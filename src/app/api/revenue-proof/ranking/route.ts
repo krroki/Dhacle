@@ -1,13 +1,16 @@
 // revenue-proof/ranking/route.ts
 // 랭킹 조회 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 
 // GET: 랭킹 조회
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const authSupabase = createRouteHandlerClient({ cookies });

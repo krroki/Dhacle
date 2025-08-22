@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -239,11 +240,15 @@ export default function CreateRevenueProof() {
             <Label htmlFor="screenshot">수익 스크린샷 *</Label>
             <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
               {imagePreview ? (
-                <div className="relative">
-                  <img
+                <div className="relative w-full">
+                  <Image
                     src={imagePreview}
                     alt="스크린샷 미리보기"
+                    width={800}
+                    height={600}
                     className="max-w-full h-auto mx-auto rounded-lg"
+                    style={{ width: 'auto', height: 'auto' }}
+                    unoptimized={true}
                   />
                   <div className="flex gap-2 justify-center mt-4">
                     <Button
@@ -392,12 +397,15 @@ export default function CreateRevenueProof() {
               minWidth={100}
               minHeight={100}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 ref={imageRef}
                 src={imagePreview}
                 alt="편집할 이미지"
+                width={800}
+                height={600}
                 className="max-w-full h-auto"
+                style={{ width: 'auto', height: 'auto' }}
+                unoptimized={true}
               />
             </ReactCrop>
             <div className="flex gap-2 justify-end mt-4">

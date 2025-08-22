@@ -1,3 +1,6 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
@@ -9,7 +12,7 @@ import type { Database } from '@/types';
  * 신규 회원가입 시 프로필 초기화
  * Kakao OAuth 콜백 후 자동 호출됨
  */
-export async function POST(_request: NextRequest) {
+export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 
@@ -147,7 +150,7 @@ export async function POST(_request: NextRequest) {
 }
 
 // 프로필 상태 확인
-export async function GET(_request: NextRequest) {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { Award, BookOpen, Clock, Target, TrendingUp, Users } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { Database } from '@/types';
 
-export default async function MyPageDashboard() {
+export default async function MyPageDashboard(): Promise<React.JSX.Element> {
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {
     data: { user },
@@ -146,12 +147,15 @@ export default async function MyPageDashboard() {
 
                 return (
                   <div key={enrollment.id} className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-20 h-14 bg-gray-200 rounded-lg overflow-hidden">
+                    <div className="flex-shrink-0 w-20 h-14 bg-gray-200 rounded-lg overflow-hidden relative">
                       {course.thumbnail_url ? (
-                        <img
+                        <Image
                           src={course.thumbnail_url}
                           alt={course.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                          unoptimized={true}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

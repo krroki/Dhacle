@@ -1,7 +1,7 @@
 'use client';
 
 import { Edit2, Folder, Globe, Lock, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ export default function CollectionBoard() {
   });
 
   // 컬렉션 목록 조회
-  const fetchCollections = async () => {
+  const fetchCollections = useCallback(async () => {
     setLoading(true);
     try {
       const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
@@ -90,7 +90,7 @@ export default function CollectionBoard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCollections();

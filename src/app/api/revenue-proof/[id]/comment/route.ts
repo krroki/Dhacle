@@ -1,6 +1,9 @@
 // revenue-proof/[id]/comment/route.ts
 // 댓글 작성 및 조회 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -8,7 +11,7 @@ import { z } from 'zod';
 import { commentSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 댓글 목록 조회
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     // 세션 검사
     const authSupabase = createRouteHandlerClient({ cookies });
@@ -57,7 +60,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 // POST: 댓글 작성
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: proofId } = await params;
@@ -146,7 +149,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 // DELETE: 댓글 삭제 (작성자만)
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server-client';
 import { AdminSidebar } from './components/AdminSidebar';
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }): Promise<React.JSX.Element> {
   const supabase = await createClient();
   const {
     data: { user },

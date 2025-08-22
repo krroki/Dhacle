@@ -1,5 +1,8 @@
 // 수익 인증 시드 데이터 추가 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -52,7 +55,7 @@ const sampleData = [
 ];
 
 // POST: 시드 데이터 추가
-export async function POST(_request: NextRequest) {
+export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createRouteHandlerClient({ cookies });
 
@@ -113,7 +116,7 @@ export async function POST(_request: NextRequest) {
 }
 
 // GET: 시드 데이터 상태 확인
-export async function GET(_request: NextRequest) {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });

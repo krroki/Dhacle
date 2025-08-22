@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { BookOpen, Calendar, CheckCircle, Clock, PlayCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,7 @@ interface CourseEnrollment {
   };
 }
 
-export default async function MyCoursesPage() {
+export default async function MyCoursesPage(): Promise<React.JSX.Element> {
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {
     data: { user },
@@ -242,12 +243,15 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="flex flex-col md:flex-row">
         {/* 썸네일 */}
-        <div className="md:w-48 h-32 md:h-auto bg-gray-200 flex-shrink-0">
+        <div className="md:w-48 h-32 md:h-auto bg-gray-200 flex-shrink-0 relative">
           {course.thumbnail_url ? (
-            <img
+            <Image
               src={course.thumbnail_url}
               alt={course.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 192px"
+              unoptimized={true}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

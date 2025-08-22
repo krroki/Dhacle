@@ -5,6 +5,7 @@
  * 모든 API 엔드포인트에 대한 입력 검증 스키마를 정의합니다.
  */
 
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // ============================================
@@ -244,17 +245,12 @@ export function validateQueryParams<T>(
 /**
  * 검증 에러 응답 생성
  */
-export function createValidationErrorResponse(error: string): Response {
-  return new Response(
-    JSON.stringify({
+export function createValidationErrorResponse(error: string): NextResponse {
+  return NextResponse.json(
+    {
       error: `입력값 검증 실패: ${error}`,
       type: 'validationError',
-    }),
-    {
-      status: 400,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+    },
+    { status: 400 }
   );
 }

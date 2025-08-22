@@ -3,6 +3,9 @@
  * Handles verification callbacks and notifications from YouTube
  */
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { type NextRequest, NextResponse } from 'next/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
 
@@ -10,7 +13,7 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
  * GET handler for hub verification
  * The hub will send a GET request to verify the subscription
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Webhook endpoints must be public (no authentication required)
     // YouTube servers will call this without authentication
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest) {
  * POST handler for notifications
  * The hub will send POST requests with Atom feed updates
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Webhook endpoints must be public (no authentication required)
     // YouTube servers will call this without authentication

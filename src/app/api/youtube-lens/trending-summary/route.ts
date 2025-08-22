@@ -1,3 +1,6 @@
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -7,7 +10,7 @@ import {
   validateQueryParams,
 } from '@/lib/security/validation-schemas';
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
   const supabase = createRouteHandlerClient({ cookies });
 
   // 인증 체크

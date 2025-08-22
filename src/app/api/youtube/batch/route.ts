@@ -3,6 +3,9 @@
  * 큐 관리, 쿼터 확인, 작업 상태 조회
  */
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -15,7 +18,7 @@ import {
   type YouTubeJobData,
 } from '@/lib/youtube/queue-manager';
 // GET: 큐 및 쿼터 상태 조회
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -88,7 +91,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST: 작업 추가
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const {
@@ -163,7 +166,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PUT: 큐 제어 (일시정지, 재개, 재시도)
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const {
@@ -207,7 +210,7 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE: 캐시 초기화
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const {

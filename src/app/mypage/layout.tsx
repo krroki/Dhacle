@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: '디하클 마이페이지 - 프로필, 수강 강의, 수익 인증 관리',
 };
 
-export default async function MyPageLayout({ children }: { children: React.ReactNode }) {
+export default async function MyPageLayout({ children }: { children: React.ReactNode }): Promise<React.JSX.Element> {
   // 인증 체크
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {

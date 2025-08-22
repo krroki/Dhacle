@@ -2,7 +2,12 @@ import { Activity, Award, BookOpen, DollarSign, TrendingUp, Users } from 'lucide
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server-client';
 
-async function getStats() {
+async function getStats(): Promise<{
+  totalCourses: number;
+  totalUsers: number;
+  totalPurchases: number;
+  totalRevenue: number;
+}> {
   const supabase = await createClient();
 
   // 통계 데이터 조회
@@ -36,7 +41,7 @@ async function getStats() {
   };
 }
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard(): Promise<React.JSX.Element> {
   const stats = await getStats();
 
   const statCards = [

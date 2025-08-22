@@ -1,6 +1,9 @@
 // revenue-proof/my/route.ts
 // 내 수익인증 목록 조회 API
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -14,7 +17,7 @@ interface RevenueProofWithDetails extends RevenueProof {
 }
 
 // GET: 내 인증 목록 조회
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -142,7 +145,7 @@ export async function GET(request: NextRequest) {
 }
 
 // DELETE: 내 모든 인증 삭제 (위험한 작업)
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

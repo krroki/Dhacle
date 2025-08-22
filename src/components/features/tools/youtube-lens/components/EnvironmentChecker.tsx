@@ -11,7 +11,7 @@ import {
   Shield,
   XCircle,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -85,7 +85,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     },
   ]);
 
-  const checkEnvironment = async () => {
+  const checkEnvironment = useCallback(async () => {
     setIsChecking(true);
 
     try {
@@ -128,7 +128,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [variables, onComplete]);
 
   useEffect(() => {
     if (autoCheck) {

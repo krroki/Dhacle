@@ -3,6 +3,9 @@
  * Handles subscribing/unsubscribing to channel notifications
  */
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -11,7 +14,7 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
 /**
  * GET - Get user's active subscriptions
  */
-export async function GET(_request: NextRequest) {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -40,7 +43,7 @@ export async function GET(_request: NextRequest) {
 /**
  * POST - Subscribe to a channel
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE - Unsubscribe from a channel
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -146,7 +149,7 @@ export async function DELETE(request: NextRequest) {
 /**
  * PATCH - Renew subscription
  */
-export async function PATCH(request: NextRequest) {
+export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

@@ -185,7 +185,7 @@ export function MetricsDashboard({
       topPerformers,
       growthRate,
     };
-  }, [metrics, trends.map]);
+  }, [metrics, trends]);
 
   // Format large numbers
   const formatNumber = (num: number): string => {

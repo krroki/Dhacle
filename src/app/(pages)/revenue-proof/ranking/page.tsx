@@ -9,7 +9,7 @@ export const metadata = {
   description: '디하클 크리에이터 수익 랭킹 - 월간 TOP 100',
 };
 
-export default async function RankingPage() {
+export default async function RankingPage(): Promise<React.JSX.Element> {
   const supabase = createServerComponentClient({ cookies });
 
   // 현재 월 가져오기

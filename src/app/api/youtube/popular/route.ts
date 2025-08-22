@@ -16,7 +16,7 @@ export const runtime = 'nodejs';
  * GET /api/youtube/popular
  * Fetch popular YouTube Shorts
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
  * POST /api/youtube/popular
  * Advanced search with custom parameters
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });

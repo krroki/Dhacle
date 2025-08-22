@@ -4,6 +4,9 @@
  * Created: 2025-01-30
  */
 
+// Use Node.js runtime for Supabase compatibility
+export const runtime = 'nodejs';
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -12,7 +15,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  * GET /api/youtube/folders
  * Fetch user's YouTube channel folders
  */
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     // Authentication check - using getUser() for consistency
     const supabase = createRouteHandlerClient({ cookies });
@@ -61,7 +64,7 @@ export async function GET() {
  * POST /api/youtube/folders
  * Create a new folder
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
  * PUT /api/youtube/folders
  * Update an existing folder
  */
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });
@@ -227,7 +230,7 @@ export async function PUT(request: NextRequest) {
  * DELETE /api/youtube/folders
  * Delete a folder and its channel associations
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
     const supabase = createRouteHandlerClient({ cookies });

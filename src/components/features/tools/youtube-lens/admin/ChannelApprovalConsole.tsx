@@ -15,6 +15,7 @@ import {
   XCircle,
   Youtube,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -310,11 +311,16 @@ export function ChannelApprovalConsole() {
                 <TableRow key={channel.channel_id}>
                   <TableCell>
                     {channel.thumbnail_url && (
-                      <img
-                        src={channel.thumbnail_url}
-                        alt={channel.title}
-                        className="w-10 h-10 rounded-full"
-                      />
+                      <div className="w-10 h-10 rounded-full overflow-hidden relative">
+                        <Image
+                          src={channel.thumbnail_url}
+                          alt={channel.title}
+                          fill
+                          className="object-cover"
+                          sizes="40px"
+                          unoptimized={true}
+                        />
+                      </div>
                     )}
                   </TableCell>
                   <TableCell>
