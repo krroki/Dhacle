@@ -13,6 +13,8 @@ import { validateYouTubeApiKey } from '@/lib/api-keys';
  * YouTube API Key 유효성 검증
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  console.log('[validate-key] Request received');
+  
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
@@ -23,43 +25,52 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } = await supabase.auth.getUser();
 
     if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      console.log('[validate-key] Authentication failed');
+      return NextResponse.json({ 
+        success: false,
+        error: 'User not authenticated' 
+      }, { status: 401 });
     }
 
     // 요청 본문 파싱
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('[validate-key] Failed to parse request body:', parseError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: '잘못된 요청 형식입니다.',
+        },
+        { status: 400 }
+      );
+    }
+    
     const { api_key } = body;
 
     if (!api_key) {
       return NextResponse.json(
         {
           success: false,
-          error: 'API key is required',
+          error: 'API key를 입력해주세요.',
         },
         { status: 400 }
       );
     }
 
-    // API Key 형식 검증 (기본)
-    if (!api_key.startsWith('AIza') || api_key.length !== 39) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid YouTube API key format',
-          details: 'YouTube API keys should start with "AIza" and be 39 characters long',
-        },
-        { status: 400 }
-      );
-    }
-
+    console.log('[validate-key] Validating API key...');
+    
     // YouTube API를 통한 실제 검증
     const validation = await validateYouTubeApiKey(api_key);
+    
+    console.log('[validate-key] Validation result:', validation);
 
     if (!validation.isValid) {
       return NextResponse.json(
         {
           success: false,
-          error: validation.error || 'Invalid API key',
+          error: validation.error || 'API key가 유효하지 않습니다.',
           validation,
         },
         { status: 400 }
@@ -69,22 +80,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 성공 응답
     return NextResponse.json({
       success: true,
-      message: 'API key is valid',
+      message: 'API key가 유효합니다.',
       validation: {
         isValid: true,
         quotaInfo: validation.quotaInfo || {
-          used: 0,
-          limit: 10000,
-          remaining: 10000,
+          message: 'API key가 정상적으로 작동합니다.',
         },
       },
     });
   } catch (error: unknown) {
+    console.error('[validate-key] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to validate API key',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        error: 'API key 검증 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        details: process.env.NODE_ENV === 'development' ? 
+          (error instanceof Error ? error.message : String(error)) : undefined,
       },
       { status: 500 }
     );

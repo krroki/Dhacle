@@ -123,13 +123,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // YouTube API Key인 경우 유효성 검증
     if (service_name === 'youtube') {
+      console.log('[API Route] Validating YouTube API key...');
       const validation = await validateYouTubeApiKey(api_key);
+      console.log('[API Route] Validation result:', validation);
 
       if (!validation.isValid) {
         return NextResponse.json(
           {
             success: false,
-            error: validation.error || 'Invalid API key',
+            error: validation.error || 'API key가 유효하지 않습니다.',
             validation,
           },
           { status: 400 }
