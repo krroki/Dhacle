@@ -68,7 +68,7 @@ class TypedSupabaseClient {
           return originalMethod;
         }
 
-        return async (...args: unknown[]) => {
+        return async (...args: unknown[]): Promise<unknown> => {
           // insert/update 시 camelCase → snake_case 변환
           if (prop === 'insert' || prop === 'update' || prop === 'upsert') {
             const convertedArgs = args.map((arg) => {
@@ -87,23 +87,29 @@ class TypedSupabaseClient {
             const result = await (originalMethod as (...args: unknown[]) => Promise<unknown>).apply(target, convertedArgs);
 
             // 결과를 camelCase로 변환
-            const typedResult = result as { data?: unknown; error?: unknown };
-            if (typedResult && typedResult.data) {
-              typedResult.data = snakeToCamel(typedResult.data);
+            if (result && typeof result === 'object' && 'data' in result) {
+              const typedResult = result as { data?: unknown; error?: unknown };
+              if (typedResult.data !== null && typedResult.data !== undefined) {
+                typedResult.data = snakeToCamel(typedResult.data);
+              }
+              return typedResult;
             }
-            return typedResult;
+            return result;
           }
 
           // select 등 다른 메서드들
           const result = await (originalMethod as (...args: unknown[]) => Promise<unknown>).apply(target, args);
 
           // 결과를 camelCase로 변환
-          const typedResult = result as { data?: unknown; error?: unknown };
-          if (typedResult && typedResult.data) {
-            typedResult.data = snakeToCamel(typedResult.data);
+          if (result && typeof result === 'object' && 'data' in result) {
+            const typedResult = result as { data?: unknown; error?: unknown };
+            if (typedResult.data !== null && typedResult.data !== undefined) {
+              typedResult.data = snakeToCamel(typedResult.data);
+            }
+            return typedResult;
           }
 
-          return typedResult;
+          return result;
         };
       },
     });

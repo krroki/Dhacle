@@ -272,6 +272,10 @@ export class YouTubeAPIClient {
       YouTubeAPIClient.QUOTA_COSTS.videos * video_ids.split(',').length
     );
 
+    if (!Array.isArray(response.items)) {
+      throw new Error('Invalid response: items is not an array');
+    }
+
     const items: FlattenedYouTubeVideo[] = response.items.map((item: unknown) => {
       if (!item || typeof item !== 'object') {
         throw new Error('Invalid video item format');
@@ -348,16 +352,20 @@ export class YouTubeAPIClient {
       YouTubeAPIClient.QUOTA_COSTS.channels
     );
 
-    if (!response.items || response.items.length === 0) {
+    if (!response.items || !Array.isArray(response.items) || response.items.length === 0) {
       return null;
     }
 
-    const item = response.items[0] as Record<string, unknown>;
-    const snippet = item.snippet as Record<string, unknown> | undefined;
-    const statistics = item.statistics as Record<string, unknown> | undefined;
+    const item = response.items[0];
+    if (!item || typeof item !== 'object') {
+      return null;
+    }
+    const typedItem = item as Record<string, unknown>;
+    const snippet = typedItem.snippet as Record<string, unknown> | undefined;
+    const statistics = typedItem.statistics as Record<string, unknown> | undefined;
 
     return {
-      id: String(item.id || ''),
+      id: String(typedItem.id || ''),
       snippet: {
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
