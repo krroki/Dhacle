@@ -146,7 +146,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 /**
  * Helper: Get video metrics from database
  */
-async function get_video_metrics(video_id: string, period: string) {
+async function get_video_metrics(
+  video_id: string,
+  period: string
+): Promise<{
+  vph: number;
+  engagementRate: number;
+  viralScore: number;
+  growthRate: number;
+  averageViews: number;
+  peakViews: number;
+  totalViews: number;
+  totalLikes: number;
+  totalComments: number;
+  dataPoints: number;
+}> {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Calculate date range
@@ -188,6 +202,10 @@ async function get_video_metrics(video_id: string, period: string) {
       growthRate: 0,
       averageViews: 0,
       peakViews: 0,
+      totalViews: 0,
+      totalLikes: 0,
+      totalComments: 0,
+      dataPoints: 0,
     };
   }
 
@@ -242,7 +260,19 @@ async function get_video_metrics(video_id: string, period: string) {
 /**
  * Helper: Get channel metrics
  */
-async function get_channel_metrics(channel_id: string, _period: string) {
+async function get_channel_metrics(
+  channel_id: string,
+  _period: string
+): Promise<{
+  totalVideos: number;
+  totalViews: number;
+  avgViews: number;
+  totalLikes: number;
+  avgEngagement: number;
+  uploadFrequency: number;
+  subscriberGrowth: number;
+  performanceScore: number;
+}> {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Get channel videos with stats
@@ -268,14 +298,17 @@ async function get_channel_metrics(channel_id: string, _period: string) {
     return {
       totalVideos: 0,
       totalViews: 0,
-      averageViews: 0,
-      totalSubscribers: 0,
-      engagementRate: 0,
+      avgViews: 0,
+      totalLikes: 0,
+      avgEngagement: 0,
+      uploadFrequency: 0,
+      subscriberGrowth: 0,
+      performanceScore: 0,
     };
   }
 
   // Get channel info
-  const { data: channel } = await supabase
+  const { data: _channel } = await supabase
     .from('channels')
     .select('*')
     .eq('channel_id', channel_id)
@@ -292,9 +325,12 @@ async function get_channel_metrics(channel_id: string, _period: string) {
   return {
     totalVideos: total_videos,
     totalViews: total_views,
-    averageViews: average_views,
-    totalSubscribers: channel?.subscriber_count || 0,
-    engagementRate: 0, // Would need videoStats to calculate
+    avgViews: average_views,
+    totalLikes: 0, // Would need videoStats to calculate
+    avgEngagement: 0, // Would need videoStats to calculate
+    uploadFrequency: 0, // Would need to calculate from video dates
+    subscriberGrowth: 0, // Would need historical data
+    performanceScore: 0, // Would need to calculate from metrics
   };
 }
 
@@ -409,7 +445,7 @@ async function save_metrics_snapshot(
       };
     }
   >
-) {
+): Promise<void> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

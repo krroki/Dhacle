@@ -35,13 +35,13 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-22**: 🚀 **Vercel 빌드 오류 완전 해결** - monthlyRankings 테이블 문제 및 API Route 타입 수정 (c794bcd) ✅
-2. **2025-08-22**: 📚 **문서 체계 개선** - CONTEXT_BRIDGE.md로 반복 실수 예방 통합, ERROR_BOUNDARY.md는 HTTP 전용 ✅
-3. **2025-08-22**: 🔧 **TypeScript 에러 재수정** - trends.ts의 snake_case 변수명 오류 해결 (0개 유지) ✅
-4. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
-5. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
-6. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
-7. **2025-08-22**: 타입 시스템 복구 - Phase 3 완전 달성, 224개→0개 (100% 해결) ✅
+1. **2025-08-22**: 🔥 **React Hook 명명 규칙 위반으로 인한 빌드 실패 해결** - use_carousel → useCarousel 수정 (a6d1b9c) ✅
+2. **2025-08-22**: 🚀 **Vercel 빌드 오류 완전 해결** - monthlyRankings 테이블 문제 및 API Route 타입 수정 (c794bcd) ✅
+3. **2025-08-22**: 📚 **문서 체계 개선** - CONTEXT_BRIDGE.md로 반복 실수 예방 통합, ERROR_BOUNDARY.md는 HTTP 전용 ✅
+4. **2025-08-22**: 🔧 **TypeScript 에러 재수정** - trends.ts의 snake_case 변수명 오류 해결 (0개 유지) ✅
+5. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
+6. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
+7. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
 
 ### 🔍 현재 주요 이슈 (반드시 확인)
 

@@ -255,7 +255,7 @@ async function save_to_collection(
   _userId: string,
   collection_id: string,
   videos: Array<{ id: string }>
-) {
+): Promise<void> {
   const supabase = createRouteHandlerClient({ cookies });
 
   const collection_items = videos.map((video) => {

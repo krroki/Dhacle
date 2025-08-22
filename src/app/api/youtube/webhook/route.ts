@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 /**
  * Handle video updates (called after successful notification processing)
  */
-async function handle_video_update(video: unknown) {
+async function handle_video_update(video: unknown): Promise<void> {
   try {
     // Import monitoring system dynamically to avoid circular dependencies
     // const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');

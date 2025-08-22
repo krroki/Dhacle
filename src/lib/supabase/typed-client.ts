@@ -72,10 +72,17 @@ class TypedSupabaseClient {
           // insert/update 시 camelCase → snake_case 변환
           if (prop === 'insert' || prop === 'update' || prop === 'upsert') {
             const convertedArgs = args.map((arg) => {
+              // Type guard for arg
+              if (arg === null || arg === undefined) {
+                return arg;
+              }
               if (Array.isArray(arg)) {
                 return arg.map((item) => camelToSnake(item));
               }
-              return camelToSnake(arg);
+              if (typeof arg === 'object') {
+                return camelToSnake(arg);
+              }
+              return arg;
             });
             const result = await (originalMethod as (...args: unknown[]) => Promise<unknown>).apply(target, convertedArgs);
 

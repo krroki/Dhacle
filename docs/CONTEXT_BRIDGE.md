@@ -8,9 +8,22 @@
 
 ---
 
-## 🔥 반복되는 9가지 치명적 실수 (작업 전 반드시 확인!)
+## 🔥 반복되는 10가지 치명적 실수 (작업 전 반드시 확인!)
 
-### 1. TypeScript 컴파일 에러
+### 1. React Hook 명명 규칙 위반 🆕 
+**❌ 실제 사례**: snake_case 마이그레이션 시 React Hook까지 변환
+```typescript
+// ❌ 잘못된 코드 (2025-08-22 빌드 실패 원인)
+function use_carousel() {
+  const context = React.useContext(CarouselContext);
+
+// ✅ 올바른 코드
+function useCarousel() {
+  const context = React.useContext(CarouselContext);
+```
+**🛡️ 예방책**: React Hook은 반드시 `use`로 시작하는 camelCase 유지
+
+### 2. TypeScript 컴파일 에러
 **❌ 실제 사례**: `categoryBenchmarks` vs `category_benchmarks` 혼용
 ```typescript
 // ❌ 잘못된 코드 (방금 수정한 실제 사례)
@@ -21,7 +34,7 @@ benchmarks: typeof category_benchmarks.percentiles
 ```
 **🛡️ 예방책**: 변수명 작성 전 주변 코드 확인, snake_case 일관성 유지
 
-### 2. 런타임 환경 변수 에러
+### 3. 런타임 환경 변수 에러
 **❌ 실제 사례**: Vercel 빌드 시 환경변수 없음
 ```typescript
 // ❌ 문제 코드
@@ -34,7 +47,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: Server Component에 `force-dynamic` 추가
 
-### 3. ESLint 에러 (any 타입)
+### 4. ESLint 에러 (any 타입)
 **❌ 실제 사례**: 타입 모르면 any 사용
 ```typescript
 // ❌ 금지
@@ -46,7 +59,7 @@ const data = await apiGet<User>('/api/user');
 ```
 **🛡️ 예방책**: @/types에서 타입 import, 없으면 unknown + 타입가드
 
-### 4. snake_case/camelCase 혼용
+### 5. snake_case/camelCase 혼용
 **❌ 실제 사례**: DB 필드명 그대로 사용
 ```typescript
 // ❌ 문제: DB는 snake_case, 프론트는 camelCase
@@ -59,7 +72,7 @@ const userData = snakeToCamelCase(dbData);
 ```
 **🛡️ 예방책**: API 경계에서 항상 변환
 
-### 5. API 연동 미흡
+### 6. API 연동 미흡
 **❌ 실제 사례**: 직접 fetch 사용
 ```typescript
 // ❌ 금지
@@ -71,7 +84,7 @@ const data = await apiGet('/api/data');
 ```
 **🛡️ 예방책**: api-client.ts 함수만 사용
 
-### 6. DB 값 무시하고 임의 생성
+### 7. DB 값 무시하고 임의 생성
 **❌ 실제 사례**: 더미 데이터 사용
 ```typescript
 // ❌ 금지
@@ -82,7 +95,7 @@ const { data } = await supabase.from('table').select();
 ```
 **🛡️ 예방책**: 실제 DB 데이터만 사용
 
-### 7. any 타입 남발
+### 8. any 타입 남발
 **❌ 실제 사례**: 에러 처리 시 any
 ```typescript
 // ❌ 금지
@@ -95,7 +108,7 @@ catch (error) {
 ```
 **🛡️ 예방책**: unknown 사용 후 타입 체크
 
-### 8. 파일 컨텍스트 무시
+### 9. 파일 컨텍스트 무시
 **❌ 실제 사례**: Read 없이 수정
 ```typescript
 // ❌ 금지: 추측으로 코드 수정
@@ -108,7 +121,7 @@ catch (error) {
 ```
 **🛡️ 예방책**: 수정 전 반드시 Read 실행
 
-### 9. Supabase 패턴 혼용
+### 10. Supabase 패턴 혼용
 **❌ 실제 사례**: 구식/신식 혼용
 ```typescript
 // ❌ 구식 (2025-08-22 이전)
@@ -177,7 +190,10 @@ return NextResponse.json(data);
 
 ## 🔥 최신 변경사항 (반드시 반영)
 
-### 2025-08-22 업데이트
+### 2025-08-22 업데이트 (최신)
+- **React Hook 명명 규칙 위반 수정**: use_carousel → useCarousel (빌드 실패 해결)
+- **API Route 내부 함수 반환 타입 추가**: Promise 타입 명시로 TypeScript 에러 해결
+- **Unknown 타입 가드 추가**: typed-client.ts에 null/undefined 체크 로직 추가
 - Supabase 클라이언트: auth-helpers → ssr 패턴 변경
 - TypeScript 에러: 224개 → 0개 완전 해결
 - 타입 파일: 9개 → 2개로 통합 (database.generated.ts, index.ts만 유지)

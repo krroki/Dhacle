@@ -64,9 +64,12 @@ npm run verify:types  # 문제 확인
 
 > **교훈**: "4일간 디버깅" 문제는 대부분 Vercel이 오래된 커밋을 빌드하기 때문!
 
-### 🔥 snake_case/camelCase 변환 시스템 (2025-01-31 중요 업데이트)
+### 🔥 snake_case/camelCase 변환 시스템 (2025-08-22 React Hook 이슈 수정)
 **API 경계에서만 자동 변환 - React 예약어 보호**
 ```bash
+# ⚠️ 주의: React Hook은 반드시 camelCase 유지!
+# use_carousel (❌) → useCarousel (✅)
+
 # snake_case 일관성 검증 (최우선 실행)
 node scripts/verify-case-consistency.js  # 전체 검증
 node scripts/demo-case-conversion.js     # 변환 시연
