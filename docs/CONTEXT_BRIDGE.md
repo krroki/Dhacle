@@ -191,6 +191,11 @@ return NextResponse.json(data);
 ## 🔥 최신 변경사항 (반드시 반영)
 
 ### 2025-08-22 업데이트 (최신)
+- **YouTube Lens Popular Shorts 개선**:
+  - Silent 에러 처리 제거 → 모든 catch 블록에 console.error 추가
+  - YouTube API mostPopular 차트 전략 추가 (키워드 없는 검색 해결)
+  - Shorts 필터링 60초 → 90초로 완화 (더 많은 콘텐츠 포착)
+  - API 키 환경변수 fallback 로직 추가
 - **React Hook 명명 규칙 위반 수정**: use_carousel → useCarousel (빌드 실패 해결)
 - **API Route 내부 함수 반환 타입 추가**: Promise 타입 명시로 TypeScript 에러 해결
 - **Unknown 타입 가드 추가**: typed-client.ts에 null/undefined 체크 로직 추가
@@ -272,6 +277,72 @@ await supabase.insert(camelToSnakeCase(userData));
 ### React 예약어 보호
 - `key`, `ref`, `className` 등은 변환하지 않음
 - API 경계에서만 자동 변환
+
+---
+
+## 🎯 에러 처리 패턴 (2025-08-22 추가)
+
+### Silent 에러 금지
+```typescript
+// ❌ 절대 금지 - Silent failure
+try {
+  await someOperation();
+} catch (error) {
+  // 아무것도 안함 - 문제를 숨김!
+}
+
+// ✅ 필수 - 상세한 로깅
+try {
+  await someOperation();
+} catch (error: unknown) {
+  console.error('[Context] Operation failed:', {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    context: { /* 관련 정보 */ }
+  });
+  // 필요시 재시도 또는 fallback
+}
+```
+
+### API 전략 패턴 (Fallback)
+```typescript
+// ✅ 여러 전략 시도 패턴
+enum Strategy {
+  PRIMARY = 'primary',
+  FALLBACK = 'fallback',
+  EMERGENCY = 'emergency'
+}
+
+async function fetchWithStrategy() {
+  const strategies = [Strategy.PRIMARY, Strategy.FALLBACK, Strategy.EMERGENCY];
+  
+  for (const strategy of strategies) {
+    try {
+      return await executeStrategy(strategy);
+    } catch (error) {
+      console.error(`[Strategy ${strategy}] Failed:`, error);
+      // 다음 전략 시도
+    }
+  }
+  throw new Error('All strategies failed');
+}
+```
+
+### 환경변수 Fallback
+```typescript
+// ✅ 환경변수 우선순위 패턴
+const apiKey = 
+  userApiKey ||                    // 1. 사용자 설정 키
+  process.env.YOUTUBE_API_KEY ||   // 2. 환경변수
+  null;                            // 3. 없으면 에러
+
+if (!apiKey) {
+  console.error('[API] No API key available:', {
+    hasUserKey: Boolean(userApiKey),
+    hasEnvKey: Boolean(process.env.YOUTUBE_API_KEY)
+  });
+  throw new Error('API key required');
+}
 
 ---
 

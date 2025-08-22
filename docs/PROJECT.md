@@ -35,13 +35,13 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-22**: 🔥 **React Hook 명명 규칙 위반으로 인한 빌드 실패 해결** - use_carousel → useCarousel 수정 (a6d1b9c) ✅
-2. **2025-08-22**: 🚀 **Vercel 빌드 오류 완전 해결** - monthlyRankings 테이블 문제 및 API Route 타입 수정 (c794bcd) ✅
-3. **2025-08-22**: 📚 **문서 체계 개선** - CONTEXT_BRIDGE.md로 반복 실수 예방 통합, ERROR_BOUNDARY.md는 HTTP 전용 ✅
-4. **2025-08-22**: 🔧 **TypeScript 에러 재수정** - trends.ts의 snake_case 변수명 오류 해결 (0개 유지) ✅
-5. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
-6. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
-7. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
+1. **2025-08-22**: 🎯 **YouTube Lens Popular Shorts 개선** - Silent 오류 해결, mostPopular 차트 전략 추가, 90초 필터 완화 ✅
+2. **2025-08-22**: 🔥 **React Hook 명명 규칙 위반으로 인한 빌드 실패 해결** - use_carousel → useCarousel 수정 (a6d1b9c) ✅
+3. **2025-08-22**: 🚀 **Vercel 빌드 오류 완전 해결** - monthlyRankings 테이블 문제 및 API Route 타입 수정 (c794bcd) ✅
+4. **2025-08-22**: 📚 **문서 체계 개선** - CONTEXT_BRIDGE.md로 반복 실수 예방 통합, ERROR_BOUNDARY.md는 HTTP 전용 ✅
+5. **2025-08-22**: 🔧 **TypeScript 에러 재수정** - trends.ts의 snake_case 변수명 오류 해결 (0개 유지) ✅
+6. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
+7. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
 
 ### 🔍 현재 주요 이슈 (반드시 확인)
 
@@ -186,13 +186,13 @@ TOSS_SECRET_KEY=test_sk_...
 
 > **관리 규칙**: 최신 7개만 유지, 오래된 항목 자동 삭제
 
-1. **2025-08-21**: 미구현 기능 주석 처리 - 6개 누락 테이블 관련 코드 주석 처리, TODO 표시 ✅
-2. **2025-08-21**: 위험한 pre-commit 자동 수정 제거 - Biome/Prettier write 모드를 check 모드로 변경 ✅
-3. **2025-08-21**: snake_case/camelCase 근본 해결 - typed-client 래퍼 구현, ESLint 규칙 추가 ✅
-4. **2025-02-02**: TypeScript 타입 시스템 완전 수정 - Course 타입 매핑 문제 해결, import 경로 수정 ✅
-5. **2025-02-02**: 중복 타입 export 오류 해결 - RevenueProof, UserApiKey 중복 제거 ✅
-6. **2025-02-02**: snake_case/camelCase 변환 개선 - mapCourse 함수 완전 재작성 ✅
-7. **2025-02-02**: 🎯 TypeScript v2.0 Single Source of Truth 최종 확정 - Supabase DB → index.ts 체계 ✅
+1. **2025-08-22**: YouTube Lens Popular Shorts 개선 - Silent 오류 해결, mostPopular 차트 전략 추가, 90초 필터 완화 ✅
+2. **2025-08-21**: 미구현 기능 주석 처리 - 6개 누락 테이블 관련 코드 주석 처리, TODO 표시 ✅
+3. **2025-08-21**: 위험한 pre-commit 자동 수정 제거 - Biome/Prettier write 모드를 check 모드로 변경 ✅
+4. **2025-08-21**: snake_case/camelCase 근본 해결 - typed-client 래퍼 구현, ESLint 규칙 추가 ✅
+5. **2025-02-02**: TypeScript 타입 시스템 완전 수정 - Course 타입 매핑 문제 해결, import 경로 수정 ✅
+6. **2025-02-02**: 중복 타입 export 오류 해결 - RevenueProof, UserApiKey 중복 제거 ✅
+7. **2025-02-02**: snake_case/camelCase 변환 개선 - mapCourse 함수 완전 재작성 ✅
 
 ---
 

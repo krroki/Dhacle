@@ -13,6 +13,7 @@ import { getYouTubeClient } from './client-helper';
  * Strategy patterns for finding popular Shorts without keywords
  */
 enum SearchStrategy {
+  POPULAR = 'popular', // Use mostPopular chart (NEW - Primary strategy)
   WHITESPACE = 'whitespace', // Use space character
   CATEGORY = 'category', // Use category IDs
   HASHTAG = 'hashtag', // Use # symbol
@@ -36,7 +37,8 @@ export async function getPopularShortsWithoutKeyword(
     limit = 50,
   } = params;
   // Try multiple strategies in parallel for better coverage
-  const strategies = [SearchStrategy.WHITESPACE, SearchStrategy.CATEGORY, SearchStrategy.HASHTAG];
+  // POPULAR strategy is prioritized as it uses YouTube's official mostPopular chart
+  const strategies = [SearchStrategy.POPULAR, SearchStrategy.CATEGORY, SearchStrategy.HASHTAG];
 
   const search_promises = strategies.map((strategy) =>
     execute_search_strategy(strategy, {
@@ -100,6 +102,30 @@ async function execute_search_strategy(
 ): Promise<youtube_v3.Schema$Video[]> {
   const youtube = await getYouTubeClient(options.user_id);
 
+  // Special handling for POPULAR strategy - use videos.list with chart parameter
+  if (strategy === SearchStrategy.POPULAR) {
+    try {
+      // Use videos.list with mostPopular chart
+      const videos_response = await youtube.videos.list({
+        part: ['snippet', 'statistics', 'contentDetails'],
+        chart: 'mostPopular',
+        regionCode: options.regionCode,
+        videoCategoryId: options.category_id || undefined,
+        maxResults: options.maxResults * 2, // Get more to filter for Shorts
+        fields: 'items(id,snippet,statistics,contentDetails)',
+      });
+
+      return videos_response.data.items || [];
+    } catch (error: unknown) {
+      console.error('[Popular Shorts] mostPopular chart failed:', {
+        error: error instanceof Error ? error.message : String(error),
+        regionCode: options.regionCode,
+      });
+      // Fall back to search-based approach if chart fails
+      // Continue with regular search strategy
+    }
+  }
+
   const search_params: youtube_v3.Params$Resource$Search$List = {
     part: ['snippet'],
     type: ['video'],
@@ -145,6 +171,11 @@ async function execute_search_strategy(
     case SearchStrategy.VIRAL_SOUNDS:
       search_params.q = '#viral #shorts';
       break;
+
+    case SearchStrategy.POPULAR:
+      // This case is handled above, but added for completeness
+      search_params.q = undefined;
+      break;
   }
 
   try {
@@ -170,13 +201,36 @@ async function execute_search_strategy(
     });
 
     return videos_response.data.items || [];
-  } catch (_error: unknown) {
+  } catch (error: unknown) {
+    console.error('[Popular Shorts] Search strategy failed:', {
+      strategy,
+      error: error instanceof Error ? error.message : String(error),
+      regionCode: options.regionCode,
+      category_id: options.category_id,
+    });
+
+    // Check for quota exceeded error
+    if (error instanceof Error && error.message.includes('quotaExceeded')) {
+      throw new Error('YouTube API 할당량이 초과되었습니다. 나중에 다시 시도해주세요.');
+    }
+
+    // Check for API key error
+    if (
+      error instanceof Error &&
+      (error.message.includes('API key') || error.message.includes('api key'))
+    ) {
+      throw new Error('YouTube API 키가 유효하지 않습니다. 설정에서 API 키를 확인해주세요.');
+    }
+
+    // Return empty array for this strategy but log the error
     return [];
   }
 }
 
 /**
- * Filter videos to only include Shorts (< 60 seconds)
+ * Filter videos to only include Shorts
+ * YouTube officially defines Shorts as <= 60 seconds, but we use 90 seconds
+ * to catch more content and account for rounding/processing differences
  */
 function filter_shorts(videos: youtube_v3.Schema$Video[]): youtube_v3.Schema$Video[] {
   return videos.filter((video) => {
@@ -187,7 +241,9 @@ function filter_shorts(videos: youtube_v3.Schema$Video[]): youtube_v3.Schema$Vid
 
     // Parse ISO 8601 duration (e.g., "PT58S", "PT1M30S")
     const seconds = parse_duration(duration);
-    return seconds > 0 && seconds <= 60;
+    // Relaxed to 90 seconds to catch more Shorts-style content
+    // Some Shorts may be slightly longer due to processing
+    return seconds > 0 && seconds <= 90;
   });
 }
 
@@ -385,6 +441,12 @@ async function store_videos_in_database(videos: VideoWithStats[]): Promise<void>
       .upsert(video_data, { onConflict: 'id' });
 
     if (video_error) {
+      console.error('[Popular Shorts] Failed to store videos in database:', {
+        error: video_error.message,
+        code: video_error.code,
+        details: video_error.details,
+        videoCount: video_data.length,
+      });
     }
 
     // Store stats (using snake_case to match DB schema)
@@ -407,10 +469,20 @@ async function store_videos_in_database(videos: VideoWithStats[]): Promise<void>
     if (stats_data.length > 0) {
       const { error: stats_error } = await supabase.from('video_stats').insert(stats_data);
       if (stats_error) {
-        console.error('Stats insert error:', stats_error);
+        console.error('[Popular Shorts] Failed to store video stats:', {
+          error: stats_error.message,
+          code: stats_error.code,
+          details: stats_error.details,
+          statsCount: stats_data.length,
+        });
       }
     }
-  } catch (_error: unknown) {}
+  } catch (error: unknown) {
+    console.error('[Popular Shorts] Database operation failed:', {
+      error: error instanceof Error ? error.message : String(error),
+      videosCount: videos.length,
+    });
+  }
 }
 
 /**
@@ -476,7 +548,13 @@ export async function getCachedPopularShorts(
     })) as VideoWithStats[];
 
     return videos_with_stats;
-  } catch (_error: unknown) {
+  } catch (error: unknown) {
+    console.error('[Popular Shorts] Failed to get cached shorts:', {
+      error: error instanceof Error ? error.message : String(error),
+      period,
+      minViews,
+      minVPH,
+    });
     return [];
   }
 }

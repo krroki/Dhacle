@@ -58,17 +58,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (!api_key_data) {
-      // Return 400 for missing API key, not 401
-      // 401 should only be for authentication issues
-      return NextResponse.json(
-        {
-          error: 'YouTube API key not configured',
-          message: 'Please configure your YouTube API key in settings to use this feature',
-          requiresApiKey: true,
-          error_code: 'api_key_required',
-        },
-        { status: 400 }
-      );
+      // Check if environment variable exists as fallback
+      const has_env_key = Boolean(process.env.YOUTUBE_API_KEY);
+
+      console.log('[Popular Shorts API] API key check:', {
+        userId: user.id,
+        hasUserKey: false,
+        hasEnvKey: has_env_key,
+        envKeys: Object.keys(process.env).filter((key) => key.includes('YOUTUBE')),
+      });
+
+      if (!has_env_key) {
+        // Return 400 for missing API key, not 401
+        // 401 should only be for authentication issues
+        return NextResponse.json(
+          {
+            error: 'YouTube API key not configured',
+            message: 'Please configure your YouTube API key in settings to use this feature',
+            requiresApiKey: true,
+            error_code: 'api_key_required',
+            debug: {
+              hasUserKey: false,
+              hasEnvKey: has_env_key,
+            },
+          },
+          { status: 400 }
+        );
+      }
+      // If env key exists, continue with the request
+      console.log('[Popular Shorts API] Using environment API key as fallback');
     }
 
     // Fetch popular shorts (already includes metrics)

@@ -15,23 +15,50 @@ import { createServerClient } from '@/lib/supabase/server-client';
 export async function getYouTubeClient(user_id?: string): Promise<youtube_v3.Youtube> {
   // For server-side calls, we need to get the API key differently
   let api_key: string | null = null;
+  let key_source: 'user' | 'env' | 'none' = 'none';
 
   if (user_id) {
     // Server-side: Get decrypted API key from database
     api_key = await getDecryptedApiKey(user_id, 'youtube');
-  } else {
-    // Client-side fallback or environment variable
-    api_key = process.env.YOUTUBE_API_KEY || null;
+    if (api_key) {
+      key_source = 'user';
+      console.log('[YouTube Client] Using user-specific API key');
+    }
+  }
+
+  // Fallback to environment variable if no user key
+  if (!api_key) {
+    const env_key = process.env.YOUTUBE_API_KEY;
+    if (env_key) {
+      api_key = env_key;
+      key_source = 'env';
+      console.log('[YouTube Client] Using environment variable API key');
+    } else {
+      console.error('[YouTube Client] No API key found:', {
+        hasUserId: Boolean(user_id),
+        hasEnvKey: Boolean(process.env.YOUTUBE_API_KEY),
+        envKeys: Object.keys(process.env).filter((key) => key.includes('YOUTUBE')),
+      });
+    }
   }
 
   if (!api_key) {
-    throw new Error('YouTube API key not configured. Please add your API key in settings.');
+    const error_message = user_id
+      ? 'YouTube API 키가 설정되지 않았습니다. 설정 페이지에서 API 키를 추가해주세요.'
+      : 'YouTube API 키가 환경변수에 설정되지 않았습니다. YOUTUBE_API_KEY를 설정해주세요.';
+
+    throw new Error(error_message);
   }
 
   // Create YouTube client with API key
   const youtube = google.youtube({
     version: 'v3',
     auth: api_key,
+  });
+
+  console.log('[YouTube Client] Client created successfully', {
+    keySource: key_source,
+    keyLength: api_key.length,
   });
 
   return youtube;
