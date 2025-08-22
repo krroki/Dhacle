@@ -7,7 +7,7 @@
 
 ## 🎯 문서 체계 개요
 
-프로젝트 문서는 **13개의 핵심 문서**로 구성되며, 각각 명확한 역할과 목적을 가집니다.
+프로젝트 문서는 **14개의 핵심 문서**로 구성되며, 각각 명확한 역할과 목적을 가집니다.
 
 * 문서 업데이트 시 반드시 각 문서의 용도와 역할에 맞는 내용만 업데이트 해야 합니다.
 
@@ -29,7 +29,7 @@
 │   ├── ROUTE_SPEC.md      # 라우트 구조 명세
 │   ├── STATE_FLOW.md      # 상태 관리 플로우
 │   ├── DATA_MODEL.md      # 데이터 모델 명세
-│   └── ERROR_BOUNDARY.md  # 에러 처리 전략
+│   └── ERROR_BOUNDARY.md  # HTTP 에러 처리 전략
 ```
 
 ---
@@ -196,8 +196,8 @@
 - 새 테이블 생성 시
 - 타입 정의 변경 시
 
-### 13. ERROR_BOUNDARY.md - "에러 처리 전략" 🚨
-**목적**: 표준화된 에러 처리
+### 13. ERROR_BOUNDARY.md - "HTTP 에러 처리 전략" 🚨
+**목적**: 표준화된 HTTP 에러 처리
 **핵심 질문**: "401 에러 시 어떻게 처리하지?"
 **주요 내용**:
 - HTTP 에러별 처리
@@ -209,7 +209,21 @@
 - 새 에러 타입 추가 시
 - 처리 전략 변경 시
 
-### 14. TYPESCRIPT_ERROR_FIX_GUIDE.md - "TypeScript 에러 수정 가이드" 🔧
+### 14. CONTEXT_BRIDGE.md - "AI 반복 실수 예방 가이드" 🔥
+**목적**: AI의 반복적인 실수 예방 및 에러 대응
+**핵심 질문**: "왜 같은 에러가 계속 발생하지?"
+**주요 내용**:
+- 9가지 반복 실수 패턴과 예방책
+- 작업 시점별 체크리스트
+- 절대 금지사항
+- 최신 변경사항
+
+**업데이트 시점**:
+- 새로운 반복 실수 패턴 발견 시
+- 프로젝트 규칙 변경 시
+- 주요 패턴 변경 시
+
+### 15. TYPESCRIPT_ERROR_FIX_GUIDE.md - "TypeScript 에러 수정 가이드" 🔧
 **목적**: 빌드 에러 체계적 해결
 **핵심 질문**: "any 타입 에러 어떻게 고치지?"
 **주요 내용**:
@@ -241,8 +255,9 @@
 | **API 엔드포인트 추가** | CODEMAP, WIREFRAME | DATA_MODEL (타입 변경 시) |
 | **라우트 추가** | ROUTE_SPEC, FLOWMAP | - |
 | **상태 관리 추가** | STATE_FLOW | DATA_MODEL |
-| **에러 처리 개선** | ERROR_BOUNDARY | FLOWMAP (리다이렉트) |
-| **보안 규칙 변경** | CLAUDE | PROJECT (현황) |
+| **HTTP 에러 처리 개선** | ERROR_BOUNDARY | FLOWMAP (리다이렉트) |
+| **반복 실수 패턴 발견** | CONTEXT_BRIDGE | CLAUDE (규칙 추가 시) |
+| **보안 규칙 변경** | CLAUDE, CONTEXT_BRIDGE | PROJECT (현황) |
 | **UI-API 연결** | WIREFRAME | COMPONENT_INVENTORY |
 | **타입 정의 변경** | DATA_MODEL | - |
 | **파일/폴더 구조 변경** | CODEMAP | - |

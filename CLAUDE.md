@@ -42,20 +42,27 @@ npm run verify:types  # 문제 확인
 # 각 파일을 Read로 읽고 컨텍스트 이해 후 Edit로 수정
 ```
 
-### ⚡ 빌드 오류 시 긴급 대응 (2025-08-21 업데이트)
-```bash
-# 🔴 TypeScript 117개 오류 해결 지시서:
-docs/INSTRUCTION_FIX_BUILD_ERROR_v1.md (v2.0) 참조
+### ⚡ 빌드 오류 시 긴급 대응 (2025-08-22 업데이트)
 
-# ❌ 삭제됨 (2025-01-31): 자동 수정 스크립트 사용 금지
-# node scripts/fix-all-typescript-errors.js (삭제됨)
+#### 🔴 Vercel 빌드 실패 시 체크리스트
+1. **먼저 확인**: Vercel이 어떤 커밋을 빌드하는지 확인
+   - Vercel Dashboard에서 Building commit 해시 확인
+   - 로컬과 동일한지 확인: `git log --oneline -1`
+2. **커밋 불일치 시**: 
+   - 로컬 변경사항 커밋: `git add . && git commit -m "fix: ..."`
+   - 푸시: `git push origin <branch>`
+3. **DB 테이블 오류 시**:
+   ```bash
+   node scripts/verify-with-service-role.js  # 테이블 확인
+   node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
+   npm run types:generate  # 타입 재생성
+   ```
+4. **TypeScript 오류 시**:
+   - ❌ 자동 수정 스크립트 사용 금지!
+   - ✅ 각 파일 Read로 읽고 컨텍스트 이해 후 수정
+   - API Route는 반드시 `Promise<NextResponse>` 반환 타입 명시
 
-# SQL/DB/테이블 관련 오류 시:
-node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
-node scripts/verify-with-service-role.js  # 테이블 확인
-npm run types:generate  # 타입 재생성
-```
-> **주의**: Supabase Dashboard 사용 권장 금지! 위 명령어로 직접 실행
+> **교훈**: "4일간 디버깅" 문제는 대부분 Vercel이 오래된 커밋을 빌드하기 때문!
 
 ### 🔥 snake_case/camelCase 변환 시스템 (2025-01-31 중요 업데이트)
 **API 경계에서만 자동 변환 - React 예약어 보호**
@@ -156,7 +163,7 @@ npm run lint:biome:fix          # 코드 품질 자동 수정
 
 > **14개 핵심 문서 체계** (2025-08-22 업데이트):
 > - 🤖 AI 작업 지침: `/CLAUDE.md` (이 문서)
-> - 🌉 **컨텍스트 브릿지**: `/docs/CONTEXT_BRIDGE.md` (🆕 프로젝트 특화 규칙)
+> - 🔥 **반복 실수 예방**: `/docs/CONTEXT_BRIDGE.md` (최우선! 9가지 실수 + 체크리스트 통합)
 > - 📊 프로젝트 현황: `/docs/PROJECT.md`
 > - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md`
 > - ✅ 작업 검증: `/docs/CHECKLIST.md`
@@ -168,7 +175,7 @@ npm run lint:biome:fix          # 코드 품질 자동 수정
 > - 📍 라우트 구조: `/docs/ROUTE_SPEC.md`
 > - 💾 상태 관리: `/docs/STATE_FLOW.md`
 > - 📦 데이터 모델: `/docs/DATA_MODEL.md`
-> - 🚨 에러 처리: `/docs/ERROR_BOUNDARY.md`
+> - 🚨 HTTP 에러 처리: `/docs/ERROR_BOUNDARY.md` (HTTP 전용)
 
 ---
 

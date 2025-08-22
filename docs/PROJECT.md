@@ -15,7 +15,7 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 #### 📋 필수 확인 문서 (14개 체계) 🆕
 1. ☐ **이 문서** (`PROJECT.md`) - 현재 상태와 진행 상황
 2. ☐ **`/CLAUDE.md`** - AI 작업 지침서 + 3단계 검증 시스템
-3. ☐ **`/docs/CONTEXT_BRIDGE.md`** - 🆕 프로젝트 특화 규칙 (최우선 확인!)
+3. ☐ **`/docs/CONTEXT_BRIDGE.md`** - 🔥 **최우선! 반복 실수 예방 통합 가이드**
 4. ☐ **`/docs/CODEMAP.md`** - 프로젝트 구조 지도
 5. ☐ **`/docs/CHECKLIST.md`** - 작업 검증 체크리스트
 6. ☐ **`/docs/DOCUMENT_GUIDE.md`** - 문서 가이드라인
@@ -26,7 +26,7 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 11. ☐ **`/docs/ROUTE_SPEC.md`** - 라우트 구조 및 가드
 12. ☐ **`/docs/STATE_FLOW.md`** - 상태 관리 플로우
 13. ☐ **`/docs/DATA_MODEL.md`** - 데이터 모델 매핑
-14. ☐ **`/docs/ERROR_BOUNDARY.md`** - 에러 처리 전략
+14. ☐ **`/docs/ERROR_BOUNDARY.md`** - HTTP 에러 처리 전략
 
 ### 🔒 인증/오리진 불변식 - 절대 준수
 - **로컬 개발**: 반드시 `http://localhost:<port>`만 사용 (127.0.0.1 사용 금지)
@@ -35,11 +35,11 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
-2. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
-3. **2025-08-22**: video_stats 테이블 필드 추가 - views_per_hour, engagement_rate, viral_score 추가 ✅
-4. **2025-08-22**: 모든 `as any` 제거 - 11개 타입 캐스팅 완전 제거, 타입 안전성 100% ✅
-5. **2025-08-22**: 미사용 변수 정리 - TS6133/TS6196 플레이스홀더 13개 완전 제거 ✅
+1. **2025-08-22**: 🚀 **Vercel 빌드 오류 완전 해결** - monthlyRankings 테이블 문제 및 API Route 타입 수정 (c794bcd) ✅
+2. **2025-08-22**: 📚 **문서 체계 개선** - CONTEXT_BRIDGE.md로 반복 실수 예방 통합, ERROR_BOUNDARY.md는 HTTP 전용 ✅
+3. **2025-08-22**: 🔧 **TypeScript 에러 재수정** - trends.ts의 snake_case 변수명 오류 해결 (0개 유지) ✅
+4. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
+5. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
 6. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
 7. **2025-08-22**: 타입 시스템 복구 - Phase 3 완전 달성, 224개→0개 (100% 해결) ✅
 

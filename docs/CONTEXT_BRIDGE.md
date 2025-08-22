@@ -1,8 +1,123 @@
-# 🌉 CONTEXT_BRIDGE - 프로젝트 특화 규칙 전달 시스템
+# 🌉 CONTEXT_BRIDGE - AI 필수 참조 문서 (예방 + 대응 통합)
 
-**목적**: Context 없는 AI가 디하클 프로젝트 작업 시 반드시 알아야 할 특화 규칙과 최신 변경사항
+**목적**: AI가 디하클 프로젝트 작업 시 반복 실수를 예방하고 에러에 대응하는 통합 가이드
 
 **우선순위**: 🔴 **최우선 - 이 문서 미확인 시 치명적 오류 발생 가능성 90%**
+
+**핵심 질문**: "왜 같은 에러가 계속 발생하지?" → 이 문서가 답입니다.
+
+---
+
+## 🔥 반복되는 9가지 치명적 실수 (작업 전 반드시 확인!)
+
+### 1. TypeScript 컴파일 에러
+**❌ 실제 사례**: `categoryBenchmarks` vs `category_benchmarks` 혼용
+```typescript
+// ❌ 잘못된 코드 (방금 수정한 실제 사례)
+benchmarks: typeof categoryBenchmarks.percentiles
+
+// ✅ 올바른 코드
+benchmarks: typeof category_benchmarks.percentiles
+```
+**🛡️ 예방책**: 변수명 작성 전 주변 코드 확인, snake_case 일관성 유지
+
+### 2. 런타임 환경 변수 에러
+**❌ 실제 사례**: Vercel 빌드 시 환경변수 없음
+```typescript
+// ❌ 문제 코드
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+// 빌드 시 "NEXT_PUBLIC_SUPABASE_URL required" 에러
+
+// ✅ 해결 코드
+export const dynamic = 'force-dynamic';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+```
+**🛡️ 예방책**: Server Component에 `force-dynamic` 추가
+
+### 3. ESLint 에러 (any 타입)
+**❌ 실제 사례**: 타입 모르면 any 사용
+```typescript
+// ❌ 금지
+const data: any = await fetch();
+
+// ✅ 올바른 방법
+import { User } from '@/types';
+const data = await apiGet<User>('/api/user');
+```
+**🛡️ 예방책**: @/types에서 타입 import, 없으면 unknown + 타입가드
+
+### 4. snake_case/camelCase 혼용
+**❌ 실제 사례**: DB 필드명 그대로 사용
+```typescript
+// ❌ 문제: DB는 snake_case, 프론트는 camelCase
+user.created_at // DB 필드명
+user.createdAt // 프론트엔드 필드명
+
+// ✅ 해결: 변환 함수 사용
+import { snakeToCamelCase } from '@/types';
+const userData = snakeToCamelCase(dbData);
+```
+**🛡️ 예방책**: API 경계에서 항상 변환
+
+### 5. API 연동 미흡
+**❌ 실제 사례**: 직접 fetch 사용
+```typescript
+// ❌ 금지
+const res = await fetch('/api/data');
+
+// ✅ 필수
+import { apiGet } from '@/lib/api-client';
+const data = await apiGet('/api/data');
+```
+**🛡️ 예방책**: api-client.ts 함수만 사용
+
+### 6. DB 값 무시하고 임의 생성
+**❌ 실제 사례**: 더미 데이터 사용
+```typescript
+// ❌ 금지
+const mockData = { id: 1, name: 'Test' };
+
+// ✅ 필수
+const { data } = await supabase.from('table').select();
+```
+**🛡️ 예방책**: 실제 DB 데이터만 사용
+
+### 7. any 타입 남발
+**❌ 실제 사례**: 에러 처리 시 any
+```typescript
+// ❌ 금지
+catch (error: any) { console.log(error.message) }
+
+// ✅ 올바른 방법
+catch (error) {
+  console.error(error instanceof Error ? error.message : String(error))
+}
+```
+**🛡️ 예방책**: unknown 사용 후 타입 체크
+
+### 8. 파일 컨텍스트 무시
+**❌ 실제 사례**: Read 없이 수정
+```typescript
+// ❌ 금지: 추측으로 코드 수정
+// "아마 이럴 것이다" 방식
+
+// ✅ 필수: Read → 이해 → Edit
+// 1. Read로 파일 확인
+// 2. 주변 패턴 파악
+// 3. 일관성 있게 수정
+```
+**🛡️ 예방책**: 수정 전 반드시 Read 실행
+
+### 9. Supabase 패턴 혼용
+**❌ 실제 사례**: 구식/신식 혼용
+```typescript
+// ❌ 구식 (2025-08-22 이전)
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+
+// ✅ 신식 (현재 표준)
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+```
+**🛡️ 예방책**: 프로젝트 표준 패턴만 사용
 
 ---
 
@@ -150,6 +265,55 @@ await supabase.insert(camelToSnakeCase(userData));
 2. **Check Patterns**: 위 필수 확인 명령어 실행
 3. **Manual Fix**: 자동 스크립트 대신 수동 수정
 4. **Verify**: 빌드 및 타입 체크 확인
+
+---
+
+## 📝 작업 시점별 필수 체크리스트
+
+### 🔨 기능 구현 시작 전
+```bash
+□ Read로 관련 파일 확인
+□ 주변 코드 패턴 파악 (snake_case? camelCase?)
+□ @/types에서 필요한 타입 확인
+□ api-client.ts 함수 확인 (apiGet, apiPost 등)
+□ DB 테이블 존재 여부 확인
+```
+
+### 🐛 버그 수정 시작 전
+```bash
+□ 에러 메시지 정확히 읽기
+□ Read로 해당 파일 전체 컨텍스트 확인
+□ 관련 import 경로 확인
+□ 타입 정의 위치 확인 (@/types만!)
+□ 환경변수 관련이면 force-dynamic 확인
+```
+
+### 📦 컴파일/빌드 전
+```bash
+□ npx tsc --noEmit 실행 (타입 체크)
+□ any 타입 검색: grep -r ": any" src/
+□ 구식 패턴 검색: grep -r "createServerComponentClient"
+□ 직접 import 검색: grep -r "database.generated"
+□ fetch 직접 사용 검색: grep -r "fetch(" src/
+```
+
+### 🚀 배포/커밋 전
+```bash
+□ npm run build 성공 확인
+□ npm run lint:biome 실행
+□ npm run verify:types 실행
+□ 테스트 파일 삭제 확인
+□ 더미 데이터 제거 확인
+```
+
+### 💥 에러 발생 시
+```bash
+□ ERROR_BOUNDARY.md의 9가지 패턴 확인
+□ snake_case/camelCase 문제인지 확인
+□ Supabase 패턴 문제인지 확인
+□ 타입 import 경로 문제인지 확인
+□ 환경변수 문제인지 확인
+```
 
 ---
 

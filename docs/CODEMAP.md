@@ -5,7 +5,7 @@ _핵심 질문: "어디에 뭐가 있지?"_
 _업데이트: 새 파일/폴더 추가 또는 구조 변경 시_
 _최종 수정: 2025-01-31 - DOCUMENT_GUIDE 지침 반영_
 
-> **13개 핵심 문서 체계**:
+> **14개 핵심 문서 체계**:
 >
 > - 🤖 AI 작업 지침: `/CLAUDE.md`
 > - 📊 프로젝트 현황: `/docs/PROJECT.md`
@@ -19,7 +19,8 @@ _최종 수정: 2025-01-31 - DOCUMENT_GUIDE 지침 반영_
 > - 📍 라우트 구조: `/docs/ROUTE_SPEC.md`
 > - 💾 상태 관리: `/docs/STATE_FLOW.md`
 > - 📦 데이터 모델: `/docs/DATA_MODEL.md`
-> - 🚨 에러 처리: `/docs/ERROR_BOUNDARY.md`
+> - 🚨 HTTP 에러 처리: `/docs/ERROR_BOUNDARY.md`
+> - 🔥 반복 실수 예방: `/docs/CONTEXT_BRIDGE.md`
 
 ---
 
@@ -331,7 +332,8 @@ export async function GET(request: Request) {
 │   ├── ROUTE_SPEC.md              # 라우트 구조 명세
 │   ├── STATE_FLOW.md              # 상태 관리 플로우
 │   ├── DATA_MODEL.md              # 데이터 모델 명세
-│   └── ERROR_BOUNDARY.md          # 에러 처리 전략
+│   ├── ERROR_BOUNDARY.md          # HTTP 에러 처리 전략
+│   └── CONTEXT_BRIDGE.md          # 반복 실수 예방 통합 가이드
 ├── .husky/                        # Git hooks (2025-08-19 추가)
 │   ├── _/                         # Husky 내부 파일
 │   └── pre-commit                 # Pre-commit 검증 스크립트

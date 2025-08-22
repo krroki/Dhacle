@@ -63,7 +63,7 @@ TOSS_SECRET_KEY=test_sk_...
 
 ## 📚 프로젝트 문서 체계
 
-이 프로젝트는 **13개 핵심 문서 체계**로 관리됩니다:
+이 프로젝트는 **14개 핵심 문서 체계**로 관리됩니다:
 
 ### 필수 확인 문서
 - **[CLAUDE.md](/CLAUDE.md)** - AI 작업 지침서와 규칙
@@ -77,7 +77,8 @@ TOSS_SECRET_KEY=test_sk_...
 - **[docs/ROUTE_SPEC.md](/docs/ROUTE_SPEC.md)** - 라우트 구조와 보호 상태
 - **[docs/COMPONENT_INVENTORY.md](/docs/COMPONENT_INVENTORY.md)** - 재사용 가능 컴포넌트
 - **[docs/STATE_FLOW.md](/docs/STATE_FLOW.md)** - 상태 관리 패턴
-- **[docs/ERROR_BOUNDARY.md](/docs/ERROR_BOUNDARY.md)** - 에러 처리 전략
+- **[docs/ERROR_BOUNDARY.md](/docs/ERROR_BOUNDARY.md)** - HTTP 에러 처리 전략
+- **[docs/CONTEXT_BRIDGE.md](/docs/CONTEXT_BRIDGE.md)** - AI 반복 실수 예방 가이드
 
 ### 작업 문서
 - **[docs/CHECKLIST.md](/docs/CHECKLIST.md)** - 작업 검증 체크리스트

@@ -35,6 +35,11 @@ node scripts/type-validator.js # → Pass: 타입 시스템 정상
 # 3. 의존성 및 환경
 test -f .env.local && echo "✅" || echo "❌" # → .env.local 존재 확인
 npm ls --depth=0 2>&1 | grep "UNMET" | wc -l # → 0이어야 함
+
+# 4. 반복 실수 예방 체크 (CONTEXT_BRIDGE.md 기반)
+grep -r "createServerComponentClient" src/ | wc -l # → 0이어야 함 (구식 패턴)
+grep -r ": any" src/ --include="*.ts" --include="*.tsx" | wc -l # → 0이어야 함
+grep -r "from '@/types/database'" src/ | wc -l # → 0이어야 함 (직접 import)
 ```
 
 #### 체크 항목
@@ -42,6 +47,7 @@ npm ls --depth=0 2>&1 | grep "UNMET" | wc -l # → 0이어야 함
 - [ ] TypeScript 컴파일 가능 상태
 - [ ] 환경 변수 파일 존재
 - [ ] 의존성 정상 설치됨
+- [ ] **CONTEXT_BRIDGE.md 반복 실수 체크 통과** 🆕
 
 ### 🔨 작업 중 (During Work)
 
@@ -497,7 +503,7 @@ chore: 기타 작업
 - [ ] WIREFRAME.md - UI-API 연결 상태 업데이트
 - [ ] COMPONENT_INVENTORY.md - 새 컴포넌트 추가 시
 
-## 🔍 Pre-commit 검증 체크리스트 (2025-08-19 추가)
+## 🔍 Pre-commit 검증 체크리스트 (2025-08-19 추가, 2025-08-22 개선)
 
 ### Git 커밋 전 자동 검증
 
@@ -506,6 +512,11 @@ chore: 기타 작업
 - [ ] TypeScript 타입 검증 통과
 - [ ] Staged 파일 검증 완료
 - [ ] 코드 포맷팅 자동 적용
+- [ ] **CONTEXT_BRIDGE.md 9가지 실수 패턴 체크** 🆕
+  - [ ] any 타입 사용 금지
+  - [ ] 구식 Supabase 패턴 금지
+  - [ ] 직접 database.generated import 금지
+  - [ ] 직접 fetch() 호출 금지
 
 ### 검증 우회 (긴급 시에만)
 
