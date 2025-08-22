@@ -199,15 +199,16 @@ src/types/index.ts (변환 레이어, camelCase)
 Frontend Components (camelCase 사용)
 ```
 
-### ⚠️ 중요: 타입 파일 체계
+### ⚠️ 중요: 타입 파일 체계 (2025-08-22 완료)
 ```bash
-# 유지해야 할 파일들:
+# 유지해야 할 파일들 (2개만):
 ✅ src/types/database.generated.ts  # Supabase 자동 생성 (절대 수정 금지)
 ✅ src/types/index.ts               # 중앙 타입 정의 (Single Source of Truth)
 
-# 주의: 다른 타입 파일 생성 금지
-❌ src/types/database.ts 생성 금지
-❌ src/types/database.types.ts 생성 금지
+# 삭제 완료된 파일들:
+✅ course.ts, course-system.types.ts → index.ts로 통합
+✅ youtube.ts, youtube-lens.ts, youtube-pubsub.ts → index.ts로 통합
+✅ revenue-proof.ts, tosspayments.d.ts → index.ts로 통합
 ```
 
 ### 타입 import 규칙 (절대 준수)

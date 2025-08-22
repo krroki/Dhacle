@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ channel_id: string }> }
 ) {
   const { channel_id } = await params;

@@ -102,13 +102,15 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
     }).length;
   };
 
-  const getColorClasses = (color: string) => {
+  const getColorClasses = (color: string): { bg: string; border: string; text: string } => {
+    const defaultColors = {
+      bg: 'bg-blue-50 dark:bg-blue-950/20',
+      border: 'border-blue-200 dark:border-blue-900',
+      text: 'text-blue-600 dark:text-blue-400',
+    };
+
     const colors: Record<string, { bg: string; border: string; text: string }> = {
-      blue: {
-        bg: 'bg-blue-50 dark:bg-blue-950/20',
-        border: 'border-blue-200 dark:border-blue-900',
-        text: 'text-blue-600 dark:text-blue-400',
-      },
+      blue: defaultColors,
       yellow: {
         bg: 'bg-yellow-50 dark:bg-yellow-950/20',
         border: 'border-yellow-200 dark:border-yellow-900',
@@ -135,7 +137,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
         text: 'text-indigo-600 dark:text-indigo-400',
       },
     };
-    return colors[color] || colors.blue;
+    return colors[color] ?? defaultColors;
   };
 
   return (

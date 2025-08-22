@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   AlertCircle,
   BarChart3,
@@ -16,7 +16,7 @@ import {
   TrendingUp,
   Youtube,
 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -35,7 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { apiDelete, apiGet, apiPost } from '@/lib/api-client';
+import { apiGet, apiPost } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type {
@@ -43,8 +43,8 @@ import type {
   QuotaStatus as QuotaStatusType,
   YouTubeFavorite,
   YouTubeSearchFilters,
-} from '@/types/youtube';
-import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtube-lens';
+} from '@/types';
+import type { EntityExtraction, TrendAnalysis, YouTubeLensVideoStats as VideoStats } from '@/types';
 
 // API 타입 정의
 interface ApiKeyData {
@@ -116,7 +116,7 @@ interface FavoritesResponse {
   data: YouTubeFavorite[];
 }
 
-interface AddFavoriteResponse {
+interface _AddFavoriteResponse {
   success: boolean;
   data: YouTubeFavorite;
 }
@@ -126,31 +126,19 @@ const fetchFavorites = async () => {
   return result;
 };
 
-const addFavorite = async (video: FlattenedYouTubeVideo) => {
-  const result = await apiPost<AddFavoriteResponse>('/api/youtube/favorites', {
-    video_id: video.id,
-    videoData: video,
-  });
-  return result;
-};
-
-const removeFavorite = async (favoriteId: string) => {
-  const result = await apiDelete<{ success: boolean }>(`/api/youtube/favorites/${favoriteId}`);
-  return result;
-};
 
 function YouTubeLensContent() {
   const router = useRouter();
-  const _searchParams = useSearchParams();
+  // const _searchParams = useSearchParams(); // Currently unused
   const { user, loading: authLoading } = useAuth();
 
   const {
     videos,
     setVideos,
     setQuotaStatus,
-    setOAuthToken,
+    setOAuthToken: _setOAuthToken,
     setError,
-    setLoading,
+    setLoading: _setLoading,
     searchHistory,
     favoriteVideos,
     loadFavorites,
@@ -174,9 +162,9 @@ function YouTubeLensContent() {
 
   // 메트릭 데이터 조회
   const {
-    data: metricsData,
-    isLoading: isLoadingMetrics,
-    refetch: refetchMetrics,
+    data: _metricsData,
+    isLoading: _isLoadingMetrics,
+    refetch: _refetchMetrics,
   } = useQuery({
     queryKey: ['youtube-metrics'],
     queryFn: async () => {
@@ -195,35 +183,12 @@ function YouTubeLensContent() {
   });
 
   // 즐겨찾기 쿼리
-  const { data: favoritesData, refetch: refetchFavorites } = useQuery({
+  const { data: favoritesData } = useQuery({
     queryKey: ['youtube-favorites'],
     queryFn: fetchFavorites,
     enabled: !!user && hasApiKey,
   });
 
-  // 즐겨찾기 추가 뮤테이션
-  const _addFavoriteMutation = useMutation({
-    mutationFn: addFavorite,
-    onSuccess: () => {
-      toast.success('즐겨찾기에 추가되었습니다');
-      refetchFavorites();
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || '즐겨찾기 추가 실패');
-    },
-  });
-
-  // 즐겨찾기 제거 뮤테이션
-  const _removeFavoriteMutation = useMutation({
-    mutationFn: removeFavorite,
-    onSuccess: () => {
-      toast.success('즐겨찾기에서 제거되었습니다');
-      refetchFavorites();
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || '즐겨찾기 제거 실패');
-    },
-  });
 
   // 검색 결과에서 할당량 업데이트
   const updateQuotaFromSearch = useCallback(

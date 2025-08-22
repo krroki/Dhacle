@@ -102,7 +102,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
 
     if (!response.ok) {
-      const _errorText = await response.text();
+      await response.text();
       return NextResponse.json(
         { error: 'Cloudflare Stream 업로드에 실패했습니다.' },
         { status: response.status }

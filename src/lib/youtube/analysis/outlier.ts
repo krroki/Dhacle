@@ -6,13 +6,13 @@
  * for detecting statistical outliers in YouTube video metrics
  */
 
-import { mapVideoStats } from '@/lib/utils/type-mappers';
+// import { mapVideoStats } from '@/lib/utils/type-mappers';
 import type {
   AnalyticsConfig,
   OutlierDetectionResult,
-  Video,
+  YouTubeLensVideo as Video,
   VideoStats,
-} from '@/types/youtube-lens';
+} from '@/types';
 
 // Default configuration for outlier detection
 const DEFAULT_CONFIG: AnalyticsConfig = {
@@ -36,9 +36,11 @@ function median(values: number[]): number {
   const mid = Math.floor(sorted.length / 2);
 
   if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1] + sorted[mid]) / 2;
+    const first = sorted[mid - 1] ?? 0;
+    const second = sorted[mid] ?? 0;
+    return (first + second) / 2;
   }
-  return sorted[mid];
+  return sorted[mid] ?? 0;
 }
 
 /**
@@ -78,7 +80,7 @@ function calculateZScores(values: number[]): number[] {
  * Calculate modified z-score using MAD
  * This is more robust to outliers than standard z-score
  */
-function calculateModifiedZScores(values: number[], _madMultiplier = 2.5): number[] {
+function calculateModifiedZScores(values: number[], __madMultiplier = 2.5): number[] {
   if (values.length === 0) {
     return [];
   }
@@ -132,56 +134,78 @@ export async function detectOutliers(
   });
   const vphValues = videos.map((v) => {
     const stats = Array.isArray(v.stats) ? v.stats[0] : v.stats;
-    const mappedStats = stats ? mapVideoStats(stats) : null;
-    return mappedStats?.viewsPerHour || 0;
+    if (!stats) return 0;
+    
+    // Handle both DB and mapped stats types
+    if ('viewsPerHour' in stats) {
+      return stats.viewsPerHour || 0;
+    }
+    
+    // For DB stats, calculate VPH if we have the data
+    const viewCount = 'view_count' in stats ? stats.view_count : 0;
+    if (!viewCount || typeof viewCount !== 'number') return 0;
+    
+    // Simple approximation: views per hour based on age
+    const publishedAt = v.published_at;
+    if (publishedAt) {
+      const ageInHours = (Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60);
+      return ageInHours > 0 ? viewCount / ageInHours : 0;
+    }
+    
+    return 0;
   });
 
   // Calculate z-scores and MAD scores
   const viewZScores = calculateZScores(viewCounts);
-  const viewMADScores = calculateModifiedZScores(viewCounts, cfg.madMultiplier);
+  const madMultiplier = typeof cfg.madMultiplier === 'number' ? cfg.madMultiplier : 2.5;
+  const viewMADScores = calculateModifiedZScores(viewCounts, madMultiplier);
 
   const likeZScores = calculateZScores(likeCounts);
-  const likeMADScores = calculateModifiedZScores(likeCounts, cfg.madMultiplier);
+  const likeMADScores = calculateModifiedZScores(likeCounts, madMultiplier);
 
   const commentZScores = calculateZScores(commentCounts);
-  const commentMADScores = calculateModifiedZScores(commentCounts, cfg.madMultiplier);
+  const commentMADScores = calculateModifiedZScores(commentCounts, madMultiplier);
 
   const vphZScores = calculateZScores(vphValues);
-  const vphMADScores = calculateModifiedZScores(vphValues, cfg.madMultiplier);
+  const vphMADScores = calculateModifiedZScores(vphValues, madMultiplier);
 
   // Analyze each video for outliers
   const results: OutlierDetectionResult[] = videos.map((video, index) => {
     // Calculate combined scores (average of all metrics)
     const avgZScore =
-      (Math.abs(viewZScores[index]) +
-        Math.abs(likeZScores[index]) +
-        Math.abs(commentZScores[index]) +
-        Math.abs(vphZScores[index])) /
+      (Math.abs(viewZScores[index] || 0) +
+        Math.abs(likeZScores[index] || 0) +
+        Math.abs(commentZScores[index] || 0) +
+        Math.abs(vphZScores[index] || 0)) /
       4;
 
     const avgMADScore =
-      (Math.abs(viewMADScores[index]) +
-        Math.abs(likeMADScores[index]) +
-        Math.abs(commentMADScores[index]) +
-        Math.abs(vphMADScores[index])) /
+      (Math.abs(viewMADScores[index] || 0) +
+        Math.abs(likeMADScores[index] || 0) +
+        Math.abs(commentMADScores[index] || 0) +
+        Math.abs(vphMADScores[index] || 0)) /
       4;
 
     // Combined score: weighted average of z-score and MAD score
     const combinedScore = avgZScore * 0.4 + avgMADScore * 0.6;
 
     // Determine if it's an outlier
-    const isOutlier = combinedScore > cfg.outlierThreshold;
+    const threshold = typeof cfg.outlierThreshold === 'number' ? cfg.outlierThreshold : 2.5;
+    const isOutlier = combinedScore > threshold;
 
     // Determine outlier type (positive = viral, negative = underperforming)
     let outlierType: 'positive' | 'negative' | null = null;
     if (isOutlier) {
       const sumScore =
-        viewZScores[index] + likeZScores[index] + commentZScores[index] + vphZScores[index];
+        (viewZScores[index] ?? 0) +
+        (likeZScores[index] ?? 0) +
+        (commentZScores[index] ?? 0) +
+        (vphZScores[index] ?? 0);
       outlierType = sumScore > 0 ? 'positive' : 'negative';
     }
 
     // Calculate percentile rank
-    const percentile = calculatePercentile(viewCounts[index], viewCounts);
+    const percentile = calculatePercentile(viewCounts[index] || 0, viewCounts);
 
     return {
       video_id: video.video_id,
@@ -191,10 +215,10 @@ export async function detectOutliers(
       isOutlier: isOutlier,
       outlierType: outlierType,
       metrics: {
-        view_count: viewCounts[index],
-        like_count: likeCounts[index],
-        comment_count: commentCounts[index],
-        vph: vphValues[index],
+        view_count: viewCounts[index] || 0,
+        like_count: likeCounts[index] || 0,
+        comment_count: commentCounts[index] || 0,
+        vph: vphValues[index] || 0,
       },
       percentile: Math.round(percentile),
       timestamp: new Date().toISOString(),
@@ -219,7 +243,11 @@ export function findTopOutliers(
   }
 
   // Sort by combined score (descending)
-  return filtered.sort((a, b) => b.combinedScore - a.combinedScore).slice(0, limit);
+  return filtered.sort((a, b) => {
+    const scoreA = typeof a.combinedScore === 'number' ? a.combinedScore : 0;
+    const scoreB = typeof b.combinedScore === 'number' ? b.combinedScore : 0;
+    return scoreB - scoreA;
+  }).slice(0, limit);
 }
 
 /**
@@ -249,13 +277,20 @@ export function analyzeOutlierTrends(
 
   const outlierCount = videoResults.filter((r) => r.isOutlier).length;
   const outlierFrequency = outlierCount / videoResults.length;
-  const avgScore = videoResults.reduce((sum, r) => sum + r.combinedScore, 0) / videoResults.length;
+  const avgScore = videoResults.reduce((sum, r) => {
+    const score = typeof r.combinedScore === 'number' ? r.combinedScore : 0;
+    return sum + score;
+  }, 0) / videoResults.length;
 
   // Determine trend
   let trend: 'improving' | 'declining' | 'stable' = 'stable';
   if (videoResults.length >= 3) {
-    const recentScores = videoResults.slice(-3).map((r) => r.combinedScore);
-    const earlyScores = videoResults.slice(0, 3).map((r) => r.combinedScore);
+    const recentScores = videoResults.slice(-3).map((r) => 
+      typeof r.combinedScore === 'number' ? r.combinedScore : 0
+    );
+    const earlyScores = videoResults.slice(0, 3).map((r) => 
+      typeof r.combinedScore === 'number' ? r.combinedScore : 0
+    );
     const recentAvg = recentScores.reduce((a, b) => a + b, 0) / recentScores.length;
     const earlyAvg = earlyScores.reduce((a, b) => a + b, 0) / earlyScores.length;
 
@@ -300,8 +335,14 @@ export function generateOutlierReport(results: OutlierDetectionResult[]): {
   const positiveOutliers = outliers.filter((r) => r.outlierType === 'positive');
   const negativeOutliers = outliers.filter((r) => r.outlierType === 'negative');
 
-  const avgZScore = results.reduce((sum, r) => sum + r.zScore, 0) / results.length;
-  const avgMADScore = results.reduce((sum, r) => sum + r.madScore, 0) / results.length;
+  const avgZScore = results.reduce((sum, r) => {
+    const score = typeof r.zScore === 'number' ? r.zScore : 0;
+    return sum + score;
+  }, 0) / results.length;
+  const avgMADScore = results.reduce((sum, r) => {
+    const score = typeof r.madScore === 'number' ? r.madScore : 0;
+    return sum + score;
+  }, 0) / results.length;
 
   return {
     totalVideos: results.length,
@@ -315,10 +356,10 @@ export function generateOutlierReport(results: OutlierDetectionResult[]): {
       avgZScore: avgZScore,
       avgMadScore: avgMADScore,
       percentileDistribution: {
-        top_10: results.filter((r) => r.percentile >= 90).length,
-        top_25: results.filter((r) => r.percentile >= 75).length,
-        bottom_25: results.filter((r) => r.percentile <= 25).length,
-        bottom_10: results.filter((r) => r.percentile <= 10).length,
+        top_10: results.filter((r) => typeof r.percentile === 'number' && r.percentile >= 90).length,
+        top_25: results.filter((r) => typeof r.percentile === 'number' && r.percentile >= 75).length,
+        bottom_25: results.filter((r) => typeof r.percentile === 'number' && r.percentile <= 25).length,
+        bottom_10: results.filter((r) => typeof r.percentile === 'number' && r.percentile <= 10).length,
       },
     },
   };

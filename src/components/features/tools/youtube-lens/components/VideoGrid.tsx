@@ -26,7 +26,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
-import type { FlattenedYouTubeVideo, YouTubeFavorite } from '@/types/youtube';
+import type { FlattenedYouTubeVideo, YouTubeFavorite } from '@/types';
 import { VideoCard } from './VideoCard';
 
 interface VideoGridProps {

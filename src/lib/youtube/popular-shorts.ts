@@ -6,7 +6,7 @@
 
 import type { youtube_v3 } from 'googleapis';
 import { supabase } from '@/lib/supabase/client';
-import type { PopularShortsParams, Video, VideoWithStats } from '@/types/youtube-lens';
+import type { PopularShortsParams, Video, VideoWithStats } from '@/types';
 import { getYouTubeClient } from './client-helper';
 
 /**
@@ -294,7 +294,7 @@ function calculateViralScore(metrics: {
   vph: number;
   engagementRate: number;
 }): number {
-  const { view_count, like_count, comment_count, hoursElapsed, vph, engagementRate } = metrics;
+  const { view_count, like_count: _like_count, comment_count: _comment_count, hoursElapsed, vph, engagementRate } = metrics;
 
   // Viral score formula (weighted factors)
   let score = 0;
@@ -385,21 +385,23 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
       .filter((v) => v.stats)
       .map((v) => ({
         video_id: v.video_id,
-        date: new Date().toISOString().split('T')[0], // Add required date field
-        view_count: v.stats?.view_count,
-        like_count: v.stats?.like_count,
-        comment_count: v.stats?.comment_count,
-        views_per_hour: v.stats?.viewsPerHour,  // Convert to snake_case
-        engagement_rate: v.stats?.engagementRate,  // Convert to snake_case
-        viral_score: v.stats?.viralScore,  // Convert to snake_case
-        view_delta: v.stats?.viewDelta,  // Already snake_case
-        like_delta: v.stats?.likeDelta,  // Already snake_case
-        comment_delta: v.stats?.commentDelta,  // Already snake_case
+        date: new Date().toISOString().split('T')[0] as string, // Add required date field
+        view_count: v.stats?.view_count ?? null,
+        like_count: v.stats?.like_count ?? null,
+        comment_count: v.stats?.comment_count ?? null,
+        views_per_hour: v.stats?.viewsPerHour ?? null,  // Convert to snake_case
+        engagement_rate: v.stats?.engagementRate ?? null,  // Convert to snake_case
+        viral_score: v.stats?.viralScore ?? null,  // Convert to snake_case
+        view_delta: v.stats?.viewDelta ?? null,  // Already snake_case
+        like_delta: v.stats?.likeDelta ?? null,  // Already snake_case
+        comment_delta: v.stats?.commentDelta ?? null,  // Already snake_case
       }));
 
-    const { error: statsError } = await supabase.from('video_stats').insert(statsData);
-
-    if (statsError) {
+    if (statsData.length > 0) {
+      const { error: statsError } = await supabase.from('video_stats').insert(statsData as any);
+      if (statsError) {
+        console.error('Stats insert error:', statsError);
+      }
     }
   } catch (_error) {}
 }
@@ -410,7 +412,7 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
 export async function getCachedPopularShorts(
   params: PopularShortsParams = {}
 ): Promise<VideoWithStats[]> {
-  const { regionCode = 'US', period = '24h', minViews = 1000, minVPH = 100, limit = 50 } = params;
+  const { regionCode: _regionCode = 'US', period = '24h', minViews = 1000, minVPH = 100, limit = 50 } = params;
 
   try {
     const cutoffDate = getTimeframeDate(period);
@@ -436,16 +438,25 @@ export async function getCachedPopularShorts(
     const videosWithStats: VideoWithStats[] = (data || []).map((item) => ({
       ...item,
       video_id: item.id,  // Use id field from videos table
-      durationSeconds: item.duration || 0,
+      durationSeconds: typeof item.duration === 'number' ? item.duration : parseInt(String(item.duration || 0)),
       isShort: true,
       thumbnails: [],
+      published_at: item.published_at || new Date().toISOString(),
       publishedAt: item.published_at || new Date().toISOString(),
       title: item.title || '',
       viewCount: item.view_count || 0,
       channelTitle: '',  // channel_title field doesn't exist in DB
       tags: item.tags || [],
-      stats: item.videoStats?.[0] || undefined,
-    }));
+      stats: (item.videoStats && Array.isArray(item.videoStats) && item.videoStats.length > 0) 
+        ? item.videoStats[0] as any // Cast to avoid type issues
+        : undefined,
+      // Add missing required properties for VideoWithStats
+      languageCode: 'en',
+      regionCode: 'US',
+      firstSeenAt: item.created_at || new Date().toISOString(),
+      lastUpdatedAt: item.updated_at || new Date().toISOString(),
+      deleted_at: null,
+    })) as VideoWithStats[];
 
     return videosWithStats;
   } catch (_error) {

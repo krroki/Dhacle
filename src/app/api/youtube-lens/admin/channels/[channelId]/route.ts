@@ -76,7 +76,7 @@ export async function PUT(
 
 // DELETE: 채널 삭제 (관리자 전용)
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ channel_id: string }> }
 ) {
   const { channel_id } = await params;

@@ -34,7 +34,7 @@ export function HeroCarousel() {
         carouselItems[currentIndex - 1],
         carouselItems[currentIndex],
         carouselItems[currentIndex + 1],
-      ].filter(Boolean);
+      ].filter((item): item is typeof carouselItems[0] => Boolean(item));
 
       preloadImages(itemsToPreload);
     };
@@ -49,6 +49,7 @@ export function HeroCarousel() {
     }
     // API가 없을 때 처음 3개만 프리로드
     preloadImages(carouselItems.slice(0, 3));
+    return undefined;
   }, [api]);
 
   // Carousel API 설정

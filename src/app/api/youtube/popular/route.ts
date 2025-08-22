@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
     const regionCode = searchParams.get('region') || 'KR';
     const period = searchParams.get('period') || '7d';
     const limit = Number.parseInt(searchParams.get('limit') || '50', 10);
-    const _strategy = searchParams.get('strategy') || 'all';
 
     // Validate parameters
     if (!['KR', 'US', 'JP', 'GB', 'FR', 'DE'].includes(regionCode)) {
@@ -158,7 +157,7 @@ export async function POST(request: NextRequest) {
       regionCode = 'KR',
       period = '7d',
       maxResults = 50,
-      strategies = ['all'],
+      strategies: _strategies = ['all'],
       filters = {},
     } = body;
 
@@ -249,23 +248,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Helper: Save search history
- */
-async function _saveSearchHistory(user_id: string, searchData: Record<string, unknown>) {
-  try {
-    const supabase = createRouteHandlerClient({ cookies });
-
-    await supabase.from('savedSearches').insert({
-      user_id: user_id,
-      searchName: `Popular Shorts - ${searchData.regionCode}`,
-      searchParams: searchData,
-      created_at: new Date().toISOString(),
-    });
-  } catch (_error) {
-    // Non-critical error, don't throw
-  }
-}
 
 /**
  * Helper: Save videos to collection

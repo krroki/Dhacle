@@ -7,7 +7,6 @@ import type {
   CourseFilters,
   CourseListResponse,
   CourseProgress,
-  Lesson,
 } from '@/types';
 
 /**
@@ -223,9 +222,6 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
       created_at: lesson.created_at || new Date().toISOString(),
       updated_at: lesson.updated_at || new Date().toISOString(),
     }))
-
-    // Progress 타입 변환
-    const mappedProgress: CourseProgress[] = progress;
 
     // If course not found, return null instead of partial response
     if (!mappedCourse) {
@@ -446,7 +442,7 @@ export async function getMyPurchasedCourses(user_id: string): Promise<Course[]> 
   return (
     (data
       ?.map((item: unknown) => {
-        const typedItem = item as { course: DBCourse };
+        const typedItem = item as { course: Course };
         const course = typedItem.course;
         if (!course) return null;
         
@@ -462,7 +458,7 @@ export async function getMyPurchasedCourses(user_id: string): Promise<Course[]> 
           is_free: course.is_free || false,
           isPremium: course.price > 0,
           total_duration: 0,
-          student_count: course.total_students || 0,
+          student_count: course.student_count || 0,
           average_rating: course.average_rating || 0,
           reviewCount: 0,
           status: 'active' as const,
@@ -472,7 +468,7 @@ export async function getMyPurchasedCourses(user_id: string): Promise<Course[]> 
           category: course.category,
           level: course.level as 'beginner' | 'intermediate' | 'advanced' | undefined,
           requirements: course.requirements,
-          whatYouLearn: course.what_youll_learn,
+          whatYouLearn: course.whatYouLearn,
         } as Course;
       })
       .filter(Boolean) as Course[]) || []
@@ -501,7 +497,7 @@ export async function getMyActiveCourses(user_id: string): Promise<Course[]> {
   return (
     (data
       ?.map((item: unknown) => {
-        const typedItem = item as { course: DBCourse };
+        const typedItem = item as { course: Course };
         const course = typedItem.course;
         if (!course) return null;
         
@@ -517,7 +513,7 @@ export async function getMyActiveCourses(user_id: string): Promise<Course[]> {
           is_free: course.is_free || false,
           isPremium: course.price > 0,
           total_duration: 0,
-          student_count: course.total_students || 0,
+          student_count: course.student_count || 0,
           average_rating: course.average_rating || 0,
           reviewCount: 0,
           status: 'active' as const,
@@ -527,7 +523,7 @@ export async function getMyActiveCourses(user_id: string): Promise<Course[]> {
           category: course.category,
           level: course.level as 'beginner' | 'intermediate' | 'advanced' | undefined,
           requirements: course.requirements,
-          whatYouLearn: course.what_youll_learn,
+          whatYouLearn: course.whatYouLearn,
         } as Course;
       })
       .filter(Boolean) as Course[]) || []

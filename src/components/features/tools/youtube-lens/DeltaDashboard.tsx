@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { FolderOpen, Hash, Lightbulb, PieChart, Sparkles, TrendingUp, Youtube } from 'lucide-react';
+import { FolderOpen, Hash, PieChart, Sparkles, Youtube } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,53 +51,6 @@ interface DashboardSummary {
   followedChannels: DeltaData[];
 }
 
-// 7필드 표시 컴포넌트
-function ChannelCard({ data }: { data: DeltaData }) {
-  const formatMap = {
-    쇼츠: '⚡',
-    롱폼: '🎬',
-    라이브: '🔴',
-  };
-
-  return (
-    <div className="p-3 border rounded-lg hover:bg-gray-50 transition-colors">
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="font-medium truncate">{data.channel.title}</span>
-          <span className="text-xs">{formatMap[data.channel.dominant_format]}</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="text-gray-500">구독:</span>{' '}
-            {formatNumberKo(data.channel.subscriber_count)}
-          </div>
-          <div>
-            <span className="text-gray-500">일일Δ:</span>
-            <span className="text-green-600 font-medium ml-1">{formatDelta(data.delta_views)}</span>
-          </div>
-          <div>
-            <span className="text-gray-500">총:</span>{' '}
-            {formatNumberKo(data.channel.view_count_total)}
-          </div>
-          <div>
-            <span className="text-gray-500">성장:</span>
-            <span className="text-blue-600 ml-1">{formatPercent(data.growth_rate)}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            {data.channel.category}
-          </Badge>
-          {data.channel.subcategory && (
-            <Badge variant="secondary" className="text-xs">
-              {data.channel.subcategory}
-            </Badge>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function DeltaDashboard() {
   const today = new Date().toISOString().split('T')[0];

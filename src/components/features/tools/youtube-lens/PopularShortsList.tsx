@@ -34,13 +34,13 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ApiError, apiGet } from '@/lib/api-client';
-import type { YouTubeVideo } from '@/types/youtube-lens';
+import type { VideoWithStats } from '@/types';
 import ApiKeySetup from './ApiKeySetup';
 
 interface PopularShortsListProps {
   initialRegion?: string;
   initialPeriod?: string;
-  onVideoSelect?: (video: YouTubeVideo) => void;
+  onVideoSelect?: (video: VideoWithStats) => void;
 }
 
 export default function PopularShortsList({
@@ -48,7 +48,7 @@ export default function PopularShortsList({
   initialPeriod = '7d',
   onVideoSelect,
 }: PopularShortsListProps) {
-  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+  const [videos, setVideos] = useState<VideoWithStats[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requiresApiKey, setRequiresApiKey] = useState(false);
@@ -66,7 +66,7 @@ export default function PopularShortsList({
       const data = await apiGet<{
         success: boolean;
         data: {
-          videos: YouTubeVideo[];
+          videos: VideoWithStats[];
         };
       }>(`/api/youtube/popular?region=${region}&period=${period}`);
 
@@ -140,7 +140,7 @@ export default function PopularShortsList({
   // Format duration
   const formatDuration = (duration: string): string => {
     const match = duration.match(/PT(\d+)S/);
-    if (match) {
+    if (match && match[1]) {
       const seconds = Number.parseInt(match[1], 10);
       return `${seconds}s`;
     }
@@ -186,7 +186,7 @@ export default function PopularShortsList({
     selectedTier === 'all'
       ? videos
       : videos.filter((video) => {
-          const score = video.metrics?.viralScore || 0;
+          const score = video.stats?.viralScore || 0;
           const tierName = getTierName(score).toLowerCase();
           return tierName === selectedTier;
         });
@@ -206,15 +206,15 @@ export default function PopularShortsList({
         'URL',
       ],
       ...filteredVideos.map((video) => [
-        video.snippet.title,
-        video.snippet.channel_title,
-        video.statistics.view_count,
-        video.statistics.like_count,
-        video.statistics.comment_count,
-        video.metrics?.vph?.toFixed(2) || '0',
-        video.metrics?.engagementRate?.toFixed(2) || '0',
-        video.metrics?.viralScore?.toFixed(2) || '0',
-        `https://youtube.com/watch?v=${video.id}`,
+        video.title,
+        video.channel?.title || '',
+        video.stats?.view_count || 0,
+        video.stats?.like_count || 0,
+        video.stats?.comment_count || 0,
+        video.stats?.viewsPerHour?.toFixed(2) || '0',
+        video.stats?.engagementRate?.toFixed(2) || '0',
+        video.stats?.viralScore?.toFixed(2) || '0',
+        `https://youtube.com/watch?v=${video.video_id}`,
       ]),
     ]
       .map((row) => row.join(','))
@@ -302,13 +302,13 @@ export default function PopularShortsList({
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="all">All ({videos.length})</TabsTrigger>
           <TabsTrigger value="viral">
-            Viral ({videos.filter((v) => (v.metrics?.viralScore || 0) >= 80).length})
+            Viral ({videos.filter((v) => (v.stats?.viralScore || 0) >= 80).length})
           </TabsTrigger>
           <TabsTrigger value="trending">
             Trending (
             {
               videos.filter((v) => {
-                const score = v.metrics?.viralScore || 0;
+                const score = v.stats?.viralScore || 0;
                 return score >= 60 && score < 80;
               }).length
             }
@@ -318,7 +318,7 @@ export default function PopularShortsList({
             Growing (
             {
               videos.filter((v) => {
-                const score = v.metrics?.viralScore || 0;
+                const score = v.stats?.viralScore || 0;
                 return score >= 40 && score < 60;
               }).length
             }
@@ -328,14 +328,14 @@ export default function PopularShortsList({
             Steady (
             {
               videos.filter((v) => {
-                const score = v.metrics?.viralScore || 0;
+                const score = v.stats?.viralScore || 0;
                 return score >= 20 && score < 40;
               }).length
             }
             )
           </TabsTrigger>
           <TabsTrigger value="low">
-            Low ({videos.filter((v) => (v.metrics?.viralScore || 0) < 20).length})
+            Low ({videos.filter((v) => (v.stats?.viralScore || 0) < 20).length})
           </TabsTrigger>
         </TabsList>
 
@@ -376,30 +376,30 @@ export default function PopularShortsList({
                     {/* Thumbnail */}
                     <div className="relative mb-3 w-full h-40">
                       <Image
-                        src={video.snippet.thumbnails?.medium?.url || '/placeholder.jpg'}
-                        alt={video.snippet.title}
+                        src={video.thumbnails?.medium?.url || '/placeholder.jpg'}
+                        alt={video.title}
                         fill={true}
                         className="object-cover rounded-lg"
                       />
                       <Badge
-                        className={`absolute top-2 right-2 ${getTierColor(video.metrics?.viralScore || 0)} text-white`}
+                        className={`absolute top-2 right-2 ${getTierColor(video.stats?.viralScore || 0)} text-white`}
                       >
-                        {getTierName(video.metrics?.viralScore || 0)}
+                        {getTierName(video.stats?.viralScore || 0)}
                       </Badge>
                       <Badge className="absolute bottom-2 right-2 bg-black/70 text-white">
                         <Clock className="w-3 h-3 mr-1" />
-                        {formatDuration(video.contentDetails.duration)}
+                        {formatDuration(video.durationSeconds ? `PT${video.durationSeconds}S` : 'PT0S')}
                       </Badge>
                     </div>
 
                     {/* Title */}
                     <h3 className="font-semibold text-sm mb-1 line-clamp-2">
-                      {video.snippet.title}
+                      {video.title}
                     </h3>
 
                     {/* Channel */}
                     <p className="text-xs text-muted-foreground mb-3">
-                      {video.snippet.channel_title}
+                      {video.channel?.title || ''}
                     </p>
 
                     {/* Metrics */}
@@ -407,37 +407,37 @@ export default function PopularShortsList({
                       <div className="flex items-center justify-between text-xs">
                         <span className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
-                          {formatNumber(video.statistics.view_count)}
+                          {formatNumber(Number(video.stats?.view_count || 0))}
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="w-3 h-3" />
-                          {formatNumber(video.statistics.like_count)}
+                          {formatNumber(Number(video.stats?.like_count || 0))}
                         </span>
                         <span className="flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
-                          {formatNumber(video.statistics.comment_count)}
+                          {formatNumber(Number(video.stats?.comment_count || 0))}
                         </span>
                       </div>
 
                       {/* Advanced metrics */}
-                      {video.metrics && (
+                      {video.stats && (
                         <div className="pt-2 border-t space-y-1">
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">VPH</span>
                             <span className="font-medium">
-                              {formatNumber(video.metrics.vph || 0)}
+                              {formatNumber(video.stats.viewsPerHour ?? 0)}
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Engagement</span>
                             <span className="font-medium">
-                              {video.metrics.engagementRate?.toFixed(2)}%
+                              {video.stats.engagementRate?.toFixed(2)}%
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Viral Score</span>
                             <span className="font-medium">
-                              {video.metrics.viralScore?.toFixed(0)}/100
+                              {video.stats.viralScore?.toFixed(0)}/100
                             </span>
                           </div>
                         </div>

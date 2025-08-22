@@ -17,7 +17,7 @@ import {
   predictVideoPerformance,
 } from '@/lib/youtube/analysis/predictor';
 import { generateTrendReport } from '@/lib/youtube/analysis/trends';
-import type { BatchAnalysisResult, Video, VideoStats } from '@/types/youtube-lens';
+import type { BatchAnalysisResult, YouTubeLensVideo as Video, VideoStats } from '@/types';
 
 /**
  * POST /api/youtube/analysis

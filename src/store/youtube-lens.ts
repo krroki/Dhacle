@@ -6,7 +6,7 @@ import type {
   QuotaStatus,
   YouTubeFavorite,
   YouTubeSearchFilters,
-} from '@/types/youtube';
+} from '@/types';
 
 interface YouTubeLensState {
   // 비디오 관련

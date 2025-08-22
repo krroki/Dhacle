@@ -102,7 +102,7 @@ export default function LearnPage() {
     loadCourseData();
   }, [loadCourseData]);
 
-  const handleProgressUpdate = async (time: number) => {
+  const handleProgressUpdate = async (_time: number) => {
     try {
       const supabase = createClient();
       const {

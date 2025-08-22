@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import type { QuotaStatus } from '@/types/youtube';
+import type { QuotaStatus } from '@/types';
 
 interface QuotaStatusProps {
   quotaStatus?: QuotaStatus | null;

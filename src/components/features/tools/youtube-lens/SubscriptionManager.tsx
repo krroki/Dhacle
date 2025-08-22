@@ -69,7 +69,7 @@ export function SubscriptionManager() {
       let channel_id = channelInput.trim();
       if (channelInput.includes('youtube.com')) {
         const match = channelInput.match(/channel\/([^/?]+)/);
-        if (match) {
+        if (match?.[1]) {
           channel_id = match[1];
         }
       }

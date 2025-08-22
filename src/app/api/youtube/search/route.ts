@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { YouTubeAPIClient } from '@/lib/youtube/api-client';
-import type { YouTubeSearchFilters } from '@/types/youtube';
+import type { YouTubeSearchFilters } from '@/types';
 
 /**
  * YouTube 영상 검색 API
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // 할당량 체크
     const today = new Date().toISOString().split('T')[0];
-    const { data: usage, error: usageError } = await supabase
+    const { data: usage, error: _usageError } = await supabase
       .from('apiUsage')
       .select('*')
       .eq('user_id', user.id)

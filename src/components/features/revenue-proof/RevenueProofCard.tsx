@@ -4,10 +4,10 @@ import { AlertTriangle, Heart, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProofWithUser } from '@/types';
 
 interface RevenueProofCardProps {
-  data: RevenueProof;
+  data: RevenueProofWithUser;
 }
 
 export function RevenueProofCard({ data }: RevenueProofCardProps) {
@@ -67,7 +67,7 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
           className="object-cover"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           placeholder={data.screenshot_blur ? 'blur' : 'empty'}
-          blurDataURL={data.screenshot_blur}
+          blurDataURL={data.screenshot_blur ?? undefined}
         />
         {/* 플랫폼 배지 */}
         <Badge
@@ -102,7 +102,7 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
             )}
           </div>
           <span className="text-xs text-muted-foreground">{data.user?.username}</span>
-          <span className="text-xs text-muted-foreground">· {formatDate(data.created_at)}</span>
+          <span className="text-xs text-muted-foreground">· {data.created_at ? formatDate(data.created_at) : ''}</span>
         </div>
 
         {/* 상호작용 통계 */}
@@ -115,7 +115,7 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
             <MessageCircle className="w-3 h-3" />
             {data.comments_count}
           </span>
-          {data.reports_count > 0 && (
+          {(data.reports_count ?? 0) > 0 && (
             <span className="flex items-center gap-1 text-yellow-600">
               <AlertTriangle className="w-3 h-3" />
               {data.reports_count}

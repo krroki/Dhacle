@@ -120,6 +120,7 @@ export function VideoPlayer({
         e.preventDefault();
         return false;
       }
+      return true;
     };
 
     // 우클릭 방지
@@ -301,7 +302,7 @@ export function VideoPlayer({
 
   const handleSeek = (value: number[]) => {
     const video = videoRef.current;
-    if (!video) {
+    if (!video || value[0] === undefined) {
       return;
     }
 
@@ -312,7 +313,7 @@ export function VideoPlayer({
 
   const handleVolumeChange = (value: number[]) => {
     const video = videoRef.current;
-    if (!video) {
+    if (!video || value[0] === undefined) {
       return;
     }
 
@@ -331,7 +332,7 @@ export function VideoPlayer({
     const rates = [1, 1.25, 1.5, 1.75, 2];
     const currentIndex = rates.indexOf(playbackRate);
     const nextIndex = (currentIndex + 1) % rates.length;
-    const newRate = rates[nextIndex];
+    const newRate = rates[nextIndex] ?? 1;
 
     video.playbackRate = newRate;
     setPlaybackRate(newRate);

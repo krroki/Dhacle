@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { TrendAnalysis } from '@/types/youtube-lens';
+import type { TrendAnalysis } from '@/types';
 
 interface TrendChartProps {
   trends: TrendAnalysis[];
@@ -27,12 +27,20 @@ export function TrendChart({
 }: TrendChartProps) {
   // Sort trends by growth rate
   const sortedTrends = useMemo(() => {
-    return [...trends].sort((a, b) => b.growthRate - a.growthRate);
+    return [...trends].sort((a, b) => {
+      const aRate = typeof a.growthRate === 'number' ? a.growthRate : 0;
+      const bRate = typeof b.growthRate === 'number' ? b.growthRate : 0;
+      return bRate - aRate;
+    });
   }, [trends]);
 
   // Top growing and declining trends
-  const topGrowing = sortedTrends.filter((t) => t.growthRate > 0).slice(0, 5);
-  const topDeclining = sortedTrends.filter((t) => t.growthRate < 0).slice(0, 5);
+  const topGrowing = sortedTrends
+    .filter((t) => typeof t.growthRate === 'number' && t.growthRate > 0)
+    .slice(0, 5);
+  const topDeclining = sortedTrends
+    .filter((t) => typeof t.growthRate === 'number' && t.growthRate < 0)
+    .slice(0, 5);
 
   // Sentiment distribution
   const sentimentCounts = useMemo(() => {
@@ -123,14 +131,14 @@ export function TrendChart({
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-medium">{trend.keyword}</p>
+                        <p className="font-medium">{String(trend.keyword ?? '')}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="secondary" className="text-xs">
-                            빈도: {trend.frequency}
+                            빈도: {String(trend.frequency ?? 0)}
                           </Badge>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${getSentimentColor(trend.sentiment)}`}
+                            className={`text-xs ${getSentimentColor(String(trend.sentiment ?? 'neutral'))}`}
                           >
                             {trend.sentiment === 'positive'
                               ? '긍정'
@@ -168,14 +176,14 @@ export function TrendChart({
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-medium">{trend.keyword}</p>
+                        <p className="font-medium">{String(trend.keyword ?? '')}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="secondary" className="text-xs">
-                            빈도: {trend.frequency}
+                            빈도: {String(trend.frequency ?? 0)}
                           </Badge>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${getSentimentColor(trend.sentiment)}`}
+                            className={`text-xs ${getSentimentColor(String(trend.sentiment ?? 'neutral'))}`}
                           >
                             {trend.sentiment === 'positive'
                               ? '긍정'

@@ -129,7 +129,7 @@ export const handlers = [
   }),
 
   http.post('/api/user/api-keys', async ({ request }) => {
-    const _body = await request.json();
+    const ___body = await request.json();
 
     return HttpResponse.json({
       success: true,

@@ -56,10 +56,6 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
     if (!response.ok) {
       // 401 Unauthorized 특별 처리
       if (response.status === 401) {
-        const _errorMessage =
-          typeof data === 'object' && data && 'error' in data
-            ? (data as { error: string }).error
-            : 'User not authenticated';
         throw new ApiError(
           '인증이 필요합니다. 로그인 후 다시 시도해주세요.',
           response.status,

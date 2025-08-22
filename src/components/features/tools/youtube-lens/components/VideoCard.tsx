@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { FlattenedYouTubeVideo } from '@/types/youtube';
+import type { FlattenedYouTubeVideo } from '@/types';
 
 interface VideoCardProps {
   video: FlattenedYouTubeVideo;

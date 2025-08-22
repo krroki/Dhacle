@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { ApiError, apiDelete, apiGet } from '@/lib/api-client';
 import { mapVideo } from '@/lib/utils/type-mappers';
-import type { CollectionItem, Video } from '@/types/youtube-lens';
+import type { CollectionItem, Video } from '@/types';
 
 interface CollectionViewerProps {
   collection_id: string;

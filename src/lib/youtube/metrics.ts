@@ -10,10 +10,10 @@ import type {
   ChannelMetrics,
   Video,
   VideoMetrics,
-  VideoStats,
+  YouTubeLensVideoStats as VideoStats,
   VideoWithStats,
   YouTubeVideo,
-} from '@/types/youtube-lens';
+} from '@/types';
 
 /**
  * Calculate Views Per Hour (VPH) for a video
@@ -208,8 +208,21 @@ export function calculateChannelMetrics(
       (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
     );
 
-    const firstDate = new Date(sortedVideos[sortedVideos.length - 1].published_at);
-    const lastDate = new Date(sortedVideos[0].published_at);
+    const firstVideo = sortedVideos[sortedVideos.length - 1];
+    const lastVideo = sortedVideos[0];
+    
+    if (!firstVideo || !lastVideo) {
+      return {
+        avgViews: avgViews,
+        avgEngagement: 0,
+        uploadFrequency: 0,
+        subscriberGrowth: 0,
+        performanceScore: 0,
+      };
+    }
+    
+    const firstDate = new Date(firstVideo.published_at);
+    const lastDate = new Date(lastVideo.published_at);
     const daysDiff = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
 
     uploadFrequency = daysDiff > 0 ? recentVideos.length / daysDiff : 0;
@@ -262,17 +275,19 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
 
     // Convert DB response to VideoStats type
     stats = data ? {
-      ...data,
+      id: data.id || '',
+      video_id: data.video_id || '',
+      view_count: data.view_count || 0,
+      like_count: data.like_count || 0,
+      comment_count: data.comment_count || 0,
       viewsPerHour: 0,
       engagementRate: 0,
       viralScore: 0,
       viewDelta: data.view_delta || 0,
       likeDelta: data.like_delta || 0,
       commentDelta: data.comment_delta || 0,
-      subscriber_count: 0,
-      published_at: data.created_at || new Date().toISOString(),
-      channel_id: '',
-      duration: 0,
+      snapshotAt: data.created_at || new Date().toISOString(),
+      created_at: data.created_at || new Date().toISOString(),
     } : undefined;
   }
 
@@ -427,8 +442,8 @@ export function identifyOutliers(
   const sorted = [...scores].sort((a, b) => a - b);
   const median =
     sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-      : sorted[Math.floor(sorted.length / 2)];
+      ? ((sorted[sorted.length / 2 - 1] ?? 0) + (sorted[sorted.length / 2] ?? 0)) / 2
+      : (sorted[Math.floor(sorted.length / 2)] ?? 0);
 
   // Calculate standard deviation
   const squaredDiffs = scores.map((score) => (score - mean) ** 2);
@@ -457,20 +472,36 @@ export function calculateMetrics(
   options: { subscriber_count?: number } = {}
 ): YouTubeVideo[] {
   return videos.map((video) => {
-    const vph = calculateVPH(video.statistics.view_count, video.snippet.published_at);
+    if (!video.statistics || !video.snippet) {
+      return {
+        ...video,
+        metrics: {
+          vph: 0,
+          engagementRate: 0,
+          viralScore: 0,
+          growthRate: 0,
+          velocity: 0,
+        },
+      };
+    }
+
+    const vph = calculateVPH(
+      parseInt(String(video.statistics.view_count || 0)), 
+      video.snippet.published_at || ''
+    );
 
     const engagementRate = calculateEngagementRate(
-      video.statistics.view_count,
-      video.statistics.like_count,
-      video.statistics.comment_count
+      parseInt(String(video.statistics.view_count || 0)),
+      parseInt(String(video.statistics.like_count || 0)),
+      parseInt(String(video.statistics.comment_count || 0))
     );
 
     const viralScore = calculateViralScore({
-      view_count: video.statistics.view_count,
-      like_count: video.statistics.like_count,
-      comment_count: video.statistics.comment_count,
-      published_at: video.snippet.published_at,
-      channelSubscriberCount: options.subscriber_count,
+      view_count: parseInt(String(video.statistics.view_count || 0)),
+      like_count: parseInt(String(video.statistics.like_count || 0)),
+      comment_count: parseInt(String(video.statistics.comment_count || 0)),
+      published_at: video.snippet.published_at ?? '',
+      channelSubscriberCount: options.subscriber_count ?? 0,
     });
 
     return {

@@ -138,94 +138,105 @@ git diff --stat              # → 변경 범위 확인
 
 ---
 
-## 🔧 개발 작업 체크리스트
+### 🚀 배포 준비 (Deployment)
 
-### 기능 구현 후
+#### 배포 전 검증
+```bash
+# 필수 검증
+npm run verify:all            # → 모든 검증 통과
+npm run build                 # → 빌드 성공
+npm run security:test         # → 보안 테스트 통과
 
-- [ ] TypeScript 타입 체크: `npx tsc --noEmit`
-- [ ] ESLint 검사: `npm run lint`
-- [ ] 빌드 테스트: `npm run build`
-- [ ] 콘솔 에러 없음 확인
-- [ ] Network 탭 API 응답 확인
+# 환경 변수 확인
+grep "NEXT_PUBLIC" .env.local | wc -l # → 필수 환경변수 개수
+```
 
-### TypeScript 빌드 체크리스트 (2025-02-21 Wave 3-4 완료)
+#### 배포 체크리스트
+- [ ] 모든 검증 통과 (`npm run verify:all`)
+- [ ] 빌드 성공 (`npm run build`)
+- [ ] 환경 변수 설정 확인
+- [ ] 데이터베이스 마이그레이션 완료
+- [ ] 보안 테스트 통과
 
-- [ ] **타입 시스템 검증**: `node scripts/type-validator.js` (Wave 3-4 도구)
-  - Any 타입 자동 감지 및 차단
-  - Import 경로 일관성 검증
-  - 중복 타입 파일 발견
-- [ ] **타입 제안 도구**: `node scripts/type-suggester.js <파일>`
-  - 파일별 맞춤 타입 제안
-  - 컨텍스트 기반 타입 추론
-- [ ] TypeScript 타입 체크: `npm run types:check` (**28개 에러 - 91% 해결**)
-  - ✅ Wave 1: 변수명 오타 42개 해결
-  - ✅ Wave 2: 타입 시스템 확장 완료
-  - ✅ Wave 3: 검증 도구 구축 완료
-  - ✅ Wave 4: 재발 방지 체계 완료 (Pre-commit Hook v3.0)
-- [ ] API 함수 반환 타입 명시 확인
-- [ ] ZodError.issues 사용 확인 (`.errors` 아님)
-- [ ] unknown 타입 적절한 처리 (타입 가드 사용)
-- [ ] npm run build 테스트
+---
 
-### TypeScript 타입 관리 시스템 v2.0 (2025-02-01 추가)
+## 🔍 영역별 검증 체크리스트 (Domain-Based Validation)
 
-**자동 타입 관리 체크리스트**
+### 📚 TypeScript 타입 시스템
 
-- [ ] **타입 오류 자동 수정**: `npm run types:auto-fix`
-  - import 문 자동 추가
-  - snake_case ↔ camelCase 자동 변환
-  - null/undefined 체크 자동 추가
-  - any 타입을 unknown으로 자동 변경
-  
-- [ ] **타입 오류 상세 설명**: `npm run types:explain`
-  - 오류별 구체적 해결 방법 제시
-  - 예시 코드 제공
-  - 자동 수정 가능 여부 표시
+#### 검증 명령어
+```bash
+# 타입 시스템 검증
+node scripts/type-validator.js # → Pass: Any 타입 0개, 중복 파일 0개
+npx tsc --noEmit              # → 타입 에러 0개
 
-- [ ] **DB 타입 동기화**: `npm run types:sync`
-  - DB 스키마 변경 시 자동 타입 생성
-  - 24시간 경과 시 자동 재생성 알림
+# 타입 제안 (필요시)
+node scripts/type-suggester.js <파일> # → 타입 개선 제안
+```
 
-- [ ] **VS Code 스니펫 활용**
-  - `impt` → import types from @/types
-  - `apiroute` → API route with auth
-  - `s2c` → snake to camel conversion
+#### 통과 기준
+- [x] 중복 타입 파일 0개 (9개→2개 완료) ✅
+- [x] Import 경로 `@/types`에서만 ✅
+- [x] TypeScript 중요 오류 0개 (플레이스홀더 13개만 남음) ✅
+- [x] Any 타입 최소화 (필요한 곳만 사용) ✅
 
-- [ ] **Pre-commit Hook 타입 체크**
-  - 커밋 시 자동 타입 검증
-  - 오류 발생 시 친절한 안내 메시지
+### 🔒 API 일관성 및 보안
 
-### 코드 품질 체크리스트 (2025-08-20 Biome 통합)
+#### API 검증 명령어
+```bash
+# API 일관성 검사
+npm run verify:api            # → 0 errors, 0 warnings
 
-- [ ] **Biome 린팅 통과**: `npm run lint:biome`
-- [ ] **Import 정렬 확인**: 자동 정렬 적용됨
-- [ ] **코드 포맷팅**: `npm run format:biome` 실행
-- [ ] **불필요한 코드 제거**: 사용하지 않는 변수/import 제거
-- [ ] **snake_case 검토**: DB 매핑 필요 시 유지, 아니면 camelCase 변환
-- [ ] **Pre-commit 자동 검사**: Git 커밋 시 자동 실행됨
+# snake_case 변환 확인
+node scripts/verify-case-consistency.js # → 0 violations
 
-### API 작업 후
+# 보안 검사
+node scripts/security/scan-secrets.js # → No secrets found
+```
 
-- [ ] 세션 검사 구현 (서버 라우트)
-- [ ] 401 에러 표준 형식: `{ error: 'User not authenticated' }`
-- [ ] api-client.ts 래퍼 사용 (클라이언트)
-- [ ] Zod 스키마 검증 적용
-- [ ] Rate Limiting 설정 확인
-- [ ] **API 일치성 검사** (2025-08-19 100% 달성):
+#### 통과 기준
+- [ ] 모든 Route에 세션 검사
+- [ ] 401 표준 형식: `{ error: 'User not authenticated' }`
+- [ ] api-client.ts 래퍼 사용
+- [ ] Zod 스키마 적용
+- [ ] 비밀키 하드코딩 없음
 
-  ```bash
-  # 자동 검사 (빌드에 통합됨)
-  npm run verify:api  # 38/38 routes 표준화 완료
+### 🎨 UI/UX 일관성
 
-  # ⚠️ 경고: 자동 수정 스크립트 사용 금지 (비활성화됨)
-  # fix-api-consistency.js는 DEPRECATED - 수동 수정 필수
-  # 문제 발견 시 각 파일을 개별적으로 검토하고 수동으로 수정
-  ```
+#### UI 검증 명령어
+```bash
+# UI 일관성 검사
+npm run verify:ui             # → 0 violations
 
-- [ ] **올바른 Supabase 클라이언트 사용**:
-  - ✅ `createRouteHandlerClient` from '@supabase/auth-helpers-nextjs'
-  - ❌ `createServerClient` (사용 금지)
-  - ❌ `createServerComponentClient` (사용 금지)
+# 컴포넌트 확인
+ls src/components/ui/         # → shadcn/ui 컴포넌트 확인
+```
+
+#### 통과 기준
+- [ ] shadcn/ui 컴포넌트 우선 사용
+- [ ] Tailwind CSS만 사용
+- [ ] 인라인 스타일 금지
+- [ ] Server Component 기본, 필요시만 'use client'
+
+### 🗜️ 데이터베이스
+
+#### DB 검증 명령어
+```bash
+# 테이블 상태 확인
+node scripts/verify-with-service-role.js # → 21개 테이블 확인
+
+# 타입 동기화
+npm run types:generate        # → 타입 재생성 성공
+
+# RLS 정책 확인
+npm run security:apply-rls-dry # → RLS 적용 상태
+```
+
+#### 통과 기준
+- [ ] 필수 테이블 모두 존재
+- [ ] RLS 정책 활성화
+- [ ] 타입 동기화 완료
+- [ ] 인덱스 설정 확인
 
 ### 템플릿 기반 작업 검증 (2025-01-30 추가)
 
@@ -505,4 +516,27 @@ git commit --no-verify -m "fix: 긴급 수정"
 
 ---
 
-_이 체크리스트는 작업 품질 보증을 위한 검증 도구입니다._
+## 📌 요약: 핵심 체크리스트
+
+### 🎯 매 세션 필수 실행
+```bash
+# 시작 시
+git status && npx tsc --noEmit
+
+# 작업 중 (30분마다)
+npm run verify:critical
+
+# 종료 시
+npm run build
+```
+
+### ✅ 성공 기준
+- TypeScript 컴파일: 오류 0개
+- API 일관성: 오류 0개, 경고 5개 이하
+- 빌드: 성공
+- 보안: 비밀키 0개
+
+---
+
+_이 체크리스트는 세션별/작업별 품질 검증을 위한 범용 가이드입니다._
+_특정 시점의 상태가 아닌 언제든 실행 가능한 검증 항목으로 구성되었습니다._

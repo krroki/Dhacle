@@ -4,7 +4,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { RevenueProofDetail } from '@/components/features/revenue-proof/RevenueProofDetail';
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProof } from '@/types';
 
 interface PageProps {
   params: Promise<{ id: string }>;

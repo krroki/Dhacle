@@ -54,7 +54,6 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { createBrowserClient } from '@/lib/supabase/browser-client';
 import { cn } from '@/lib/utils';
 import { useLayoutStore } from '@/store/layout';
 import { NotificationDropdown } from './NotificationDropdown';

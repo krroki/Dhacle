@@ -3,7 +3,7 @@
 
 import { ApiError, apiDelete, apiGet, apiPost, apiPut, apiUpload } from '@/lib/api-client';
 import type { CreateProofInput } from '@/lib/validations/revenue-proof';
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProof } from '@/types';
 
 // API 기본 URL
 const API_BASE = '/api/revenue-proof';

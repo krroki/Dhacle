@@ -69,7 +69,7 @@ export default function VideoUploadPage() {
       }, 500);
 
       // FormData 업로드는 apiUpload 사용
-      const _result = await apiUpload('/api/admin/video/upload', formData);
+      await apiUpload('/api/admin/video/upload', formData);
 
       clearInterval(progressInterval);
       setProgress(100);

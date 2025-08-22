@@ -69,8 +69,8 @@ export function decryptApiKey(encryptedKey: string): string {
       throw new Error('Invalid encrypted key format');
     }
 
-    const iv = Buffer.from(parts[0], 'hex');
-    const encrypted = Buffer.from(parts[1], 'hex');
+    const iv = Buffer.from(parts[0]!, 'hex');
+    const encrypted = Buffer.from(parts[1]!, 'hex');
 
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
 

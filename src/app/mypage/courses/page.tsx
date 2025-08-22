@@ -109,11 +109,6 @@ export default async function MyCoursesPage() {
     return sum + hours * progress;
   }, 0);
 
-  const _averageProgress =
-    allCourses.length > 0
-      ? allCourses.reduce((sum: number, e: CourseEnrollment) => sum + e.progressPercentage, 0) /
-        allCourses.length
-      : 0;
 
   return (
     <div className="space-y-6">

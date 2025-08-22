@@ -5,45 +5,7 @@
 
 import { snakeToCamelCase as baseSnakeToCamel, camelToSnakeCase as baseCamelToSnake } from './db-types';
 
-// React/라이브러리 예약어 - 절대 변환하지 않음
-const RESERVED_KEYS = new Set([
-  'displayName',
-  'className',
-  'htmlFor',
-  'onClick',
-  'onChange',
-  'onSubmit',
-  'onFocus',
-  'onBlur',
-  'defaultValue',
-  'defaultChecked',
-  'autoComplete',
-  'autoFocus',
-  'readOnly',
-  'tabIndex',
-  'colSpan',
-  'rowSpan',
-  'aria-label',
-  'aria-describedby',
-  'data-testid',
-  'data-id',
-]);
 
-// React 컴포넌트 프로퍼티인지 확인
-function isReactProperty(key: string): boolean {
-  // on으로 시작하는 이벤트 핸들러
-  if (key.startsWith('on') && key.length > 2 && key[2] === key[2].toUpperCase()) {
-    return true;
-  }
-  
-  // aria- 또는 data-로 시작하는 속성
-  if (key.startsWith('aria-') || key.startsWith('data-')) {
-    return true;
-  }
-  
-  // 예약어 목록에 있는지 확인
-  return RESERVED_KEYS.has(key);
-}
 
 /**
  * API 응답을 camelCase로 변환 (React 예약어 보호)

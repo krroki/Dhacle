@@ -15,7 +15,7 @@ import {
   XCircle,
   Youtube,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,7 +84,7 @@ export function ChannelApprovalConsole() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [newChannelId, setNewChannelId] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, _setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -414,7 +414,7 @@ export function ChannelApprovalConsole() {
                   placeholder="UCxxxxxxxxxxxxxxxx"
                   value={newChannelId}
                   onChange={(e) => setNewChannelId(e.target.value)}
-                  disabled={isLoading}
+                  disabled={_isLoading}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   채널 URL에서 /channel/ 뒤의 ID를 입력하세요
@@ -428,7 +428,7 @@ export function ChannelApprovalConsole() {
                   <Label>승인 상태</Label>
                   <Select
                     defaultValue={editingChannel.approvalStatus}
-                    onValueChange={(value) => {
+                    onValueChange={(_value) => {
                       // 상태 변경 처리
                     }}
                   >

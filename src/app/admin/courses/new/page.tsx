@@ -24,7 +24,7 @@ export default function NewCoursePage() {
       }
 
       // 강의 생성 - snake_case로 변환
-      const { data, error } = await supabase
+      const { data: _data, error } = await supabase
         .from('courses')
         .insert([
           {

@@ -120,13 +120,13 @@ export class YouTubeQueueManager {
   private workers: Map<JobType, Worker>;
   private queueEvents: QueueEvents;
   private quotaManager: QuotaManager;
-  private concurrencyQueue: PQueue;
+  private __concurrencyQueue: PQueue;
 
   private constructor() {
     this.queues = new Map();
     this.workers = new Map();
     this.quotaManager = QuotaManager.getInstance();
-    this.concurrencyQueue = new PQueue({ concurrency: 3 }); // 동시 처리 제한
+    this.__concurrencyQueue = new PQueue({ concurrency: 3 }); // 동시 처리 제한
 
     // 큐 이벤트 리스너 설정
     this.queueEvents = new QueueEvents('youtube-api', { connection });
@@ -308,7 +308,7 @@ export class YouTubeQueueManager {
       console.log(`Job ${jobId} completed with result:`, returnvalue);
     });
 
-    this.queueEvents.on('failed', async ({ jobId, failedReason }) => {});
+    this.queueEvents.on('failed', async ({ jobId: _jobId, failedReason: _failedReason }) => {});
 
     this.queueEvents.on('progress', async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress:`, data);

@@ -28,7 +28,7 @@ export async function GET(_request: NextRequest) {
     // naverCafeVerifications 테이블 및 관련 필드 생성 후 주석 해제
 
     // 프로필 정보 가져오기 (임시로 기본 필드만)
-    const { data: profile, error: profileError } = await supabase
+    const { data: _profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, username')
       .eq('id', user.id)

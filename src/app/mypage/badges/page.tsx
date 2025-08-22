@@ -188,7 +188,7 @@ export default async function MyBadgesPage() {
               <div>
                 <p className="text-sm text-gray-600">최근 획득</p>
                 <p className="text-sm font-medium mt-1">
-                  {badges.length > 0
+                  {badges.length > 0 && badges[0]
                     ? new Date(badges[0].earnedAt).toLocaleDateString('ko-KR')
                     : '-'}
                 </p>
@@ -219,7 +219,7 @@ export default async function MyBadgesPage() {
                   >
                     <div className="flex items-start gap-3">
                       <div className={`p-3 rounded-full ${colorClass}`}>
-                        <Icon className="h-6 w-6" />
+                        {Icon && <Icon className="h-6 w-6" />}
                       </div>
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900">{badge.title}</h4>
@@ -265,7 +265,7 @@ export default async function MyBadgesPage() {
                         isEarned ? colorClass : 'bg-gray-200 text-gray-400'
                       }`}
                     >
-                      <Icon className="h-6 w-6" />
+                      {Icon && <Icon className="h-6 w-6" />}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">

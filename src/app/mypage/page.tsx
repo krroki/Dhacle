@@ -19,7 +19,7 @@ export default async function MyPageDashboard() {
   }
 
   // 프로필 정보
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  const { data: _profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
   // 수강 중인 강의 수
   const { count: enrolledCoursesCount } = await supabase

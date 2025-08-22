@@ -49,7 +49,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api-client';
 import { mapSourceFolder } from '@/lib/utils/type-mappers';
-import type { SourceFolder } from '@/types/youtube-lens';
+import type { SourceFolder } from '@/types';
 
 interface ChannelFoldersProps {
   onFolderSelect?: (folder: SourceFolder) => void;

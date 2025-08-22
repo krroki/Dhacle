@@ -2,7 +2,7 @@
 
 *목적: Frontend-Backend 타입 매핑*
 *핵심 질문: "DB 스키마와 TS 타입이 일치하나?"*
-*업데이트: 2025-01-31 - DOCUMENT_GUIDE 지침 반영*
+*업데이트: 2025-08-22 - 타입 파일 통합 완료*
 
 ---
 
@@ -11,7 +11,7 @@
 ### 🎯 Single Source of Truth - DB가 유일한 진실
 - **DB가 진실의 원천**: Supabase DB 스키마가 모든 타입의 기준
 - **자동 생성**: 수동 타입 정의 최소화, DB 변경시 자동 반영
-- **타입 안전성**: any 타입 완전 제거 (0개 달성)
+- **타입 파일 통합**: 9개 → 2개 완료 (database.generated.ts, index.ts만 유지)
 - **일관성**: snake_case (DB) ↔ camelCase (Frontend) 자동 변환
 
 ### 📦 타입 관리 필수 명령어
@@ -38,13 +38,13 @@ import { snakeToCamelCase, camelToSnakeCase } from '@/types';
 
 // ❌ 절대 금지 패턴
 import { Database } from '@/types/database.generated'; // 금지!
-import { Database } from '@/types/database';           // 금지! (파일 삭제됨)
-import { Database } from '@/types/database.types';     // 금지! (파일 삭제됨)
+import { Course } from '@/types/course';               // 금지! (파일 삭제됨)
+import { YouTubeVideo } from '@/types/youtube';        // 금지! (파일 삭제됨)
 
-// ✅ 2025-02-02 수정 사항
-// - database.ts, database.types.ts 파일 제거
+// ✅ 2025-08-22 타입 파일 통합 완료
+// - 9개 타입 파일 → 2개로 통합 (database.generated.ts, index.ts)
 // - 모든 타입은 @/types/index.ts에서만 import
-// - Course 타입 매핑 함수 완전 재작성
+// - 중복 타입 정의 제거 완료
 ```
 
 ### 🚨 타입 불일치 체크리스트 (2025-01-31 Wave 3 완료)

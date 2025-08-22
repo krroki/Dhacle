@@ -95,9 +95,12 @@ export async function GET(request: NextRequest) {
           };
         }
 
-        acc[proof.user_id].total_amount += proof.amount;
-        acc[proof.user_id].proof_count += 1;
-        acc[proof.user_id].platforms.add(proof.platform);
+        const userStats = acc[proof.user_id];
+        if (userStats) {
+          userStats.total_amount += proof.amount;
+          userStats.proof_count += 1;
+          userStats.platforms.add(proof.platform);
+        }
 
         return acc;
       },
@@ -175,7 +178,7 @@ export async function GET(request: NextRequest) {
 
     // 현재 로그인 사용자의 순위 찾기
     const {
-      data: { user: authUser2 },
+      data: { user: _authUser2 },
     } = await supabase.auth.getUser();
     let myRank = null;
 

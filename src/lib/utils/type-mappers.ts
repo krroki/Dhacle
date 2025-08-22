@@ -3,8 +3,9 @@
  * Maps between database snake_case and frontend camelCase conventions
  */
 
-import type { Course, Lesson } from '@/types';
-import type {
+import type { 
+  Course, 
+  Lesson,
   AlertCondition,
   Collection,
   OutlierDetectionResult,
@@ -12,14 +13,14 @@ import type {
   TrendAnalysis,
   Video,
   VideoMetrics,
-  VideoStats,
+  YouTubeLensVideoStats as VideoStats,
   YouTubeVideo,
-} from '@/types/youtube-lens';
+} from '@/types';
 
 // Database row types - using flexible types since tables may not exist yet
 type DBVideo = Partial<Video> & Record<string, unknown>;
 type DBVideoStats = Partial<VideoStats> & Record<string, unknown>;
-type DBChannel = Record<string, unknown>;
+type ___DBChannel = Record<string, unknown>;
 type DBSourceFolder = Partial<SourceFolder> & Record<string, unknown>;
 type DBCollection = Partial<Collection> & Record<string, unknown>;
 type DBCourse = Partial<Course> & Record<string, unknown>;
@@ -94,7 +95,7 @@ export function mapLesson(dbLesson: DBLesson | Lesson | Record<string, unknown>)
     is_free: obj.is_free ?? lesson.is_free ?? false,
     order_index: obj.order_index ?? lesson.order_index ?? 0,
     // Ensure proper field names
-    course_id: obj.course_id || obj.course_id || lesson.course_id || '',
+    course_id: obj.course_id || lesson.course_id || '',
     duration: Number(lesson.duration) || 0,
   } as Lesson;
 }
@@ -374,29 +375,34 @@ export function mapVideoToYouTubeVideo(
       title: vid.title || (obj.title as string) || '',
       description: vid.description || (obj.description as string) || '',
       channel_id: vid.channel_id || (obj.channel_id as string) || '',
-      channel_title: (obj.channel_title as string) || (obj.channel_title as string) || '',
+      channel_title: (obj.channel_title as string) || '',
       published_at:
-        vid.published_at || (obj.published_at as string) || (obj.published_at as string) || '',
+        vid.published_at || (obj.published_at as string) || '',
       thumbnails: parsedThumbnails,
       tags: vid.tags || (obj.tags as string[]) || [],
+      category_id: (obj.category_id as string) || 'unknown',
+      liveBroadcastContent: 'none' as const,
+      defaultLanguage: (obj.default_language as string) || undefined,
+      localized: undefined,
     },
     statistics: {
-      view_count: video.stats?.view_count || 0,
-      like_count: video.stats?.like_count || 0,
-      comment_count: video.stats?.comment_count || 0,
-      favoriteCount: 0,
+      view_count: (video.stats?.view_count || 0).toString(),
+      like_count: (video.stats?.like_count || 0).toString(),
+      comment_count: (video.stats?.comment_count || 0).toString(),
+      favoriteCount: '0',
     },
     contentDetails: {
       duration: vid.durationSeconds ? `PT${vid.durationSeconds}S` : 'PT60S',
       dimension: '2d',
       definition: 'hd',
+      caption: 'false',
+      licensedContent: false,
+      projection: 'rectangular',
     },
     metrics: {
-      vph: video.stats?.viewsPerHour || 0,
+      viewsPerHour: video.stats?.viewsPerHour || 0,
       engagementRate: video.stats?.engagementRate || 0,
       viralScore: video.stats?.viralScore || 0,
-      growthRate: ((video.stats as Record<string, unknown>)?.growthRate as number) || 0,
-      velocity: ((video.stats as Record<string, unknown>)?.velocity as number) || 0,
     },
   };
 }

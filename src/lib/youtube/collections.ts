@@ -1,5 +1,5 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
+import type { Collection, CollectionItem, Video } from '@/types';
 
 /**
  * CollectionManager - YouTube Lens 컬렉션 관리 클래스

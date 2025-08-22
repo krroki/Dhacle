@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import { snakeToCamelCase } from '@/lib/utils/case-converter';;
+import { snakeToCamelCase as _snakeToCamelCase } from '@/lib/utils/case-converter';;
 import {
   DINOHIGHCLASS_CAFE,
   getDisplayNickname,

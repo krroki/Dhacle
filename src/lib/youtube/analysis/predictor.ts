@@ -7,7 +7,7 @@
  */
 
 import { mapVideoStats } from '@/lib/utils/type-mappers';
-import type { PredictionModel, Video, VideoStats } from '@/types/youtube-lens';
+import type { PredictionModel, YouTubeLensVideo as Video, VideoStats } from '@/types';
 
 /**
  * Growth trajectory types
@@ -68,21 +68,21 @@ function extractFeatures(
 ): FeatureVector {
   // Sort stats by time
   const sortedStats = [...stats].sort(
-    (a, b) => new Date(a.snapshotAt).getTime() - new Date(b.snapshotAt).getTime()
+    (a, b) => new Date(a.snapshotAt || 0).getTime() - new Date(b.snapshotAt || 0).getTime()
   );
 
   // Calculate initial velocity (views in first measurement period)
-  const firstStats = sortedStats[0] ? mapVideoStats(sortedStats[0]) : null;
+  const firstStats = sortedStats[0] ? mapVideoStats(sortedStats[0] as any) : null;
   const initialVelocity = firstStats?.viewsPerHour || 0;
 
   // Calculate acceleration
   let acceleration = 0;
   if (sortedStats.length >= 2) {
     const velocities = sortedStats.map((s) => {
-      const mappedStats = mapVideoStats(s);
+      const mappedStats = mapVideoStats(s as any);
       return mappedStats.viewsPerHour || 0;
     });
-    const velocityChanges = velocities.slice(1).map((v, i) => v - velocities[i]);
+    const velocityChanges = velocities.slice(1).map((v, i) => v - (velocities[i] ?? 0));
     acceleration =
       velocityChanges.reduce((sum, change) => sum + change, 0) / velocityChanges.length;
   }
@@ -90,7 +90,7 @@ function extractFeatures(
   // Calculate engagement rate
   const latestStats = sortedStats[sortedStats.length - 1];
   const engagementRate = latestStats
-    ? (latestStats.like_count + latestStats.comment_count) / Math.max(1, latestStats.view_count)
+    ? ((latestStats.like_count ?? 0) + (latestStats.comment_count ?? 0)) / Math.max(1, latestStats.view_count ?? 0)
     : 0;
 
   // Extract metadata features
@@ -322,11 +322,10 @@ export async function predictVideoPerformance(
 
   // Get current stats
   const latestStats = stats.sort(
-    (a, b) => new Date(b.snapshotAt).getTime() - new Date(a.snapshotAt).getTime()
+    (a, b) => new Date(b.snapshotAt || 0).getTime() - new Date(a.snapshotAt || 0).getTime()
   )[0];
 
   const currentViews = latestStats?.view_count || 0;
-  const _currentLikes = latestStats?.like_count || 0;
 
   // Predict future metrics
   const predictedViews = predictViews(currentViews, trajectory, features, horizonDays);
@@ -380,8 +379,12 @@ export async function batchPredict(
  */
 export function findViralCandidates(predictions: PredictionModel[], limit = 10): PredictionModel[] {
   return predictions
-    .filter((p) => p.viralProbability > 0.5)
-    .sort((a, b) => b.viralProbability - a.viralProbability)
+    .filter((p) => typeof p.viralProbability === 'number' && p.viralProbability > 0.5)
+    .sort((a, b) => {
+      const probA = typeof a.viralProbability === 'number' ? a.viralProbability : 0;
+      const probB = typeof b.viralProbability === 'number' ? b.viralProbability : 0;
+      return probB - probA;
+    })
     .slice(0, limit);
 }
 
@@ -407,7 +410,7 @@ export function analyzePredictionAccuracy(
   let correctViralPredictions = 0;
   let withinInterval = 0;
 
-  predictions.forEach(({ prediction, actualViews, actualLikes }) => {
+  predictions.forEach(({ prediction, actualViews, actualLikes: _actualLikes }) => {
     // Calculate errors
     const viewError = Math.abs(prediction.predictedViews - actualViews);
     totalAbsoluteError += viewError;

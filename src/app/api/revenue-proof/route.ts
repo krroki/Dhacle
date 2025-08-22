@@ -178,7 +178,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const buffer = Buffer.from(arrayBuffer);
 
     // Storage 버킷에 업로드
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: uploadError } = await supabase.storage
       .from('revenue-proofs')
       .upload(file_name, buffer, {
         contentType: validatedData.screenshot.type,

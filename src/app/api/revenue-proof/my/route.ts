@@ -4,7 +4,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProof } from '@/types';
 
 // 타입 정의
 interface RevenueProofWithDetails extends RevenueProof {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         // 오늘 작성 여부 확인
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const created_at = new Date(proof.created_at);
+        const created_at = proof.created_at ? new Date(proof.created_at) : new Date();
         const isToday = created_at >= today;
 
         // 24시간 내 수정 가능 여부
@@ -92,11 +92,11 @@ export async function GET(request: NextRequest) {
         0
       ),
       totalLikes: proofsWithDetails.reduce(
-        (sum: number, p: RevenueProofWithDetails) => sum + p.likes_count,
+        (sum: number, p: RevenueProofWithDetails) => sum + (p.likes_count ?? 0),
         0
       ),
       totalComments: proofsWithDetails.reduce(
-        (sum: number, p: RevenueProofWithDetails) => sum + p.comments_count,
+        (sum: number, p: RevenueProofWithDetails) => sum + (p.comments_count ?? 0),
         0
       ),
       hiddenCount: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
     // 다음 인증 가능 시간 계산
     let nextAvailable = null;
-    if (!canCreateToday && todayProof) {
+    if (!canCreateToday && todayProof && todayProof.created_at) {
       const tomorrow = new Date(todayProof.created_at);
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0);

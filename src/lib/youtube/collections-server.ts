@@ -1,5 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server';
-import type { Collection, CollectionItem, Video } from '@/types/youtube-lens';
+import type { Collection, CollectionItem, Video } from '@/types';
 
 interface DBCollection {
   id: string;
@@ -158,7 +158,7 @@ export class ServerCollectionManager {
     collection_id: string,
     video_id: string,
     notes?: string,
-    tags?: string[]
+    _tags?: string[]
   ): Promise<{ data: CollectionItem | null; error: Error | null }> {
     try {
       const supabase = await this.getSupabase();
@@ -325,14 +325,25 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      // Convert DB response to CollectionItem type
-      const collectionItems = (items || []).map(item => ({
-        ...item,
-        position: item.position || 0,
-        tags: [],  // tags 필드가 DB에 없음
-        addedAt: item.created_at || new Date().toISOString(),
-        addedBy: item.added_by || '',
-      }));
+      // Convert DB response to CollectionItem type, filtering out invalid video joins
+      const collectionItems = (items || [])
+        .filter(item => {
+          // Check if video is a proper object with required fields, not an error
+          const video = item.video;
+          return video && 
+            typeof video === 'object' && 
+            !('error' in video) &&
+            'id' in video &&
+            'video_id' in video;
+        })
+        .map(item => ({
+          ...item,
+          position: item.position || 0,
+          tags: [],  // tags 필드가 DB에 없음
+          addedAt: item.created_at || new Date().toISOString(),
+          addedBy: item.added_by || '',
+          video: item.video as any, // Cast to bypass the type error since we've validated it above
+        }));
       
       return { data: collectionItems, error: null };
     } catch (error) {

@@ -8,7 +8,7 @@ import { google, type youtube_v3 } from 'googleapis';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
 
-let _cachedClient: youtube_v3.Youtube | null = null;
+let __cachedClient: youtube_v3.Youtube | null = null;
 
 /**
  * Get or create YouTube API client
@@ -43,13 +43,13 @@ export async function getYouTubeClient(user_id?: string): Promise<youtube_v3.You
  * Clear cached client (useful when API key changes)
  */
 export function clearYouTubeClient(): void {
-  _cachedClient = null;
+  __cachedClient = null;
 }
 
 /**
  * Track API quota usage
  */
-export async function trackQuotaUsage(operation: string, units: number): Promise<void> {
+export async function trackQuotaUsage(_operation: string, _units: number): Promise<void> {
   try {
     const supabase = await createServerClient();
     const {
@@ -57,7 +57,7 @@ export async function trackQuotaUsage(operation: string, units: number): Promise
     } = await supabase.auth.getUser();
 
     if (user) {
-      const today = new Date().toISOString().split('T')[0];
+      const __today = new Date().toISOString().split('T')[0];
 
       // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
       // API 사용량 추적 기능은 추후 구현 필요
@@ -115,7 +115,7 @@ export async function getRemainingQuota(): Promise<{
       return { used: 0, limit: 10000, remaining: 10000 };
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const __today = new Date().toISOString().split('T')[0];
 
     // Get user's subscription limits
     // TODO: subscriptions 테이블이 없으므로 임시로 주석 처리

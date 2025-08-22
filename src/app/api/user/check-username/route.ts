@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   try {
     // 선택적 인증 체크 - 로그인 사용자와 비로그인 사용자 모두 사용 가능
     const {
-      data: { user },
+      data: { user: _user },
     } = await supabase.auth.getUser();
 
     // Parse request body

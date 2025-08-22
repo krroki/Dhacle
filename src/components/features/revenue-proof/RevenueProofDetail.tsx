@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
@@ -57,16 +57,15 @@ import {
   toggleLike,
   updateRevenueProof,
 } from '@/lib/api/revenue-proof';
-import type { ProofComment, RevenueProof } from '@/types/revenue-proof';
+import type { ProofComment, RevenueProofWithUser } from '@/types';
 
 interface RevenueProofDetailProps {
-  initialData: RevenueProof & { isLiked: boolean; currentUserId?: string };
+  initialData: RevenueProofWithUser & { isLiked: boolean; currentUserId?: string };
   currentUserId?: string;
 }
 
 export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofDetailProps) {
   const router = useRouter();
-  const _queryClient = useQueryClient();
   const [proof, setProof] = useState(initialData);
   const [isLiked, setIsLiked] = useState(initialData.isLiked);
   const [commentContent, setCommentContent] = useState('');
@@ -82,13 +81,13 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   const [copied, setCopied] = useState(false);
 
   // 플랫폼 아이콘 매핑
-  const platformIcons = {
+  const platformIcons: Record<string, React.ReactElement> = {
     youtube: <Youtube className="h-5 w-5" />,
     instagram: <Instagram className="h-5 w-5" />,
     tiktok: <DollarSign className="h-5 w-5" />, // TikTok 아이콘 대체
   };
 
-  const platformColors = {
+  const platformColors: Record<string, string> = {
     youtube: 'bg-red-500',
     instagram: 'bg-gradient-to-tr from-purple-500 to-pink-500',
     tiktok: 'bg-black',
@@ -101,7 +100,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
       setIsLiked(!isLiked);
       setProof((prev) => ({
         ...prev,
-        likes_count: isLiked ? prev.likes_count - 1 : prev.likes_count + 1,
+        likes_count: isLiked ? (prev.likes_count ?? 0) - 1 : (prev.likes_count ?? 0) + 1,
       }));
     },
     onError: () => {
@@ -117,7 +116,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
       setCommentContent('');
       setProof((prev) => ({
         ...prev,
-        comments_count: prev.comments_count + 1,
+        comments_count: (prev.comments_count ?? 0) + 1,
       }));
       toast.success('댓글이 작성되었습니다.');
     },
@@ -192,7 +191,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
     if (!currentUserId || proof.user_id !== currentUserId) {
       return false;
     }
-    const created_at = new Date(proof.created_at);
+    const created_at = new Date(proof.created_at ?? new Date().toISOString());
     const now = new Date();
     const hoursDiff = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
     return hoursDiff <= 24;
@@ -215,7 +214,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={proof.user?.avatar_url} />
+                        <AvatarImage src={proof.user?.avatar_url ?? undefined} />
                         <AvatarFallback>{proof.user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <span>{proof.user?.username}</span>
@@ -224,7 +223,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       <span>
-                        {formatDistanceToNow(new Date(proof.created_at), {
+                        {formatDistanceToNow(new Date(proof.created_at ?? new Date().toISOString()), {
                           addSuffix: true,
                           locale: ko,
                         })}
@@ -232,10 +231,10 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                     </div>
                   </div>
                 </div>
-                <Badge className={`${platformColors[proof.platform]} text-white`}>
+                <Badge className={`${platformColors[proof.platform] || 'bg-gray-500'} text-white`}>
                   <span className="flex items-center gap-1">
-                    {platformIcons[proof.platform]}
-                    {proof.platform.charAt(0).toUpperCase() + proof.platform.slice(1)}
+                    {platformIcons[proof.platform] || platformIcons.youtube}
+                    {(proof.platform ?? 'unknown').charAt(0).toUpperCase() + (proof.platform ?? 'unknown').slice(1)}
                   </span>
                 </Badge>
               </div>
@@ -263,7 +262,13 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                 {/* 서명 오버레이 */}
                 {proof.signature_data && (
                   <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-black/90 p-2 rounded">
-                    <img src={proof.signature_data} alt="서명" className="h-12 w-auto" />
+                    <Image 
+                      src={proof.signature_data} 
+                      alt="서명" 
+                      width={60} 
+                      height={48} 
+                      className="h-12 w-auto object-contain"
+                    />
                   </div>
                 )}
               </div>
@@ -369,7 +374,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                     comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={comment.user?.avatar_url} />
+                          <AvatarImage src={comment.user?.avatar_url ?? undefined} />
                           <AvatarFallback>
                             {comment.user?.username?.[0]?.toUpperCase()}
                           </AvatarFallback>
@@ -378,7 +383,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">{comment.user?.username}</span>
                             <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(comment.created_at), {
+                              {formatDistanceToNow(new Date(comment.created_at ?? new Date().toISOString()), {
                                 addSuffix: true,
                                 locale: ko,
                               })}
@@ -409,7 +414,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
             <CardContent>
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={proof.user?.avatar_url} />
+                  <AvatarImage src={proof.user?.avatar_url ?? undefined} />
                   <AvatarFallback>{proof.user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>

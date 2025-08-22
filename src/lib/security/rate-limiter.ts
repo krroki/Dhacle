@@ -125,7 +125,8 @@ export function getClientIp(request: Request): string {
   // Vercel/Cloudflare 헤더 확인
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
+    const firstIp = forwardedFor.split(',')[0];
+    return firstIp ? firstIp.trim() : 'unknown';
   }
 
   const realIp = request.headers.get('x-real-ip');

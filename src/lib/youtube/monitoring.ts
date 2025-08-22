@@ -10,7 +10,7 @@
  */
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types/youtube-lens';
+import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types';
 import { calculateMetrics } from './metrics';
 
 const supabase = createClientComponentClient();
@@ -138,7 +138,7 @@ export class AlertRuleEngine {
    */
   async checkVideoAgainstRules(video: YouTubeVideo, rules: AlertRule[]): Promise<Alert[]> {
     const alerts: Alert[] = [];
-    const _metrics = calculateMetrics([video])[0];
+    const __metrics = calculateMetrics([video])[0];
 
     for (const rule of rules) {
       let triggered = false;
@@ -146,7 +146,9 @@ export class AlertRuleEngine {
 
       switch (rule.metricType) {
         case 'view_count':
-          actualValue = video.statistics.view_count;
+          actualValue = typeof video.statistics?.view_count === 'number' 
+            ? video.statistics.view_count 
+            : parseInt(String(video.statistics?.view_count || 0));
           triggered = this.compareValue(
             actualValue,
             rule.comparisonOperator || '>',
@@ -155,8 +157,8 @@ export class AlertRuleEngine {
           break;
 
         case 'vph':
-          if (video.metrics?.vph !== undefined) {
-            actualValue = video.metrics.vph;
+          if (video.metrics?.viewsPerHour !== undefined) {
+            actualValue = video.metrics.viewsPerHour;
             triggered = this.compareValue(
               actualValue,
               rule.comparisonOperator || '>',
@@ -265,12 +267,17 @@ export class AlertRuleEngine {
     }
 
     const [recent, previous] = data;
+    
+    if (!recent || !previous) {
+      return null;
+    }
+    
     const viewDiff = recent.view_count - previous.view_count;
     const timeDiff =
       new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);
 
-    if (hoursDiff === 0) {
+    if (hoursDiff === 0 || previous.view_count === 0) {
       return 0;
     }
     return ((viewDiff / previous.view_count) * 100) / hoursDiff; // Growth rate per hour as percentage

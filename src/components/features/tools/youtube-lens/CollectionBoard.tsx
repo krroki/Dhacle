@@ -21,7 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api-client';
 import { mapCollection } from '@/lib/utils/type-mappers';
-import type { Collection } from '@/types/youtube-lens';
+import type { Collection } from '@/types';
 
 export default function CollectionBoard() {
   const [collections, setCollections] = useState<Collection[]>([]);

@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     // Parse request body
     const body = await request.json();
-    const { username, work_type, job_category, current_income, target_income, experience_level } = body;
+    const { username, work_type: _work_type, job_category, current_income, target_income, experience_level } = body;
 
     // Validate username format
     if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
@@ -140,7 +140,7 @@ export async function PUT(request: Request) {
       full_name,
       channel_name,
       channel_url,
-      work_type,
+      work_type: _work_type,
       job_category,
       current_income,
       target_income,

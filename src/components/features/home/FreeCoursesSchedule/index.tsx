@@ -86,8 +86,8 @@ export function FreeCoursesSchedule() {
   const formatScheduleDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const day = date.getDate();
-    const dayOfWeek = dayFullNames[date.getDay()];
-    return { day: String(day).padStart(2, '0'), dayOfWeek, dayName: dayOfWeek.slice(0, 1) };
+    const _dayOfWeek = dayFullNames[date.getDay()] ?? '월요일';
+    return { day: String(day).padStart(2, '0'), dayOfWeek: _dayOfWeek, dayName: _dayOfWeek.slice(0, 1) };
   };
 
   // 강의 상세 페이지로 이동
@@ -210,7 +210,7 @@ export function FreeCoursesSchedule() {
                 </div>
               ) : (
                 monthSchedules.map((schedule) => {
-                  const { day, dayOfWeek, dayName } = formatScheduleDate(schedule.date);
+                  const { day, dayOfWeek: _dayOfWeek, dayName } = formatScheduleDate(schedule.date);
                   const isSelected = selectedDate === Number.parseInt(day, 10);
                   const { instructor, title } = formatCourseName(schedule.course_name);
 

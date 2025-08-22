@@ -23,13 +23,7 @@ export const dynamic = 'force-dynamic';
 export default async function NewCoursesPage(): Promise<React.JSX.Element> {
   const courses = await getNewCourses();
 
-  // 최근 7일 이내 강의 체크
-  const _isRecentlyAdded = (date: string) => {
-    const courseDate = new Date(date);
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return courseDate > weekAgo;
-  };
+  // Note: _isRecentlyAdded function removed as it was unused
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -4,7 +4,7 @@ import type {
   OAuthToken,
   YouTubeChannel,
   YouTubeSearchFilters,
-} from '@/types/youtube';
+} from '@/types';
 import { CacheManager, cacheManager } from './cache';
 import { JobPriority, JobType, queueManager } from './queue-manager';
 
@@ -26,9 +26,9 @@ export class YouTubeAPIClient {
     commentThreads: 1, // commentThreads.list
   };
 
-  private token?: OAuthToken;
+  private __token?: OAuthToken;
   private apiKey?: string;
-  private onTokenRefresh?: (token: OAuthToken) => Promise<void>;
+  private __onTokenRefresh?: (token: OAuthToken) => Promise<void>;
   private onQuotaUpdate?: (units: number) => Promise<void>;
   private useCache = true;
   private useBatchQueue = false;
@@ -43,9 +43,9 @@ export class YouTubeAPIClient {
     useBatchQueue?: boolean;
     user_id?: string;
   }) {
-    this.token = options.token;
+    this.__token = options.token;
     this.apiKey = options.api_key;
-    this.onTokenRefresh = options.onTokenRefresh;
+    this.__onTokenRefresh = options.onTokenRefresh;
     this.onQuotaUpdate = options.onQuotaUpdate;
     this.useCache = options.useCache ?? true;
     this.useBatchQueue = options.useBatchQueue ?? false;
@@ -486,7 +486,7 @@ export class YouTubeAPIClient {
    */
   updateAuth(options: { token?: OAuthToken; api_key?: string }) {
     if (options.token) {
-      this.token = options.token;
+      this.__token = options.token;
     }
     if (options.api_key) {
       this.apiKey = options.api_key;

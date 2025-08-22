@@ -2,7 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { generateRandomNickname } from '@/lib/utils/nickname-generator';
+import { generateRandomNickname as _generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { Database } from '@/types';
 
 /**

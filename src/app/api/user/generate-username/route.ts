@@ -50,7 +50,7 @@ export async function POST(_request: NextRequest) {
       username = generateRandomUsername();
 
       // 중복 체크
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing, error: _checkError } = await supabase
         .from('profiles')
         .select('id')
         .eq('username', username)

@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { EntityExtraction } from '@/types/youtube-lens';
+import type { EntityExtraction } from '@/types';
 
 interface EntityRadarProps {
   entities: EntityExtraction[];
@@ -37,33 +37,48 @@ export function EntityRadar({
     const languages = new Map<string, number>();
 
     entities.forEach((entity) => {
+      // Type guard for entities property
+      if (!entity.entities || typeof entity.entities !== 'object') {
+        return;
+      }
+
+      const ent = entity.entities as {
+        keywords?: string[];
+        topics?: string[];
+        brands?: string[];
+        people?: string[];
+        locations?: string[];
+        languages?: string[];
+      };
+
       // Keywords
-      entity.entities.keywords.forEach((keyword) => {
+      ent.keywords?.forEach((keyword) => {
         keywords.set(keyword, (keywords.get(keyword) || 0) + 1);
       });
 
       // Topics
-      entity.entities.topics.forEach((topic) => {
+      ent.topics?.forEach((topic) => {
         topics.set(topic, (topics.get(topic) || 0) + 1);
       });
 
       // Brands
-      entity.entities.brands.forEach((brand) => {
+      ent.brands?.forEach((brand) => {
         brands.set(brand, (brands.get(brand) || 0) + 1);
       });
 
       // People
-      entity.entities.people.forEach((person) => {
+      ent.people?.forEach((person) => {
         people.set(person, (people.get(person) || 0) + 1);
       });
 
       // Locations
-      entity.entities.locations.forEach((location) => {
+      ent.locations?.forEach((location) => {
         locations.set(location, (locations.get(location) || 0) + 1);
       });
 
       // Language
-      languages.set(entity.language, (languages.get(entity.language) || 0) + 1);
+      const lang = typeof entity.language === 'string' ? entity.language : 'unknown';
+      languages.set(lang, (languages.get(lang) || 0) + 1);
     });
 
     return {
@@ -91,7 +106,10 @@ export function EntityRadar({
     if (entities.length === 0) {
       return 0;
     }
-    const sum = entities.reduce((acc, entity) => acc + entity.confidence, 0);
+    const sum = entities.reduce((acc, entity) => {
+      const confidence = typeof entity.confidence === 'number' ? entity.confidence : 0;
+      return acc + confidence;
+    }, 0);
     return ((sum / entities.length) * 100).toFixed(1);
   }, [entities]);
 

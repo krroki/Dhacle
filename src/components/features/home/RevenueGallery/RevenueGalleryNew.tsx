@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { RevenueProofCard } from '@/components/features/revenue-proof/RevenueProofCard';
 import { Button } from '@/components/ui/button';
 import { getRevenueProofs } from '@/lib/api/revenue-proof';
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProof } from '@/types';
 import { SectionTitle } from '../shared/SectionTitle';
 
 export function RevenueGalleryNew() {

@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import { useEffect } from 'react';
 
@@ -12,8 +11,6 @@ NProgress.configure({
 });
 
 export function ProgressBar() {
-  const _pathname = usePathname();
-  const _searchParams = useSearchParams();
 
   useEffect(() => {
     NProgress.done();

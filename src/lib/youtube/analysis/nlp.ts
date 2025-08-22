@@ -6,7 +6,7 @@
  * Extracts keywords, entities, topics, and sentiment from video metadata
  */
 
-import type { EntityExtraction, TrendAnalysis, Video } from '@/types/youtube-lens';
+import type { EntityExtraction, TrendAnalysis, YouTubeLensVideo as Video } from '@/types';
 
 /**
  * Korean language patterns and stopwords
@@ -531,7 +531,8 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
       // Calculate dominant sentiment
       const sentimentCounts = { positive: 0, negative: 0, neutral: 0 };
       data.sentiments.forEach((s) => sentimentCounts[s]++);
-      const dominantSentiment = Object.entries(sentimentCounts).sort((a, b) => b[1] - a[1])[0][0] as
+      const sortedSentiments = Object.entries(sentimentCounts).sort((a, b) => b[1] - a[1]);
+      const dominantSentiment = (sortedSentiments[0]?.[0] ?? 'neutral') as
         | 'positive'
         | 'negative'
         | 'neutral';
@@ -550,7 +551,11 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
   });
 
   // Sort by growth rate
-  return trends.sort((a, b) => b.growthRate - a.growthRate);
+  return trends.sort((a, b) => {
+    const aRate = typeof a.growthRate === 'number' ? a.growthRate : 0;
+    const bRate = typeof b.growthRate === 'number' ? b.growthRate : 0;
+    return bRate - aRate;
+  });
 }
 
 /**
@@ -581,18 +586,29 @@ export function generateNLPReport(
     // Language distribution
     languageCounts[extraction.language] = (languageCounts[extraction.language] || 0) + 1;
 
+    // Type guard for entities
+    if (!extraction.entities || typeof extraction.entities !== 'object') {
+      return;
+    }
+
+    const entities = extraction.entities as {
+      keywords?: string[];
+      topics?: string[];
+      brands?: string[];
+    };
+
     // Aggregate keywords
-    extraction.entities.keywords.forEach((keyword) => {
+    entities.keywords?.forEach((keyword) => {
       keywordCounts.set(keyword, (keywordCounts.get(keyword) || 0) + 1);
     });
 
     // Aggregate topics
-    extraction.entities.topics.forEach((topic) => {
+    entities.topics?.forEach((topic) => {
       topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
     });
 
     // Aggregate brands
-    extraction.entities.brands.forEach((brand) => {
+    entities.brands?.forEach((brand) => {
       brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
     });
   });

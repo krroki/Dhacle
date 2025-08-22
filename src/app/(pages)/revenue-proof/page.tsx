@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRevenueProofs } from '@/lib/api/revenue-proof';
 // 더미 데이터 import 제거 - 실제 API만 사용
-import type { RevenueProof } from '@/types/revenue-proof';
+import type { RevenueProof } from '@/types';
 
 export default function RevenueProofGallery() {
   const [windowWidth] = useWindowSize();

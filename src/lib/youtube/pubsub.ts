@@ -58,7 +58,7 @@ interface VideoNotification {
  * PubSubHubbub Manager Class
  */
 export class PubSubHubbubManager {
-  private supabase = createClient();
+  private __supabase = createClient();
 
   /**
    * Generate a secure secret for HMAC verification
@@ -81,7 +81,7 @@ export class PubSubHubbubManager {
     params: SubscriptionParams
   ): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
     try {
-      const { channel_id, channelTitle, user_id, callbackUrl } = params;
+      const { channel_id, channelTitle: _channelTitle, user_id: _user_id, callbackUrl } = params;
 
       // Generate secret for this subscription
       const hubSecret = this.generateSecret();
@@ -173,7 +173,7 @@ export class PubSubHubbubManager {
    */
   async unsubscribe(
     channel_id: string,
-    user_id: string
+    _user_id: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // TODO: Get subscription details (channelSubscriptions table)
@@ -272,7 +272,7 @@ export class PubSubHubbubManager {
       if (!channelIdMatch) {
         return { success: false, error: 'Invalid topic URL' };
       }
-      const channel_id = channelIdMatch[1];
+      const __channel_id = channelIdMatch[1];
 
       // TODO: Find subscription (channelSubscriptions table)
       // const { data: subscription, error: fetchError } = await this.supabase
@@ -291,7 +291,7 @@ export class PubSubHubbubManager {
 
       // Update subscription status
       if (mode === 'subscribe') {
-        const expires_at = leaseSeconds
+        const __expires_at = leaseSeconds
           ? new Date(Date.now() + Number.parseInt(leaseSeconds, 10) * 1000).toISOString()
           : new Date(Date.now() + 432000 * 1000).toISOString(); // Default 5 days
 
@@ -335,7 +335,7 @@ export class PubSubHubbubManager {
   async processNotification(
     body: string,
     signature: string | null,
-    channel_id: string
+    _channel_id: string
   ): Promise<{ success: boolean; video?: VideoNotification; error?: string }> {
     try {
       // TODO: Get subscription (channelSubscriptions table)
@@ -424,11 +424,11 @@ export class PubSubHubbubManager {
       const is_deleted = xml.includes('<at:deleted-entry>');
 
       return {
-        video_id: videoIdMatch[1],
-        channel_id: channelIdMatch[1],
-        title: titleMatch ? titleMatch[1] : '',
-        published_at: publishedMatch ? publishedMatch[1] : new Date().toISOString(),
-        updated_at: updatedMatch ? updatedMatch[1] : undefined,
+        video_id: videoIdMatch[1] ?? '',
+        channel_id: channelIdMatch[1] ?? '',
+        title: titleMatch?.[1] ?? '',
+        published_at: publishedMatch?.[1] ?? new Date().toISOString(),
+        updated_at: updatedMatch?.[1] ?? undefined,
         deleted: is_deleted,
       };
     } catch (_error) {
@@ -484,12 +484,12 @@ export class PubSubHubbubManager {
    * Log subscription action
    */
   private async logSubscriptionAction(
-    subscriptionId: string,
-    action: string,
-    status: SubscriptionStatus,
-    requestData?: unknown,
-    response_data?: unknown,
-    error?: string
+    _subscriptionId: string,
+    _action: string,
+    _status: SubscriptionStatus,
+    _requestData?: unknown,
+    _response_data?: unknown,
+    _error?: string
   ): Promise<void> {
     try {
       // TODO: Log subscription action (subscriptionLogs table)
@@ -507,7 +507,7 @@ export class PubSubHubbubManager {
   /**
    * Get user's active subscriptions
    */
-  async getUserSubscriptions(user_id: string): Promise<unknown[]> {
+  async getUserSubscriptions(_user_id: string): Promise<unknown[]> {
     try {
       // TODO: Get user's active subscriptions (channelSubscriptions table)
       // const { data, error } = await this.supabase
@@ -530,7 +530,7 @@ export class PubSubHubbubManager {
   /**
    * Get recent webhook events for a user
    */
-  async getRecentEvents(user_id: string, limit = 50): Promise<unknown[]> {
+  async getRecentEvents(_user_id: string, _limit = 50): Promise<unknown[]> {
     try {
       // TODO: Get recent webhook events for a user (webhookEvents table)
       // const { data, error } = await this.supabase

@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
-import type { YouTubeSearchFilters } from '@/types/youtube';
+import type { YouTubeSearchFilters } from '@/types';
 
 interface SearchBarProps {
   onSearch: (query: string, filters: YouTubeSearchFilters) => Promise<void>;

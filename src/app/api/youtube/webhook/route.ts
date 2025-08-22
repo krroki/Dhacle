@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const channel_id = channelIdMatch[1];
 
     // Process the notification
-    const result = await pubsubManager.processNotification(body, signature, channel_id);
+    const result = await pubsubManager.processNotification(body, signature || '', channel_id || '');
 
     if (result.success) {
       console.log('Notification processed:', {
@@ -107,8 +107,8 @@ export async function POST(request: NextRequest) {
 async function handleVideoUpdate(video: unknown) {
   try {
     // Import monitoring system dynamically to avoid circular dependencies
-    const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
-    const _scheduler = new MonitoringScheduler();
+    // const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
+    // const scheduler = new MonitoringScheduler();
 
     // Check if this video triggers any alerts
     // Note: Alert checking would be done through AlertRuleEngine

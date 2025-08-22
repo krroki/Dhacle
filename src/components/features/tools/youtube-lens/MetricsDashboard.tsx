@@ -40,12 +40,12 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mapTrendAnalysis } from '@/lib/utils/type-mappers';
-import type { EntityExtraction, TrendAnalysis, VideoStats } from '@/types/youtube-lens';
+import type { EntityExtraction, TrendAnalysis, YouTubeLensVideoStats } from '@/types';
 import { EntityRadar } from './EntityRadar';
 import { TrendChart } from './TrendChart';
 
 interface MetricsDashboardProps {
-  metrics?: VideoStats[];
+  metrics?: YouTubeLensVideoStats[];
   trends?: TrendAnalysis[];
   entities?: EntityExtraction[];
   onRefresh?: () => void;

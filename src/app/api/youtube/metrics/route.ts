@@ -8,7 +8,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { calculateMetrics } from '@/lib/youtube/metrics';
-import type { YouTubeVideo } from '@/types/youtube-lens';
+import type { YouTubeVideo } from '@/types';
 
 export const runtime = 'nodejs';
 
@@ -371,9 +371,9 @@ function calculateAggregateStats(
     };
   }
 
-  const totalViews = videos.reduce((sum, v) => sum + (v.statistics?.view_count || 0), 0);
-  const totalLikes = videos.reduce((sum, v) => sum + (v.statistics?.like_count || 0), 0);
-  const totalComments = videos.reduce((sum, v) => sum + (v.statistics?.comment_count || 0), 0);
+  const totalViews = videos.reduce((sum, v) => sum + Number(v.statistics?.view_count || 0), 0);
+  const totalLikes = videos.reduce((sum, v) => sum + Number(v.statistics?.like_count || 0), 0);
+  const totalComments = videos.reduce((sum, v) => sum + Number(v.statistics?.comment_count || 0), 0);
 
   const averageViralScore =
     videos.reduce((sum, v) => sum + (v.metrics?.viralScore || 0), 0) / videos.length;
@@ -412,9 +412,9 @@ async function saveMetricsSnapshot(
 
     const snapshots = videos.map((video) => ({
       video_id: video.id,
-      view_count: video.statistics.view_count,
-      like_count: video.statistics.like_count,
-      comment_count: video.statistics.comment_count,
+      view_count: video.statistics?.view_count || 0,
+      like_count: video.statistics?.like_count || 0,
+      comment_count: video.statistics?.comment_count || 0,
       vph: video.metrics?.vph || 0,
       engagementRate: video.metrics?.engagementRate || 0,
       viralScore: video.metrics?.viralScore || 0,
