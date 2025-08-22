@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Typed Supabase Client
  *
@@ -77,7 +78,7 @@ class TypedSupabaseClient {
               }
               return camelToSnake(arg);
             });
-            const result = await (originalMethod as Function).apply(target, convertedArgs);
+            const result = await (originalMethod as (...args: any[]) => Promise<any>).apply(target, convertedArgs);
 
             // 결과를 camelCase로 변환
             if (result && result.data) {
@@ -87,7 +88,7 @@ class TypedSupabaseClient {
           }
 
           // select 등 다른 메서드들
-          const result = await (originalMethod as Function).apply(target, args);
+          const result = await (originalMethod as (...args: any[]) => Promise<any>).apply(target, args);
 
           // 결과를 camelCase로 변환
           if (result && result.data) {

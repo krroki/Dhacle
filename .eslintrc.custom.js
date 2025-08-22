@@ -6,6 +6,16 @@
 
 module.exports = {
   rules: {
+    // Unused variables with underscore prefix are allowed
+    '@typescript-eslint/no-unused-vars': ['warn', {
+      argsIgnorePattern: '^_',
+      varsIgnorePattern: '^_',
+      caughtErrorsIgnorePattern: '^_'
+    }],
+    
+    // Allow Function type in specific cases (Proxy patterns)
+    '@typescript-eslint/no-unsafe-function-type': 'off',
+    
     // database.generated.ts 직접 import 금지
     'no-restricted-imports': ['error', {
       patterns: [

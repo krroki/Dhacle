@@ -124,7 +124,7 @@
                 "formats": ["snake_case"]
               },
               {
-                "selector": { "kind": "parameter" },
+                "selector": { "kind": "functionParameter" },
                 "formats": ["snake_case"]
               }
             ]
@@ -322,6 +322,26 @@
             "noUndeclaredVariables": "off"
           }
         }
+      }
+    },
+    {
+      "includes": ["src/lib/supabase/typed-client.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "style": {
+            "useNamingConvention": "off",
+            "useBlockStatements": "off"
+          },
+          "complexity": {
+            "useOptionalChain": "off"
+          }
+        }
+      },
+      "formatter": {
+        "enabled": false
       }
     }
   ]

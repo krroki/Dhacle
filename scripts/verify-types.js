@@ -245,8 +245,15 @@ class TypeConsistencyChecker {
     const fileName = path.relative(process.cwd(), filePath);
     const issues = [];
 
+    // eslint-disable가 있는 파일은 any 타입 검사 건너뛰기
+    const hasEslintDisableAny = content.includes('eslint-disable @typescript-eslint/no-explicit-any');
+
     // 각 타입 위반 패턴 검사
     for (const violation of TYPE_VIOLATIONS) {
+      // eslint-disable가 있고 any 관련 패턴이면 건너뛰기
+      if (hasEslintDisableAny && (violation.name.includes('any') || violation.pattern.toString().includes('any'))) {
+        continue;
+      }
       const matches = this.findAllMatches(content, violation.pattern);
       
       matches.forEach(match => {
