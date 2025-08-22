@@ -17,11 +17,12 @@
 function use_carousel() {
   const context = React.useContext(CarouselContext);
 
-// ✅ 올바른 코드
+// ✅ 올바른 코드 (2025-08-22 해결 - 커밋 0216489)
 function useCarousel() {
   const context = React.useContext(CarouselContext);
 ```
 **🛡️ 예방책**: React Hook은 반드시 `use`로 시작하는 camelCase 유지
+**📍 해결**: carousel.tsx의 모든 use_carousel 호출을 useCarousel로 수정 완료
 
 ### 2. TypeScript 컴파일 에러
 **❌ 실제 사례**: `categoryBenchmarks` vs `category_benchmarks` 혼용
@@ -132,6 +133,24 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: 프로젝트 표준 패턴만 사용
 
+### 11. OAuth PKCE 라이브러리 불일치 🆕
+**❌ 실제 사례**: Kakao 로그인 PKCE 에러 (2025-08-22)
+```typescript
+// ❌ 문제 원인: auth-helpers-nextjs와 @supabase/ssr 혼용
+// auth/callback/route.ts
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+// middleware.ts
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+
+// ✅ 해결: 프로젝트 표준 패턴 통일 (커밋 해시 추가 예정)
+// auth/callback/route.ts
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+// middleware.ts - @supabase/ssr 직접 사용
+import { createServerClient } from '@supabase/ssr';
+```
+**🛡️ 예방책**: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용
+**📍 증상**: "code challenge does not match previously saved code verifier" 에러
+
 ---
 
 ## 🚨 절대 금지사항 (위반 시 프로젝트 파괴)
@@ -191,6 +210,18 @@ return NextResponse.json(data);
 ## 🔥 최신 변경사항 (반드시 반영)
 
 ### 2025-08-22 업데이트 (최신)
+- **Kakao 로그인 PKCE 오류 해결**:
+  - 원인: `@supabase/auth-helpers-nextjs`와 `@supabase/ssr` 라이브러리 혼용
+  - 증상: "code challenge does not match previously saved code verifier" 에러
+  - 해결: auth/callback/route.ts와 middleware.ts 표준 패턴 통일
+  - 교훈: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용
+
+- **Vercel 빌드 실패 완전 해결** (커밋 0216489):
+  - React Hook 명명 규칙 위반 수정: `use_carousel` → `useCarousel`
+  - TypeScript 타입 가드 추가: unknown 타입 접근 시 명시적 체크
+  - typed-client.ts: result 객체 검증 로직 강화
+  - youtube/api-client.ts: API 응답 배열 타입 가드 추가
+
 - **YouTube Lens Popular Shorts 개선**:
   - Silent 에러 처리 제거 → 모든 catch 블록에 console.error 추가
   - YouTube API mostPopular 차트 전략 추가 (키워드 없는 검색 해결)
@@ -281,6 +312,22 @@ await supabase.insert(camelToSnakeCase(userData));
 ---
 
 ## 🎯 에러 처리 패턴 (2025-08-22 추가)
+
+### TypeScript Unknown 타입 가드 패턴
+```typescript
+// ❌ 금지 - unknown 타입 직접 접근
+const result = await someFunction() as unknown;
+result.data; // TypeScript 에러!
+
+// ✅ 필수 - 타입 가드 사용
+const result = await someFunction();
+if (result && typeof result === 'object' && 'data' in result) {
+  const typedResult = result as { data?: unknown };
+  if (typedResult.data !== null && typedResult.data !== undefined) {
+    // 안전하게 접근
+  }
+}
+```
 
 ### Silent 에러 금지
 ```typescript

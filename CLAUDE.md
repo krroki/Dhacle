@@ -64,11 +64,11 @@ npm run verify:types  # 문제 확인
 
 > **교훈**: "4일간 디버깅" 문제는 대부분 Vercel이 오래된 커밋을 빌드하기 때문!
 
-### 🔥 snake_case/camelCase 변환 시스템 (2025-08-22 React Hook 이슈 수정)
+### 🔥 snake_case/camelCase 변환 시스템 (2025-08-22 React Hook 이슈 해결 완료)
 **API 경계에서만 자동 변환 - React 예약어 보호**
 ```bash
 # ⚠️ 주의: React Hook은 반드시 camelCase 유지!
-# use_carousel (❌) → useCarousel (✅)
+# use_carousel (❌) → useCarousel (✅) - 2025-08-22 수정 완료
 
 # snake_case 일관성 검증 (최우선 실행)
 node scripts/verify-case-consistency.js  # 전체 검증
@@ -78,6 +78,7 @@ node scripts/demo-case-conversion.js     # 변환 시연
 src/lib/api-client.ts        # API 경계 자동 변환
 src/lib/utils/case-converter.ts  # React 보호 변환 유틸
 .husky/pre-commit            # snake_case 차단 Hook
+src/components/ui/carousel.tsx  # React Hook 수정 완료 (useCarousel)
 ```
 
 ### 🤖 Claude Code 자동 스크립트 사용 체계
@@ -374,13 +375,12 @@ export default async function Page() {
   // 사용...
 }
 
-// ✅ API Route에서 - 프로젝트 표준 패턴  
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+// ✅ API Route에서 - 프로젝트 표준 패턴 (2025-08-22 수정)
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 
 export async function GET(): Promise<NextResponse> { // 반환 타입 명시
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
   
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -556,16 +556,15 @@ node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
    - 기본 옵션: `credentials: 'same-origin'`, `Content-Type: application/json`
    - 직접 `fetch()` 호출 금지 (외부 API 제외)
 
-2. **서버 라우트는 세션 필수** ✅ Wave 1 100% 적용 (38/38 routes) - 2025-01-30 검증 완료
+2. **서버 라우트는 세션 필수** ✅ Wave 1 100% 적용 (38/38 routes) - 2025-08-22 수정 완료
    - Route Handler 진입 시 세션 검사 → 없으면 `401` + `{ error: 'User not authenticated' }`
    - `userId`는 쿼리스트링으로 받지 말고 세션에서 파생
-   - **올바른 패턴 (필수)**:
+   - **올바른 패턴 (필수) - 2025-08-22 PKCE 오류 해결 후 업데이트**:
    ```typescript
-   import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-   import { cookies } from 'next/headers';
+   import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
    import { NextResponse } from 'next/server';
    
-   const supabase = createRouteHandlerClient({ cookies });
+   const supabase = await createSupabaseRouteHandlerClient();
    const { data: { user } } = await supabase.auth.getUser();
    if (!user) {
      return NextResponse.json(
@@ -574,9 +573,9 @@ node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
      );
    }
    ```
-   - **금지 패턴**:
-     - ❌ `createServerClient` 사용 금지
-     - ❌ `createSupabaseRouteHandlerClient` 사용 금지
+   - **금지 패턴 (라이브러리 혼용 방지)**:
+     - ❌ `createRouteHandlerClient from '@supabase/auth-helpers-nextjs'` 사용 금지
+     - ❌ `createServerClient from '@supabase/ssr'` 직접 사용 금지
      - ❌ `getSession()` 금지 → `getUser()` 사용
      - ❌ `new Response()` 금지 → `NextResponse.json()` 사용
 
