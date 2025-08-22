@@ -20,7 +20,6 @@ import type {
 // Database row types - using flexible types since tables may not exist yet
 type DBVideo = Partial<Video> & Record<string, unknown>;
 type DBVideoStats = Partial<VideoStats> & Record<string, unknown>;
-type ___DBChannel = Record<string, unknown>;
 type DBSourceFolder = Partial<SourceFolder> & Record<string, unknown>;
 type DBCollection = Partial<Collection> & Record<string, unknown>;
 type DBCourse = Partial<Course> & Record<string, unknown>;
@@ -60,7 +59,7 @@ export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>)
       course.created_at ||
       new Date().toISOString(),
     category: obj.category as string || course.category || undefined,
-    level: obj.level as any || course.level || undefined,
+    level: (obj.level as string) || course.level || undefined,
     requirements: Array.isArray(obj.requirements) ? obj.requirements as string[] : course.requirements || undefined,
     
     // Frontend enhancement fields
@@ -68,7 +67,7 @@ export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>)
     total_duration: obj.duration_weeks ? (Number(obj.duration_weeks) * 7 * 60) : course.total_duration || 0,
     student_count: Number(obj.total_students ?? course.student_count) || 0,
     reviewCount: course.reviewCount || 0,
-    status: (obj.status as any || course.status || 'active') as 'upcoming' | 'active' | 'completed',
+    status: (obj.status || course.status || 'active') as 'upcoming' | 'active' | 'completed',
     launchDate: obj.created_at as string || course.launchDate || new Date().toISOString(),
     
     // Additional optional fields

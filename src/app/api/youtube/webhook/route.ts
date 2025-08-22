@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const channel_id = channelIdMatch[1];
 
     // Process the notification
-    const result = await pubsubManager.processNotification(body, signature || '', channel_id || '');
+    const result = await pubsubManager.processNotification(body, signature || '');
 
     if (result.success) {
       console.log('Notification processed:', {

@@ -4,7 +4,6 @@
  */
 
 import crypto from 'node:crypto';
-import { createClient } from '@/lib/supabase/client';
 
 // PubSubHubbub Hub URL
 const HUB_URL = 'https://pubsubhubbub.appspot.com/';
@@ -58,7 +57,6 @@ interface VideoNotification {
  * PubSubHubbub Manager Class
  */
 export class PubSubHubbubManager {
-  private __supabase = createClient();
 
   /**
    * Generate a secure secret for HMAC verification
@@ -81,7 +79,7 @@ export class PubSubHubbubManager {
     params: SubscriptionParams
   ): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
     try {
-      const { channel_id, channelTitle: _channelTitle, user_id: _user_id, callbackUrl } = params;
+      const { channel_id, callbackUrl } = params;
 
       // Generate secret for this subscription
       const hubSecret = this.generateSecret();
@@ -172,8 +170,7 @@ export class PubSubHubbubManager {
    * Unsubscribe from a YouTube channel's updates
    */
   async unsubscribe(
-    channel_id: string,
-    _user_id: string
+    channel_id: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // TODO: Get subscription details (channelSubscriptions table)
@@ -265,14 +262,13 @@ export class PubSubHubbubManager {
     error?: string;
   }> {
     try {
-      const { mode, topic, challenge, leaseSeconds } = params;
+      const { mode, topic, challenge, leaseSeconds: _leaseSeconds } = params;
 
       // Extract channel ID from topic URL
       const channelIdMatch = topic.match(/channel_id=([^&]+)/);
       if (!channelIdMatch) {
         return { success: false, error: 'Invalid topic URL' };
       }
-      const __channel_id = channelIdMatch[1];
 
       // TODO: Find subscription (channelSubscriptions table)
       // const { data: subscription, error: fetchError } = await this.supabase
@@ -291,9 +287,6 @@ export class PubSubHubbubManager {
 
       // Update subscription status
       if (mode === 'subscribe') {
-        const __expires_at = leaseSeconds
-          ? new Date(Date.now() + Number.parseInt(leaseSeconds, 10) * 1000).toISOString()
-          : new Date(Date.now() + 432000 * 1000).toISOString(); // Default 5 days
 
         // TODO: Update subscription status to active (channelSubscriptions table)
         // await this.supabase
@@ -334,8 +327,7 @@ export class PubSubHubbubManager {
    */
   async processNotification(
     body: string,
-    signature: string | null,
-    _channel_id: string
+    signature: string | null
   ): Promise<{ success: boolean; video?: VideoNotification; error?: string }> {
     try {
       // TODO: Get subscription (channelSubscriptions table)
@@ -486,10 +478,7 @@ export class PubSubHubbubManager {
   private async logSubscriptionAction(
     _subscriptionId: string,
     _action: string,
-    _status: SubscriptionStatus,
-    _requestData?: unknown,
-    _response_data?: unknown,
-    _error?: string
+    _status: SubscriptionStatus
   ): Promise<void> {
     try {
       // TODO: Log subscription action (subscriptionLogs table)
@@ -507,7 +496,7 @@ export class PubSubHubbubManager {
   /**
    * Get user's active subscriptions
    */
-  async getUserSubscriptions(_user_id: string): Promise<unknown[]> {
+  async getUserSubscriptions(): Promise<unknown[]> {
     try {
       // TODO: Get user's active subscriptions (channelSubscriptions table)
       // const { data, error } = await this.supabase
@@ -530,7 +519,7 @@ export class PubSubHubbubManager {
   /**
    * Get recent webhook events for a user
    */
-  async getRecentEvents(_user_id: string, _limit = 50): Promise<unknown[]> {
+  async getRecentEvents(): Promise<unknown[]> {
     try {
       // TODO: Get recent webhook events for a user (webhookEvents table)
       // const { data, error } = await this.supabase

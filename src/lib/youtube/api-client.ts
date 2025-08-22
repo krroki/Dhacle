@@ -1,7 +1,6 @@
 // OAuth removed - using API Key system
 import type {
   FlattenedYouTubeVideo,
-  OAuthToken,
   YouTubeChannel,
   YouTubeSearchFilters,
 } from '@/types';
@@ -26,26 +25,20 @@ export class YouTubeAPIClient {
     commentThreads: 1, // commentThreads.list
   };
 
-  private __token?: OAuthToken;
   private apiKey?: string;
-  private __onTokenRefresh?: (token: OAuthToken) => Promise<void>;
   private onQuotaUpdate?: (units: number) => Promise<void>;
   private useCache = true;
   private useBatchQueue = false;
   private userId?: string;
 
   constructor(options: {
-    token?: OAuthToken;
     api_key?: string;
-    onTokenRefresh?: (token: OAuthToken) => Promise<void>;
     onQuotaUpdate?: (units: number) => Promise<void>;
     useCache?: boolean;
     useBatchQueue?: boolean;
     user_id?: string;
   }) {
-    this.__token = options.token;
     this.apiKey = options.api_key;
-    this.__onTokenRefresh = options.onTokenRefresh;
     this.onQuotaUpdate = options.onQuotaUpdate;
     this.useCache = options.useCache ?? true;
     this.useBatchQueue = options.useBatchQueue ?? false;
@@ -484,10 +477,7 @@ export class YouTubeAPIClient {
   /**
    * 인증 방법 업데이트
    */
-  updateAuth(options: { token?: OAuthToken; api_key?: string }) {
-    if (options.token) {
-      this.__token = options.token;
-    }
+  updateAuth(options: { api_key?: string }) {
     if (options.api_key) {
       this.apiKey = options.api_key;
     }

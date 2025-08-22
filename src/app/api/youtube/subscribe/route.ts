@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest) {
     }
 
     // Get user's subscriptions
-    const subscriptions = await pubsubManager.getUserSubscriptions(user.id);
+    const subscriptions = await pubsubManager.getUserSubscriptions();
 
     return NextResponse.json({
       success: true,
@@ -123,7 +123,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Unsubscribe from channel
-    const result = await pubsubManager.unsubscribe(channel_id, user.id);
+    const result = await pubsubManager.unsubscribe(channel_id);
 
     if (result.success) {
       return NextResponse.json({

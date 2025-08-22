@@ -6,7 +6,6 @@
  * Uses time series analysis and statistical methods for viral prediction
  */
 
-import { mapVideoStats } from '@/lib/utils/type-mappers';
 import type { PredictionModel, YouTubeLensVideo as Video, VideoStats } from '@/types';
 
 /**
@@ -72,15 +71,14 @@ function extractFeatures(
   );
 
   // Calculate initial velocity (views in first measurement period)
-  const firstStats = sortedStats[0] ? mapVideoStats(sortedStats[0] as any) : null;
-  const initialVelocity = firstStats?.viewsPerHour || 0;
+  const firstStatsRaw = sortedStats[0];
+  const initialVelocity = firstStatsRaw ? (firstStatsRaw.views_per_hour || 0) : 0;
 
   // Calculate acceleration
   let acceleration = 0;
   if (sortedStats.length >= 2) {
     const velocities = sortedStats.map((s) => {
-      const mappedStats = mapVideoStats(s as any);
-      return mappedStats.viewsPerHour || 0;
+      return s.views_per_hour || 0;
     });
     const velocityChanges = velocities.slice(1).map((v, i) => v - (velocities[i] ?? 0));
     acceleration =

@@ -5,7 +5,6 @@
 
 import { type Job, Queue, QueueEvents, type Worker } from 'bullmq';
 import Redis from 'ioredis';
-import PQueue from 'p-queue';
 
 // Redis 연결 설정
 const connection = new Redis({
@@ -120,13 +119,11 @@ export class YouTubeQueueManager {
   private workers: Map<JobType, Worker>;
   private queueEvents: QueueEvents;
   private quotaManager: QuotaManager;
-  private __concurrencyQueue: PQueue;
 
   private constructor() {
     this.queues = new Map();
     this.workers = new Map();
     this.quotaManager = QuotaManager.getInstance();
-    this.__concurrencyQueue = new PQueue({ concurrency: 3 }); // 동시 처리 제한
 
     // 큐 이벤트 리스너 설정
     this.queueEvents = new QueueEvents('youtube-api', { connection });

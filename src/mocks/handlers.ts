@@ -128,8 +128,7 @@ export const handlers = [
     });
   }),
 
-  http.post('/api/user/api-keys', async ({ request }) => {
-    const ___body = await request.json();
+  http.post('/api/user/api-keys', async () => {
 
     return HttpResponse.json({
       success: true,

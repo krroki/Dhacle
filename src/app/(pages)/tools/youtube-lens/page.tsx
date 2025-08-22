@@ -116,10 +116,6 @@ interface FavoritesResponse {
   data: YouTubeFavorite[];
 }
 
-interface _AddFavoriteResponse {
-  success: boolean;
-  data: YouTubeFavorite;
-}
 
 const fetchFavorites = async () => {
   const result = await apiGet<FavoritesResponse>('/api/youtube/favorites');

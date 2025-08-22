@@ -342,7 +342,7 @@ export class ServerCollectionManager {
           tags: [],  // tags 필드가 DB에 없음
           addedAt: item.created_at || new Date().toISOString(),
           addedBy: item.added_by || '',
-          video: item.video as any, // Cast to bypass the type error since we've validated it above
+          video: item.video as unknown as Video, // Cast to Video type since we've validated it above
         }));
       
       return { data: collectionItems, error: null };

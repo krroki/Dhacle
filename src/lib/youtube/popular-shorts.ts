@@ -398,7 +398,7 @@ async function storeVideosInDatabase(videos: VideoWithStats[]): Promise<void> {
       }));
 
     if (statsData.length > 0) {
-      const { error: statsError } = await supabase.from('video_stats').insert(statsData as any);
+      const { error: statsError } = await supabase.from('video_stats').insert(statsData);
       if (statsError) {
         console.error('Stats insert error:', statsError);
       }
@@ -448,7 +448,7 @@ export async function getCachedPopularShorts(
       channelTitle: '',  // channel_title field doesn't exist in DB
       tags: item.tags || [],
       stats: (item.videoStats && Array.isArray(item.videoStats) && item.videoStats.length > 0) 
-        ? item.videoStats[0] as any // Cast to avoid type issues
+        ? item.videoStats[0]
         : undefined,
       // Add missing required properties for VideoWithStats
       languageCode: 'en',

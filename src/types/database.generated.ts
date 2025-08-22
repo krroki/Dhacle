@@ -1773,36 +1773,45 @@ export type Database = {
           comment_delta: number | null
           created_at: string | null
           date: string
+          engagement_rate: number | null
           id: string
           like_count: number | null
           like_delta: number | null
           video_id: string
           view_count: number | null
           view_delta: number | null
+          views_per_hour: number | null
+          viral_score: number | null
         }
         Insert: {
           comment_count?: number | null
           comment_delta?: number | null
           created_at?: string | null
           date: string
+          engagement_rate?: number | null
           id?: string
           like_count?: number | null
           like_delta?: number | null
           video_id: string
           view_count?: number | null
           view_delta?: number | null
+          views_per_hour?: number | null
+          viral_score?: number | null
         }
         Update: {
           comment_count?: number | null
           comment_delta?: number | null
           created_at?: string | null
           date?: string
+          engagement_rate?: number | null
           id?: string
           like_count?: number | null
           like_delta?: number | null
           video_id?: string
           view_count?: number | null
           view_delta?: number | null
+          views_per_hour?: number | null
+          viral_score?: number | null
         }
         Relationships: [
           {

@@ -138,7 +138,7 @@ export class AlertRuleEngine {
    */
   async checkVideoAgainstRules(video: YouTubeVideo, rules: AlertRule[]): Promise<Alert[]> {
     const alerts: Alert[] = [];
-    const __metrics = calculateMetrics([video])[0];
+    calculateMetrics([video])[0];
 
     for (const rule of rules) {
       let triggered = false;

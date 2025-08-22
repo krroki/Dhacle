@@ -12,15 +12,7 @@ if [ -n "$STAGED_TS_FILES" ]; then
   # staged 파일에서 any 타입 검색
   for file in $STAGED_TS_FILES; do
     if grep -q ": any" "$file" 2>/dev/null; then
-      # 의도적인 as any 사용 파일 체크 (타입 시스템 복구 과정에서 일시적으로 허용)
-      # 이 파일들은 DB 스키마와 불일치하는 필드가 있어 임시로 as any 사용
-      if echo "$file" | grep -E "(popular-shorts\.ts|collections-server\.ts|metrics\.ts|queue-manager\.ts|typed-client\.ts|predictor\.ts|type-mappers\.ts)" > /dev/null; then
-        echo "⚠️ 경고: 의도적인 'as any' 사용 감지 (타입 시스템 복구 중)"
-        echo "  파일: $file"
-        echo "  이유: DB 스키마와 임시 불일치 (video_stats 테이블 추가 필드 대기 중)"
-        echo "  TODO: DB 마이그레이션 후 제거 필요"
-        echo ""
-      elif ! grep -q "eslint-disable" "$file" 2>/dev/null; then
+      if ! grep -q "eslint-disable" "$file" 2>/dev/null; then
         echo "❌ any 타입 사용 금지!"
         echo "  파일: $file"
         echo ""
