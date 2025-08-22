@@ -21,8 +21,8 @@ export async function GET() {
     );
   }
   try {
-    const collectionManager = new ServerCollectionManager();
-    const { data, error } = await collectionManager.getCollections();
+    const collection_manager = new ServerCollectionManager();
+    const { data, error } = await collection_manager.getCollections();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Collection name is required' }, { status: 400 });
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { data, error } = await collectionManager.createCollection({
+    const collection_manager = new ServerCollectionManager();
+    const { data, error } = await collection_manager.createCollection({
       name,
       description,
       is_public,
@@ -97,8 +97,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { data, error } = await collectionManager.updateCollection(id, updates);
+    const collection_manager = new ServerCollectionManager();
+    const { data, error } = await collection_manager.updateCollection(id, updates);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -135,8 +135,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { success, error } = await collectionManager.deleteCollection(id);
+    const collection_manager = new ServerCollectionManager();
+    const { success, error } = await collection_manager.deleteCollection(id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

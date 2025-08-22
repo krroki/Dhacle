@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { data, error } = await collectionManager.getCollectionVideos(collection_id);
+    const collection_manager = new ServerCollectionManager();
+    const { data, error } = await collection_manager.getCollectionVideos(collection_id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { data, error } = await collectionManager.addVideoToCollection(
+    const collection_manager = new ServerCollectionManager();
+    const { data, error } = await collection_manager.addVideoToCollection(
       collection_id,
       video_id,
       notes,
@@ -110,8 +110,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { success, error } = await collectionManager.removeVideoFromCollection(
+    const collection_manager = new ServerCollectionManager();
+    const { success, error } = await collection_manager.removeVideoFromCollection(
       collection_id,
       video_id
     );
@@ -151,8 +151,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const collectionManager = new ServerCollectionManager();
-    const { success, error } = await collectionManager.reorderCollectionItems(collection_id, items);
+    const collection_manager = new ServerCollectionManager();
+    const { success, error } = await collection_manager.reorderCollectionItems(collection_id, items);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

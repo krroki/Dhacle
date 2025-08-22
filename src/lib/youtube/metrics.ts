@@ -4,7 +4,6 @@
  * Created: 2025-01-21
  */
 
-import { supabase } from '@/lib/supabase/client';
 import type {
   Channel,
   ChannelMetrics,
@@ -264,31 +263,23 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
   if ('stats' in video && video.stats) {
     stats = video.stats;
   } else {
-    // Fetch from database
-    const { data } = await supabase
-      .from('video_stats')
-      .select('*')
-      .eq('video_id', video.video_id)
-      .order('snapshotAt', { ascending: false })
-      .limit(1)
-      .single();
-
-    // Convert DB response to VideoStats type
-    stats = data ? {
-      id: data.id || '',
-      video_id: data.video_id || '',
-      view_count: data.view_count || 0,
-      like_count: data.like_count || 0,
-      comment_count: data.comment_count || 0,
+    // Stats not available - use default values
+    // Note: Database fetching should be done at the API route level
+    stats = {
+      id: '',
+      video_id: video.video_id || '',
+      view_count: 0,
+      like_count: 0,
+      comment_count: 0,
       viewsPerHour: 0,
       engagementRate: 0,
       viralScore: 0,
-      viewDelta: data.view_delta || 0,
-      likeDelta: data.like_delta || 0,
-      commentDelta: data.comment_delta || 0,
-      snapshotAt: data.created_at || new Date().toISOString(),
-      created_at: data.created_at || new Date().toISOString(),
-    } : undefined;
+      viewDelta: 0,
+      likeDelta: 0,
+      commentDelta: 0,
+      snapshotAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    };
   }
 
   if (!stats) {
