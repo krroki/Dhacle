@@ -3,8 +3,6 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
-const collectionManager = new ServerCollectionManager();
-
 /**
  * GET /api/youtube/collections
  * 사용자의 컬렉션 목록 조회
@@ -23,6 +21,7 @@ export async function GET() {
     );
   }
   try {
+    const collectionManager = new ServerCollectionManager();
     const { data, error } = await collectionManager.getCollections();
 
     if (error) {
@@ -57,6 +56,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Collection name is required' }, { status: 400 });
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { data, error } = await collectionManager.createCollection({
       name,
       description,
@@ -97,6 +97,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { data, error } = await collectionManager.updateCollection(id, updates);
 
     if (error) {
@@ -134,6 +135,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { success, error } = await collectionManager.deleteCollection(id);
 
     if (error) {

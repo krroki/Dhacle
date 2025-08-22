@@ -1,9 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import { CollectionManager } from '@/lib/youtube/collections';
-
-const collectionManager = new CollectionManager();
+import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
 /**
  * GET /api/youtube/collections/items
@@ -30,6 +28,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { data, error } = await collectionManager.getCollectionVideos(collection_id);
 
     if (error) {
@@ -67,6 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { data, error } = await collectionManager.addVideoToCollection(
       collection_id,
       video_id,
@@ -110,6 +110,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { success, error } = await collectionManager.removeVideoFromCollection(
       collection_id,
       video_id
@@ -150,6 +151,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const collectionManager = new ServerCollectionManager();
     const { success, error } = await collectionManager.reorderCollectionItems(collection_id, items);
 
     if (error) {
