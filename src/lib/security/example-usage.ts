@@ -4,9 +4,8 @@
  * Rate Limiting, Zod 검증, XSS 방지를 실제 API에 적용하는 방법
  */
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { sanitizeBasicHTML, sanitizeObject, sanitizeRichHTML } from './sanitizer';
 // Wave 3 보안 모듈 임포트
 import {
@@ -21,7 +20,7 @@ import {
  */
 export async function POST_CreatePost(request: NextRequest) {
   // 1. 세션 검사 (Wave 1)
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -69,7 +68,7 @@ export async function POST_CreatePost(request: NextRequest) {
  */
 export async function PUT_UpdateProfile(request: NextRequest) {
   // 1. 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

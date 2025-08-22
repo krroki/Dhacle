@@ -201,9 +201,10 @@ node scripts/security/scan-secrets.js # → No secrets found
 ```
 
 #### 통과 기준
-- [ ] 모든 Route에 세션 검사
-- [ ] 401 표준 형식: `{ error: 'User not authenticated' }`
-- [ ] api-client.ts 래퍼 사용
+- [x] 모든 Route에 세션 검사 (createSupabaseRouteHandlerClient 사용) ✅
+- [x] 401 표준 형식: `{ error: 'User not authenticated' }` ✅
+- [x] api-client.ts 래퍼 사용 ✅
+- [x] Supabase 클라이언트 패턴 통일 (2025-08-22: 44개 파일 수정 완료) ✅
 - [ ] Zod 스키마 적용
 - [ ] 비밀키 하드코딩 없음
 

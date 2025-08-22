@@ -1,8 +1,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -11,7 +10,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 현재 사용자 확인
     const {
@@ -77,7 +76,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 현재 사용자 확인
     const {
@@ -145,7 +144,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 현재 사용자 확인
     const {

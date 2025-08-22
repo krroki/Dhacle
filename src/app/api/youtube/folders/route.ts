@@ -7,8 +7,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -18,7 +17,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function GET(): Promise<NextResponse> {
   try {
     // Authentication check - using getUser() for consistency
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -67,7 +66,7 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -138,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -233,7 +232,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     // Authentication check
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -1,9 +1,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
   DINOHIGHCLASS_CAFE,
@@ -15,7 +14,7 @@ import type { Database } from '@/types';
 // 네이버 카페 연동 상태 확인
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {
@@ -74,7 +73,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 // 네이버 카페 연동 요청
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {
@@ -209,7 +208,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 // 네이버 카페 연동 해제
 export async function DELETE(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {

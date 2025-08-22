@@ -8,9 +8,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { mapOutlierDetectionResult } from '@/lib/utils/type-mappers';
 import { analyzeTrends, extractEntities, generateNLPReport } from '@/lib/youtube/analysis/nlp';
 import { detectOutliers, generateOutlierReport } from '@/lib/youtube/analysis/outlier';
@@ -35,7 +34,7 @@ import type { BatchAnalysisResult, YouTubeLensVideo as Video, VideoStats } from 
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Check authentication
     const {
@@ -245,7 +244,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Check authentication
     const {

@@ -2,7 +2,7 @@
 
 *목적: Frontend-Backend 타입 매핑*
 *핵심 질문: "DB 스키마와 TS 타입이 일치하나?"*
-*업데이트: 2025-08-22 - 타입 파일 통합 완료*
+*업데이트: 2025-08-22 - 타입 파일 통합 완료, TypeScript 타입 가드 패턴 추가*
 
 ---
 
@@ -45,6 +45,40 @@ import { YouTubeVideo } from '@/types/youtube';        // 금지! (파일 삭제
 // - 9개 타입 파일 → 2개로 통합 (database.generated.ts, index.ts)
 // - 모든 타입은 @/types/index.ts에서만 import
 // - 중복 타입 정의 제거 완료
+```
+
+### 🛡️ TypeScript Unknown 타입 가드 패턴 (2025-08-22 추가)
+```typescript
+// ✅ unknown 타입 안전하게 접근하기
+function handleUnknownResult(result: unknown) {
+  // 1. null/undefined 체크
+  if (result === null || result === undefined) {
+    return null;
+  }
+  
+  // 2. 객체 타입 체크 ('object' 타입에 null 포함되므로 별도 체크)
+  if (typeof result !== 'object') {
+    return null;
+  }
+  
+  // 3. 속성 존재 체크
+  if ('data' in result) {
+    const typedResult = result as { data?: unknown };
+    // 4. 속성값 체크
+    if (typedResult.data !== null && typedResult.data !== undefined) {
+      return typedResult.data;
+    }
+  }
+  
+  return null;
+}
+
+// ❌ 금지: unknown 타입 직접 접근
+const result = await someFunction();
+result.data; // TypeScript 에러!
+
+// ✅ 올바른 방법: 타입 가드 사용
+const data = handleUnknownResult(result);
 ```
 
 ### 🚨 타입 불일치 체크리스트 (2025-01-31 Wave 3 완료)

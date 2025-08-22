@@ -6,8 +6,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { cacheManager } from '@/lib/youtube/cache';
 import {
@@ -21,7 +20,7 @@ import {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 // POST: 작업 추가
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -168,7 +167,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 // PUT: 큐 제어 (일시정지, 재개, 재시도)
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -212,7 +211,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 // DELETE: 캐시 초기화
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -1,14 +1,13 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 import type { Database } from '@/types';
 
 // POST: Check username availability
 export async function POST(request: Request): Promise<NextResponse> {
-  const supabase = createRouteHandlerClient<Database>({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   try {
     // 선택적 인증 체크 - 로그인 사용자와 비로그인 사용자 모두 사용 가능

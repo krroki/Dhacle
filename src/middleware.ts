@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import {
@@ -51,17 +51,42 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // Wave 1: Supabase 세션 자동 새로고침 - 모든 경로에 적용
   try {
-    const supabase = createMiddlewareClient<Database>({ req: request, res });
+    const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    // 세션 자동 새로고침 - createMiddlewareClient가 자동으로 쿠키 업데이트 처리
-    await supabase.auth.getSession();
+    if (supabase_url && supabase_anon_key) {
+      const supabase = createServerClient<Database>(supabase_url, supabase_anon_key, {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value;
+          },
+          set(name: string, value: string, options) {
+            res.cookies.set({
+              name,
+              value,
+              ...options,
+            });
+          },
+          remove(name: string, options) {
+            res.cookies.set({
+              name,
+              value: '',
+              ...options,
+            });
+          },
+        },
+      });
 
-    if (process.env.NODE_ENV === 'development') {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        console.log('[Middleware] Session refreshed for user:', user.id);
+      // 세션 자동 새로고침
+      await supabase.auth.getSession();
+
+      if (process.env.NODE_ENV === 'development') {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          console.log('[Middleware] Session refreshed for user:', user.id);
+        }
       }
     }
   } catch (_error) {}

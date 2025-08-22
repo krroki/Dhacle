@@ -3,9 +3,8 @@ export const dynamic = 'force-dynamic';
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { validateYouTubeApiKey } from '@/lib/api-keys';
 
 /**
@@ -14,9 +13,9 @@ import { validateYouTubeApiKey } from '@/lib/api-keys';
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   console.log('[validate-key] Request received');
-  
+
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 인증 확인
     const {
@@ -26,10 +25,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (auth_error || !user) {
       console.log('[validate-key] Authentication failed');
-      return NextResponse.json({ 
-        success: false,
-        error: 'User not authenticated' 
-      }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'User not authenticated',
+        },
+        { status: 401 }
+      );
     }
 
     // 요청 본문 파싱
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-    
+
     const { api_key } = body;
 
     if (!api_key) {
@@ -60,10 +62,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.log('[validate-key] Validating API key...');
-    
+
     // YouTube API를 통한 실제 검증
     const validation = await validateYouTubeApiKey(api_key);
-    
+
     console.log('[validate-key] Validation result:', validation);
 
     if (!validation.isValid) {
@@ -94,8 +96,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         success: false,
         error: 'API key 검증 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-        details: process.env.NODE_ENV === 'development' ? 
-          (error instanceof Error ? error.message : String(error)) : undefined,
+        details:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : undefined,
       },
       { status: 500 }
     );

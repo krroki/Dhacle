@@ -210,11 +210,14 @@ return NextResponse.json(data);
 ## 🔥 최신 변경사항 (반드시 반영)
 
 ### 2025-08-22 업데이트 (최신)
-- **Kakao 로그인 PKCE 오류 해결**:
+- **Kakao 로그인 PKCE 오류 해결** (44개 파일 수정 완료):
   - 원인: `@supabase/auth-helpers-nextjs`와 `@supabase/ssr` 라이브러리 혼용
   - 증상: "code challenge does not match previously saved code verifier" 에러
-  - 해결: auth/callback/route.ts와 middleware.ts 표준 패턴 통일
-  - 교훈: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용
+  - 해결: 전체 프로젝트 Supabase 클라이언트 패턴 통일
+    - API Routes: `createSupabaseRouteHandlerClient()` 사용
+    - Client Components: `createBrowserClient()` 사용
+    - 44개 파일 모두 `@supabase/auth-helpers-nextjs` 제거 완료
+  - 교훈: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용 필수
 
 - **Vercel 빌드 실패 완전 해결** (커밋 0216489):
   - React Hook 명명 규칙 위반 수정: `use_carousel` → `useCarousel`

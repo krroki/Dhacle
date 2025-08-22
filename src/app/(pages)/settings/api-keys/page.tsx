@@ -88,23 +88,22 @@ export default function ApiKeysPage() {
       if (data.success) {
         toast.success('유효한 API Key입니다!');
         return true;
-      } else {
-        // 구체적인 에러 메시지 표시
-        const errorMessage = data.error || '유효하지 않은 API Key입니다';
-        toast.error(errorMessage);
-        
-        // 추가 도움말 표시
-        if (errorMessage.includes('활성화')) {
-          toast.info('Google Cloud Console에서 YouTube Data API v3를 활성화해주세요', {
-            duration: 5000,
-          });
-        } else if (errorMessage.includes('할당량')) {
-          toast.info('새로운 API Key를 생성하거나 내일 다시 시도해주세요', {
-            duration: 5000,
-          });
-        }
-        return false;
       }
+      // 구체적인 에러 메시지 표시
+      const error_message = data.error || '유효하지 않은 API Key입니다';
+      toast.error(error_message);
+
+      // 추가 도움말 표시
+      if (error_message.includes('활성화')) {
+        toast.info('Google Cloud Console에서 YouTube Data API v3를 활성화해주세요', {
+          duration: 5000,
+        });
+      } else if (error_message.includes('할당량')) {
+        toast.info('새로운 API Key를 생성하거나 내일 다시 시도해주세요', {
+          duration: 5000,
+        });
+      }
+      return false;
     } catch (error) {
       console.error('[Client] Validation error:', error);
       toast.error('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');

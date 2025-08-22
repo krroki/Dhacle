@@ -6,8 +6,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
 
@@ -16,7 +15,7 @@ import { pubsubManager } from '@/lib/youtube/pubsub';
  */
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Get authenticated user
     const {
@@ -45,7 +44,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Get authenticated user
     const {
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Get authenticated user
     const {
@@ -151,7 +150,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
  */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Get authenticated user
     const {

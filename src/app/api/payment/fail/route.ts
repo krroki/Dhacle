@@ -1,8 +1,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import type { Json } from '@/types';
@@ -10,7 +9,7 @@ import type { Json } from '@/types';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
-    const auth_supabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await auth_supabase.auth.getUser();

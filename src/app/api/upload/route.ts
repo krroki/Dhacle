@@ -4,8 +4,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // 이미지 타입 검증
@@ -17,7 +16,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // POST: 이미지 업로드
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 인증 확인
     const {
@@ -110,7 +109,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 // DELETE: 이미지 삭제
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 인증 확인
     const {

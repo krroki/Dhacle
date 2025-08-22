@@ -361,7 +361,7 @@ npm run types:auto-fix
 
 ## 4. 보안 자동 적용 규칙 (필수)
 
-### 🚨 Supabase 클라이언트 패턴 통일 (2025-08-22 중요 업데이트)
+### 🚨 Supabase 클라이언트 패턴 통일 (2025-08-22 완료 - 44개 파일 수정)
 
 #### ⚡ 빌드 오류 방지를 위한 필수 패턴
 ```typescript
@@ -375,7 +375,7 @@ export default async function Page() {
   // 사용...
 }
 
-// ✅ API Route에서 - 프로젝트 표준 패턴 (2025-08-22 수정)
+// ✅ API Route에서 - 프로젝트 표준 패턴 (2025-08-22 전체 통일 완료)
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 
@@ -403,15 +403,13 @@ export function ClientComponent() {
 }
 ```
 
-#### ❌ 절대 금지 패턴들 (Vercel 빌드 실패 원인)
+#### ❌ 절대 금지 패턴들 (Vercel 빌드 실패 원인) - 2025-08-22 전체 제거 완료
 ```typescript
-// ❌ Server Component에서 금지
+// ❌ 절대 사용 금지 (44개 파일에서 모두 제거됨)
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-// → 빌드 시 환경변수 오류 발생!
-
-// ❌ API Route에서 금지
-import { createServerClient } from '@supabase/ssr';
-// → 프로젝트 패턴과 불일치
+// → 빌드 시 환경변수 오류 및 PKCE 오류 발생!
 
 // ❌ 기타 금지 사항
 - getSession() 사용 금지 → getUser() 사용

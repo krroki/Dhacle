@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import type { Collection, CollectionItem, Video } from '@/types';
 
 /**
@@ -9,7 +9,7 @@ export class CollectionManager {
   private supabase;
 
   constructor() {
-    this.supabase = createClientComponentClient();
+    this.supabase = createBrowserClient();
   }
 
   /**

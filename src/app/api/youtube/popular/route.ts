@@ -4,9 +4,8 @@
  * Phase 3: Core Features Implementation
  */
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { mapVideoStats } from '@/lib/utils/type-mappers';
 import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
 
@@ -19,7 +18,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
       error: auth_error,
@@ -159,7 +158,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
       error: auth_error,
@@ -274,7 +273,7 @@ async function save_to_collection(
   collection_id: string,
   videos: Array<{ id: string }>
 ): Promise<void> {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   const collection_items = videos.map((video) => {
     if (!video || typeof video !== 'object' || !('id' in video)) {

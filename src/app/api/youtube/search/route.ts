@@ -1,8 +1,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { YouTubeAPIClient } from '@/lib/youtube/api-client';
@@ -14,7 +13,7 @@ import type { YouTubeSearchFilters } from '@/types';
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 현재 사용자 확인
     const {

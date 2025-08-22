@@ -1,8 +1,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -11,7 +10,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const search_params = req.nextUrl.searchParams;
     const category = search_params.get('category') || 'board';
     const page = Number.parseInt(search_params.get('page') || '1', 10);
@@ -70,7 +69,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 인증 확인
     const {

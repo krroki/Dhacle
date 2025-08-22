@@ -1,13 +1,12 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // GET: 채널 목록 조회 (관리자 전용)
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // 인증 체크
   const {
@@ -83,7 +82,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 // POST: 새 채널 추가 (관리자 전용)
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // 인증 체크
   const {

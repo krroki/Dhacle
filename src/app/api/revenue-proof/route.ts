@@ -1,8 +1,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 // revenue-proof/route.ts
 // 수익인증 메인 API Route (목록 조회, 생성)
 
@@ -13,7 +12,7 @@ import { createProofSchema } from '@/lib/validations/revenue-proof';
 // GET: 수익인증 목록 조회
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // 세션 검사
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Route Handler Client를 사용하여 공개 데이터를 가져옴
     // revenue_proofs 테이블은 공개 읽기 가능하므로 Service Role Key 불필요
-    const supabase = await createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { searchParams } = new URL(request.url);
 
     // 쿼리 파라미터 파싱
@@ -128,7 +127,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

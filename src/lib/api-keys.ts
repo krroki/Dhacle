@@ -99,7 +99,7 @@ export async function validateYouTubeApiKey(
 ): Promise<{ isValid: boolean; error?: string; quotaInfo?: Record<string, unknown> }> {
   try {
     console.log('[validateYouTubeApiKey] Starting validation...');
-    
+
     // API Key 형식 검증
     if (!api_key.startsWith('AIza') || api_key.length !== 39) {
       console.log('[validateYouTubeApiKey] Invalid format');
@@ -108,75 +108,79 @@ export async function validateYouTubeApiKey(
         error: 'Invalid API key format',
       };
     }
-    
+
     // YouTube API 호출
-    const testVideoId = 'jNQXAC9IVRw'; // 유명한 테스트 비디오
-    const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${testVideoId}&key=${api_key}`;
-    
+    const test_video_id = 'jNQXAC9IVRw'; // 유명한 테스트 비디오
+    const api_url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${test_video_id}&key=${api_key}`;
+
     console.log('[validateYouTubeApiKey] Calling YouTube API...');
-    const response = await fetch(apiUrl, {
+    const response = await fetch(api_url, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       // Node.js 환경에서 실행되므로 CORS 문제 없음
       cache: 'no-store',
     });
 
-    const responseText = await response.text();
+    const response_text = await response.text();
     console.log('[validateYouTubeApiKey] Response status:', response.status);
 
     if (!response.ok) {
       // 에러 응답 파싱
-      let errorData;
+      let error_data;
       try {
-        errorData = JSON.parse(responseText);
+        error_data = JSON.parse(response_text);
       } catch {
-        errorData = { error: { message: responseText } };
+        error_data = { error: { message: response_text } };
       }
-      
-      const errorMessage = errorData?.error?.message || 'Invalid API key';
-      console.log('[validateYouTubeApiKey] API Error:', errorMessage);
-      
+
+      const error_message = error_data?.error?.message || 'Invalid API key';
+      console.log('[validateYouTubeApiKey] API Error:', error_message);
+
       // 구체적인 에러 메시지 제공
-      if (errorMessage.includes('API key not valid')) {
+      if (error_message.includes('API key not valid')) {
         return {
           isValid: false,
           error: 'API key가 유효하지 않습니다. Google Cloud Console에서 key를 확인해주세요.',
         };
-      } else if (errorMessage.includes('YouTube Data API')) {
+      }
+      if (error_message.includes('YouTube Data API')) {
         return {
           isValid: false,
-          error: 'YouTube Data API v3가 활성화되지 않았습니다. Google Cloud Console에서 활성화해주세요.',
+          error:
+            'YouTube Data API v3가 활성화되지 않았습니다. Google Cloud Console에서 활성화해주세요.',
         };
-      } else if (errorMessage.includes('exceeded')) {
+      }
+      if (error_message.includes('exceeded')) {
         return {
           isValid: false,
           error: 'API 할당량이 초과되었습니다. 내일 다시 시도하거나 새 key를 사용해주세요.',
         };
       }
-      
+
       return {
         isValid: false,
-        error: errorMessage,
+        error: error_message,
       };
     }
 
     // 성공적으로 검증됨
     console.log('[validateYouTubeApiKey] Validation successful');
-    
-    return { 
+
+    return {
       isValid: true,
       quotaInfo: {
         message: 'API key가 정상적으로 작동합니다.',
         testResult: 'success',
-      }
+      },
     };
   } catch (error) {
     console.error('[validateYouTubeApiKey] Unexpected error:', error);
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'API key 검증 중 예기치 않은 오류가 발생했습니다.',
+      error:
+        error instanceof Error ? error.message : 'API key 검증 중 예기치 않은 오류가 발생했습니다.',
     };
   }
 }

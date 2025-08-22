@@ -1,9 +1,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomUsername } from '@/lib/utils/username-generator';
 import type { Database } from '@/types';
@@ -11,7 +10,7 @@ import type { Database } from '@/types';
 // POST: Generate unique username
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {

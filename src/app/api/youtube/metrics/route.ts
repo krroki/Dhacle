@@ -4,9 +4,8 @@
  * Phase 3: Core Features Implementation
  */
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { calculateMetrics } from '@/lib/youtube/metrics';
 import type { YouTubeVideo } from '@/types';
 
@@ -19,7 +18,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
       error: auth_error,
@@ -89,7 +88,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Check authentication - using getUser() for consistency
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
       error: auth_error,
@@ -161,7 +160,7 @@ async function get_video_metrics(
   totalComments: number;
   dataPoints: number;
 }> {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // Calculate date range
   const end_date = new Date();
@@ -273,7 +272,7 @@ async function get_channel_metrics(
   subscriberGrowth: number;
   performanceScore: number;
 }> {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // Get channel videos with stats
   const { data: videos, error } = await supabase
@@ -447,7 +446,7 @@ async function save_metrics_snapshot(
   >
 ): Promise<void> {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const snapshots = videos.map((video) => ({
       video_id: video.id,

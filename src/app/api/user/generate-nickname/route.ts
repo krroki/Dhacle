@@ -1,16 +1,15 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateMultipleNicknames, generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { Database } from '@/types';
 
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {
@@ -101,7 +100,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 // 닉네임 제안 목록 가져오기
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 인증 확인
     const {

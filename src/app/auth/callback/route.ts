@@ -1,8 +1,6 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import type { Database } from '@/types';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 
 export async function GET(request: NextRequest) {
   const request_url = new URL(request.url);
@@ -50,8 +48,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(error_url.toString());
     }
 
-    // Create a Supabase client with the cookie-based storage
-    const supabase = createRouteHandlerClient<Database>({ cookies });
+    // Create a Supabase client with the cookie-based storage using project standard
+    const supabase = await createSupabaseRouteHandlerClient();
 
     try {
       console.log('[Auth Callback] Attempting to exchange code for session', {

@@ -9,11 +9,11 @@
  * - Metric threshold detection
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types';
 import { calculateMetrics } from './metrics';
 
-const supabase = createClientComponentClient();
+const supabase = createBrowserClient();
 
 /**
  * Channel Folder Management

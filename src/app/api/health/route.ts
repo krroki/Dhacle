@@ -3,8 +3,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
 export async function GET(): Promise<NextResponse> {
   console.log('Health check API called');
@@ -21,7 +20,7 @@ export async function GET(): Promise<NextResponse> {
     let supabase_error = null;
 
     try {
-      const supabase = await createRouteHandlerClient({ cookies });
+      const supabase = await createSupabaseRouteHandlerClient();
       client_created = true;
       console.log('Supabase client created successfully');
 

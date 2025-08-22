@@ -4,8 +4,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
@@ -18,7 +17,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     // 세션 검사
-    const auth_supabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = await createSupabaseRouteHandlerClient();
     const {
       data: { user },
     } = await auth_supabase.auth.getUser();
@@ -56,7 +55,7 @@ export async function GET(
     // 숨김 처리된 인증은 작성자만 볼 수 있음
     if (proof.is_hidden) {
       // 인증 확인용 클라이언트 생성
-      const auth_client = createRouteHandlerClient({ cookies });
+      const auth_client = await createSupabaseRouteHandlerClient();
       const {
         data: { user: auth_user2 },
       } = await auth_client.auth.getUser();
@@ -134,7 +133,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const supabase = await createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
 
     // 인증 확인
@@ -221,7 +220,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const supabase = await createRouteHandlerClient({ cookies });
+    const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
 
     // 인증 확인

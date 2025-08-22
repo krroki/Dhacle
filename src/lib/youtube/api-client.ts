@@ -360,12 +360,12 @@ export class YouTubeAPIClient {
     if (!item || typeof item !== 'object') {
       return null;
     }
-    const typedItem = item as Record<string, unknown>;
-    const snippet = typedItem.snippet as Record<string, unknown> | undefined;
-    const statistics = typedItem.statistics as Record<string, unknown> | undefined;
+    const typed_item = item as Record<string, unknown>;
+    const snippet = typed_item.snippet as Record<string, unknown> | undefined;
+    const statistics = typed_item.statistics as Record<string, unknown> | undefined;
 
     return {
-      id: String(typedItem.id || ''),
+      id: String(typed_item.id || ''),
       snippet: {
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),

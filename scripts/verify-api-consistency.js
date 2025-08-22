@@ -28,34 +28,34 @@ const colors = {
   bold: '\x1b[1m'
 };
 
-// 올바른 패턴
+// 올바른 패턴 (2025-08-22 업데이트: 프로젝트 표준 패턴)
 const CORRECT_PATTERNS = {
-  import: "import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'",
-  creation: "createRouteHandlerClient({ cookies })",
+  import: "import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client'",
+  creation: "await createSupabaseRouteHandlerClient()",
   auth: "await supabase.auth.getUser()"
 };
 
 // 잘못된 패턴들과 해결 방법
 const INCORRECT_PATTERNS = [
   { 
-    pattern: /createServerClient.*from.*['"]@\/lib\/supabase/, 
-    name: 'createServerClient from lib',
-    solution: `✅ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'`
+    pattern: /createRouteHandlerClient.*from.*['"]@supabase\/auth-helpers-nextjs/, 
+    name: 'Old auth-helpers-nextjs import',
+    solution: `✅ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client'`
   },
   { 
-    pattern: /createSupabaseRouteHandlerClient/, 
-    name: 'createSupabaseRouteHandlerClient',
-    solution: '✅ createRouteHandlerClient({ cookies }) 사용'
+    pattern: /createRouteHandlerClient\(\{.*cookies.*\}\)/, 
+    name: 'Old createRouteHandlerClient pattern',
+    solution: '✅ await createSupabaseRouteHandlerClient() 사용'
   },
   { 
     pattern: /createSupabaseServerClient/, 
     name: 'createSupabaseServerClient',
-    solution: '✅ createRouteHandlerClient({ cookies }) 사용'
+    solution: '✅ createSupabaseRouteHandlerClient() 사용'
   },
   { 
     pattern: /createServerClient.*from.*['"]@supabase\/ssr/, 
-    name: 'createServerClient from @supabase/ssr',
-    solution: `✅ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'`
+    name: 'Direct @supabase/ssr import in routes',
+    solution: `✅ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client'`
   },
   { 
     pattern: /auth\.getSession\(\)/, 
@@ -126,8 +126,8 @@ class APIConsistencyChecker {
     }
 
     // 올바른 패턴이 없는 경우
-    if (!content.includes("import { createRouteHandlerClient }") && 
-        !content.includes("from '@supabase/auth-helpers-nextjs'")) {
+    if (!content.includes("import { createSupabaseRouteHandlerClient }") && 
+        !content.includes("from '@/lib/supabase/server-client'")) {
       // 인증이 필요한 API인지 확인
       if (content.includes('getUser') || content.includes('auth')) {
         issues.push({
