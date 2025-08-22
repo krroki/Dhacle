@@ -58,14 +58,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       case 'job': {
         // 특정 작업 상태 조회
-        const jobId = searchParams.get('jobId');
-        const jobType = searchParams.get('jobType') as JobType;
+        const job_id = searchParams.get('jobId');
+        const job_type = searchParams.get('jobType') as JobType;
 
-        if (!jobId || !jobType) {
+        if (!job_id || !job_type) {
           return NextResponse.json({ error: 'jobId and jobType are required' }, { status: 400 });
         }
 
-        const job = await queueManager.getJobStatus(jobId, jobType);
+        const job = await queueManager.getJobStatus(job_id, job_type);
         if (!job) {
           return NextResponse.json({ error: 'Job not found' }, { status: 404 });
         }
@@ -132,14 +132,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 단일 작업 처리
-    const jobData: YouTubeJobData = {
+    const job_data: YouTubeJobData = {
       type: type as JobType,
       params,
       user_id: user.id,
       priority: priority || JobPriority.NORMAL,
     };
 
-    const job = await queueManager.addJob(jobData);
+    const job = await queueManager.addJob(job_data);
 
     return NextResponse.json({
       success: true,

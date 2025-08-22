@@ -19,22 +19,22 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 프로필이 이미 있는지 확인
-    const { data: existingProfile, error: profileError } = await supabase
+    const { data: existing_profile, error: profile_error } = await supabase
       .from('profiles')
       .select('id') // TODO: Add randomNickname when field is implemented
       .eq('id', user.id)
       .single();
 
     // 프로필이 없으면 생성
-    if (profileError?.code === 'PGRST116' || !existingProfile) {
+    if (profile_error?.code === 'PGRST116' || !existing_profile) {
       // TODO: Implement randomNickname field when ready
       // 중복되지 않는 랜덤 닉네임 생성
       // let randomNickname = '';
@@ -64,7 +64,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       // }
 
       // 프로필 생성
-      const { data: newProfile, error: createError } = await supabase
+      const { data: new_profile, error: create_error } = await supabase
         .from('profiles')
         .insert({
           id: user.id,
@@ -77,13 +77,13 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
         .select()
         .single();
 
-      if (createError) {
+      if (create_error) {
         return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
       }
 
       return NextResponse.json({
         message: 'Profile initialized successfully',
-        profile: newProfile,
+        profile: new_profile,
         isNew: true,
       });
     }
@@ -141,7 +141,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 이미 완전한 프로필이 있는 경우
     return NextResponse.json({
       message: 'Profile already initialized',
-      profile: existingProfile,
+      profile: existing_profile,
       isNew: false,
     });
   } catch (_error) {
@@ -157,21 +157,21 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 프로필 가져오기
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profile_error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
+    if (profile_error) {
       return NextResponse.json({
         exists: false,
         needsInitialization: true,

@@ -20,10 +20,10 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -31,13 +31,13 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // naverCafeVerifications 테이블 및 관련 필드 생성 후 주석 해제
 
     // 프로필 정보 가져오기 (임시로 기본 필드만)
-    const { data: _profile, error: profileError } = await supabase
+    const { data: _profile, error: profile_error } = await supabase
       .from('profiles')
       .select('id, username')
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
+    if (profile_error) {
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
 
@@ -79,10 +79,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -157,9 +157,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 자동 승인 (실제 환경에서는 관리자 검증 필요)
     // TODO: 실제 네이버 카페 API 연동 또는 관리자 수동 검증 구현
-    const autoApprove = true;
+    const auto_approve = true;
 
-    if (autoApprove) {
+    if (auto_approve) {
       // TODO: 네이버 카페 관련 필드 추가 후 주석 해제
       // 프로필 업데이트 (임시로 스킵)
       // const { error: updateError } = await supabase
@@ -214,10 +214,10 @@ export async function DELETE(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -231,9 +231,9 @@ export async function DELETE(_request: NextRequest): Promise<NextResponse> {
     //     updated_at: new Date().toISOString(),
     //   })
     //   .eq('id', user.id);
-    const updateError = null;
+    const update_error = null;
 
-    if (updateError) {
+    if (update_error) {
       return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
     }
 

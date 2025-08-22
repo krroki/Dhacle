@@ -15,6 +15,42 @@
 
 ---
 
+## 🚨 환경변수 오류 처리 (2025-08-22 추가)
+
+### Vercel 빌드 시 환경변수 오류
+```typescript
+// ❌ 문제 상황: 빌드 시 환경변수 없음
+Error: either NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY env variables or supabaseUrl and supabaseKey are required!
+
+// ✅ 해결 방법 1: force-dynamic 설정
+export const dynamic = 'force-dynamic'; // 정적 생성 방지
+
+// ✅ 해결 방법 2: 프로젝트 표준 클라이언트 사용
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+const supabase = await createSupabaseServerClient();
+
+// ❌ 피해야 할 패턴
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+// 빌드 시 환경변수를 요구함
+```
+
+### 환경변수 접근 보호
+```typescript
+// ✅ 안전한 환경변수 접근
+function getEnvVar(key: string): string {
+  const value = process.env[key];
+  if (!value && process.env.NODE_ENV === 'production') {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value || '';
+}
+
+// 사용 예시
+const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
+```
+
+---
+
 ## 📊 HTTP 에러 코드별 처리
 
 ### 🔐 401 Unauthorized (인증 필요)

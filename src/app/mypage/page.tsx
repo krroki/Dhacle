@@ -9,6 +9,9 @@ import { Progress } from '@/components/ui/progress';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { Database } from '@/types';
 
+// 동적 페이지로 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic';
+
 export default async function MyPageDashboard(): Promise<React.JSX.Element> {
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {
@@ -23,25 +26,25 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
   const { data: _profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
   // 수강 중인 강의 수
-  const { count: enrolledCoursesCount } = await supabase
+  const { count: enrolled_courses_count } = await supabase
     .from('course_enrollments')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id);
 
   // 수익 인증 수
-  const { count: revenueProofsCount } = await supabase
+  const { count: revenue_proofs_count } = await supabase
     .from('revenues')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id);
 
   // 획득한 뱃지 수
-  const { count: badgesCount } = await supabase
+  const { count: badges_count } = await supabase
     .from('badges')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id);
 
   // 최근 수강 중인 강의 (3개)
-  const { data: recentCourses } = await supabase
+  const { data: recent_courses } = await supabase
     .from('course_enrollments')
     .select(`
       *,
@@ -60,7 +63,7 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
   const stats = [
     {
       title: '수강 중인 강의',
-      value: enrolledCoursesCount || 0,
+      value: enrolled_courses_count || 0,
       icon: BookOpen,
       href: '/mypage/courses',
       color: 'text-blue-600',
@@ -68,7 +71,7 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
     },
     {
       title: '수익 인증',
-      value: revenueProofsCount || 0,
+      value: revenue_proofs_count || 0,
       icon: TrendingUp,
       href: '/mypage/revenues',
       color: 'text-green-600',
@@ -76,7 +79,7 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
     },
     {
       title: '획득 뱃지',
-      value: badgesCount || 0,
+      value: badges_count || 0,
       icon: Award,
       href: '/mypage/badges',
       color: 'text-purple-600',
@@ -135,15 +138,15 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
           </Link>
         </CardHeader>
         <CardContent>
-          {recentCourses && recentCourses.length > 0 ? (
+          {recent_courses && recent_courses.length > 0 ? (
             <div className="space-y-4">
-              {recentCourses.map((enrollment) => {
+              {recent_courses.map((enrollment) => {
                 const course = enrollment.courses;
                 if (!course) {
                   return null;
                 }
 
-                const progressPercent = enrollment.progress_percentage || 0;
+                const progress_percent = enrollment.progress_percentage || 0;
 
                 return (
                   <div key={enrollment.id} className="flex items-center gap-4">
@@ -152,7 +155,7 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
                         <Image
                           src={course.thumbnail_url}
                           alt={course.title}
-                          fill
+                          fill={true}
                           className="object-cover"
                           sizes="80px"
                           unoptimized={true}
@@ -173,7 +176,7 @@ export default async function MyPageDashboard(): Promise<React.JSX.Element> {
                             {Math.round(enrollment.progress_percentage || 0)}%
                           </span>
                         </div>
-                        <Progress value={progressPercent} className="h-2" />
+                        <Progress value={progress_percent} className="h-2" />
                       </div>
                     </div>
                     <Link href={`/courses/${course.id}`}>

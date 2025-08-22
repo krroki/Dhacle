@@ -14,30 +14,30 @@ interface CourseDetailClientProps {
 }
 
 export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
-  const [activeSection, setActiveSection] = useState('intro');
-  const [stickyNav, setStickyNav] = useState(false);
+  const [active_section, set_active_section] = useState('intro');
+  const [sticky_nav, set_sticky_nav] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setStickyNav(window.scrollY > 400);
+    const handle_scroll = () => {
+      set_sticky_nav(window.scrollY > 400);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handle_scroll);
+    return () => window.removeEventListener('scroll', handle_scroll);
   }, []);
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
+  const scroll_to_section = (section_id: string) => {
+    const element = document.getElementById(section_id);
     if (element) {
       const offset = 80;
       const top = element.offsetTop - offset;
       window.scrollTo({ top, behavior: 'smooth' });
-      setActiveSection(sectionId);
+      set_active_section(section_id);
     }
   };
 
   const { course, lessons, is_enrolled, is_purchased } = courseData;
 
-  const formatDuration = (seconds: number): string => {
+  const format_duration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     if (hours > 0) {
@@ -46,7 +46,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
     return `${minutes}분`;
   };
 
-  const getLessonIcon = (lesson: (typeof lessons)[0], _index: number) => {
+  const get_lesson_icon = (lesson: (typeof lessons)[0], _index: number) => {
     if (lesson.is_free) {
       return <PlayCircle className="w-4 h-4 text-green-600" />;
     }
@@ -56,7 +56,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
     return <Lock className="w-4 h-4 text-gray-400" />;
   };
 
-  const navigationSections = [
+  const navigation_sections = [
     { id: 'intro', label: '클래스 소개' },
     { id: 'curriculum', label: '커리큘럼' },
     { id: 'instructor', label: '강사소개' },
@@ -118,7 +118,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <div className="flex flex-wrap gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span>총 {formatDuration(course.total_duration)}</span>
+                  <span>총 {format_duration(course.total_duration)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -162,17 +162,17 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
             <nav
               className={cn(
                 'border-b bg-white dark:bg-gray-800 -mx-4 px-4 sticky z-40 transition-all',
-                stickyNav ? 'top-0 shadow-md py-4' : 'top-0 py-0'
+                sticky_nav ? 'top-0 shadow-md py-4' : 'top-0 py-0'
               )}
             >
               <div className="flex gap-8 overflow-x-auto">
-                {navigationSections.map((section) => (
+                {navigation_sections.map((section) => (
                   <button
                     key={section.id}
-                    onClick={() => scrollToSection(section.id)}
+                    onClick={() => scroll_to_section(section.id)}
                     className={cn(
                       'py-4 border-b-2 whitespace-nowrap transition-colors',
-                      activeSection === section.id
+                      active_section === section.id
                         ? 'border-primary text-primary font-medium'
                         : 'border-transparent hover:text-primary'
                     )}
@@ -223,7 +223,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
               <section id="curriculum">
                 <h2 className="text-2xl font-bold mb-4">커리큘럼</h2>
                 <p className="text-muted-foreground mb-6">
-                  총 {lessons.length}개 레슨 · {formatDuration(course.total_duration)}
+                  총 {lessons.length}개 레슨 · {format_duration(course.total_duration)}
                 </p>
 
                 <div className="space-y-2">
@@ -232,7 +232,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            {getLessonIcon(lesson, index)}
+                            {get_lesson_icon(lesson, index)}
                             <div>
                               <p className="font-medium">
                                 {index + 1}. {lesson.title}
@@ -245,7 +245,7 @@ export function CourseDetailClient({ courseData }: CourseDetailClientProps) {
                             </div>
                           </div>
                           <span className="text-sm text-muted-foreground">
-                            {formatDuration(lesson.duration)}
+                            {format_duration(lesson.duration)}
                           </span>
                         </div>
                       </CardContent>

@@ -41,10 +41,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // 폼 데이터 파싱
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const course_id = formData.get('course_id') as string;
-    const lesson_id = formData.get('lesson_id') as string;
+    const form_data = await req.formData();
+    const file = form_data.get('file') as File;
+    const course_id = form_data.get('course_id') as string;
+    const lesson_id = form_data.get('lesson_id') as string;
 
     if (!file) {
       return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
@@ -57,8 +57,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // 파일 타입 확인
-    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
-    if (!allowedTypes.includes(file.type)) {
+    const allowed_types = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+    if (!allowed_types.includes(file.type)) {
       return NextResponse.json(
         { error: '지원하지 않는 파일 형식입니다. MP4, WebM, MOV, AVI만 지원합니다.' },
         { status: 400 }
@@ -66,12 +66,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // Cloudflare Stream에 직접 업로드
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', file);
+    const upload_form_data = new FormData();
+    upload_form_data.append('file', file);
 
     // 메타데이터 추가
     if (course_id) {
-      uploadFormData.append(
+      upload_form_data.append(
         'meta',
         JSON.stringify({
           course_id,
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // 워터마크 설정 (선택사항)
-    uploadFormData.append(
+    upload_form_data.append(
       'watermark',
       JSON.stringify({
         uid: 'default-watermark',
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         headers: {
           Authorization: `Bearer ${STREAM_TOKEN}`,
         },
-        body: uploadFormData,
+        body: upload_form_data,
       }
     );
 
@@ -118,43 +118,43 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '비디오 업로드 처리에 실패했습니다.' }, { status: 500 });
     }
 
-    const videoInfo = data.result;
+    const video_info = data.result;
 
     // HLS URL 구성
-    const hlsUrl = CUSTOMER_SUBDOMAIN
-      ? `https://${CUSTOMER_SUBDOMAIN}.cloudflarestream.com/${videoInfo.uid}/manifest/video.m3u8`
-      : `https://videodelivery.net/${videoInfo.uid}/manifest/video.m3u8`;
+    const hls_url = CUSTOMER_SUBDOMAIN
+      ? `https://${CUSTOMER_SUBDOMAIN}.cloudflarestream.com/${video_info.uid}/manifest/video.m3u8`
+      : `https://videodelivery.net/${video_info.uid}/manifest/video.m3u8`;
 
     // 썸네일 URL
-    const thumbnail_url = `https://videodelivery.net/${videoInfo.uid}/thumbnails/thumbnail.jpg`;
+    const thumbnail_url = `https://videodelivery.net/${video_info.uid}/thumbnails/thumbnail.jpg`;
 
     // 레슨 정보 업데이트 (lesson_id가 제공된 경우)
     if (lesson_id) {
-      const { error: updateError } = await supabase
+      const { error: update_error } = await supabase
         .from('lessons')
         .update({
-          video_url: hlsUrl,
+          video_url: hls_url,
           thumbnail_url: thumbnail_url,
-          cloudflareVideoId: videoInfo.uid,
-          duration: videoInfo.duration || 0,
+          cloudflareVideoId: video_info.uid,
+          duration: video_info.duration || 0,
           updated_at: new Date().toISOString(),
         })
         .eq('id', lesson_id);
 
-      if (updateError) {
+      if (update_error) {
         // 업로드는 성공했으므로 에러를 반환하지 않고 경고만 포함
       }
     }
 
     return NextResponse.json({
       success: true,
-      video_id: videoInfo.uid,
-      hlsUrl,
+      video_id: video_info.uid,
+      hlsUrl: hls_url,
       thumbnail_url,
-      dashUrl: `https://videodelivery.net/${videoInfo.uid}/manifest/video.mpd`,
-      embedUrl: `https://iframe.videodelivery.net/${videoInfo.uid}`,
-      duration: videoInfo.duration,
-      status: videoInfo.status,
+      dashUrl: `https://videodelivery.net/${video_info.uid}/manifest/video.mpd`,
+      embedUrl: `https://iframe.videodelivery.net/${video_info.uid}`,
+      duration: video_info.duration,
+      status: video_info.status,
       message: '비디오 업로드가 완료되었습니다.',
     });
   } catch (_error) {

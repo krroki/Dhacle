@@ -79,23 +79,23 @@ interface ApprovalLog {
 }
 
 export function ChannelApprovalConsole() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingChannel, setEditingChannel] = useState<YLChannel | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<YLChannel | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [newChannelId, setNewChannelId] = useState('');
-  const [_isLoading, _setIsLoading] = useState(false);
+  const [is_add_dialog_open, set_is_add_dialog_open] = useState(false);
+  const [editing_channel, set_editing_channel] = useState<YLChannel | null>(null);
+  const [selected_channel, set_selected_channel] = useState<YLChannel | null>(null);
+  const [filter_status, set_filter_status] = useState<string>('all');
+  const [search_query, set_search_query] = useState('');
+  const [new_channel_id, set_new_channel_id] = useState('');
+  const [_is_loading, _setIsLoading] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const query_client = useQueryClient();
 
   // 채널 목록 조회
-  const { data: channels = [], isLoading: channelsLoading } = useQuery({
-    queryKey: ['yl/admin/channels', filterStatus, searchQuery],
+  const { data: channels = [], isLoading: channels_loading } = useQuery({
+    queryKey: ['yl/admin/channels', filter_status, search_query],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filterStatus !== 'all') params.append('status', filterStatus);
-      if (searchQuery) params.append('q', searchQuery);
+      if (filter_status !== 'all') params.append('status', filter_status);
+      if (search_query) params.append('q', search_query);
 
       const response = await apiGet<{ data: YLChannel[] }>(
         `/api/youtube-lens/admin/channels?${params}`
@@ -105,7 +105,7 @@ export function ChannelApprovalConsole() {
   });
 
   // 채널 추가/수정
-  const channelMutation = useMutation({
+  const channel_mutation = useMutation({
     mutationFn: async (data: {
       channel_id?: string;
       status?: string;
@@ -113,22 +113,22 @@ export function ChannelApprovalConsole() {
       category?: string;
       subcategory?: string;
     }) => {
-      if (editingChannel) {
-        return apiPut(`/api/youtube-lens/admin/channels/${editingChannel.channel_id}`, data);
+      if (editing_channel) {
+        return apiPut(`/api/youtube-lens/admin/channels/${editing_channel.channel_id}`, data);
       }
       return apiPost('/api/youtube-lens/admin/channels', data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['yl/admin/channels'] });
+      query_client.invalidateQueries({ queryKey: ['yl/admin/channels'] });
       toast({
-        title: editingChannel ? '채널 정보 수정됨' : '채널 추가됨',
-        description: editingChannel
+        title: editing_channel ? '채널 정보 수정됨' : '채널 추가됨',
+        description: editing_channel
           ? '채널 정보가 성공적으로 수정되었습니다.'
           : '새 채널이 추가되었습니다. YouTube API로 정보를 가져오는 중...',
       });
-      setIsAddDialogOpen(false);
-      setEditingChannel(null);
-      setNewChannelId('');
+      set_is_add_dialog_open(false);
+      set_editing_channel(null);
+      set_new_channel_id('');
     },
     onError: (error) => {
       toast({
@@ -140,12 +140,12 @@ export function ChannelApprovalConsole() {
   });
 
   // 채널 삭제
-  const deleteMutation = useMutation({
+  const delete_mutation = useMutation({
     mutationFn: async (channel_id: string) => {
       return apiDelete(`/api/youtube-lens/admin/channels/${channel_id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['yl/admin/channels'] });
+      query_client.invalidateQueries({ queryKey: ['yl/admin/channels'] });
       toast({
         title: '채널 삭제됨',
         description: '채널이 성공적으로 삭제되었습니다.',
@@ -155,19 +155,19 @@ export function ChannelApprovalConsole() {
 
   // 승인 로그 조회
   const { data: logs = [] } = useQuery({
-    queryKey: ['yl/admin/approval-logs', selectedChannel?.channel_id],
+    queryKey: ['yl/admin/approval-logs', selected_channel?.channel_id],
     queryFn: async () => {
-      if (!selectedChannel) return [];
+      if (!selected_channel) return [];
       const response = await apiGet<{ data: ApprovalLog[] }>(
-        `/api/youtube-lens/admin/approval-logs/${selectedChannel.channel_id}`
+        `/api/youtube-lens/admin/approval-logs/${selected_channel.channel_id}`
       );
       return response.data;
     },
-    enabled: !!selectedChannel,
+    enabled: !!selected_channel,
   });
 
   // 상태별 색상
-  const getStatusColor = (status: string) => {
+  const get_status_color = (status: string) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -181,7 +181,7 @@ export function ChannelApprovalConsole() {
   };
 
   // 상태별 아이콘
-  const getStatusIcon = (status: string) => {
+  const get_status_icon = (status: string) => {
     switch (status) {
       case 'approved':
         return <CheckCircle className="w-4 h-4" />;
@@ -202,7 +202,7 @@ export function ChannelApprovalConsole() {
           <h2 className="text-2xl font-bold">채널 승인 콘솔</h2>
           <p className="text-muted-foreground mt-1">YouTube 채널 승인 관리 및 감사 로그</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+        <Button onClick={() => set_is_add_dialog_open(true)} className="gap-2">
           <Plus className="w-4 h-4" />
           채널 추가
         </Button>
@@ -218,7 +218,7 @@ export function ChannelApprovalConsole() {
 
       {/* 필터 & 검색 */}
       <div className="flex gap-4">
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
+        <Select value={filter_status} onValueChange={set_filter_status}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="상태 필터" />
           </SelectTrigger>
@@ -234,8 +234,8 @@ export function ChannelApprovalConsole() {
           <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="채널명, ID로 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search_query}
+            onChange={(e) => set_search_query(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -294,7 +294,7 @@ export function ChannelApprovalConsole() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {channelsLoading ? (
+            {channels_loading ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
                   데이터를 불러오는 중...
@@ -315,7 +315,7 @@ export function ChannelApprovalConsole() {
                         <Image
                           src={channel.thumbnail_url}
                           alt={channel.title}
-                          fill
+                          fill={true}
                           className="object-cover"
                           sizes="40px"
                           unoptimized={true}
@@ -359,8 +359,8 @@ export function ChannelApprovalConsole() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={`gap-1 ${getStatusColor(channel.approvalStatus)}`}>
-                      {getStatusIcon(channel.approvalStatus)}
+                    <Badge className={`gap-1 ${get_status_color(channel.approvalStatus)}`}>
+                      {get_status_icon(channel.approvalStatus)}
                       {channel.approvalStatus === 'approved' && '승인됨'}
                       {channel.approvalStatus === 'pending' && '대기중'}
                       {channel.approvalStatus === 'rejected' && '반려됨'}
@@ -373,15 +373,19 @@ export function ChannelApprovalConsole() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setSelectedChannel(channel)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => set_selected_channel(channel)}
+                      >
                         <History className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setEditingChannel(channel);
-                          setIsAddDialogOpen(true);
+                          set_editing_channel(channel);
+                          set_is_add_dialog_open(true);
                         }}
                       >
                         <Edit className="w-4 h-4" />
@@ -391,7 +395,7 @@ export function ChannelApprovalConsole() {
                         size="sm"
                         onClick={() => {
                           if (confirm('정말 이 채널을 삭제하시겠습니까?')) {
-                            deleteMutation.mutate(channel.channel_id);
+                            delete_mutation.mutate(channel.channel_id);
                           }
                         }}
                       >
@@ -407,20 +411,20 @@ export function ChannelApprovalConsole() {
       </div>
 
       {/* 채널 추가/수정 다이얼로그 */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+      <Dialog open={is_add_dialog_open} onOpenChange={set_is_add_dialog_open}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingChannel ? '채널 정보 수정' : '새 채널 추가'}</DialogTitle>
+            <DialogTitle>{editing_channel ? '채널 정보 수정' : '새 채널 추가'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {!editingChannel && (
+            {!editing_channel && (
               <div>
                 <Label>YouTube 채널 ID</Label>
                 <Input
                   placeholder="UCxxxxxxxxxxxxxxxx"
-                  value={newChannelId}
-                  onChange={(e) => setNewChannelId(e.target.value)}
-                  disabled={_isLoading}
+                  value={new_channel_id}
+                  onChange={(e) => set_new_channel_id(e.target.value)}
+                  disabled={_is_loading}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   채널 URL에서 /channel/ 뒤의 ID를 입력하세요
@@ -428,12 +432,12 @@ export function ChannelApprovalConsole() {
               </div>
             )}
 
-            {editingChannel && (
+            {editing_channel && (
               <>
                 <div>
                   <Label>승인 상태</Label>
                   <Select
-                    defaultValue={editingChannel.approvalStatus}
+                    defaultValue={editing_channel.approvalStatus}
                     onValueChange={(_value) => {
                       // 상태 변경 처리
                     }}
@@ -453,7 +457,7 @@ export function ChannelApprovalConsole() {
                   <Label>승인/반려 사유</Label>
                   <Textarea
                     placeholder="승인 또는 반려 사유를 입력하세요..."
-                    defaultValue={editingChannel.approvalNotes}
+                    defaultValue={editing_channel.approvalNotes}
                   />
                 </div>
 
@@ -461,13 +465,13 @@ export function ChannelApprovalConsole() {
                   <Label>카테고리</Label>
                   <Input
                     placeholder="예: 게임, 음악, 엔터테인먼트..."
-                    defaultValue={editingChannel.category}
+                    defaultValue={editing_channel.category}
                   />
                 </div>
 
                 <div>
                   <Label>주요 형식</Label>
-                  <Select defaultValue={editingChannel.dominantFormat || ''}>
+                  <Select defaultValue={editing_channel.dominantFormat || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="선택..." />
                     </SelectTrigger>
@@ -485,31 +489,31 @@ export function ChannelApprovalConsole() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsAddDialogOpen(false);
-                  setEditingChannel(null);
-                  setNewChannelId('');
+                  set_is_add_dialog_open(false);
+                  set_editing_channel(null);
+                  set_new_channel_id('');
                 }}
               >
                 취소
               </Button>
               <Button
                 onClick={() => {
-                  if (editingChannel) {
+                  if (editing_channel) {
                     // 수정 처리
-                    channelMutation.mutate({
+                    channel_mutation.mutate({
                       status: 'approved', // 실제 값으로 변경
                       notes: '테스트 승인',
                     });
                   } else {
                     // 추가 처리
-                    channelMutation.mutate({
-                      channel_id: newChannelId,
+                    channel_mutation.mutate({
+                      channel_id: new_channel_id,
                     });
                   }
                 }}
-                disabled={!editingChannel && !newChannelId}
+                disabled={!editing_channel && !new_channel_id}
               >
-                {editingChannel ? '수정' : '추가'}
+                {editing_channel ? '수정' : '추가'}
               </Button>
             </div>
           </div>
@@ -517,10 +521,10 @@ export function ChannelApprovalConsole() {
       </Dialog>
 
       {/* 감사 로그 다이얼로그 */}
-      <Dialog open={!!selectedChannel} onOpenChange={() => setSelectedChannel(null)}>
+      <Dialog open={!!selected_channel} onOpenChange={() => set_selected_channel(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{selectedChannel?.title} - 승인 이력</DialogTitle>
+            <DialogTitle>{selected_channel?.title} - 승인 이력</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {logs.length === 0 ? (
@@ -530,7 +534,7 @@ export function ChannelApprovalConsole() {
                 <div key={log.id} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(log.afterStatus)}>{log.afterStatus}</Badge>
+                      <Badge className={get_status_color(log.afterStatus)}>{log.afterStatus}</Badge>
                       <span className="text-sm text-muted-foreground">← {log.beforeStatus}</span>
                     </div>
                     <span className="text-xs text-muted-foreground">

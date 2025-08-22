@@ -22,26 +22,26 @@ interface Ranking {
 }
 
 export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
-  const [rankings, setRankings] = useState<Ranking[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [rankings, set_rankings] = useState<Ranking[]>([]);
+  const [is_loading, set_is_loading] = useState(true);
 
   useEffect(() => {
-    const loadRankings = async () => {
-      setIsLoading(true);
+    const load_rankings = async () => {
+      set_is_loading(true);
       try {
         const period = filter === 'all' ? 'monthly' : filter;
         const data = await getRankings(period as 'daily' | 'weekly' | 'monthly');
-        setRankings(data.rankings || []);
+        set_rankings(data.rankings || []);
       } catch (_error) {
-        setRankings([]);
+        set_rankings([]);
       } finally {
-        setIsLoading(false);
+        set_is_loading(false);
       }
     };
 
-    loadRankings();
+    load_rankings();
   }, [filter]);
-  const formatAmount = (amount: number) => {
+  const format_amount = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', {
       style: 'currency',
       currency: 'KRW',
@@ -49,7 +49,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
     }).format(amount);
   };
 
-  const getRankIcon = (rank: number) => {
+  const get_rank_icon = (rank: number) => {
     switch (rank) {
       case 1:
         return <Trophy className="w-5 h-5 text-yellow-500" />;
@@ -62,7 +62,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
     }
   };
 
-  const getRankBadgeColor = (rank: number) => {
+  const get_rank_badge_color = (rank: number) => {
     switch (rank) {
       case 1:
         return 'bg-yellow-100 text-yellow-800';
@@ -75,7 +75,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
     }
   };
 
-  const getFilterLabel = () => {
+  const get_filter_label = () => {
     switch (filter) {
       case 'daily':
         return '오늘';
@@ -94,12 +94,12 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
         <CardTitle className="text-lg flex items-center justify-between">
           <span>🏆 실시간 랭킹</span>
           <Badge variant="outline" className="text-xs">
-            {getFilterLabel()}
+            {get_filter_label()}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isLoading ? (
+        {is_loading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center gap-3 animate-pulse">
@@ -120,7 +120,7 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
           rankings.slice(0, 5).map((ranking: Ranking, index: number) => (
             <div key={`ranking-${ranking.user_id || index}`} className="flex items-center gap-3">
               {/* 순위 */}
-              <div className="w-8 flex justify-center">{getRankIcon(ranking.rank)}</div>
+              <div className="w-8 flex justify-center">{get_rank_icon(ranking.rank)}</div>
 
               {/* 프로필 이미지 */}
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
@@ -141,13 +141,13 @@ export function LiveRankingSidebar({ filter }: LiveRankingSidebarProps) {
               <div className="flex-1">
                 <p className="text-sm font-medium line-clamp-1">{ranking.username}</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatAmount(ranking.total_amount)}
+                  {format_amount(ranking.total_amount)}
                 </p>
               </div>
 
               {/* 순위 배지 */}
               {ranking.rank <= 3 && (
-                <Badge className={`text-xs ${getRankBadgeColor(ranking.rank)}`}>
+                <Badge className={`text-xs ${get_rank_badge_color(ranking.rank)}`}>
                   {ranking.rank}위
                 </Badge>
               )}

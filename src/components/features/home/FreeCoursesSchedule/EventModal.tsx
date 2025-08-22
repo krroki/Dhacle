@@ -18,7 +18,7 @@ export function EventModal({ events, date, isOpen, onClose }: EventModalProps) {
     return null;
   }
 
-  const formattedDate = new Date(date).toLocaleDateString('ko-KR', {
+  const formatted_date = new Date(date).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -30,7 +30,7 @@ export function EventModal({ events, date, isOpen, onClose }: EventModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            {formattedDate} 일정
+            {formatted_date} 일정
           </DialogTitle>
         </DialogHeader>
 

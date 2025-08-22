@@ -24,11 +24,11 @@ import { mapCollection } from '@/lib/utils/type-mappers';
 import type { Collection } from '@/types';
 
 export default function CollectionBoard() {
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
-  const [formData, setFormData] = useState({
+  const [collections, set_collections] = useState<Collection[]>([]);
+  const [loading, set_loading] = useState(true);
+  const [is_create_dialog_open, set_is_create_dialog_open] = useState(false);
+  const [editing_collection, set_editing_collection] = useState<Collection | null>(null);
+  const [form_data, set_form_data] = useState({
     name: '',
     description: '',
     is_public: false,
@@ -36,35 +36,35 @@ export default function CollectionBoard() {
   });
 
   // 컬렉션 목록 조회
-  const fetchCollections = useCallback(async () => {
-    setLoading(true);
+  const fetch_collections = useCallback(async () => {
+    set_loading(true);
     try {
       const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
 
       console.log('[CollectionBoard] API Response:', data);
-      setCollections((data.collections || []).map(mapCollection));
+      set_collections((data.collections || []).map(mapCollection));
     } catch (error) {
       // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
-        const errorWithStatus = error as {
+        const error_with_status = error as {
           status: number;
           data?: { requiresApiKey?: boolean; error_code?: string; error?: string };
         };
-        if (errorWithStatus.status === 401) {
+        if (error_with_status.status === 401) {
           // Check if it's an API key issue
-          const error_message = (errorWithStatus.data?.error || '').toLowerCase();
-          const isApiKeyError =
-            errorWithStatus.data?.requiresApiKey ||
-            errorWithStatus.data?.error_code === 'api_key_required' ||
+          const error_message = (error_with_status.data?.error || '').toLowerCase();
+          const is_api_key_error =
+            error_with_status.data?.requiresApiKey ||
+            error_with_status.data?.error_code === 'api_key_required' ||
             error_message.includes('api key') ||
             error_message.includes('api 키');
 
-          if (isApiKeyError) {
+          if (is_api_key_error) {
             toast.error('YouTube API Key 설정이 필요합니다');
           } else {
             // Only redirect to login if truly not authenticated
-            const isLoggedIn = document.cookie.includes('sb-');
-            if (!isLoggedIn) {
+            const is_logged_in = document.cookie.includes('sb-');
+            if (!is_logged_in) {
               window.location.href = '/auth/login?redirect=/tools/youtube-lens';
             } else {
               toast.error('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
@@ -73,8 +73,8 @@ export default function CollectionBoard() {
           return;
         }
         // Handle 400 errors for API key issues
-        if (errorWithStatus.status === 400) {
-          const data = errorWithStatus.data;
+        if (error_with_status.status === 400) {
+          const data = error_with_status.data;
           if (data?.requiresApiKey || data?.error_code === 'api_key_required') {
             toast.error(
               'YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.'
@@ -88,86 +88,88 @@ export default function CollectionBoard() {
         error instanceof Error ? error.message : '컬렉션 목록을 불러오는데 실패했습니다';
       toast.error(error_message);
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
+    fetch_collections();
+  }, [fetch_collections]);
 
   // 새 컬렉션 생성
-  const handleCreateCollection = async () => {
-    if (!formData.name.trim()) {
+  const handle_create_collection = async () => {
+    if (!form_data.name.trim()) {
       toast.error('컬렉션 이름을 입력해주세요');
       return;
     }
 
     try {
       const data = await apiPost<{ collection: Collection }>('/api/youtube/collections', {
-        name: formData.name,
-        description: formData.description,
-        is_public: formData.is_public,
-        tags: formData.tags ? formData.tags.split(',').map((tag) => tag.trim()) : [],
+        name: form_data.name,
+        description: form_data.description,
+        is_public: form_data.is_public,
+        tags: form_data.tags ? form_data.tags.split(',').map((tag) => tag.trim()) : [],
       });
 
       console.log('[CollectionBoard] Create response:', data);
       toast.success('컬렉션이 생성되었습니다');
-      setCollections([mapCollection(data.collection), ...collections]);
-      setIsCreateDialogOpen(false);
-      resetForm();
+      set_collections([mapCollection(data.collection), ...collections]);
+      set_is_create_dialog_open(false);
+      reset_form();
     } catch (_error) {
       toast.error('컬렉션 생성에 실패했습니다');
     }
   };
 
   // 컬렉션 업데이트
-  const handleUpdateCollection = async () => {
-    if (!editingCollection || !formData.name.trim()) {
+  const handle_update_collection = async () => {
+    if (!editing_collection || !form_data.name.trim()) {
       toast.error('컬렉션 이름을 입력해주세요');
       return;
     }
 
     try {
       const data = await apiPut<{ collection: Collection }>('/api/youtube/collections', {
-        id: editingCollection.id,
-        name: formData.name,
-        description: formData.description,
-        is_public: formData.is_public,
-        tags: formData.tags ? formData.tags.split(',').map((tag) => tag.trim()) : [],
+        id: editing_collection.id,
+        name: form_data.name,
+        description: form_data.description,
+        is_public: form_data.is_public,
+        tags: form_data.tags ? form_data.tags.split(',').map((tag) => tag.trim()) : [],
       });
 
       toast.success('컬렉션이 업데이트되었습니다');
-      setCollections(
-        collections.map((c) => (c.id === editingCollection.id ? mapCollection(data.collection) : c))
+      set_collections(
+        collections.map((c) =>
+          c.id === editing_collection.id ? mapCollection(data.collection) : c
+        )
       );
-      setEditingCollection(null);
-      resetForm();
+      set_editing_collection(null);
+      reset_form();
     } catch (_error) {
       toast.error('컬렉션 업데이트에 실패했습니다');
     }
   };
 
   // 컬렉션 삭제
-  const handleDeleteCollection = async (collectionId: string) => {
+  const handle_delete_collection = async (collection_id: string) => {
     if (!confirm('정말로 이 컬렉션을 삭제하시겠습니까?')) {
       return;
     }
 
     try {
-      await apiDelete(`/api/youtube/collections?id=${collectionId}`);
+      await apiDelete(`/api/youtube/collections?id=${collection_id}`);
 
       toast.success('컬렉션이 삭제되었습니다');
-      setCollections(collections.filter((c) => c.id !== collectionId));
+      set_collections(collections.filter((c) => c.id !== collection_id));
     } catch (_error) {
       toast.error('컬렉션 삭제에 실패했습니다');
     }
   };
 
   // 편집 시작
-  const startEdit = (collection: Collection) => {
-    setEditingCollection(collection);
-    setFormData({
+  const start_edit = (collection: Collection) => {
+    set_editing_collection(collection);
+    set_form_data({
       name: collection.name,
       description: collection.description || '',
       is_public: collection.is_public,
@@ -176,8 +178,8 @@ export default function CollectionBoard() {
   };
 
   // 폼 초기화
-  const resetForm = () => {
-    setFormData({
+  const reset_form = () => {
+    set_form_data({
       name: '',
       description: '',
       is_public: false,
@@ -204,7 +206,7 @@ export default function CollectionBoard() {
           <h2 className="text-2xl font-bold tracking-tight">내 컬렉션</h2>
           <p className="text-muted-foreground">관심있는 YouTube 동영상을 컬렉션으로 관리하세요</p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dialog open={is_create_dialog_open} onOpenChange={set_is_create_dialog_open}>
           <DialogTrigger asChild={true}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />새 컬렉션
@@ -222,8 +224,8 @@ export default function CollectionBoard() {
                 <Label htmlFor="name">컬렉션 이름</Label>
                 <Input
                   id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={form_data.name}
+                  onChange={(e) => set_form_data({ ...form_data, name: e.target.value })}
                   placeholder="예: 마케팅 참고 영상"
                 />
               </div>
@@ -231,8 +233,8 @@ export default function CollectionBoard() {
                 <Label htmlFor="description">설명 (선택)</Label>
                 <Textarea
                   id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  value={form_data.description}
+                  onChange={(e) => set_form_data({ ...form_data, description: e.target.value })}
                   placeholder="이 컬렉션에 대한 설명을 입력하세요"
                   rows={3}
                 />
@@ -241,16 +243,16 @@ export default function CollectionBoard() {
                 <Label htmlFor="tags">태그 (쉼표로 구분)</Label>
                 <Input
                   id="tags"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  value={form_data.tags}
+                  onChange={(e) => set_form_data({ ...form_data, tags: e.target.value })}
                   placeholder="예: 마케팅, 광고, 트렌드"
                 />
               </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   id="public"
-                  checked={formData.is_public}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+                  checked={form_data.is_public}
+                  onCheckedChange={(checked) => set_form_data({ ...form_data, is_public: checked })}
                 />
                 <Label htmlFor="public">공개 컬렉션으로 설정</Label>
               </div>
@@ -259,13 +261,13 @@ export default function CollectionBoard() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsCreateDialogOpen(false);
-                  resetForm();
+                  set_is_create_dialog_open(false);
+                  reset_form();
                 }}
               >
                 취소
               </Button>
-              <Button onClick={handleCreateCollection}>컬렉션 만들기</Button>
+              <Button onClick={handle_create_collection}>컬렉션 만들기</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -280,7 +282,7 @@ export default function CollectionBoard() {
             <p className="text-muted-foreground mb-4">
               첫 번째 컬렉션을 만들어 YouTube 동영상을 저장해보세요
             </p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => set_is_create_dialog_open(true)}>
               <Plus className="mr-2 h-4 w-4" />첫 컬렉션 만들기
             </Button>
           </CardContent>
@@ -305,13 +307,13 @@ export default function CollectionBoard() {
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(collection)}>
+                    <Button variant="ghost" size="icon" onClick={() => start_edit(collection)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteCollection(collection.id)}
+                      onClick={() => handle_delete_collection(collection.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -349,8 +351,8 @@ export default function CollectionBoard() {
 
       {/* 편집 다이얼로그 */}
       <Dialog
-        open={!!editingCollection}
-        onOpenChange={(open) => !open && setEditingCollection(null)}
+        open={!!editing_collection}
+        onOpenChange={(open) => !open && set_editing_collection(null)}
       >
         <DialogContent>
           <DialogHeader>
@@ -362,16 +364,16 @@ export default function CollectionBoard() {
               <Label htmlFor="edit-name">컬렉션 이름</Label>
               <Input
                 id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={form_data.name}
+                onChange={(e) => set_form_data({ ...form_data, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-description">설명</Label>
               <Textarea
                 id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={form_data.description}
+                onChange={(e) => set_form_data({ ...form_data, description: e.target.value })}
                 rows={3}
               />
             </div>
@@ -379,15 +381,15 @@ export default function CollectionBoard() {
               <Label htmlFor="edit-tags">태그 (쉼표로 구분)</Label>
               <Input
                 id="edit-tags"
-                value={formData.tags}
-                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                value={form_data.tags}
+                onChange={(e) => set_form_data({ ...form_data, tags: e.target.value })}
               />
             </div>
             <div className="flex items-center space-x-2">
               <Switch
                 id="edit-public"
-                checked={formData.is_public}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+                checked={form_data.is_public}
+                onCheckedChange={(checked) => set_form_data({ ...form_data, is_public: checked })}
               />
               <Label htmlFor="edit-public">공개 컬렉션으로 설정</Label>
             </div>
@@ -396,13 +398,13 @@ export default function CollectionBoard() {
             <Button
               variant="outline"
               onClick={() => {
-                setEditingCollection(null);
-                resetForm();
+                set_editing_collection(null);
+                reset_form();
               }}
             >
               취소
             </Button>
-            <Button onClick={handleUpdateCollection}>저장</Button>
+            <Button onClick={handle_update_collection}>저장</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

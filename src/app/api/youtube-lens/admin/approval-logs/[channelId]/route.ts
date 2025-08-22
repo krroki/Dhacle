@@ -22,8 +22,8 @@ export async function GET(
   }
 
   // 관리자 권한 체크
-  const adminEmails = ['glemfkcl@naver.com'];
-  if (!adminEmails.includes(user.email || '')) {
+  const admin_emails = ['glemfkcl@naver.com'];
+  if (!admin_emails.includes(user.email || '')) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
@@ -46,7 +46,7 @@ export async function GET(
     if (error) throw error;
 
     // snake_case를 camelCase로 변환
-    const camelCaseData = data?.map((log) => ({
+    const camel_case_data = data?.map((log) => ({
       id: log.id,
       channel_id: log.channel_id,
       action: log.action,
@@ -57,7 +57,7 @@ export async function GET(
       created_at: log.created_at,
     }));
 
-    return NextResponse.json({ data: camelCaseData || [] });
+    return NextResponse.json({ data: camel_case_data || [] });
   } catch (error) {
     console.error('Approval logs GET error:', error);
     return NextResponse.json(

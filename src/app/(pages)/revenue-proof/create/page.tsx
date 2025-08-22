@@ -35,16 +35,16 @@ import { type CreateProofInput, createProofSchema } from '@/lib/validations/reve
 
 export default function CreateRevenueProof() {
   const router = useRouter();
-  const sigCanvas = useRef<SignatureCanvas>(null);
-  const [showWarning, setShowWarning] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editorContent, setEditorContent] = useState('');
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [signatureData, setSignatureData] = useState<string>('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [crop, setCrop] = useState<Crop>();
-  const [showCropModal, setShowCropModal] = useState(false);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const sig_canvas = useRef<SignatureCanvas>(null);
+  const [show_warning, set_show_warning] = useState(true);
+  const [is_submitting, set_is_submitting] = useState(false);
+  const [editor_content, set_editor_content] = useState('');
+  const [image_preview, set_image_preview] = useState<string>('');
+  const [signature_data, set_signature_data] = useState<string>('');
+  const [image_file, set_image_file] = useState<File | null>(null);
+  const [crop, set_crop] = useState<Crop>();
+  const [show_crop_modal, set_show_crop_modal] = useState(false);
+  const image_ref = useRef<HTMLImageElement>(null);
 
   const {
     register,
@@ -56,7 +56,7 @@ export default function CreateRevenueProof() {
   });
 
   // 이미지 미리보기
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handle_image_change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // 파일 크기 체크
@@ -73,20 +73,20 @@ export default function CreateRevenueProof() {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        set_image_preview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      setImageFile(file);
+      set_image_file(file);
       setValue('screenshot', file);
     }
   };
 
   // 서명 저장
-  const saveSignature = () => {
-    if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-      const dataUrl = sigCanvas.current.toDataURL();
-      setSignatureData(dataUrl);
-      setValue('signature', dataUrl);
+  const save_signature = () => {
+    if (sig_canvas.current && !sig_canvas.current.isEmpty()) {
+      const data_url = sig_canvas.current.toDataURL();
+      set_signature_data(data_url);
+      setValue('signature', data_url);
       alert('서명이 저장되었습니다.');
     } else {
       alert('서명을 작성해주세요.');
@@ -94,31 +94,31 @@ export default function CreateRevenueProof() {
   };
 
   // 서명 초기화
-  const clearSignature = () => {
-    sigCanvas.current?.clear();
-    setSignatureData('');
+  const clear_signature = () => {
+    sig_canvas.current?.clear();
+    set_signature_data('');
     setValue('signature', '');
   };
 
   // 폼 제출
-  const onSubmit = async (data: CreateProofInput) => {
-    setIsSubmitting(true);
+  const on_submit = async (data: CreateProofInput) => {
+    set_is_submitting(true);
 
     try {
       // API 호출을 위한 FormData 생성
-      const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('amount', data.amount.toString());
-      formData.append('platform', data.platform);
-      formData.append('content', data.content);
-      formData.append('signature', data.signature);
-      formData.append('screenshot', data.screenshot);
+      const form_data = new FormData();
+      form_data.append('title', data.title);
+      form_data.append('amount', data.amount.toString());
+      form_data.append('platform', data.platform);
+      form_data.append('content', data.content);
+      form_data.append('signature', data.signature);
+      form_data.append('screenshot', data.screenshot);
 
       // API 호출 (FormData는 apiUpload 사용)
       try {
         const result = await apiUpload<{ message?: string; id?: string }>(
           '/api/revenue-proof',
-          formData
+          form_data
         );
 
         // 성공 메시지
@@ -130,8 +130,8 @@ export default function CreateRevenueProof() {
         if (error instanceof ApiError) {
           // 일일 제한 에러 처리
           if (error.status === 429) {
-            const errorData = error.data as { error?: string };
-            alert(errorData?.error || '일일 작성 제한에 도달했습니다.');
+            const error_data = error.data as { error?: string };
+            alert(error_data?.error || '일일 작성 제한에 도달했습니다.');
           } else {
             alert(error.message || '인증 작성 중 오류가 발생했습니다.');
           }
@@ -141,7 +141,7 @@ export default function CreateRevenueProof() {
         return;
       }
     } finally {
-      setIsSubmitting(false);
+      set_is_submitting(false);
     }
   };
 
@@ -149,7 +149,7 @@ export default function CreateRevenueProof() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* 허위 인증 경고 모달 */}
-        <AlertDialog open={showWarning} onOpenChange={setShowWarning}>
+        <AlertDialog open={show_warning} onOpenChange={set_show_warning}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export default function CreateRevenueProof() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogAction onClick={() => setShowWarning(false)}>
+              <AlertDialogAction onClick={() => set_show_warning(false)}>
                 확인했습니다
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -187,7 +187,7 @@ export default function CreateRevenueProof() {
 
         <h1 className="text-3xl font-bold mb-8">수익 인증 작성</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(on_submit)} className="space-y-6">
           {/* 제목 */}
           <div>
             <Label htmlFor="title">제목 *</Label>
@@ -239,15 +239,14 @@ export default function CreateRevenueProof() {
           <div>
             <Label htmlFor="screenshot">수익 스크린샷 *</Label>
             <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
-              {imagePreview ? (
+              {image_preview ? (
                 <div className="relative w-full">
                   <Image
-                    src={imagePreview}
+                    src={image_preview}
                     alt="스크린샷 미리보기"
                     width={800}
                     height={600}
-                    className="max-w-full h-auto mx-auto rounded-lg"
-                    style={{ width: 'auto', height: 'auto' }}
+                    className="max-w-full h-auto mx-auto rounded-lg w-auto"
                     unoptimized={true}
                   />
                   <div className="flex gap-2 justify-center mt-4">
@@ -255,7 +254,7 @@ export default function CreateRevenueProof() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => setShowCropModal(true)}
+                      onClick={() => set_show_crop_modal(true)}
                     >
                       이미지 편집
                     </Button>
@@ -264,8 +263,8 @@ export default function CreateRevenueProof() {
                       variant="secondary"
                       size="sm"
                       onClick={() => {
-                        setImagePreview('');
-                        setImageFile(null);
+                        set_image_preview('');
+                        set_image_file(null);
                         setValue('screenshot', undefined as unknown as File);
                       }}
                     >
@@ -287,7 +286,7 @@ export default function CreateRevenueProof() {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
-                    onChange={handleImageChange}
+                    onChange={handle_image_change}
                   />
                 </label>
               )}
@@ -298,7 +297,7 @@ export default function CreateRevenueProof() {
           </div>
 
           {/* 서명 추가 */}
-          {imagePreview && (
+          {image_preview && (
             <div>
               <Label>서명 추가 *</Label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -306,7 +305,7 @@ export default function CreateRevenueProof() {
               </p>
               <div className="mt-2 border rounded-lg p-4 bg-white dark:bg-gray-900">
                 <SignatureCanvas
-                  ref={sigCanvas}
+                  ref={sig_canvas}
                   canvasProps={{
                     className: 'border rounded bg-white dark:bg-gray-800 w-full',
                     style: { width: '100%', height: '200px' },
@@ -315,15 +314,15 @@ export default function CreateRevenueProof() {
                   penColor="black"
                 />
                 <div className="flex gap-2 mt-2">
-                  <Button type="button" variant="outline" size="sm" onClick={clearSignature}>
+                  <Button type="button" variant="outline" size="sm" onClick={clear_signature}>
                     <RefreshCw className="w-4 h-4 mr-2" />
                     지우기
                   </Button>
-                  <Button type="button" size="sm" onClick={saveSignature}>
+                  <Button type="button" size="sm" onClick={save_signature}>
                     서명 저장
                   </Button>
                 </div>
-                {signatureData && (
+                {signature_data && (
                   <p className="text-sm text-green-600 mt-2">✅ 서명이 저장되었습니다</p>
                 )}
               </div>
@@ -341,9 +340,9 @@ export default function CreateRevenueProof() {
             </p>
             <div className="mt-2">
               <TiptapEditor
-                value={editorContent}
+                value={editor_content}
                 onChange={(content) => {
-                  setEditorContent(content);
+                  set_editor_content(content);
                   setValue('content', content);
                 }}
                 placeholder="수익 달성 과정, 콘텐츠 제작 팁, 채널 운영 노하우 등을 자유롭게 작성해주세요..."
@@ -361,24 +360,24 @@ export default function CreateRevenueProof() {
               type="button"
               variant="outline"
               onClick={() => router.back()}
-              disabled={isSubmitting}
+              disabled={is_submitting}
             >
               취소
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !imageFile || !signatureData}
+              disabled={is_submitting || !image_file || !signature_data}
               className="flex-1"
             >
-              {isSubmitting ? '인증 작성 중...' : '수익 인증하기'}
+              {is_submitting ? '인증 작성 중...' : '수익 인증하기'}
             </Button>
           </div>
 
-          {(!imageFile || !signatureData) && (
+          {(!image_file || !signature_data) && (
             <Alert>
               <AlertDescription>
-                {!imageFile && '스크린샷을 업로드해주세요.'}
-                {imageFile && !signatureData && '서명을 추가해주세요.'}
+                {!image_file && '스크린샷을 업로드해주세요.'}
+                {image_file && !signature_data && '서명을 추가해주세요.'}
               </AlertDescription>
             </Alert>
           )}
@@ -386,37 +385,36 @@ export default function CreateRevenueProof() {
       </div>
 
       {/* 이미지 크롭 모달 */}
-      {showCropModal && imagePreview && (
+      {show_crop_modal && image_preview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-auto">
             <h3 className="text-lg font-semibold mb-4">이미지 편집</h3>
             <ReactCrop
               crop={crop}
-              onChange={(c) => setCrop(c)}
+              onChange={(c) => set_crop(c)}
               aspect={16 / 9}
               minWidth={100}
               minHeight={100}
             >
               <Image
-                ref={imageRef}
-                src={imagePreview}
+                ref={image_ref}
+                src={image_preview}
                 alt="편집할 이미지"
                 width={800}
                 height={600}
-                className="max-w-full h-auto"
-                style={{ width: 'auto', height: 'auto' }}
+                className="max-w-full h-auto w-auto"
                 unoptimized={true}
               />
             </ReactCrop>
             <div className="flex gap-2 justify-end mt-4">
-              <Button type="button" variant="outline" onClick={() => setShowCropModal(false)}>
+              <Button type="button" variant="outline" onClick={() => set_show_crop_modal(false)}>
                 취소
               </Button>
               <Button
                 type="button"
                 onClick={() => {
                   // TODO: 크롭된 이미지 적용
-                  setShowCropModal(false);
+                  set_show_crop_modal(false);
                 }}
               >
                 적용

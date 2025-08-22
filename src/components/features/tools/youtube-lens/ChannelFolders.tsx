@@ -56,16 +56,16 @@ interface ChannelFoldersProps {
 }
 
 export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) {
-  const [folders, setFolders] = useState<SourceFolder[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedFolder, setSelectedFolder] = useState<SourceFolder | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [folders, set_folders] = useState<SourceFolder[]>([]);
+  const [loading, set_loading] = useState(false);
+  const [error, set_error] = useState<string | null>(null);
+  const [selected_folder, set_selected_folder] = useState<SourceFolder | null>(null);
+  const [is_create_dialog_open, set_is_create_dialog_open] = useState(false);
+  const [is_edit_dialog_open, set_is_edit_dialog_open] = useState(false);
+  const [search_query, set_search_query] = useState('');
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [form_data, set_form_data] = useState({
     name: '',
     description: '',
     checkIntervalHours: 1,
@@ -73,149 +73,149 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
   });
 
   // Fetch folders
-  const fetchFolders = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const fetch_folders = useCallback(async () => {
+    set_loading(true);
+    set_error(null);
 
     try {
       const data = await apiGet<{ folders?: SourceFolder[] }>('/api/youtube/folders');
 
       console.log('[ChannelFolders] API Response:', data);
-      setFolders((data.folders || []).map(mapSourceFolder));
+      set_folders((data.folders || []).map(mapSourceFolder));
     } catch (error) {
       // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
-        const errorWithStatus = error as {
+        const error_with_status = error as {
           status: number;
           data?: { requiresApiKey?: boolean; error_code?: string; error?: string };
         };
-        if (errorWithStatus.status === 401) {
+        if (error_with_status.status === 401) {
           // Check if it's an API key issue
-          const error_message = (errorWithStatus.data?.error || '').toLowerCase();
-          const isApiKeyError =
-            errorWithStatus.data?.requiresApiKey ||
-            errorWithStatus.data?.error_code === 'api_key_required' ||
+          const error_message = (error_with_status.data?.error || '').toLowerCase();
+          const is_api_key_error =
+            error_with_status.data?.requiresApiKey ||
+            error_with_status.data?.error_code === 'api_key_required' ||
             error_message.includes('api key') ||
             error_message.includes('api 키');
 
-          if (isApiKeyError) {
-            setError('YouTube API Key 설정이 필요합니다');
+          if (is_api_key_error) {
+            set_error('YouTube API Key 설정이 필요합니다');
           } else {
             // Only redirect to login if truly not authenticated
-            const isLoggedIn = document.cookie.includes('sb-');
-            if (!isLoggedIn) {
+            const is_logged_in = document.cookie.includes('sb-');
+            if (!is_logged_in) {
               window.location.href = '/auth/login?redirect=/tools/youtube-lens';
             } else {
-              setError('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
+              set_error('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
             }
           }
           return;
         }
         // Handle 400 errors for API key issues
-        if (errorWithStatus.status === 400) {
-          const data = errorWithStatus.data;
+        if (error_with_status.status === 400) {
+          const data = error_with_status.data;
           if (data?.requiresApiKey || data?.error_code === 'api_key_required') {
-            setError('YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.');
+            set_error('YouTube API Key 설정이 필요합니다. 설정 페이지에서 API Key를 등록해주세요.');
             return;
           }
         }
       }
 
       const error_message = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setError(error_message);
+      set_error(error_message);
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, []);
 
   // Initial fetch
   useEffect(() => {
-    fetchFolders();
-  }, [fetchFolders]);
+    fetch_folders();
+  }, [fetch_folders]);
 
   // Create folder
-  const handleCreateFolder = async () => {
+  const handle_create_folder = async () => {
     try {
-      const data = await apiPost<{ folder: SourceFolder }>('/api/youtube/folders', formData);
+      const data = await apiPost<{ folder: SourceFolder }>('/api/youtube/folders', form_data);
 
       console.log('[ChannelFolders] Create response:', data);
-      setFolders([mapSourceFolder(data.folder), ...folders]);
-      setIsCreateDialogOpen(false);
-      resetForm();
+      set_folders([mapSourceFolder(data.folder), ...folders]);
+      set_is_create_dialog_open(false);
+      reset_form();
     } catch (error) {
       const error_message = error instanceof Error ? error.message : 'Failed to create folder';
-      setError(error_message);
+      set_error(error_message);
     }
   };
 
   // Update folder
-  const handleUpdateFolder = async () => {
-    if (!selectedFolder) {
+  const handle_update_folder = async () => {
+    if (!selected_folder) {
       return;
     }
 
     try {
       const data = await apiPatch<{ folder: SourceFolder }>(
-        `/api/youtube/folders/${selectedFolder.id}`,
-        formData
+        `/api/youtube/folders/${selected_folder.id}`,
+        form_data
       );
 
-      setFolders(folders.map((f) => (f.id === data.folder.id ? mapSourceFolder(data.folder) : f)));
-      setIsEditDialogOpen(false);
-      resetForm();
+      set_folders(folders.map((f) => (f.id === data.folder.id ? mapSourceFolder(data.folder) : f)));
+      set_is_edit_dialog_open(false);
+      reset_form();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update folder');
+      set_error(error instanceof Error ? error.message : 'Failed to update folder');
     }
   };
 
   // Delete folder
-  const handleDeleteFolder = async (folderId: string) => {
+  const handle_delete_folder = async (folder_id: string) => {
     if (!confirm('정말로 이 폴더를 삭제하시겠습니까?')) {
       return;
     }
 
     try {
-      await apiDelete(`/api/youtube/folders/${folderId}`);
+      await apiDelete(`/api/youtube/folders/${folder_id}`);
 
-      setFolders(folders.filter((f) => f.id !== folderId));
+      set_folders(folders.filter((f) => f.id !== folder_id));
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to delete folder');
+      set_error(error instanceof Error ? error.message : 'Failed to delete folder');
     }
   };
 
   // Toggle monitoring
-  const handleToggleMonitoring = async (folderId: string, enabled: boolean) => {
+  const handle_toggle_monitoring = async (folder_id: string, enabled: boolean) => {
     try {
-      await apiPatch(`/api/youtube/folders/${folderId}`, { isMonitoringEnabled: enabled });
+      await apiPatch(`/api/youtube/folders/${folder_id}`, { isMonitoringEnabled: enabled });
 
-      setFolders(
-        folders.map((f) => (f.id === folderId ? { ...f, isMonitoringEnabled: enabled } : f))
+      set_folders(
+        folders.map((f) => (f.id === folder_id ? { ...f, isMonitoringEnabled: enabled } : f))
       );
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update monitoring');
+      set_error(error instanceof Error ? error.message : 'Failed to update monitoring');
     }
   };
 
   // Reset form
-  const resetForm = () => {
-    setFormData({
+  const reset_form = () => {
+    set_form_data({
       name: '',
       description: '',
       checkIntervalHours: 1,
       isMonitoringEnabled: true,
     });
-    setSelectedFolder(null);
+    set_selected_folder(null);
   };
 
   // Filter folders by search
-  const filteredFolders = folders.filter(
+  const filtered_folders = folders.filter(
     (folder) =>
-      folder.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      folder.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      folder.name.toLowerCase().includes(search_query.toLowerCase()) ||
+      folder.description?.toLowerCase().includes(search_query.toLowerCase())
   );
 
   // Get monitoring status
-  const getMonitoringStatus = (folder: SourceFolder) => {
+  const get_monitoring_status = (folder: SourceFolder) => {
     if (!folder.isMonitoringEnabled) {
       return 'disabled';
     }
@@ -223,20 +223,20 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       return 'never';
     }
 
-    const lastCheck = new Date(folder.lastCheckedAt);
-    const hoursSince = (Date.now() - lastCheck.getTime()) / (1000 * 60 * 60);
+    const last_check = new Date(folder.lastCheckedAt);
+    const hours_since = (Date.now() - last_check.getTime()) / (1000 * 60 * 60);
 
-    if (hoursSince < folder.checkIntervalHours) {
+    if (hours_since < folder.checkIntervalHours) {
       return 'active';
     }
-    if (hoursSince < folder.checkIntervalHours * 2) {
+    if (hours_since < folder.checkIntervalHours * 2) {
       return 'pending';
     }
     return 'overdue';
   };
 
   // Get status badge
-  const getStatusBadge = (status: string) => {
+  const get_status_badge = (status: string) => {
     switch (status) {
       case 'active':
         return (
@@ -281,7 +281,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
               <CardTitle>채널 폴더</CardTitle>
               <CardDescription>YouTube 채널을 폴더별로 정리하고 모니터링하세요</CardDescription>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <Dialog open={is_create_dialog_open} onOpenChange={set_is_create_dialog_open}>
               <DialogTrigger asChild={true}>
                 <Button>
                   <FolderPlus className="w-4 h-4 mr-2" />새 폴더
@@ -299,8 +299,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                     <Label htmlFor="name">폴더 이름</Label>
                     <Input
                       id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      value={form_data.name}
+                      onChange={(e) => set_form_data({ ...form_data, name: e.target.value })}
                       placeholder="예: 게임 채널"
                     />
                   </div>
@@ -308,8 +308,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                     <Label htmlFor="description">설명</Label>
                     <Textarea
                       id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      value={form_data.description}
+                      onChange={(e) => set_form_data({ ...form_data, description: e.target.value })}
                       placeholder="이 폴더의 목적을 설명해주세요..."
                       rows={3}
                     />
@@ -321,10 +321,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       type="number"
                       min="1"
                       max="24"
-                      value={formData.checkIntervalHours}
+                      value={form_data.checkIntervalHours}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
+                        set_form_data({
+                          ...form_data,
                           checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
                         })
                       }
@@ -333,10 +333,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="monitoring"
-                      checked={formData.isMonitoringEnabled}
+                      checked={form_data.isMonitoringEnabled}
                       onCheckedChange={(checked) =>
-                        setFormData({
-                          ...formData,
+                        set_form_data({
+                          ...form_data,
                           isMonitoringEnabled: checked,
                         })
                       }
@@ -345,10 +345,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => set_is_create_dialog_open(false)}>
                     취소
                   </Button>
-                  <Button onClick={handleCreateFolder}>폴더 생성</Button>
+                  <Button onClick={handle_create_folder}>폴더 생성</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -360,8 +360,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               placeholder="폴더 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={search_query}
+              onChange={(e) => set_search_query(e.target.value)}
               className="pl-9"
             />
           </div>
@@ -378,16 +378,16 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
 
       {/* Folders list */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredFolders.map((folder) => {
-          const status = getMonitoringStatus(folder);
-          const channelCount = folder.folderChannels?.length || 0;
+        {filtered_folders.map((folder) => {
+          const status = get_monitoring_status(folder);
+          const channel_count = folder.folderChannels?.length || 0;
 
           return (
             <Card
               key={folder.id}
               className="hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => {
-                setSelectedFolder(folder);
+                set_selected_folder(folder);
                 onFolderSelect?.(folder);
               }}
             >
@@ -409,14 +409,14 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedFolder(folder);
-                          setFormData({
+                          set_selected_folder(folder);
+                          set_form_data({
                             name: folder.name,
                             description: folder.description || '',
                             checkIntervalHours: folder.checkIntervalHours,
                             isMonitoringEnabled: folder.isMonitoringEnabled,
                           });
-                          setIsEditDialogOpen(true);
+                          set_is_edit_dialog_open(true);
                         }}
                       >
                         <Edit className="w-4 h-4 mr-2" />
@@ -425,7 +425,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleMonitoring(folder.id, !folder.isMonitoringEnabled);
+                          handle_toggle_monitoring(folder.id, !folder.isMonitoringEnabled);
                         }}
                       >
                         {folder.isMonitoringEnabled ? (
@@ -445,7 +445,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                         className="text-destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteFolder(folder.id);
+                          handle_delete_folder(folder.id);
                         }}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -468,9 +468,9 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      채널 {channelCount}개
+                      채널 {channel_count}개
                     </span>
-                    {getStatusBadge(status)}
+                    {get_status_badge(status)}
                   </div>
 
                   {/* Check interval */}
@@ -495,7 +495,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   className="w-full mt-3"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedFolder(folder);
+                    set_selected_folder(folder);
                     onFolderSelect?.(folder);
                   }}
                 >
@@ -508,7 +508,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
         })}
 
         {/* Empty state */}
-        {filteredFolders.length === 0 && !loading && (
+        {filtered_folders.length === 0 && !loading && (
           <Card className="col-span-full">
             <CardContent className="text-center py-12">
               <Folder className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -516,7 +516,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
               <p className="text-muted-foreground mb-4">
                 첫 번째 폴더를 만들어 채널을 정리해보세요
               </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button onClick={() => set_is_create_dialog_open(true)}>
                 <FolderPlus className="w-4 h-4 mr-2" />
                 폴더 만들기
               </Button>
@@ -526,7 +526,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       </div>
 
       {/* Edit dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={is_edit_dialog_open} onOpenChange={set_is_edit_dialog_open}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>폴더 편집</DialogTitle>
@@ -537,16 +537,16 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
               <Label htmlFor="edit-name">폴더 이름</Label>
               <Input
                 id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={form_data.name}
+                onChange={(e) => set_form_data({ ...form_data, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-description">설명</Label>
               <Textarea
                 id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={form_data.description}
+                onChange={(e) => set_form_data({ ...form_data, description: e.target.value })}
                 rows={3}
               />
             </div>
@@ -557,10 +557,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                 type="number"
                 min="1"
                 max="24"
-                value={formData.checkIntervalHours}
+                value={form_data.checkIntervalHours}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
+                  set_form_data({
+                    ...form_data,
                     checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
                   })
                 }
@@ -569,10 +569,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
             <div className="flex items-center space-x-2">
               <Switch
                 id="edit-monitoring"
-                checked={formData.isMonitoringEnabled}
+                checked={form_data.isMonitoringEnabled}
                 onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
+                  set_form_data({
+                    ...form_data,
                     isMonitoringEnabled: checked,
                   })
                 }
@@ -581,10 +581,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => set_is_edit_dialog_open(false)}>
               취소
             </Button>
-            <Button onClick={handleUpdateFolder}>폴더 업데이트</Button>
+            <Button onClick={handle_update_folder}>폴더 업데이트</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

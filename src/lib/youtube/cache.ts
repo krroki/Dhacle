@@ -134,15 +134,15 @@ export class CacheManager {
     }
 
     // Type assertion after type guard
-    const paramsObj = params as Record<string, unknown>;
+    const params_obj = params as Record<string, unknown>;
 
     // 객체 키 정렬
     const sorted: Record<string, unknown> = {};
-    Object.keys(paramsObj)
+    Object.keys(params_obj)
       .sort()
       .forEach((key) => {
-        if (paramsObj[key] !== undefined && paramsObj[key] !== null) {
-          sorted[key] = paramsObj[key];
+        if (params_obj[key] !== undefined && params_obj[key] !== null) {
+          sorted[key] = params_obj[key];
         }
       });
 
@@ -152,20 +152,20 @@ export class CacheManager {
   // 캐시 가져오기
   async get<T>(key: string): Promise<T | null> {
     // 1. 메모리 캐시 확인
-    const memoryItem = this.memoryCache.get(key);
-    if (memoryItem) {
+    const memory_item = this.memoryCache.get(key);
+    if (memory_item) {
       this.stats.hits++;
       this.updateHitRate();
       console.log(`Memory cache hit: ${key}`);
-      return memoryItem.data as T;
+      return memory_item.data as T;
     }
 
     // 2. Redis 캐시 확인 (연결된 경우)
     if (this.redisConnected && redis) {
       try {
-        const redisData = await redis.get(key);
-        if (redisData) {
-          const item = JSON.parse(redisData) as CacheItem<T>;
+        const redis_data = await redis.get(key);
+        if (redis_data) {
+          const item = JSON.parse(redis_data) as CacheItem<T>;
 
           // TTL 확인
           if (Date.now() - item.timestamp < item.ttl) {
@@ -318,8 +318,8 @@ export class CacheManager {
   }
 
   // TTL 전략
-  static getTTL(dataType: string): number {
-    const ttlMap: Record<string, number> = {
+  static getTTL(data_type: string): number {
+    const ttl_map: Record<string, number> = {
       search: 5 * 60 * 1000, // 5분
       video: 10 * 60 * 1000, // 10분
       channel: 60 * 60 * 1000, // 1시간
@@ -329,7 +329,7 @@ export class CacheManager {
       popular: 10 * 60 * 1000, // 10분
     };
 
-    return ttlMap[dataType] || 5 * 60 * 1000;
+    return ttl_map[data_type] || 5 * 60 * 1000;
   }
 
   // 캐시 가능 여부 확인
@@ -340,15 +340,19 @@ export class CacheManager {
     }
 
     // Type assertion after type guard
-    const responseObj = response as { error?: unknown; items?: unknown[] };
+    const response_obj = response as { error?: unknown; items?: unknown[] };
 
     // 에러 응답은 캐시하지 않음
-    if (responseObj.error) {
+    if (response_obj.error) {
       return false;
     }
 
     // 빈 결과는 짧게 캐시
-    if (!responseObj.items || !Array.isArray(responseObj.items) || responseObj.items.length === 0) {
+    if (
+      !response_obj.items ||
+      !Array.isArray(response_obj.items) ||
+      response_obj.items.length === 0
+    ) {
       return true; // 하지만 TTL을 짧게
     }
 

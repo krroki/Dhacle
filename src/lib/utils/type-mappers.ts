@@ -3,11 +3,11 @@
  * Maps between database snake_case and frontend camelCase conventions
  */
 
-import type { 
-  Course, 
-  Lesson,
+import type {
   AlertCondition,
   Collection,
+  Course,
+  Lesson,
   OutlierDetectionResult,
   SourceFolder,
   TrendAnalysis,
@@ -41,35 +41,39 @@ export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>)
 
   return {
     // All DB fields from Tables<'courses'>
-    id: obj.id as string || course.id || '',
-    title: obj.title as string || course.title || '',
+    id: (obj.id as string) || course.id || '',
+    title: (obj.title as string) || course.title || '',
     subtitle: course.subtitle || '',
-    description: obj.description as string || course.description || undefined,
-    instructor_name: obj.instructor_name as string ?? course.instructor_name ?? 'Unknown',
-    instructor_id: obj.instructor_id as string || course.instructor_id || undefined,
-    thumbnail_url: obj.thumbnail_url as string || course.thumbnail_url || undefined,
+    description: (obj.description as string) || course.description || undefined,
+    instructor_name: (obj.instructor_name as string) ?? course.instructor_name ?? 'Unknown',
+    instructor_id: (obj.instructor_id as string) || course.instructor_id || undefined,
+    thumbnail_url: (obj.thumbnail_url as string) || course.thumbnail_url || undefined,
     price: Number(obj.price ?? course.price) || 0,
-    is_free: obj.price === 0 || obj.is_free as boolean || course.is_free || false,
+    is_free: obj.price === 0 || (obj.is_free as boolean) || course.is_free || false,
     average_rating: Number(obj.average_rating ?? course.average_rating) || 0,
-    created_at: obj.created_at as string || course.created_at || new Date().toISOString(),
+    created_at: (obj.created_at as string) || course.created_at || new Date().toISOString(),
     updated_at:
-      obj.updated_at as string ||
+      (obj.updated_at as string) ||
       course.updated_at ||
-      obj.created_at as string ||
+      (obj.created_at as string) ||
       course.created_at ||
       new Date().toISOString(),
-    category: obj.category as string || course.category || undefined,
+    category: (obj.category as string) || course.category || undefined,
     level: (obj.level as string) || course.level || undefined,
-    requirements: Array.isArray(obj.requirements) ? obj.requirements as string[] : course.requirements || undefined,
-    
+    requirements: Array.isArray(obj.requirements)
+      ? (obj.requirements as string[])
+      : course.requirements || undefined,
+
     // Frontend enhancement fields
     isPremium: Boolean((obj.price && Number(obj.price) > 0) || course.isPremium || false),
-    total_duration: obj.duration_weeks ? (Number(obj.duration_weeks) * 7 * 60) : course.total_duration || 0,
+    total_duration: obj.duration_weeks
+      ? Number(obj.duration_weeks) * 7 * 60
+      : course.total_duration || 0,
     student_count: Number(obj.total_students ?? course.student_count) || 0,
     reviewCount: course.reviewCount || 0,
     status: (obj.status || course.status || 'active') as 'upcoming' | 'active' | 'completed',
-    launchDate: obj.created_at as string || course.launchDate || new Date().toISOString(),
-    
+    launchDate: (obj.created_at as string) || course.launchDate || new Date().toISOString(),
+
     // Additional optional fields
     contentBlocks: obj.curriculum || course.contentBlocks || undefined,
     whatYouLearn: obj.what_youll_learn || course.whatYouLearn || undefined,
@@ -375,8 +379,7 @@ export function mapVideoToYouTubeVideo(
       description: vid.description || (obj.description as string) || '',
       channel_id: vid.channel_id || (obj.channel_id as string) || '',
       channel_title: (obj.channel_title as string) || '',
-      published_at:
-        vid.published_at || (obj.published_at as string) || '',
+      published_at: vid.published_at || (obj.published_at as string) || '',
       thumbnails: parsedThumbnails,
       tags: vid.tags || (obj.tags as string[]) || [],
       category_id: (obj.category_id as string) || 'unknown',

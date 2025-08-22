@@ -14,17 +14,17 @@ interface PageProps {
 // 동적 메타데이터 생성
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id: course_id } = await params;
-  const courseData = await getCourseDetail(course_id);
+  const course_data = await getCourseDetail(course_id);
 
-  if (!courseData) {
+  if (!course_data) {
     return {
       title: '강의를 찾을 수 없습니다',
       description: '요청하신 강의를 찾을 수 없습니다.',
     };
   }
 
-  const { course: rawCourse } = courseData;
-  const course = mapCourse(rawCourse);
+  const { course: raw_course } = course_data;
+  const course = mapCourse(raw_course);
 
   return {
     title: `${course.title} - YouTube Shorts 제작 강의`,
@@ -65,17 +65,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CourseDetailPage({ params }: PageProps): Promise<React.JSX.Element> {
   const { id: course_id } = await params;
-  const courseData = await getCourseDetail(course_id);
+  const course_data = await getCourseDetail(course_id);
 
-  if (!courseData) {
+  if (!course_data) {
     notFound();
   }
 
-  const { course: rawCourse, lessons } = courseData;
-  const course = mapCourse(rawCourse);
+  const { course: raw_course, lessons } = course_data;
+  const course = mapCourse(raw_course);
 
   // 구조화된 데이터 - Course Schema
-  const courseSchema = {
+  const course_schema = {
     '@context': 'https://schema.org',
     '@type': 'Course',
     name: course.title,
@@ -126,7 +126,7 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
   };
 
   // Breadcrumb 구조화된 데이터
-  const breadcrumbSchema = {
+  const breadcrumb_schema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -157,15 +157,15 @@ export default async function CourseDetailPage({ params }: PageProps): Promise<R
       <Script
         id="course-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(course_schema) }}
       />
       <Script
         id="breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb_schema) }}
       />
 
-      <CourseDetailClient courseData={courseData} />
+      <CourseDetailClient courseData={course_data} />
     </>
   );
 }

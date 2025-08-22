@@ -42,44 +42,44 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
     addToSearchHistory,
   } = useYouTubeLensStore();
 
-  const [showHistory, setShowHistory] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [show_history, set_show_history] = useState(false);
+  const [show_filters, set_show_filters] = useState(false);
+  const input_ref = useRef<HTMLInputElement>(null);
 
   // 검색 실행
-  const handleSearch = useCallback(async () => {
-    const trimmedQuery = searchQuery.trim();
-    if (!trimmedQuery || isLoading || disabled) {
+  const handle_search = useCallback(async () => {
+    const trimmed_query = searchQuery.trim();
+    if (!trimmed_query || isLoading || disabled) {
       return;
     }
 
     // 검색 기록에 추가
-    addToSearchHistory(trimmedQuery);
+    addToSearchHistory(trimmed_query);
 
     // 검색 실행
-    await onSearch(trimmedQuery, {
+    await onSearch(trimmed_query, {
       ...searchFilters,
-      query: trimmedQuery,
+      query: trimmed_query,
     });
   }, [searchQuery, searchFilters, isLoading, disabled, onSearch, addToSearchHistory]);
 
   // 엔터키 처리
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handle_key_down = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSearch();
+      handle_search();
     }
   };
 
   // 검색어 선택
-  const selectQuery = (query: string) => {
+  const select_query = (query: string) => {
     setSearchQuery(query);
-    setShowHistory(false);
-    inputRef.current?.focus();
+    set_show_history(false);
+    input_ref.current?.focus();
   };
 
   // 필터 리셋
-  const resetFilters = () => {
+  const reset_filters = () => {
     setSearchFilters({
       query: '',
       order: 'relevance',
@@ -89,7 +89,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
   };
 
   // 활성 필터 개수
-  const activeFilterCount = [
+  const active_filter_count = [
     searchFilters.order !== 'relevance',
     searchFilters.videoDuration !== 'short',
     searchFilters.videoDefinition === 'high',
@@ -105,14 +105,14 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              ref={inputRef}
+              ref={input_ref}
               type="text"
               placeholder="YouTube 영상 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setShowHistory(true)}
-              onBlur={() => setTimeout(() => setShowHistory(false), 200)}
+              onKeyDown={handle_key_down}
+              onFocus={() => set_show_history(true)}
+              onBlur={() => setTimeout(() => set_show_history(false), 200)}
               disabled={disabled}
               className="pl-10 pr-10"
             />
@@ -128,13 +128,13 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
           </div>
 
           {/* 필터 버튼 */}
-          <Popover open={showFilters} onOpenChange={setShowFilters}>
+          <Popover open={show_filters} onOpenChange={set_show_filters}>
             <PopoverTrigger asChild={true}>
               <Button variant="outline" size="icon" className="relative">
                 <Filter className="h-4 w-4" />
-                {activeFilterCount > 0 && (
+                {active_filter_count > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center">
-                    {activeFilterCount}
+                    {active_filter_count}
                   </span>
                 )}
               </Button>
@@ -143,11 +143,11 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">검색 필터</h4>
-                  {activeFilterCount > 0 && (
+                  {active_filter_count > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={resetFilters}
+                      onClick={reset_filters}
                       className="h-auto p-1 text-xs"
                     >
                       초기화
@@ -250,7 +250,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
 
           {/* 검색 버튼 */}
           <Button
-            onClick={handleSearch}
+            onClick={handle_search}
             disabled={!searchQuery.trim() || isLoading || disabled}
             className="min-w-[100px]"
           >
@@ -269,7 +269,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
         </div>
 
         {/* 검색 기록 & 추천 드롭다운 */}
-        {showHistory && !isLoading && (
+        {show_history && !isLoading && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-lg z-50">
             {searchHistory.length > 0 && (
               <div className="p-2 border-b">
@@ -281,7 +281,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                   {searchHistory.slice(0, 5).map((query, index) => (
                     <button
                       key={index}
-                      onClick={() => selectQuery(query)}
+                      onClick={() => select_query(query)}
                       className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md transition-colors"
                     >
                       {query}
@@ -300,7 +300,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                 {SUGGESTED_QUERIES.map((query) => (
                   <button
                     key={query}
-                    onClick={() => selectQuery(query)}
+                    onClick={() => select_query(query)}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded-md transition-colors"
                   >
                     {query}
@@ -313,7 +313,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
       </div>
 
       {/* 활성 필터 표시 */}
-      {activeFilterCount > 0 && (
+      {active_filter_count > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm text-muted-foreground">필터:</span>
           {searchFilters.order !== 'relevance' && (

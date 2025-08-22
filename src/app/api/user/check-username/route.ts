@@ -37,7 +37,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     // Check if username exists
-    const { data: existingUser, error } = await supabase
+    const { data: existing_user, error } = await supabase
       .from('users')
       .select('username')
       .eq('username', username)
@@ -49,7 +49,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     // Return availability status
     return NextResponse.json({
-      available: !existingUser,
+      available: !existing_user,
       username,
     });
   } catch (_error) {

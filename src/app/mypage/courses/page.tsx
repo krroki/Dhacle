@@ -11,6 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { Database } from '@/types';
 
+// 동적 페이지로 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic';
+
 interface CourseEnrollment {
   id: string;
   user_id: string;
@@ -66,7 +69,7 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
     .order('last_accessed_at', { ascending: false });
 
   // Map snake_case from database to camelCase for the component
-  const allCourses: CourseEnrollment[] = (enrollments || []).map(enrollment => ({
+  const all_courses: CourseEnrollment[] = (enrollments || []).map((enrollment) => ({
     id: enrollment.id,
     user_id: enrollment.user_id,
     course_id: enrollment.course_id,
@@ -75,41 +78,42 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
     lastAccessedAt: enrollment.last_accessed_at,
     progressPercentage: enrollment.progress_percentage || 0,
     completedLessons: 0, // This field doesn't exist in the database, using default
-    status: enrollment.status as 'active' | 'completed' | 'paused' || 'active',
-    courses: enrollment.courses ? {
-      id: enrollment.courses.id,
-      title: enrollment.courses.title,
-      description: enrollment.courses.description || '',
-      thumbnail_url: enrollment.courses.thumbnail_url,
-      instructor_name: enrollment.courses.instructor_name || '',
-      price: enrollment.courses.price || 0,
-      totalLessons: 10, // Default value as this field doesn't exist in DB
-      durationHours: (enrollment.courses.duration_weeks || 0) * 5, // Convert weeks to estimated hours
-      level: enrollment.courses.level || '',
-      category: enrollment.courses.category || ''
-    } : {
-      id: '',
-      title: '',
-      description: '',
-      thumbnail_url: null,
-      instructor_name: '',
-      price: 0,
-      totalLessons: 0,
-      durationHours: 0,
-      level: '',
-      category: ''
-    }
+    status: (enrollment.status as 'active' | 'completed' | 'paused') || 'active',
+    courses: enrollment.courses
+      ? {
+          id: enrollment.courses.id,
+          title: enrollment.courses.title,
+          description: enrollment.courses.description || '',
+          thumbnail_url: enrollment.courses.thumbnail_url,
+          instructor_name: enrollment.courses.instructor_name || '',
+          price: enrollment.courses.price || 0,
+          totalLessons: 10, // Default value as this field doesn't exist in DB
+          durationHours: (enrollment.courses.duration_weeks || 0) * 5, // Convert weeks to estimated hours
+          level: enrollment.courses.level || '',
+          category: enrollment.courses.category || '',
+        }
+      : {
+          id: '',
+          title: '',
+          description: '',
+          thumbnail_url: null,
+          instructor_name: '',
+          price: 0,
+          totalLessons: 0,
+          durationHours: 0,
+          level: '',
+          category: '',
+        },
   }));
-  const activeCourses = allCourses.filter((e: CourseEnrollment) => e.status === 'active');
-  const completedCourses = allCourses.filter((e: CourseEnrollment) => e.status === 'completed');
+  const active_courses = all_courses.filter((e: CourseEnrollment) => e.status === 'active');
+  const completed_courses = all_courses.filter((e: CourseEnrollment) => e.status === 'completed');
 
   // 통계 계산
-  const totalLearningHours = allCourses.reduce((sum: number, e: CourseEnrollment) => {
+  const total_learning_hours = all_courses.reduce((sum: number, e: CourseEnrollment) => {
     const hours = e.courses?.durationHours || 0;
     const progress = e.progressPercentage / 100;
     return sum + hours * progress;
   }, 0);
-
 
   return (
     <div className="space-y-6">
@@ -125,7 +129,7 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">전체 강의</p>
-                <p className="text-2xl font-bold mt-1">{allCourses.length}</p>
+                <p className="text-2xl font-bold mt-1">{all_courses.length}</p>
               </div>
               <BookOpen className="h-8 w-8 text-purple-600" />
             </div>
@@ -137,7 +141,7 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">수강 중</p>
-                <p className="text-2xl font-bold mt-1">{activeCourses.length}</p>
+                <p className="text-2xl font-bold mt-1">{active_courses.length}</p>
               </div>
               <PlayCircle className="h-8 w-8 text-blue-600" />
             </div>
@@ -149,7 +153,7 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">완료</p>
-                <p className="text-2xl font-bold mt-1">{completedCourses.length}</p>
+                <p className="text-2xl font-bold mt-1">{completed_courses.length}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
@@ -161,7 +165,7 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">학습 시간</p>
-                <p className="text-2xl font-bold mt-1">{Math.round(totalLearningHours)}h</p>
+                <p className="text-2xl font-bold mt-1">{Math.round(total_learning_hours)}h</p>
               </div>
               <Clock className="h-8 w-8 text-orange-600" />
             </div>
@@ -172,15 +176,15 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
       {/* 강의 목록 탭 */}
       <Tabs defaultValue="active" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="active">수강 중 ({activeCourses.length})</TabsTrigger>
-          <TabsTrigger value="completed">완료 ({completedCourses.length})</TabsTrigger>
-          <TabsTrigger value="all">전체 ({allCourses.length})</TabsTrigger>
+          <TabsTrigger value="active">수강 중 ({active_courses.length})</TabsTrigger>
+          <TabsTrigger value="completed">완료 ({completed_courses.length})</TabsTrigger>
+          <TabsTrigger value="all">전체 ({all_courses.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          {activeCourses.length > 0 ? (
+          {active_courses.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">
-              {activeCourses.map((enrollment: CourseEnrollment) => (
+              {active_courses.map((enrollment: CourseEnrollment) => (
                 <CourseCard key={enrollment.id} enrollment={enrollment} />
               ))}
             </div>
@@ -195,9 +199,9 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
         </TabsContent>
 
         <TabsContent value="completed" className="space-y-4">
-          {completedCourses.length > 0 ? (
+          {completed_courses.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">
-              {completedCourses.map((enrollment: CourseEnrollment) => (
+              {completed_courses.map((enrollment: CourseEnrollment) => (
                 <CourseCard key={enrollment.id} enrollment={enrollment} />
               ))}
             </div>
@@ -210,9 +214,9 @@ export default async function MyCoursesPage(): Promise<React.JSX.Element> {
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
-          {allCourses.length > 0 ? (
+          {all_courses.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">
-              {allCourses.map((enrollment: CourseEnrollment) => (
+              {all_courses.map((enrollment: CourseEnrollment) => (
                 <CourseCard key={enrollment.id} enrollment={enrollment} />
               ))}
             </div>
@@ -236,7 +240,7 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
     return null;
   }
 
-  const progressPercent = enrollment.progressPercentage || 0;
+  const progress_percent = enrollment.progressPercentage || 0;
   const is_completed = enrollment.status === 'completed';
 
   return (
@@ -248,7 +252,7 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
             <Image
               src={course.thumbnail_url}
               alt={course.title}
-              fill
+              fill={true}
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 192px"
               unoptimized={true}
@@ -285,10 +289,10 @@ function CourseCard({ enrollment }: { enrollment: CourseEnrollment }) {
             <div className="flex items-center justify-between text-sm mb-2">
               <span className="text-gray-600">진행률</span>
               <span className="font-medium">
-                {enrollment.completedLessons}/{course.totalLessons}강 ({progressPercent}%)
+                {enrollment.completedLessons}/{course.totalLessons}강 ({progress_percent}%)
               </span>
             </div>
-            <Progress value={progressPercent} className="h-2" />
+            <Progress value={progress_percent} className="h-2" />
           </div>
 
           {/* 정보 및 액션 */}

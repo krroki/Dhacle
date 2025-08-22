@@ -9,13 +9,13 @@ interface CourseCardProps {
   showNewBadge?: boolean;
 }
 
-const levelColors = {
+const level_colors = {
   beginner: 'bg-green-100 text-green-800',
   intermediate: 'bg-blue-100 text-blue-800',
   advanced: 'bg-purple-100 text-purple-800',
 };
 
-const levelLabels = {
+const level_labels = {
   beginner: '초급',
   intermediate: '중급',
   advanced: '고급',
@@ -54,8 +54,8 @@ export function CourseCard({ course, showNewBadge = false }: CourseCardProps) {
             </div>
             <div className="flex items-center gap-1">
               <BarChart3 className="w-3 h-3" />
-              <span className={`px-2 py-0.5 rounded-full text-xs ${levelColors[course.level]}`}>
-                {levelLabels[course.level]}
+              <span className={`px-2 py-0.5 rounded-full text-xs ${level_colors[course.level]}`}>
+                {level_labels[course.level]}
               </span>
             </div>
           </div>

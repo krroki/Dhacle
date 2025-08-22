@@ -78,12 +78,12 @@ const EXPERIENCE_LEVELS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: auth_loading } = useAuth();
 
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [_generatedUsername, setGeneratedUsername] = useState('');
-  const [data, setData] = useState<OnboardingData>({
+  const [step, set_step] = useState(1);
+  const [loading, set_loading] = useState(false);
+  const [_generatedUsername, set_generated_username] = useState('');
+  const [data, set_data] = useState<OnboardingData>({
     work_type: '',
     job_category: '',
     current_income: '',
@@ -93,32 +93,32 @@ export default function OnboardingPage() {
 
   // 인증 확인
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!auth_loading && !user) {
       router.push('/auth/login');
     }
-  }, [user, authLoading, router]);
+  }, [user, auth_loading, router]);
 
   // 사용자명 자동 생성
-  const generateUsername = async () => {
+  const generate_username = async () => {
     try {
       const data = await apiPost<{ username: string }>('/api/user/generate-username', {});
 
       if (data.username) {
-        setGeneratedUsername(data.username);
+        set_generated_username(data.username);
         return data.username;
       }
 
       throw new Error('Failed to generate username');
     } catch (_error) {
       // 폴백: 클라이언트에서 생성
-      const fallbackUsername = `creator_${Math.random().toString(36).substring(2, 10)}`;
-      setGeneratedUsername(fallbackUsername);
-      return fallbackUsername;
+      const fallback_username = `creator_${Math.random().toString(36).substring(2, 10)}`;
+      set_generated_username(fallback_username);
+      return fallback_username;
     }
   };
 
   // 다음 단계로
-  const handleNext = async () => {
+  const handle_next = async () => {
     if (step === 1) {
       if (!data.work_type || !data.job_category) {
         alert('모든 필드를 선택해주세요');
@@ -140,22 +140,22 @@ export default function OnboardingPage() {
 
     if (step === 3) {
       // 온보딩 완료 - 프로필 저장
-      await completeOnboarding();
+      await complete_onboarding();
     } else {
-      setStep(step + 1);
+      set_step(step + 1);
     }
   };
 
   // 온보딩 완료 처리
-  const completeOnboarding = async () => {
+  const complete_onboarding = async () => {
     if (!user) {
       return;
     }
 
-    setLoading(true);
+    set_loading(true);
     try {
       // 먼저 사용자명 자동 생성
-      const username = await generateUsername();
+      const username = await generate_username();
 
       await apiPost('/api/user/profile', {
         id: user.id,
@@ -172,11 +172,11 @@ export default function OnboardingPage() {
     } catch (_error) {
       alert('프로필 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   };
 
-  if (authLoading) {
+  if (auth_loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -237,7 +237,7 @@ export default function OnboardingPage() {
                   <RadioGroup
                     value={data.work_type}
                     onValueChange={(value) =>
-                      setData((prev) => ({ ...prev, work_type: value as 'main' | 'side' }))
+                      set_data((prev) => ({ ...prev, work_type: value as 'main' | 'side' }))
                     }
                   >
                     <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
                     {JOB_CATEGORIES.map((job) => (
                       <button
                         key={job.value}
-                        onClick={() => setData((prev) => ({ ...prev, job_category: job.value }))}
+                        onClick={() => set_data((prev) => ({ ...prev, job_category: job.value }))}
                         className={cn(
                           'p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
                           data.job_category === job.value
@@ -298,7 +298,7 @@ export default function OnboardingPage() {
                   <Select
                     value={data.current_income}
                     onValueChange={(value) =>
-                      setData((prev) => ({ ...prev, current_income: value }))
+                      set_data((prev) => ({ ...prev, current_income: value }))
                     }
                   >
                     <SelectTrigger>
@@ -321,7 +321,9 @@ export default function OnboardingPage() {
                   </Label>
                   <Select
                     value={data.target_income}
-                    onValueChange={(value) => setData((prev) => ({ ...prev, target_income: value }))}
+                    onValueChange={(value) =>
+                      set_data((prev) => ({ ...prev, target_income: value }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="목표 수입을 선택해주세요" />
@@ -351,7 +353,7 @@ export default function OnboardingPage() {
                 {EXPERIENCE_LEVELS.map((level) => (
                   <button
                     key={level.value}
-                    onClick={() => setData((prev) => ({ ...prev, experience_level: level.value }))}
+                    onClick={() => set_data((prev) => ({ ...prev, experience_level: level.value }))}
                     className={cn(
                       'w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md',
                       data.experience_level === level.value
@@ -376,10 +378,10 @@ export default function OnboardingPage() {
 
             {/* Actions */}
             <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={() => setStep(step - 1)} disabled={step === 1}>
+              <Button variant="outline" onClick={() => set_step(step - 1)} disabled={step === 1}>
                 이전
               </Button>
-              <Button onClick={handleNext} disabled={loading}>
+              <Button onClick={handle_next} disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {step === 3 ? '시작하기' : '다음'}
                 {step < 3 && <ArrowRight className="ml-2 h-4 w-4" />}

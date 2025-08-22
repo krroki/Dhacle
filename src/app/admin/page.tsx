@@ -2,7 +2,7 @@ import { Activity, Award, BookOpen, DollarSign, TrendingUp, Users } from 'lucide
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server-client';
 
-async function getStats(): Promise<{
+async function get_stats(): Promise<{
   totalCourses: number;
   totalUsers: number;
   totalPurchases: number;
@@ -12,10 +12,10 @@ async function getStats(): Promise<{
 
   // 통계 데이터 조회
   const [
-    { count: totalCourses },
-    { count: totalUsers },
-    { count: totalPurchases },
-    { data: revenueData },
+    { count: total_courses },
+    { count: total_users },
+    { count: total_purchases },
+    { data: revenue_data },
   ] = await Promise.all([
     supabase.from('courses').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
@@ -30,21 +30,21 @@ async function getStats(): Promise<{
     final_amount?: number;
   }
 
-  const totalRevenue =
-    revenueData?.reduce((sum: number, p: RevenueItem) => sum + (p.final_amount || 0), 0) || 0;
+  const total_revenue =
+    revenue_data?.reduce((sum: number, p: RevenueItem) => sum + (p.final_amount || 0), 0) || 0;
 
   return {
-    totalCourses: totalCourses || 0,
-    totalUsers: totalUsers || 0,
-    totalPurchases: totalPurchases || 0,
-    totalRevenue,
+    totalCourses: total_courses || 0,
+    totalUsers: total_users || 0,
+    totalPurchases: total_purchases || 0,
+    totalRevenue: total_revenue,
   };
 }
 
 export default async function AdminDashboard(): Promise<React.JSX.Element> {
-  const stats = await getStats();
+  const stats = await get_stats();
 
-  const statCards = [
+  const stat_cards = [
     {
       title: '전체 강의',
       value: stats.totalCourses,
@@ -84,7 +84,7 @@ export default async function AdminDashboard(): Promise<React.JSX.Element> {
 
       {/* 통계 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((stat) => {
+        {stat_cards.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.title}>

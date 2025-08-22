@@ -16,21 +16,21 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 이미 username이 있는지 확인
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profile_error } = await supabase
       .from('profiles')
       .select('username')
       .eq('id', user.id)
       .single();
 
-    if (profileError && profileError.code !== 'PGRST116') {
+    if (profile_error && profile_error.code !== 'PGRST116') {
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
 
@@ -47,9 +47,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 중복되지 않는 username 생성 (최대 10회 시도)
     let username = '';
     let attempts = 0;
-    const maxAttempts = 10;
+    const max_attempts = 10;
 
-    while (attempts < maxAttempts) {
+    while (attempts < max_attempts) {
       username = generateRandomUsername();
 
       // 중복 체크
@@ -67,7 +67,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       attempts++;
     }
 
-    if (attempts >= maxAttempts) {
+    if (attempts >= max_attempts) {
       return NextResponse.json({ error: 'Failed to generate unique username' }, { status: 500 });
     }
 

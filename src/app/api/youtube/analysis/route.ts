@@ -40,9 +40,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Check authentication
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -54,23 +54,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Analysis type is required' }, { status: 400 });
     }
 
-    const startTime = Date.now();
+    const start_time = Date.now();
 
     // Fetch videos and stats
-    let videosQuery = supabase.from('videos').select('*');
+    let videos_query = supabase.from('videos').select('*');
 
     if (videoIds.length > 0) {
-      videosQuery = videosQuery.in('video_id', videoIds);
+      videos_query = videos_query.in('video_id', videoIds);
     } else {
       // Default to recent videos
-      const windowStart = new Date();
-      windowStart.setDate(windowStart.getDate() - timeWindowDays);
-      videosQuery = videosQuery.gte('published_at', windowStart.toISOString());
+      const window_start = new Date();
+      window_start.setDate(window_start.getDate() - timeWindowDays);
+      videos_query = videos_query.gte('published_at', window_start.toISOString());
     }
 
-    const { data: videos, error: videosError } = await videosQuery.limit(100);
+    const { data: videos, error: videos_error } = await videos_query.limit(100);
 
-    if (videosError) {
+    if (videos_error) {
       return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
     }
 
@@ -79,29 +79,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch stats for videos
-    const fetchedVideoIds = videos.map((v: Video) => v.video_id);
-    const { data: stats, error: statsError } = await supabase
+    const fetched_video_ids = videos.map((v: Video) => v.video_id);
+    const { data: stats, error: stats_error } = await supabase
       .from('videoStats')
       .select('*')
-      .in('video_id', fetchedVideoIds)
+      .in('video_id', fetched_video_ids)
       .order('snapshotAt', { ascending: false });
 
-    if (statsError) {
+    if (stats_error) {
       return NextResponse.json({ error: 'Failed to fetch video statistics' }, { status: 500 });
     }
 
     // Group stats by video
-    const statsByVideo = new Map<string, VideoStats[]>();
+    const stats_by_video = new Map<string, VideoStats[]>();
     stats?.forEach((stat: VideoStats) => {
-      const videoStats = statsByVideo.get(stat.video_id) || [];
-      videoStats.push(stat);
-      statsByVideo.set(stat.video_id, videoStats);
+      const video_stats = stats_by_video.get(stat.video_id) || [];
+      video_stats.push(stat);
+      stats_by_video.set(stat.video_id, video_stats);
     });
 
     // Add stats to videos
-    const videosWithStats = videos.map((video: Video) => ({
+    const videos_with_stats = videos.map((video: Video) => ({
       ...video,
-      stats: statsByVideo.get(video.video_id) || [],
+      stats: stats_by_video.get(video.video_id) || [],
     }));
 
     let result: Record<string, unknown> = {};
@@ -109,13 +109,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     switch (type) {
       case 'outlier': {
         // Outlier detection
-        const outlierResults = await detectOutliers(videosWithStats, config);
-        const outlierReport = generateOutlierReport(outlierResults);
+        const outlier_results = await detectOutliers(videos_with_stats, config);
+        const outlier_report = generateOutlierReport(outlier_results);
 
         result = {
           type: 'outlier',
-          results: outlierResults,
-          report: outlierReport,
+          results: outlier_results,
+          report: outlier_report,
           config: config,
         };
         break;
@@ -123,29 +123,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       case 'nlp': {
         // NLP Entity extraction
-        const entityExtractions = await Promise.all(
+        const entity_extractions = await Promise.all(
           videos.map((video: Video) => extractEntities(video))
         );
 
         const trends = await analyzeTrends(videos, timeWindowDays);
-        const nlpReport = generateNLPReport(entityExtractions, trends);
+        const nlp_report = generateNLPReport(entity_extractions, trends);
 
         result = {
           type: 'nlp',
-          entities: entityExtractions,
+          entities: entity_extractions,
           trends: trends,
-          report: nlpReport,
+          report: nlp_report,
         };
         break;
       }
 
       case 'trend': {
         // Trend analysis
-        const trendReport = generateTrendReport(videosWithStats, timeWindowDays);
+        const trend_report = generateTrendReport(videos_with_stats, timeWindowDays);
 
         result = {
           type: 'trend',
-          report: trendReport,
+          report: trend_report,
           timeWindowDays: timeWindowDays,
         };
         break;
@@ -154,55 +154,57 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case 'prediction': {
         // Performance prediction
         const predictions = await batchPredict(
-          videosWithStats.map((v) => ({
+          videos_with_stats.map((v) => ({
             video: v,
             stats: v.stats || [],
           })),
           30 // 30 days horizon
         );
 
-        const predictionReport = generatePredictionReport(predictions);
+        const prediction_report = generatePredictionReport(predictions);
 
         result = {
           type: 'prediction',
           predictions: predictions,
-          report: predictionReport,
+          report: prediction_report,
         };
         break;
       }
 
       case 'batch': {
         // Batch analysis (all types)
-        const [batchOutliers, batchEntities, batchTrends, batchPredictions] = await Promise.all([
-          detectOutliers(videosWithStats, config),
-          Promise.all(videos.map((v: Video) => extractEntities(v))),
-          analyzeTrends(videos, timeWindowDays),
-          batchPredict(
-            videosWithStats.map((v) => ({
-              video: v,
-              stats: v.stats || [],
-            })),
-            30
-          ),
-        ]);
+        const [batch_outliers, batch_entities, batch_trends, batch_predictions] = await Promise.all(
+          [
+            detectOutliers(videos_with_stats, config),
+            Promise.all(videos.map((v: Video) => extractEntities(v))),
+            analyzeTrends(videos, timeWindowDays),
+            batchPredict(
+              videos_with_stats.map((v) => ({
+                video: v,
+                stats: v.stats || [],
+              })),
+              30
+            ),
+          ]
+        );
 
-        const batchResult: BatchAnalysisResult = {
-          outliers: batchOutliers.map(mapOutlierDetectionResult).filter((o) => o.isOutlier),
-          trends: batchTrends,
-          predictions: batchPredictions,
-          processingTimeMs: Date.now() - startTime,
+        const batch_result: BatchAnalysisResult = {
+          outliers: batch_outliers.map(mapOutlierDetectionResult).filter((o) => o.isOutlier),
+          trends: batch_trends,
+          predictions: batch_predictions,
+          processingTimeMs: Date.now() - start_time,
           totalVideosAnalyzed: videos.length,
           timestamp: new Date().toISOString(),
         };
 
         result = {
           type: 'batch',
-          result: batchResult,
+          result: batch_result,
           reports: {
-            outlier: generateOutlierReport(batchOutliers),
-            nlp: generateNLPReport(batchEntities, batchTrends),
-            trend: generateTrendReport(videosWithStats, timeWindowDays),
-            prediction: generatePredictionReport(batchPredictions),
+            outlier: generateOutlierReport(batch_outliers),
+            nlp: generateNLPReport(batch_entities, batch_trends),
+            trend: generateTrendReport(videos_with_stats, timeWindowDays),
+            prediction: generatePredictionReport(batch_predictions),
           },
         };
         break;
@@ -217,7 +219,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       user_id: user.id,
       analysisType: type,
       video_count: videos.length,
-      processingTimeMs: Date.now() - startTime,
+      processingTimeMs: Date.now() - start_time,
       config: config,
       created_at: new Date().toISOString(),
     });
@@ -225,7 +227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       ...result,
-      processingTimeMs: Date.now() - startTime,
+      processingTimeMs: Date.now() - start_time,
       timestamp: new Date().toISOString(),
     });
   } catch (_error) {
@@ -248,9 +250,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Check authentication
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -264,7 +266,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     switch (type) {
       case 'summary': {
         // Get analysis summary
-        const { data: recentAnalytics } = await supabase
+        const { data: recent_analytics } = await supabase
           .from('analyticsLogs')
           .select('*')
           .eq('user_id', user.id)
@@ -273,10 +275,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         result = {
           type: 'summary',
-          recentAnalyses: recentAnalytics,
+          recentAnalyses: recent_analytics,
           usageStats: {
-            totalAnalyses: recentAnalytics?.length || 0,
-            analysisTypes: recentAnalytics?.reduce((acc: Record<string, number>, log) => {
+            totalAnalyses: recent_analytics?.length || 0,
+            analysisTypes: recent_analytics?.reduce((acc: Record<string, number>, log) => {
               acc[log.analysisType] = (acc[log.analysisType] || 0) + 1;
               return acc;
             }, {}),
@@ -287,15 +289,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       case 'outliers': {
         // Get recent outliers
-        const { data: outlierVideos } = await supabase
+        const { data: outlier_videos } = await supabase
           .from('videos')
           .select('*, videoStats(*)')
           .order('created_at', { ascending: false })
           .limit(limit);
 
-        if (outlierVideos) {
+        if (outlier_videos) {
           const outliers = await detectOutliers(
-            outlierVideos.map((v) => ({
+            outlier_videos.map((v) => ({
               ...v,
               stats: v.videoStats,
             }))

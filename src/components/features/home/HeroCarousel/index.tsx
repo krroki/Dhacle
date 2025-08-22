@@ -16,35 +16,35 @@ const AUTOPLAY_DELAY = 4000; // 4초
 const PROGRESS_INTERVAL = 50; // 50ms마다 업데이트
 
 export function HeroCarousel() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
-  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [api, set_api] = useState<CarouselApi>();
+  const [current, set_current] = useState(0);
+  const [count, set_count] = useState(0);
+  const [is_autoplay_paused, set_is_autoplay_paused] = useState(false);
+  const [selected_index, set_selected_index] = useState(0);
 
-  const progressInterval = useRef<NodeJS.Timeout | null>(null);
-  const autoplayTimeout = useRef<NodeJS.Timeout | null>(null);
+  const progress_interval = useRef<NodeJS.Timeout | null>(null);
+  const autoplay_timeout = useRef<NodeJS.Timeout | null>(null);
+  const progress_bar_ref = useRef<HTMLDivElement>(null);
 
   // 이미지 프리로드 최적화 (viewport에 가까운 슬라이드만)
   useEffect(() => {
-    const preloadNearbyImages = () => {
-      const currentIndex = api?.selectedScrollSnap() ?? 0;
-      const itemsToPreload = [
-        carouselItems[currentIndex - 1],
-        carouselItems[currentIndex],
-        carouselItems[currentIndex + 1],
-      ].filter((item): item is typeof carouselItems[0] => Boolean(item));
+    const preload_nearby_images = () => {
+      const current_index = api?.selectedScrollSnap() ?? 0;
+      const items_to_preload = [
+        carouselItems[current_index - 1],
+        carouselItems[current_index],
+        carouselItems[current_index + 1],
+      ].filter((item): item is (typeof carouselItems)[0] => Boolean(item));
 
-      preloadImages(itemsToPreload);
+      preloadImages(items_to_preload);
     };
 
     if (api) {
-      api.on('select', preloadNearbyImages);
-      preloadNearbyImages();
+      api.on('select', preload_nearby_images);
+      preload_nearby_images();
 
       return () => {
-        api.off('select', preloadNearbyImages);
+        api.off('select', preload_nearby_images);
       };
     }
     // API가 없을 때 처음 3개만 프리로드
@@ -58,24 +58,27 @@ export function HeroCarousel() {
       return;
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap());
+    set_count(api.scrollSnapList().length);
+    set_current(api.selectedScrollSnap());
 
-    const onSelect = () => {
-      setCurrent(api.selectedScrollSnap());
-      setSelectedIndex(api.selectedScrollSnap());
-      setProgress(0); // 슬라이드 변경 시 프로그레스 리셋
+    const on_select = () => {
+      set_current(api.selectedScrollSnap());
+      set_selected_index(api.selectedScrollSnap());
+      // 슬라이드 변경 시 프로그레스 리셋
+      if (progress_bar_ref.current) {
+        progress_bar_ref.current.style.setProperty('--progress-width', '0%');
+      }
     };
 
-    api.on('select', onSelect);
+    api.on('select', on_select);
 
     return () => {
-      api.off('select', onSelect);
+      api.off('select', on_select);
     };
   }, [api]);
 
   // 다음 슬라이드로 이동
-  const goToNext = useCallback(() => {
+  const go_to_next = useCallback(() => {
     if (!api) {
       return;
     }
@@ -83,7 +86,7 @@ export function HeroCarousel() {
   }, [api]);
 
   // 이전 슬라이드로 이동
-  const goToPrev = useCallback(() => {
+  const go_to_prev = useCallback(() => {
     if (!api) {
       return;
     }
@@ -92,57 +95,61 @@ export function HeroCarousel() {
 
   // 자동재생 및 프로그레스바 관리
   useEffect(() => {
-    if (!api || isAutoplayPaused) {
+    if (!api || is_autoplay_paused) {
       // 일시정지 시 타이머 정리
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-        progressInterval.current = null;
+      if (progress_interval.current) {
+        clearInterval(progress_interval.current);
+        progress_interval.current = null;
       }
-      if (autoplayTimeout.current) {
-        clearTimeout(autoplayTimeout.current);
-        autoplayTimeout.current = null;
+      if (autoplay_timeout.current) {
+        clearTimeout(autoplay_timeout.current);
+        autoplay_timeout.current = null;
       }
       return;
     }
 
     // 프로그레스바 업데이트
-    let localProgress = 0;
-    progressInterval.current = setInterval(() => {
-      localProgress += (100 * PROGRESS_INTERVAL) / AUTOPLAY_DELAY;
+    let local_progress = 0;
+    progress_interval.current = setInterval(() => {
+      local_progress += (100 * PROGRESS_INTERVAL) / AUTOPLAY_DELAY;
 
-      if (localProgress >= 100) {
+      if (local_progress >= 100) {
         // 100% 도달 시 다음 슬라이드로
-        goToNext();
-        localProgress = 0;
+        go_to_next();
+        local_progress = 0;
       }
 
-      setProgress(localProgress);
+      // Set CSS variable for progress width
+      if (progress_bar_ref.current) {
+        progress_bar_ref.current.style.setProperty('--progress-width', `${local_progress}%`);
+        progress_bar_ref.current.style.setProperty('--progress-duration', `${PROGRESS_INTERVAL}ms`);
+      }
     }, PROGRESS_INTERVAL);
 
     // 클린업
     return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-        progressInterval.current = null;
+      if (progress_interval.current) {
+        clearInterval(progress_interval.current);
+        progress_interval.current = null;
       }
-      if (autoplayTimeout.current) {
-        clearTimeout(autoplayTimeout.current);
-        autoplayTimeout.current = null;
+      if (autoplay_timeout.current) {
+        clearTimeout(autoplay_timeout.current);
+        autoplay_timeout.current = null;
       }
     };
-  }, [api, isAutoplayPaused, goToNext]);
+  }, [api, is_autoplay_paused, go_to_next]);
 
   // 마우스 호버 시 자동재생 일시정지
-  const handleMouseEnter = useCallback(() => {
-    setIsAutoplayPaused(true);
+  const handle_mouse_enter = useCallback(() => {
+    set_is_autoplay_paused(true);
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
-    setIsAutoplayPaused(false);
+  const handle_mouse_leave = useCallback(() => {
+    set_is_autoplay_paused(false);
   }, []);
 
   // 키보드 네비게이션
-  const handleKeyDown = useCallback(
+  const handle_key_down = useCallback(
     (e: React.KeyboardEvent) => {
       if (!api) {
         return;
@@ -150,52 +157,52 @@ export function HeroCarousel() {
 
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        goToPrev();
+        go_to_prev();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        goToNext();
+        go_to_next();
       } else if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         // 스페이스바나 엔터로 자동재생 토글
-        setIsAutoplayPaused((prev) => !prev);
+        set_is_autoplay_paused((prev) => !prev);
       }
     },
-    [api, goToNext, goToPrev]
+    [api, go_to_next, go_to_prev]
   );
 
   // 모션 설정 체크 (접근성)
-  const prefersReducedMotion =
+  const prefers_reduced_motion =
     typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false;
 
   // 자동재생이 비활성화되어야 하는 경우
-  const shouldDisableAutoplay = prefersReducedMotion;
+  const should_disable_autoplay = prefers_reduced_motion;
 
   return (
     <section
       className="relative w-full overflow-hidden"
       aria-label="메인 프로모션 캐러셀"
       aria-roledescription="carousel"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handle_mouse_enter}
+      onMouseLeave={handle_mouse_leave}
     >
       <Carousel
-        setApi={setApi}
+        setApi={set_api}
         className="w-full"
         opts={{
           align: 'center',
           loop: true,
           containScroll: false,
-          duration: prefersReducedMotion ? 0 : 30,
+          duration: prefers_reduced_motion ? 0 : 30,
         }}
-        onKeyDown={handleKeyDown}
+        onKeyDown={handle_key_down}
       >
         <CarouselContent className="-ml-0">
           {carouselItems.map((slide, index) => (
             <CarouselItem
               key={slide.id}
-              className={cn('embla_Slide pl-0', selectedIndex === index && 'is-selected')}
+              className={cn('embla_Slide pl-0', selected_index === index && 'is-selected')}
               aria-label={`슬라이드 ${index + 1} / ${carouselItems.length}: ${slide.alt}`}
               aria-current={current === index ? 'true' : 'false'}
             >
@@ -208,7 +215,7 @@ export function HeroCarousel() {
 
         {/* 커스텀 네비게이션 버튼 - 항상 표시, 무한 루프 */}
         <button
-          onClick={goToPrev}
+          onClick={go_to_prev}
           className="absolute left-4 sm:left-8 lg:left-[5%] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
           aria-label="이전 슬라이드"
         >
@@ -228,7 +235,7 @@ export function HeroCarousel() {
         </button>
 
         <button
-          onClick={goToNext}
+          onClick={go_to_next}
           className="absolute right-4 sm:right-8 lg:right-[5%] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white transition-all duration-300 flex items-center justify-center z-10"
           aria-label="다음 슬라이드"
         >
@@ -249,14 +256,10 @@ export function HeroCarousel() {
       </Carousel>
 
       {/* 프로그레스바 */}
-      {!shouldDisableAutoplay && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+      {!should_disable_autoplay && (
+        <div ref={progress_bar_ref} className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
           <div
-            className="h-full bg-white transition-all ease-linear"
-            style={{
-              width: `${progress}%`,
-              transitionDuration: `${PROGRESS_INTERVAL}ms`,
-            }}
+            className="h-full bg-white transition-all ease-linear w-[var(--progress-width,0%)] duration-[var(--progress-duration,50ms)]"
             aria-hidden="true"
           />
         </div>
@@ -277,7 +280,9 @@ export function HeroCarousel() {
             )}
             onClick={() => {
               api?.scrollTo(index);
-              setProgress(0);
+              if (progress_bar_ref.current) {
+                progress_bar_ref.current.style.setProperty('--progress-width', '0%');
+              }
             }}
             role="tab"
             aria-selected={current === index}
@@ -289,7 +294,7 @@ export function HeroCarousel() {
 
       {/* 자동재생 상태 표시 (스크린리더용) */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {isAutoplayPaused ? '자동 재생 일시정지됨' : '자동 재생 중'}
+        {is_autoplay_paused ? '자동 재생 일시정지됨' : '자동 재생 중'}
       </div>
 
       {/* 키보드 단축키 안내 (스크린리더용) */}

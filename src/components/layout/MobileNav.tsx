@@ -11,7 +11,7 @@ interface MobileNavItem {
   href: string;
 }
 
-const mobileNavItems: MobileNavItem[] = [
+const mobile_nav_items: MobileNavItem[] = [
   { icon: Home, label: '홈', href: '/' },
   { icon: BookOpen, label: '무료 강의', href: '/courses/free' },
   { icon: Wrench, label: '도구', href: '/tools' },
@@ -24,7 +24,7 @@ export function MobileNav() {
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-[1000] safe-area-bottom">
       <div className="grid grid-cols-4 h-[var(--mobile-nav-height)]">
-        {mobileNavItems.map((item) => {
+        {mobile_nav_items.map((item) => {
           const Icon = item.icon;
           const is_active =
             pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));

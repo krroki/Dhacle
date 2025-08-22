@@ -13,10 +13,10 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
-    const authSupabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-    } = await authSupabase.auth.getUser();
+    } = await auth_supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -35,17 +35,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // 기간별 날짜 계산
     const now = new Date();
-    let startDate: Date;
+    let start_date: Date;
 
     switch (period) {
       case 'daily':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        start_date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
       case 'weekly':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        start_date = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       default:
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        start_date = new Date(now.getFullYear(), now.getMonth(), 1);
         break;
     }
 
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .from('revenue_proofs')
       .select('user_id, amount, platform')
       .eq('is_hidden', false)
-      .gte('created_at', startDate.toISOString());
+      .gte('created_at', start_date.toISOString());
 
     if (error) {
       return NextResponse.json(
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       platform: string;
     }
 
-    const userRevenues = (proofs || []).reduce(
+    const user_revenues = (proofs || []).reduce(
       (
         acc: Record<
           string,
@@ -98,11 +98,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           };
         }
 
-        const userStats = acc[proof.user_id];
-        if (userStats) {
-          userStats.total_amount += proof.amount;
-          userStats.proof_count += 1;
-          userStats.platforms.add(proof.platform);
+        const user_stats = acc[proof.user_id];
+        if (user_stats) {
+          user_stats.total_amount += proof.amount;
+          user_stats.proof_count += 1;
+          user_stats.platforms.add(proof.platform);
         }
 
         return acc;
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
 
     // 사용자 정보 조회 및 정렬
-    const userIds = Object.keys(userRevenues);
+    const user_ids = Object.keys(user_revenues);
 
     // TODO: avatar_url 필드 추가 후 주석 해제
     // const { data: profiles } = await supabase
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, username')
-      .in('id', userIds);
+      .in('id', user_ids);
 
     interface ProfileData {
       id: string;
@@ -139,8 +139,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       avatar_url?: string;
     }
 
-    const profileMap = (profiles || []).reduce(
-      (acc: Record<string, ProfileData>, profile: { id: string | null; username: string | null }) => {
+    const profile_map = (profiles || []).reduce(
+      (
+        acc: Record<string, ProfileData>,
+        profile: { id: string | null; username: string | null }
+      ) => {
         if (!profile.id) return acc;
         acc[profile.id] = {
           id: profile.id,
@@ -153,20 +156,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
 
     // 배열로 변환하고 정렬
-    const userRevenueValues = Object.values(userRevenues) as Array<{
+    const user_revenue_values = Object.values(user_revenues) as Array<{
       user_id: string;
       total_amount: number;
       proof_count: number;
       platforms: Set<string>;
     }>;
 
-    const rankings = userRevenueValues
+    const rankings = user_revenue_values
       .map((item) => ({
         user_id: item.user_id,
         total_amount: item.total_amount,
         proof_count: item.proof_count,
-        username: profileMap[item.user_id]?.username || 'Anonymous',
-        avatar_url: profileMap[item.user_id]?.avatar_url || null,
+        username: profile_map[item.user_id]?.username || 'Anonymous',
+        avatar_url: profile_map[item.user_id]?.avatar_url || null,
         platforms: Array.from(item.platforms),
         rank: 0, // 정렬 후 순위 부여
       }))
@@ -183,18 +186,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const {
       data: { user: _authUser2 },
     } = await supabase.auth.getUser();
-    let myRank = null;
+    let my_rank = null;
 
     if (user) {
-      const myData = userRevenueValues.find((item) => item.user_id === user.id);
+      const my_data = user_revenue_values.find((item) => item.user_id === user.id);
 
-      if (myData) {
-        const allRankings = userRevenueValues.sort((a, b) => b.total_amount - a.total_amount);
+      if (my_data) {
+        const all_rankings = user_revenue_values.sort((a, b) => b.total_amount - a.total_amount);
 
-        myRank = {
-          rank: allRankings.findIndex((item) => item.user_id === user.id) + 1,
-          total_amount: myData.total_amount,
-          proof_count: myData.proof_count,
+        my_rank = {
+          rank: all_rankings.findIndex((item) => item.user_id === user.id) + 1,
+          total_amount: my_data.total_amount,
+          proof_count: my_data.proof_count,
         };
       }
     }
@@ -202,7 +205,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       rankings: rankings, // 프론트엔드에서 기대하는 형식
       period,
-      myRank,
+      myRank: my_rank,
       cached: false,
     });
   } catch (_error: unknown) {

@@ -32,46 +32,46 @@ interface ApiKeyData {
 
 export default function ApiKeysPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: auth_loading } = useAuth();
 
-  const [api_key, setApiKey] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [validating, setValidating] = useState(false);
-  const [currentKey, setCurrentKey] = useState<ApiKeyData | null>(null);
-  const [fetchingKey, setFetchingKey] = useState(true);
+  const [api_key, set_api_key] = useState('');
+  const [show_api_key, set_show_api_key] = useState(false);
+  const [loading, set_loading] = useState(false);
+  const [validating, set_validating] = useState(false);
+  const [current_key, set_current_key] = useState<ApiKeyData | null>(null);
+  const [fetching_key, set_fetching_key] = useState(true);
 
-  const fetchCurrentKey = useCallback(async () => {
+  const fetch_current_key = useCallback(async () => {
     try {
-      setFetchingKey(true);
+      set_fetching_key(true);
       const data = await apiGet<{ success: boolean; data?: ApiKeyData }>(
         '/api/user/api-keys?service=youtube'
       );
 
       if (data.success && data.data) {
-        setCurrentKey(data.data);
+        set_current_key(data.data);
       }
     } catch (_error) {
     } finally {
-      setFetchingKey(false);
+      set_fetching_key(false);
     }
   }, []);
 
   // 현재 API Key 조회
   useEffect(() => {
     if (user) {
-      fetchCurrentKey();
+      fetch_current_key();
     }
-  }, [user, fetchCurrentKey]);
+  }, [user, fetch_current_key]);
 
   // API Key 유효성 검증
-  const handleValidate = async () => {
+  const handle_validate = async () => {
     if (!api_key) {
       toast.error('API Key를 입력해주세요');
       return;
     }
 
-    setValidating(true);
+    set_validating(true);
     try {
       const data = await apiPost<{ success: boolean; error?: string }>(
         '/api/youtube/validate-key',
@@ -88,19 +88,19 @@ export default function ApiKeysPage() {
       toast.error('검증 중 오류가 발생했습니다');
       return false;
     } finally {
-      setValidating(false);
+      set_validating(false);
     }
   };
 
   // API Key 저장
-  const handleSave = async () => {
-    setLoading(true);
+  const handle_save = async () => {
+    set_loading(true);
 
     try {
       // 먼저 유효성 검증
-      const isValid = await handleValidate();
-      if (!isValid) {
-        setLoading(false);
+      const is_valid = await handle_validate();
+      if (!is_valid) {
+        set_loading(false);
         return;
       }
 
@@ -112,14 +112,14 @@ export default function ApiKeysPage() {
 
       if (data.success) {
         toast.success('API Key가 저장되었습니다');
-        setApiKey('');
-        await fetchCurrentKey();
+        set_api_key('');
+        await fetch_current_key();
 
         // YouTube Lens로 이동할지 확인
-        const shouldRedirect = confirm(
+        const should_redirect = confirm(
           'API Key가 저장되었습니다. YouTube Lens로 이동하시겠습니까?'
         );
-        if (shouldRedirect) {
+        if (should_redirect) {
           router.push('/tools/youtube-lens');
         }
       } else {
@@ -128,12 +128,12 @@ export default function ApiKeysPage() {
     } catch (_error) {
       toast.error('저장 중 오류가 발생했습니다');
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   };
 
   // API Key 삭제
-  const handleDelete = async () => {
+  const handle_delete = async () => {
     if (!confirm('정말로 API Key를 삭제하시겠습니까?')) {
       return;
     }
@@ -145,7 +145,7 @@ export default function ApiKeysPage() {
 
       if (data.success) {
         toast.success('API Key가 삭제되었습니다');
-        setCurrentKey(null);
+        set_current_key(null);
       } else {
         toast.error(data.error || '삭제 실패');
       }
@@ -156,12 +156,12 @@ export default function ApiKeysPage() {
 
   // 인증 체크
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!auth_loading && !user) {
       router.push('/auth/login?redirect=/settings/api-keys');
     }
-  }, [user, authLoading, router]);
+  }, [user, auth_loading, router]);
 
-  if (authLoading || fetchingKey) {
+  if (auth_loading || fetching_key) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -195,13 +195,13 @@ export default function ApiKeysPage() {
 
         <TabsContent value="youtube" className="space-y-4">
           {/* 현재 API Key 상태 */}
-          {currentKey && (
+          {current_key && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>현재 등록된 API Key</CardTitle>
-                  <Badge variant={currentKey.isValid ? 'default' : 'destructive'}>
-                    {currentKey.isValid ? '정상' : '오류'}
+                  <Badge variant={current_key.isValid ? 'default' : 'destructive'}>
+                    {current_key.isValid ? '정상' : '오류'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -209,30 +209,30 @@ export default function ApiKeysPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">마스킹된 Key</Label>
-                    <p className="font-mono text-sm">{currentKey.api_key_masked}</p>
+                    <p className="font-mono text-sm">{current_key.api_key_masked}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">등록일</Label>
                     <p className="text-sm">
-                      {new Date(currentKey.created_at).toLocaleDateString('ko-KR')}
+                      {new Date(current_key.created_at).toLocaleDateString('ko-KR')}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">오늘 사용량</Label>
-                    <p className="text-sm">{currentKey.usageToday} / 10,000 units</p>
+                    <p className="text-sm">{current_key.usageToday} / 10,000 units</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">총 사용 횟수</Label>
-                    <p className="text-sm">{currentKey.usageCount}회</p>
+                    <p className="text-sm">{current_key.usageCount}회</p>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => fetchCurrentKey()}>
+                  <Button variant="outline" size="sm" onClick={() => fetch_current_key()}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     새로고침
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={handleDelete}>
+                  <Button variant="destructive" size="sm" onClick={handle_delete}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     삭제
                   </Button>
@@ -244,7 +244,7 @@ export default function ApiKeysPage() {
           {/* API Key 등록 폼 */}
           <Card>
             <CardHeader>
-              <CardTitle>{currentKey ? 'API Key 변경' : '새 API Key 등록'}</CardTitle>
+              <CardTitle>{current_key ? 'API Key 변경' : '새 API Key 등록'}</CardTitle>
               <CardDescription>
                 YouTube Data API v3 Key를 등록하여 개인 할당량을 사용하세요
               </CardDescription>
@@ -271,10 +271,10 @@ export default function ApiKeysPage() {
                   <div className="relative flex-1">
                     <Input
                       id="apiKey"
-                      type={showApiKey ? 'text' : 'password'}
+                      type={show_api_key ? 'text' : 'password'}
                       placeholder="AIzaSy..."
                       value={api_key}
-                      onChange={(e) => setApiKey(e.target.value)}
+                      onChange={(e) => set_api_key(e.target.value)}
                       className="pr-10"
                     />
                     <Button
@@ -282,14 +282,14 @@ export default function ApiKeysPage() {
                       variant="ghost"
                       size="icon"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowApiKey(!showApiKey)}
+                      onClick={() => set_show_api_key(!show_api_key)}
                     >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {show_api_key ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                   <Button
                     variant="outline"
-                    onClick={handleValidate}
+                    onClick={handle_validate}
                     disabled={!api_key || validating}
                   >
                     {validating ? (
@@ -312,7 +312,7 @@ export default function ApiKeysPage() {
 
               {/* 저장 버튼 */}
               <div className="flex gap-2">
-                <Button onClick={handleSave} disabled={!api_key || loading}>
+                <Button onClick={handle_save} disabled={!api_key || loading}>
                   {loading ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -321,7 +321,7 @@ export default function ApiKeysPage() {
                   ) : (
                     <>
                       <Key className="mr-2 h-4 w-4" />
-                      {currentKey ? 'API Key 업데이트' : 'API Key 저장'}
+                      {current_key ? 'API Key 업데이트' : 'API Key 저장'}
                     </>
                   )}
                 </Button>

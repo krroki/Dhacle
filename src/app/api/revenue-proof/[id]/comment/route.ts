@@ -11,13 +11,16 @@ import { z } from 'zod';
 import { commentSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 댓글 목록 조회
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     // 세션 검사
-    const authSupabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-    } = await authSupabase.auth.getUser();
+    } = await auth_supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -27,7 +30,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: proofId } = await params;
+    const { id: proof_id } = await params;
 
     // 댓글 조회
     const { data: comments, error } = await supabase
@@ -40,7 +43,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
           avatar_url
         )
       `)
-      .eq('proof_id', proofId)
+      .eq('proof_id', proof_id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -60,10 +63,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 // POST: 댓글 작성
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: proofId } = await params;
+    const { id: proof_id } = await params;
 
     // 인증 확인
     const {
@@ -74,13 +80,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 인증이 존재하는지 확인
-    const { data: proof, error: proofError } = await supabase
+    const { data: proof, error: proof_error } = await supabase
       .from('revenue_proofs')
       .select('id, is_hidden, comments_count')
-      .eq('id', proofId)
+      .eq('id', proof_id)
       .single();
 
-    if (proofError || !proof) {
+    if (proof_error || !proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
@@ -93,15 +99,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const body = await request.json();
 
     // 입력값 검증
-    const validatedData = commentSchema.parse(body);
+    const validated_data = commentSchema.parse(body);
 
     // 댓글 작성
-    const { data: newComment, error: insertError } = await supabase
+    const { data: new_comment, error: insert_error } = await supabase
       .from('proof_comments')
       .insert({
-        proof_id: proofId,
+        proof_id: proof_id,
         user_id: user.id,
-        content: validatedData.content,
+        content: validated_data.content,
       })
       .select(`
         *,
@@ -113,7 +119,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       `)
       .single();
 
-    if (insertError) {
+    if (insert_error) {
       return NextResponse.json({ error: '댓글 작성 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -123,11 +129,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .update({
         comments_count: (proof.comments_count || 0) + 1,
       })
-      .eq('id', proofId);
+      .eq('id', proof_id);
 
     return NextResponse.json(
       {
-        data: newComment,
+        data: new_comment,
         message: '댓글이 작성되었습니다',
       },
       { status: 201 }
@@ -168,13 +174,13 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     // 댓글 조회
-    const { data: comment, error: fetchError } = await supabase
+    const { data: comment, error: fetch_error } = await supabase
       .from('proof_comments')
       .select('user_id, proof_id')
       .eq('id', comment_id)
       .single();
 
-    if (fetchError || !comment) {
+    if (fetch_error || !comment) {
       return NextResponse.json({ error: '댓글을 찾을 수 없습니다' }, { status: 404 });
     }
 
@@ -184,12 +190,12 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     // 댓글 삭제
-    const { error: deleteError } = await supabase
+    const { error: delete_error } = await supabase
       .from('proof_comments')
       .delete()
       .eq('id', comment_id);
 
-    if (deleteError) {
+    if (delete_error) {
       return NextResponse.json({ error: '댓글 삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 

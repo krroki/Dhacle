@@ -44,15 +44,15 @@ export function PurchaseCard({
   firstLessonId,
 }: PurchaseCardProps) {
   const router = useRouter();
-  const [couponCode, setCouponCode] = useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [discount, setDiscount] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
+  const [coupon_code, set_coupon_code] = useState('');
+  const [is_applying_coupon, set_is_applying_coupon] = useState(false);
+  const [discount, set_discount] = useState(0);
+  const [is_processing, set_is_processing] = useState(false);
+  const [applied_coupon, set_applied_coupon] = useState<{ code: string; discount: number } | null>(
     null
   );
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [orderData, setOrderData] = useState<{
+  const [show_payment_modal, set_show_payment_modal] = useState(false);
+  const [order_data, set_order_data] = useState<{
     orderId: string;
     amount: number;
     orderName: string;
@@ -60,31 +60,31 @@ export function PurchaseCard({
     customerEmail: string;
     purchaseId: string;
   } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, set_error] = useState<string | null>(null);
 
-  const formatPrice = (price: number): string => {
+  const format_price = (price: number): string => {
     if (price === 0) {
       return '무료';
     }
     return `₩${price.toLocaleString()}`;
   };
 
-  const finalPrice = course.discount_price || course.price;
-  const discountedPrice = finalPrice - discount;
+  const final_price = course.discount_price || course.price;
+  const discounted_price = final_price - discount;
 
-  const handlePurchase = async (): Promise<void> => {
+  const handle_purchase = async (): Promise<void> => {
     if (course.is_free || is_enrolled || is_purchased) {
       // 무료 강의나 이미 구매한 경우 바로 학습 페이지로
       // firstLessonId가 있으면 첫 번째 레슨으로, 없으면 강의 ID만으로 이동
-      const learnUrl = firstLessonId
+      const learn_url = firstLessonId
         ? `/learn/${course.id}/${firstLessonId}`
         : `/learn/${course.id}/1`; // 기본값으로 레슨 1
-      router.push(learnUrl);
+      router.push(learn_url);
       return;
     }
 
-    setIsProcessing(true);
-    setError(null);
+    set_is_processing(true);
+    set_error(null);
 
     try {
       // 1. 주문 정보 생성
@@ -97,17 +97,17 @@ export function PurchaseCard({
         purchaseId: string;
       }>('/api/payment/create-intent', {
         course_id: course.id,
-        couponCode: appliedCoupon?.code || '',
+        couponCode: applied_coupon?.code || '',
       });
 
       // 2. 주문 데이터 저장하고 결제 수단 선택 모달 열기
-      setOrderData(data);
-      setShowPaymentModal(true);
-      setError(null);
+      set_order_data(data);
+      set_show_payment_modal(true);
+      set_error(null);
     } catch (error) {
       const error_message =
         error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.';
-      setError(error_message);
+      set_error(error_message);
 
       // 로그인 필요 시 로그인 페이지로 리다이렉트
       if (error_message.includes('로그인이 필요')) {
@@ -116,18 +116,18 @@ export function PurchaseCard({
         }, 2000);
       }
     } finally {
-      setIsProcessing(false);
+      set_is_processing(false);
     }
   };
 
-  const handlePaymentSuccess = () => {
-    setShowPaymentModal(false);
-    setError(null);
+  const handle_payment_success = () => {
+    set_show_payment_modal(false);
+    set_error(null);
     // 결제 성공 시 처리는 TossPayments가 successUrl로 리다이렉트 처리
   };
 
-  const handlePaymentError = (err: Error) => {
-    setShowPaymentModal(false);
+  const handle_payment_error = (err: Error) => {
+    set_show_payment_modal(false);
 
     // 사용자가 취소한 경우는 에러 메시지를 표시하지 않음
     if (err.message.includes('사용자가 결제를 취소')) {
@@ -136,39 +136,39 @@ export function PurchaseCard({
 
     // 네트워크 에러 처리
     if (err.message.includes('네트워크') || err.message.includes('Network')) {
-      setError('네트워크 연결을 확인해주세요. 잠시 후 다시 시도해주세요.');
+      set_error('네트워크 연결을 확인해주세요. 잠시 후 다시 시도해주세요.');
     } else {
-      setError(err.message || '결제 처리 중 오류가 발생했습니다.');
+      set_error(err.message || '결제 처리 중 오류가 발생했습니다.');
     }
   };
 
-  const applyCoupon = async (): Promise<void> => {
-    if (!couponCode) {
+  const apply_coupon = async (): Promise<void> => {
+    if (!coupon_code) {
       return;
     }
 
-    setIsApplyingCoupon(true);
+    set_is_applying_coupon(true);
     try {
       const data = await apiPost<{
         discount: { discountAmount: number };
         coupon: { code: string; discount: number };
       }>('/api/coupons/validate', {
-        couponCode,
+        couponCode: coupon_code,
         course_id: course.id,
       });
 
-      setDiscount(data.discount.discountAmount);
-      setAppliedCoupon(data.coupon);
+      set_discount(data.discount.discountAmount);
+      set_applied_coupon(data.coupon);
     } catch (error) {
       const error_message =
         error instanceof Error ? error.message : '쿠폰 적용 중 오류가 발생했습니다.';
       alert(error_message);
     } finally {
-      setIsApplyingCoupon(false);
+      set_is_applying_coupon(false);
     }
   };
 
-  const getButtonText = () => {
+  const get_button_text = () => {
     if (is_purchased || is_enrolled) {
       return '학습하기';
     }
@@ -188,17 +188,17 @@ export function PurchaseCard({
               {course.discount_price && course.discount_price < course.price ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <span className="text-3xl font-bold">{formatPrice(discountedPrice)}</span>
+                    <span className="text-3xl font-bold">{format_price(discounted_price)}</span>
                     <Badge variant="destructive">
                       {Math.round((1 - course.discount_price / course.price) * 100)}% 할인
                     </Badge>
                   </div>
                   <span className="text-muted-foreground line-through">
-                    {formatPrice(course.price)}
+                    {format_price(course.price)}
                   </span>
                 </>
               ) : (
-                <div className="text-3xl font-bold">{formatPrice(discountedPrice)}</div>
+                <div className="text-3xl font-bold">{format_price(discounted_price)}</div>
               )}
             </div>
 
@@ -207,11 +207,11 @@ export function PurchaseCard({
               <div className="flex gap-2">
                 <Input
                   placeholder="쿠폰 코드 입력"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
+                  value={coupon_code}
+                  onChange={(e) => set_coupon_code(e.target.value)}
                   className="flex-1"
                 />
-                <Button variant="outline" onClick={applyCoupon} disabled={isApplyingCoupon}>
+                <Button variant="outline" onClick={apply_coupon} disabled={is_applying_coupon}>
                   <Tag className="w-4 h-4" />
                 </Button>
               </div>
@@ -229,15 +229,15 @@ export function PurchaseCard({
             )}
 
             {/* 구매/학습 버튼 */}
-            <Button size="lg" className="w-full" onClick={handlePurchase} disabled={isProcessing}>
-              {isProcessing ? (
+            <Button size="lg" className="w-full" onClick={handle_purchase} disabled={is_processing}>
+              {is_processing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   처리중...
                 </>
               ) : (
                 <>
-                  {getButtonText()}
+                  {get_button_text()}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </>
               )}
@@ -302,21 +302,21 @@ export function PurchaseCard({
       </Card>
 
       {/* 결제 수단 선택 모달 */}
-      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+      <Dialog open={show_payment_modal} onOpenChange={set_show_payment_modal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>결제하기</DialogTitle>
             <DialogDescription>원하시는 결제 수단을 선택하여 진행해주세요</DialogDescription>
           </DialogHeader>
-          {orderData && (
+          {order_data && (
             <PaymentMethodSelector
-              orderId={orderData.orderId}
-              amount={orderData.amount}
-              orderName={orderData.orderName}
-              customerName={orderData.customerName}
-              customerEmail={orderData.customerEmail}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
+              orderId={order_data.orderId}
+              amount={order_data.amount}
+              orderName={order_data.orderName}
+              customerName={order_data.customerName}
+              customerEmail={order_data.customerEmail}
+              onSuccess={handle_payment_success}
+              onError={handle_payment_error}
             />
           )}
         </DialogContent>

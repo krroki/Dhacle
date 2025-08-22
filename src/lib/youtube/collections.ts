@@ -151,7 +151,7 @@ export class CollectionManager {
       }
 
       // 최대 position 값 조회
-      const { data: maxPositionItem } = await this.supabase
+      const { data: max_position_item } = await this.supabase
         .from('collectionItems')
         .select('position')
         .eq('collection_id', collection_id)
@@ -159,7 +159,7 @@ export class CollectionManager {
         .limit(1)
         .single();
 
-      const nextPosition = maxPositionItem ? maxPositionItem.position + 1 : 0;
+      const next_position = max_position_item ? max_position_item.position + 1 : 0;
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await this.supabase
@@ -169,7 +169,7 @@ export class CollectionManager {
           video_id: video_id,
           notes: notes || null,
           tags: tags || null,
-          position: nextPosition,
+          position: next_position,
           addedBy: user.id,
         })
         .select()
@@ -303,8 +303,8 @@ export class CollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: existingCollection } = await this.getCollection(collection_id);
-      if (!existingCollection) {
+      const { data: existing_collection } = await this.getCollection(collection_id);
+      if (!existing_collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
 
@@ -332,7 +332,9 @@ export class CollectionManager {
   /**
    * 컬렉션 삭제 (소프트 삭제)
    */
-  async deleteCollection(collection_id: string): Promise<{ success: boolean; error: Error | null }> {
+  async deleteCollection(
+    collection_id: string
+  ): Promise<{ success: boolean; error: Error | null }> {
     try {
       const {
         data: { user },
@@ -389,7 +391,7 @@ export class CollectionManager {
       }
 
       // 각 아이템의 position 업데이트
-      const updatePromises = items.map((item) =>
+      const update_promises = items.map((item) =>
         this.supabase
           .from('collectionItems')
           .update({ position: item.position })
@@ -397,10 +399,10 @@ export class CollectionManager {
           .eq('video_id', item.video_id)
       );
 
-      const results = await Promise.all(updatePromises);
-      const hasError = results.some((result) => result.error);
+      const results = await Promise.all(update_promises);
+      const has_error = results.some((result) => result.error);
 
-      if (hasError) {
+      if (has_error) {
         return { success: false, error: new Error('Failed to reorder some items') };
       }
 

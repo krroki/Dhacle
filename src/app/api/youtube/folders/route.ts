@@ -45,7 +45,7 @@ export async function GET(): Promise<NextResponse> {
     }
 
     // Calculate channel count for each folder
-    const foldersWithCount = (folders || []).map((folder) => ({
+    const folders_with_count = (folders || []).map((folder) => ({
       ...folder,
       channelCount: folder.folderChannels?.length || 0,
       folderChannels: undefined, // Remove raw relation data
@@ -53,7 +53,7 @@ export async function GET(): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      folders: foldersWithCount,
+      folders: folders_with_count,
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -86,14 +86,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check for duplicate folder name
-    const { data: existingFolder } = await supabase
+    const { data: existing_folder } = await supabase
       .from('sourceFolders')
       .select('id')
       .eq('user_id', user.id)
       .eq('folderName', name.trim())
       .single();
 
-    if (existingFolder) {
+    if (existing_folder) {
       return NextResponse.json(
         { error: 'A folder with this name already exists' },
         { status: 400 }
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Create new folder
-    const { data: newFolder, error } = await supabase
+    const { data: new_folder, error } = await supabase
       .from('sourceFolders')
       .insert({
         user_id: user.id,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: true,
-        folder: newFolder,
+        folder: new_folder,
       },
       { status: 201 }
     );
@@ -157,25 +157,25 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if folder exists and belongs to user
-    const { data: existingFolder } = await supabase
+    const { data: existing_folder } = await supabase
       .from('sourceFolders')
       .select('id')
       .eq('id', id)
       .eq('user_id', user.id)
       .single();
 
-    if (!existingFolder) {
+    if (!existing_folder) {
       return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
     // Prepare update data
-    const updateData: Record<string, unknown> = {
+    const update_data: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
     if (name !== undefined && name.trim() !== '') {
       // Check for duplicate name if changing
-      const { data: duplicateFolder } = await supabase
+      const { data: duplicate_folder } = await supabase
         .from('sourceFolders')
         .select('id')
         .eq('user_id', user.id)
@@ -183,31 +183,31 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         .neq('id', id)
         .single();
 
-      if (duplicateFolder) {
+      if (duplicate_folder) {
         return NextResponse.json(
           { error: 'A folder with this name already exists' },
           { status: 400 }
         );
       }
-      updateData.folderName = name.trim();
+      update_data.folderName = name.trim();
     }
 
     if (description !== undefined) {
-      updateData.description = description?.trim() || null;
+      update_data.description = description?.trim() || null;
     }
 
     if (color !== undefined) {
-      updateData.color = color;
+      update_data.color = color;
     }
 
     if (icon !== undefined) {
-      updateData.icon = icon;
+      update_data.icon = icon;
     }
 
     // Update folder
-    const { data: updatedFolder, error } = await supabase
+    const { data: updated_folder, error } = await supabase
       .from('sourceFolders')
-      .update(updateData)
+      .update(update_data)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
@@ -219,7 +219,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      folder: updatedFolder,
+      folder: updated_folder,
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -243,33 +243,33 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const folderId = searchParams.get('id');
+    const search_params = request.nextUrl.searchParams;
+    const folder_id = search_params.get('id');
 
     // Validate folder ID
-    if (!folderId) {
+    if (!folder_id) {
       return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
     }
 
     // Check if folder exists and belongs to user
-    const { data: existingFolder } = await supabase
+    const { data: existing_folder } = await supabase
       .from('sourceFolders')
       .select('id')
-      .eq('id', folderId)
+      .eq('id', folder_id)
       .eq('user_id', user.id)
       .single();
 
-    if (!existingFolder) {
+    if (!existing_folder) {
       return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
     // Delete channel associations first (due to foreign key constraint)
-    const { error: channelError } = await supabase
+    const { error: channel_error } = await supabase
       .from('folderChannels')
       .delete()
-      .eq('folder_id', folderId);
+      .eq('folder_id', folder_id);
 
-    if (channelError) {
+    if (channel_error) {
       return NextResponse.json({ error: 'Failed to delete folder channels' }, { status: 500 });
     }
 
@@ -277,7 +277,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const { error } = await supabase
       .from('sourceFolders')
       .delete()
-      .eq('id', folderId)
+      .eq('id', folder_id)
       .eq('user_id', user.id);
 
     if (error) {

@@ -19,10 +19,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -72,18 +72,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .eq('date', today)
       .single();
 
-    const currentUsage = usage?.unitsUsed || 0;
-    const quotaCost = YouTubeAPIClient.calculateQuotaCost('search', 1);
+    const current_usage = usage?.unitsUsed || 0;
+    const quota_cost = YouTubeAPIClient.calculateQuotaCost('search', 1);
 
     // 할당량 초과 체크
-    if (currentUsage + quotaCost > 10000) {
+    if (current_usage + quota_cost > 10000) {
       return NextResponse.json(
         {
           error: 'API quota exceeded. Please try again tomorrow.',
           quota: {
-            used: currentUsage,
+            used: current_usage,
             limit: 10000,
-            required: quotaCost,
+            required: quota_cost,
           },
         },
         { status: 429 }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // YouTube API 클라이언트 생성 (API Key 사용)
-    const apiClient = new YouTubeAPIClient({
+    const api_client = new YouTubeAPIClient({
       api_key: api_key,
       onQuotaUpdate: async (_units) => {
         // 할당량 업데이트는 검색 완료 후 처리
@@ -99,16 +99,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     // YouTube 검색 실행
-    const searchResult = await apiClient.search(filters);
+    const search_result = await api_client.search(filters);
 
     // 할당량 업데이트
     if (usage) {
       await supabase
         .from('apiUsage')
         .update({
-          unitsUsed: currentUsage + quotaCost,
+          unitsUsed: current_usage + quota_cost,
           searchCount: (usage.searchCount || 0) + 1,
-          video_count: (usage.video_count || 0) + searchResult.items.length,
+          video_count: (usage.video_count || 0) + search_result.items.length,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
@@ -118,9 +118,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       await supabase.from('apiUsage').insert({
         user_id: user.id,
         date: today,
-        unitsUsed: quotaCost,
+        unitsUsed: quota_cost,
         searchCount: 1,
-        video_count: searchResult.items.length,
+        video_count: search_result.items.length,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
@@ -131,22 +131,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       user_id: user.id,
       query: filters.query,
       filters: filters,
-      resultCount: searchResult.items.length,
+      resultCount: search_result.items.length,
       created_at: new Date().toISOString(),
     });
 
     // 응답 반환
     return NextResponse.json({
       success: true,
-      data: searchResult,
+      data: search_result,
       quota: {
-        used: currentUsage + quotaCost,
+        used: current_usage + quota_cost,
         limit: 10000,
-        remaining: 10000 - (currentUsage + quotaCost),
-        cost: quotaCost,
+        remaining: 10000 - (current_usage + quota_cost),
+        cost: quota_cost,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     // YouTube API 에러 처리
     if (error instanceof Error) {
       // API 할당량 초과

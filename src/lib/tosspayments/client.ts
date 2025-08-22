@@ -1,23 +1,23 @@
 import { loadTossPayments, type TossPaymentsInstance } from '@tosspayments/payment-sdk';
 
 // 토스페이먼츠 클라이언트 키
-const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+const toss_client_key = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
-if (!tossClientKey) {
+if (!toss_client_key) {
 }
 
 // 토스페이먼츠 Promise (싱글톤)
-let tossPaymentsPromise: Promise<TossPaymentsInstance | null> | null = null;
+let toss_payments_promise: Promise<TossPaymentsInstance | null> | null = null;
 
 /**
  * 토스페이먼츠 클라이언트 인스턴스를 가져옵니다.
  * 싱글톤 패턴으로 한 번만 초기화됩니다.
  */
 export const getTossPayments = () => {
-  if (!tossPaymentsPromise && tossClientKey) {
-    tossPaymentsPromise = loadTossPayments(tossClientKey);
+  if (!toss_payments_promise && toss_client_key) {
+    toss_payments_promise = loadTossPayments(toss_client_key);
   }
-  return tossPaymentsPromise;
+  return toss_payments_promise;
 };
 
 // 통화 포맷터 (기존 코드 재사용)
@@ -71,7 +71,7 @@ export interface TossPaymentOptions {
 
 // 토스페이먼츠 에러 메시지 한글화
 export const getTossErrorMessage = (code: string): string => {
-  const errorMessages: Record<string, string> = {
+  const error_messages: Record<string, string> = {
     // 공통 에러
     INVALID_CARD_COMPANY: '유효하지 않은 카드입니다.',
     INVALID_CARD_NUMBER: '카드 번호가 올바르지 않습니다.',
@@ -104,20 +104,20 @@ export const getTossErrorMessage = (code: string): string => {
     UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
   };
 
-  return errorMessages[code] || '결제 처리 중 오류가 발생했습니다.';
+  return error_messages[code] || '결제 처리 중 오류가 발생했습니다.';
 };
 
 // 결제 요청 헬퍼 함수
 export const requestPayment = async (method: PaymentMethod, options: TossPaymentOptions) => {
-  const tossPayments = await getTossPayments();
+  const toss_payments = await getTossPayments();
 
-  if (!tossPayments) {
+  if (!toss_payments) {
     throw new Error('토스페이먼츠 초기화에 실패했습니다.');
   }
 
   try {
     // 결제창 호출
-    await tossPayments.requestPayment(method, {
+    await toss_payments.requestPayment(method, {
       amount: options.amount,
       orderId: options.orderId,
       orderName: options.orderName,
@@ -148,14 +148,14 @@ export const requestPayment = async (method: PaymentMethod, options: TossPayment
 
 // 결제 위젯 헬퍼 함수 (더 간단한 UI를 원할 경우)
 export const createPaymentWidget = async (_elementId: string) => {
-  const tossPayments = await getTossPayments();
+  const toss_payments = await getTossPayments();
 
-  if (!tossPayments) {
+  if (!toss_payments) {
     throw new Error('토스페이먼츠 초기화에 실패했습니다.');
   }
 
   // 결제 위젯 렌더링
-  const widget = tossPayments.widgets({
+  const widget = toss_payments.widgets({
     customerKey: 'ANONYMOUS', // 비회원 결제의 경우
   });
 

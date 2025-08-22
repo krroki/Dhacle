@@ -18,7 +18,7 @@ const connection = new Redis({
 });
 
 // YouTube API 클라이언트 생성
-function createYouTubeClient(api_key: string): youtube_v3.Youtube {
+function create_you_tube_client(api_key: string): youtube_v3.Youtube {
   return google.youtube({
     version: 'v3',
     auth: api_key,
@@ -32,24 +32,24 @@ export class YouTubeBatchProcessor {
 
   constructor(private api_key?: string) {
     if (api_key) {
-      this.youtube = createYouTubeClient(api_key);
+      this.youtube = create_you_tube_client(api_key);
     }
   }
 
   // 워커 시작
-  startWorker(jobType: JobType): Worker {
-    if (this.workers.has(jobType)) {
-      return this.workers.get(jobType)!;
+  startWorker(job_type: JobType): Worker {
+    if (this.workers.has(job_type)) {
+      return this.workers.get(job_type)!;
     }
 
     const worker = new Worker(
-      `youtube-${jobType}`,
+      `youtube-${job_type}`,
       async (job: Job<YouTubeJobData>) => {
         return this.processJob(job);
       },
       {
         connection,
-        concurrency: this.getConcurrency(jobType),
+        concurrency: this.getConcurrency(job_type),
         limiter: {
           max: 10,
           duration: 1000, // 초당 최대 10개 처리
@@ -59,19 +59,19 @@ export class YouTubeBatchProcessor {
 
     // 워커 이벤트 리스너
     worker.on('completed', (job) => {
-      console.log(`Worker completed job ${job.id} of type ${jobType}`);
+      console.log(`Worker completed job ${job.id} of type ${job_type}`);
     });
 
     worker.on('failed', (_job, _err) => {});
 
-    this.workers.set(jobType, worker);
+    this.workers.set(job_type, worker);
     return worker;
   }
 
   // 모든 워커 시작
   startAllWorkers(): void {
-    for (const jobType of Object.values(JobType)) {
-      this.startWorker(jobType as JobType);
+    for (const job_type of Object.values(JobType)) {
+      this.startWorker(job_type as JobType);
     }
     console.log('All YouTube batch processors started');
   }
@@ -86,20 +86,20 @@ export class YouTubeBatchProcessor {
       throw new Error('YouTube API key not found');
     }
 
-    const youtube = this.youtube || createYouTubeClient(api_key);
+    const youtube = this.youtube || create_you_tube_client(api_key);
 
     // 캐시 확인
-    const cacheKey = cacheManager.generateKey(type, params);
-    const cached = await cacheManager.get(cacheKey);
+    const cache_key = cacheManager.generateKey(type, params);
+    const cached = await cacheManager.get(cache_key);
     if (cached) {
       console.log(`Cache hit for job ${job.id}`);
       return cached;
     }
 
     // 쿼터 확인 및 사용
-    const quotaCost = this.getQuotaCost(type);
-    const hasQuota = await quotaManager.checkQuota(quotaCost);
-    if (!hasQuota) {
+    const quota_cost = this.getQuotaCost(type);
+    const has_quota = await quotaManager.checkQuota(quota_cost);
+    if (!has_quota) {
       throw new Error('Daily quota exceeded');
     }
     // 진행 상황 업데이트
@@ -128,10 +128,10 @@ export class YouTubeBatchProcessor {
     }
 
     // 쿼터 사용 기록
-    await quotaManager.useQuota(quotaCost);
+    await quotaManager.useQuota(quota_cost);
 
     // 결과 캐싱
-    await cacheManager.set(cacheKey, result, this.getCacheTTL(type));
+    await cacheManager.set(cache_key, result, this.getCacheTTL(type));
 
     // 진행 상황 완료
     await job.updateProgress(100);
@@ -144,7 +144,7 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$SearchListResponse> {
-    const searchParams: youtube_v3.Params$Resource$Search$List = {
+    const search_params: youtube_v3.Params$Resource$Search$List = {
       part: ['snippet'],
       q: (params.query as string) || ' ',
       type: (params.type as string[]) || ['video'],
@@ -155,7 +155,7 @@ export class YouTubeBatchProcessor {
       publishedAfter: params.publishedAfter as string | undefined,
       publishedBefore: params.publishedBefore as string | undefined,
     };
-    const response = await youtube.search.list(searchParams);
+    const response = await youtube.search.list(search_params);
 
     return response.data;
   }
@@ -165,18 +165,18 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<{ items: youtube_v3.Schema$Video[] }> {
-    const videoIds = Array.isArray(params.id) ? params.id : [params.id];
+    const video_ids = Array.isArray(params.id) ? params.id : [params.id];
 
     // 배치로 처리 (최대 50개)
-    const chunks = this.chunkArray(videoIds, 50);
+    const chunks = this.chunkArray(video_ids, 50);
     const results = [];
 
     for (const chunk of chunks) {
-      const videoParams: youtube_v3.Params$Resource$Videos$List = {
+      const video_params: youtube_v3.Params$Resource$Videos$List = {
         part: ['snippet', 'statistics', 'contentDetails'],
         id: chunk,
       };
-      const response = await youtube.videos.list(videoParams);
+      const response = await youtube.videos.list(video_params);
       results.push(...(response.data.items || []));
     }
 
@@ -188,17 +188,17 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<{ items: youtube_v3.Schema$Channel[] }> {
-    const channelIds = Array.isArray(params.id) ? params.id : [params.id];
+    const channel_ids = Array.isArray(params.id) ? params.id : [params.id];
 
-    const chunks = this.chunkArray(channelIds, 50);
+    const chunks = this.chunkArray(channel_ids, 50);
     const results = [];
 
     for (const chunk of chunks) {
-      const channelParams: youtube_v3.Params$Resource$Channels$List = {
+      const channel_params: youtube_v3.Params$Resource$Channels$List = {
         part: ['snippet', 'statistics', 'contentDetails'],
         id: chunk,
       };
-      const response = await youtube.channels.list(channelParams);
+      const response = await youtube.channels.list(channel_params);
       results.push(...(response.data.items || []));
     }
 
@@ -210,13 +210,13 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$PlaylistItemListResponse> {
-    const playlistParams: youtube_v3.Params$Resource$Playlistitems$List = {
+    const playlist_params: youtube_v3.Params$Resource$Playlistitems$List = {
       part: ['snippet', 'contentDetails'],
       playlistId: params.playlist_id as string,
       maxResults: (params.maxResults as number) || 50,
       pageToken: params.pageToken as string | undefined,
     };
-    const response = await youtube.playlistItems.list(playlistParams);
+    const response = await youtube.playlistItems.list(playlist_params);
 
     return response.data;
   }
@@ -226,13 +226,13 @@ export class YouTubeBatchProcessor {
     youtube: youtube_v3.Youtube,
     params: Record<string, unknown>
   ): Promise<youtube_v3.Schema$VideoListResponse> {
-    const videoIds = Array.isArray(params.id) ? params.id : [params.id];
+    const video_ids = Array.isArray(params.id) ? params.id : [params.id];
 
-    const statsParams: youtube_v3.Params$Resource$Videos$List = {
+    const stats_params: youtube_v3.Params$Resource$Videos$List = {
       part: ['statistics'],
-      id: videoIds,
+      id: video_ids,
     };
-    const response = await youtube.videos.list(statsParams);
+    const response = await youtube.videos.list(stats_params);
 
     return response.data;
   }
@@ -258,7 +258,7 @@ export class YouTubeBatchProcessor {
   }
 
   // 동시 처리 수 설정
-  private getConcurrency(jobType: JobType): number {
+  private getConcurrency(job_type: JobType): number {
     const concurrency: Record<JobType, number> = {
       [JobType.SEARCH]: 2,
       [JobType.VIDEO_DETAILS]: 3,
@@ -267,11 +267,11 @@ export class YouTubeBatchProcessor {
       [JobType.VIDEO_STATS]: 5,
     };
 
-    return concurrency[jobType] || 1;
+    return concurrency[job_type] || 1;
   }
 
   // 쿼터 비용 가져오기
-  private getQuotaCost(jobType: JobType): number {
+  private getQuotaCost(job_type: JobType): number {
     const costs: Record<JobType, number> = {
       [JobType.SEARCH]: 100,
       [JobType.VIDEO_DETAILS]: 1,
@@ -280,11 +280,11 @@ export class YouTubeBatchProcessor {
       [JobType.VIDEO_STATS]: 1,
     };
 
-    return costs[jobType] || 1;
+    return costs[job_type] || 1;
   }
 
   // 캐시 TTL 설정
-  private getCacheTTL(jobType: JobType): number {
+  private getCacheTTL(job_type: JobType): number {
     const ttls: Record<JobType, number> = {
       [JobType.SEARCH]: 5 * 60 * 1000, // 5분
       [JobType.VIDEO_DETAILS]: 10 * 60 * 1000, // 10분
@@ -293,7 +293,7 @@ export class YouTubeBatchProcessor {
       [JobType.VIDEO_STATS]: 5 * 60 * 1000, // 5분
     };
 
-    return ttls[jobType] || 5 * 60 * 1000;
+    return ttls[job_type] || 5 * 60 * 1000;
   }
 
   // 모든 워커 정지
@@ -308,15 +308,15 @@ export class YouTubeBatchProcessor {
 }
 
 // 싱글톤 인스턴스
-let processorInstance: YouTubeBatchProcessor | null = null;
+let processor_instance: YouTubeBatchProcessor | null = null;
 
 export function initializeBatchProcessor(api_key?: string): YouTubeBatchProcessor {
-  if (!processorInstance) {
-    processorInstance = new YouTubeBatchProcessor(api_key);
+  if (!processor_instance) {
+    processor_instance = new YouTubeBatchProcessor(api_key);
   }
-  return processorInstance;
+  return processor_instance;
 }
 
 export function getBatchProcessor(): YouTubeBatchProcessor | null {
-  return processorInstance;
+  return processor_instance;
 }

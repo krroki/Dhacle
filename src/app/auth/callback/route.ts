@@ -5,14 +5,14 @@ import { NextResponse } from 'next/server';
 import type { Database } from '@/types';
 
 export async function GET(request: NextRequest) {
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') ?? '/';
-  let isNewUser = false; // Flag to track if this is a new user
+  const request_url = new URL(request.url);
+  const code = request_url.searchParams.get('code');
+  const next = request_url.searchParams.get('next') ?? '/';
+  let is_new_user = false; // Flag to track if this is a new user
 
   // 디버깅용 로그
   console.log('[Auth Callback] Started processing', {
-    url: requestUrl.toString(),
+    url: request_url.toString(),
     hasCode: !!code,
     next,
     timestamp: new Date().toISOString(),
@@ -20,34 +20,34 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     // Get environment variables - these must be set properly
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     // Validate environment variables
-    if (!supabaseUrl || !supabaseAnonKey) {
-      const errorUrl = new URL('/auth/error', requestUrl.origin);
-      errorUrl.searchParams.set('error', 'configurationError');
-      errorUrl.searchParams.set(
+    if (!supabase_url || !supabase_anon_key) {
+      const error_url = new URL('/auth/error', request_url.origin);
+      error_url.searchParams.set('error', 'configurationError');
+      error_url.searchParams.set(
         'errorDescription',
         'Authentication service is not properly configured. Please contact support.'
       );
-      return NextResponse.redirect(errorUrl.toString());
+      return NextResponse.redirect(error_url.toString());
     }
 
     // Additional validation to prevent placeholder values
     if (
-      supabaseUrl.includes('placeholder') ||
-      supabaseUrl.includes('your-') ||
-      supabaseAnonKey.includes('placeholder') ||
-      supabaseAnonKey === 'your-anon-key-here'
+      supabase_url.includes('placeholder') ||
+      supabase_url.includes('your-') ||
+      supabase_anon_key.includes('placeholder') ||
+      supabase_anon_key === 'your-anon-key-here'
     ) {
-      const errorUrl = new URL('/auth/error', requestUrl.origin);
-      errorUrl.searchParams.set('error', 'configurationError');
-      errorUrl.searchParams.set(
+      const error_url = new URL('/auth/error', request_url.origin);
+      error_url.searchParams.set('error', 'configurationError');
+      error_url.searchParams.set(
         'errorDescription',
         'Authentication service configuration is invalid. Please contact support.'
       );
-      return NextResponse.redirect(errorUrl.toString());
+      return NextResponse.redirect(error_url.toString());
     }
 
     // Create a Supabase client with the cookie-based storage
@@ -55,8 +55,8 @@ export async function GET(request: NextRequest) {
 
     try {
       console.log('[Auth Callback] Attempting to exchange code for session', {
-        supabaseUrl: `${supabaseUrl.substring(0, 30)}...`,
-        hasAnonKey: !!supabaseAnonKey,
+        supabaseUrl: `${supabase_url.substring(0, 30)}...`,
+        hasAnonKey: !!supabase_anon_key,
         code: `${code.substring(0, 10)}...`,
       });
 
@@ -64,13 +64,13 @@ export async function GET(request: NextRequest) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (error) {
-        const errorUrl = new URL('/auth/error', requestUrl.origin);
-        errorUrl.searchParams.set('error', error.code || 'unknownError');
-        errorUrl.searchParams.set(
+        const error_url = new URL('/auth/error', request_url.origin);
+        error_url.searchParams.set('error', error.code || 'unknownError');
+        error_url.searchParams.set(
           'errorDescription',
           error.message || 'Failed to exchange code for session'
         );
-        return NextResponse.redirect(errorUrl.toString());
+        return NextResponse.redirect(error_url.toString());
       }
 
       console.log('[Auth Callback] Session exchange successful');
@@ -88,19 +88,19 @@ export async function GET(request: NextRequest) {
 
       if (user) {
         // Check if user profile exists in public.profiles table
-        const { data: userProfile, error: profileError } = await supabase
+        const { data: user_profile, error: profile_error } = await supabase
           .from('profiles')
           .select('id') // TODO: Add randomNickname, naverCafeVerified when fields are implemented
           .eq('id', user.id)
           .single();
 
         // If profile doesn't exist, create it with random nickname
-        if (profileError?.code === 'PGRST116' || !userProfile) {
+        if (profile_error?.code === 'PGRST116' || !user_profile) {
           console.log('[Auth Callback] Creating new profile for user', user.id);
-          isNewUser = true; // Mark as new user for onboarding
+          is_new_user = true; // Mark as new user for onboarding
 
           // Call init-profile API to create profile with random nickname
-          const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
+          const init_response = await fetch(`${request_url.origin}/api/user/init-profile`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
             },
           });
 
-          if (!initResponse.ok) {
+          if (!init_response.ok) {
           } else {
             console.log('[Auth Callback] Profile initialized successfully');
           }
@@ -131,27 +131,27 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch (error) {
-      const errorUrl = new URL('/auth/error', requestUrl.origin);
-      errorUrl.searchParams.set('error', 'serverError');
+      const error_url = new URL('/auth/error', request_url.origin);
+      error_url.searchParams.set('error', 'serverError');
 
       // Provide more specific error message for fetch failures
-      let errorDescription = 'An unexpected error occurred during authentication';
+      let error_description = 'An unexpected error occurred during authentication';
       if (error instanceof Error) {
         if (error.message.includes('fetch failed')) {
-          errorDescription =
+          error_description =
             'Connection to authentication server failed. This may be due to network issues or configuration problems.';
         } else {
-          errorDescription = error.message;
+          error_description = error.message;
         }
       }
 
-      errorUrl.searchParams.set('errorDescription', errorDescription);
-      return NextResponse.redirect(errorUrl.toString());
+      error_url.searchParams.set('errorDescription', error_description);
+      return NextResponse.redirect(error_url.toString());
     }
   }
 
   // URL to redirect to after sign in process completes
   // If this is a new user, redirect to onboarding instead of the requested page
-  const redirectUrl = isNewUser ? '/onboarding' : next;
-  return NextResponse.redirect(`${requestUrl.origin}${redirectUrl}`);
+  const redirect_url = is_new_user ? '/onboarding' : next;
+  return NextResponse.redirect(`${request_url.origin}${redirect_url}`);
 }

@@ -53,14 +53,14 @@ export type CamelToSnakeCase<T> = T extends Array<infer U>
 /**
  * 문자열을 snake_case에서 camelCase로 변환
  */
-function snakeToCamelString(str: string): string {
+function snake_to_camel_string(str: string): string {
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 }
 
 /**
  * 문자열을 camelCase에서 snake_case로 변환
  */
-function camelToSnakeString(str: string): string {
+function camel_to_snake_string(str: string): string {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 }
 
@@ -82,8 +82,8 @@ export function snakeToCamelCase<T>(obj: T): SnakeToCamelCase<T> {
     const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(obj)) {
-      const camelKey = snakeToCamelString(key);
-      result[camelKey] = snakeToCamelCase(value);
+      const camel_key = snake_to_camel_string(key);
+      result[camel_key] = snakeToCamelCase(value);
     }
 
     return result as SnakeToCamelCase<T>;
@@ -110,8 +110,8 @@ export function camelToSnakeCase<T>(obj: T): CamelToSnakeCase<T> {
     const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(obj)) {
-      const snakeKey = camelToSnakeString(key);
-      result[snakeKey] = camelToSnakeCase(value);
+      const snake_key = camel_to_snake_string(key);
+      result[snake_key] = camelToSnakeCase(value);
     }
 
     return result as CamelToSnakeCase<T>;
@@ -143,22 +143,22 @@ export function partialCamelToSnake<T>(obj: Partial<T>): Partial<CamelToSnakeCas
  */
 export function safeGet<T extends Record<string, unknown>>(
   obj: T,
-  camelKey: string,
-  snakeKey?: string
+  camel_key: string,
+  snake_key?: string
 ): unknown {
   // Try camelCase first
-  if (camelKey in obj) {
-    return obj[camelKey];
+  if (camel_key in obj) {
+    return obj[camel_key];
   }
 
   // Try snake_case
-  const snake = snakeKey || camelToSnakeString(camelKey);
+  const snake = snake_key || camel_to_snake_string(camel_key);
   if (snake in obj) {
     return obj[snake];
   }
 
   // Try the reverse (in case the key is already snake_case)
-  const camel = snakeToCamelString(camelKey);
+  const camel = snake_to_camel_string(camel_key);
   if (camel in obj) {
     return obj[camel];
   }

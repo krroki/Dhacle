@@ -68,6 +68,7 @@ import { YouTubeVideo } from '@/types/youtube';        // 금지! (파일 삭제
 - [🎯 TypeScript 타입 시스템 v2.0](#-typescript-타입-시스템-v20-2025-02-01-구축)
 - [🔄 데이터 변환 레이어](#-데이터-변환-레이어)
 - [🛟️ Zod 스키마와의 관계](#️-zod-스키마와의-관계)
+- [📊 DB 스키마 vs Zod 스키마 차이점](#-db-스키마-vs-zod-스키마-차이점-2025-08-22-추가)
 
 ### 데이터 모델
 - [👤 User/Profile](#-userprofile)
@@ -178,6 +179,94 @@ const mapResponse = (dbData: DBType | FrontendType): FrontendType => ({
   thumbnail: (('thumbnail_url' in dbData ? dbData.thumbnail_url : dbData.thumbnail) ?? '/default.jpg')
 })
 ```
+
+---
+
+## 📊 DB 스키마 vs Zod 스키마 차이점 (2025-08-22 추가)
+
+### 🎯 핵심 차이점 요약
+| 구분 | DB 스키마 | Zod 스키마 |
+|------|-----------|------------|
+| **역할** | 데이터베이스 테이블 구조 정의 | 런타임 입력 검증 |
+| **위치** | Supabase/PostgreSQL | TypeScript 코드 |
+| **목적** | 데이터 저장 구조 | API 요청 검증 |
+| **언제 사용** | 테이블 생성/수정 시 | API Route에서 |
+| **타입 생성** | types:generate로 자동 생성 | 수동 작성 |
+
+### 📚 DB 스키마 (Database Schema)
+- **정의**: Supabase/PostgreSQL의 실제 테이블 구조
+- **파일**: `supabase/migrations/*.sql`
+- **특징**: 
+  - snake_case 컬럼명 사용
+  - PostgreSQL 데이터 타입 (uuid, text, jsonb, timestamptz)
+  - 관계 정의 (Foreign Key, Primary Key)
+  - RLS 정책 포함
+
+```sql
+-- DB 스키마 예시: Supabase 테이블 정의
+CREATE TABLE profiles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id),
+  username text UNIQUE,
+  avatar_url text,
+  created_at timestamptz DEFAULT now()
+);
+```
+
+### 🛡️ Zod 스키마 (Validation Schema)
+- **정의**: 런타임에서 사용자 입력을 검증하는 스키마
+- **파일**: `src/lib/security/validation-schemas.ts`
+- **특징**:
+  - camelCase 필드명 사용
+  - JavaScript 타입 + 검증 규칙
+  - 에러 메시지 커스터마이징
+  - API Route에서 사용
+
+```typescript
+// Zod 스키마 예시: API 요청 검증
+import { z } from 'zod';
+
+export const createProfileSchema = z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+  avatarUrl: z.string().url().optional(),
+  bio: z.string().max(500).optional()
+});
+
+// API Route에서 사용
+const validation = await validateRequestBody(request, createProfileSchema);
+if (!validation.success) {
+  return NextResponse.json({ error: validation.error }, { status: 400 });
+}
+```
+
+### 🔄 관계와 워크플로우
+```
+사용자 입력 (camelCase)
+     ↓
+[Zod 스키마로 검증]
+     ↓
+camelToSnakeCase() 변환
+     ↓
+DB 저장 (snake_case)
+     ↓
+DB 조회
+     ↓
+snakeToCamelCase() 변환
+     ↓
+Frontend 응답 (camelCase)
+```
+
+### 💡 언제 뭘 사용하나요?
+1. **새 테이블 추가**: DB 스키마 (SQL) → `npm run types:generate`
+2. **API 엔드포인트 생성**: Zod 스키마 작성 → 입력 검증
+3. **Frontend 타입 필요**: `@/types`에서 import (자동 생성된 타입)
+4. **데이터 저장**: camelToSnakeCase() 변환 후 DB 저장
+5. **데이터 조회**: DB에서 조회 후 snakeToCamelCase() 변환
+
+### ⚠️ 주의사항
+- DB 스키마 변경 시 반드시 `npm run types:generate` 실행
+- Zod 스키마는 DB 스키마와 독립적 (검증 목적)
+- Frontend는 DB 스키마를 직접 참조하지 않음 (자동 생성 타입 사용)
 
 ---
 

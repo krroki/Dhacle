@@ -22,21 +22,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const regionCode = searchParams.get('region') || 'KR';
-    const period = searchParams.get('period') || '7d';
-    const limit = Number.parseInt(searchParams.get('limit') || '50', 10);
+    const search_params = request.nextUrl.searchParams;
+    const region_code = search_params.get('region') || 'KR';
+    const period = search_params.get('period') || '7d';
+    const limit = Number.parseInt(search_params.get('limit') || '50', 10);
 
     // Validate parameters
-    if (!['KR', 'US', 'JP', 'GB', 'FR', 'DE'].includes(regionCode)) {
+    if (!['KR', 'US', 'JP', 'GB', 'FR', 'DE'].includes(region_code)) {
       return NextResponse.json({ error: 'Invalid region code' }, { status: 400 });
     }
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if user has API key
-    const { data: apiKeyData } = await supabase
+    const { data: api_key_data } = await supabase
       .from('user_api_keys')
       .select('id')
       .eq('user_id', user.id)
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .eq('is_active', true)
       .single();
 
-    if (!apiKeyData) {
+    if (!api_key_data) {
       // Return 400 for missing API key, not 401
       // 401 should only be for authentication issues
       return NextResponse.json(
@@ -72,20 +72,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch popular shorts (already includes metrics)
-    const videosWithMetrics = await getPopularShortsWithoutKeyword({
-      regionCode,
+    const videos_with_metrics = await getPopularShortsWithoutKeyword({
+      regionCode: region_code,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: limit,
       user_id: user.id,
     });
 
     // Sort by viral score (using mapVideoStats to handle snake_case)
-    videosWithMetrics.sort((a, b) => {
-      const statsA = a.stats ? mapVideoStats(a.stats) : null;
-      const statsB = b.stats ? mapVideoStats(b.stats) : null;
-      const scoreA = statsA?.viralScore || 0;
-      const scoreB = statsB?.viralScore || 0;
-      return scoreB - scoreA;
+    videos_with_metrics.sort((a, b) => {
+      const stats_a = a.stats ? mapVideoStats(a.stats) : null;
+      const stats_b = b.stats ? mapVideoStats(b.stats) : null;
+      const score_a = stats_a?.viralScore || 0;
+      const score_b = stats_b?.viralScore || 0;
+      return score_b - score_a;
     });
 
     // Save search history (optional) - commented out for now
@@ -101,17 +101,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       data: {
-        videos: videosWithMetrics.slice(0, limit),
+        videos: videos_with_metrics.slice(0, limit),
         metadata: {
-          region: regionCode,
+          region: region_code,
           period,
-          totalFound: videosWithMetrics.length,
-          returned: Math.min(videosWithMetrics.length, limit),
+          totalFound: videos_with_metrics.length,
+          returned: Math.min(videos_with_metrics.length, limit),
           timestamp: new Date().toISOString(),
         },
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     // Check if it's a quota error
     if (error instanceof Error && error.message.includes('quota')) {
       return NextResponse.json(
@@ -144,10 +144,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } = body;
 
     // Apply custom filters
-    const filterOptions = {
+    const filter_options = {
       minViews: filters.minViews || 0,
       maxViews: filters.maxViews || Number.POSITIVE_INFINITY,
       minEngagement: filters.minEngagement || 0,
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     };
 
     // Fetch videos (already includes metrics)
-    let videosWithMetrics = await getPopularShortsWithoutKeyword({
+    let videos_with_metrics = await getPopularShortsWithoutKeyword({
       regionCode,
       period: period as '1h' | '6h' | '24h' | '7d' | '30d' | '1d',
       maxResults: maxResults * 2, // Fetch more to apply filters
@@ -180,25 +180,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     // Apply filters (using mapVideoStats to handle snake_case)
-    videosWithMetrics = videosWithMetrics.filter((video) => {
+    videos_with_metrics = videos_with_metrics.filter((video) => {
       const stats = video.stats ? mapVideoStats(video.stats) : null;
       const views = stats?.view_count || 0;
       const engagement = stats?.engagementRate || 0;
       const vph = stats?.viewsPerHour || 0;
 
-      if (views < filterOptions.minViews || views > filterOptions.maxViews) {
+      if (views < filter_options.minViews || views > filter_options.maxViews) {
         return false;
       }
 
-      if (engagement < filterOptions.minEngagement) {
+      if (engagement < filter_options.minEngagement) {
         return false;
       }
 
-      if (vph < filterOptions.minVph) {
+      if (vph < filter_options.minVph) {
         return false;
       }
 
-      if (filterOptions.excludeChannels.includes(video.channel_id)) {
+      if (filter_options.excludeChannels.includes(video.channel_id)) {
         return false;
       }
 
@@ -206,38 +206,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     // Sort by viral score (using mapVideoStats to handle snake_case)
-    videosWithMetrics.sort((a, b) => {
-      const statsA = a.stats ? mapVideoStats(a.stats) : null;
-      const statsB = b.stats ? mapVideoStats(b.stats) : null;
-      const scoreA = statsA?.viralScore || 0;
-      const scoreB = statsB?.viralScore || 0;
-      return scoreB - scoreA;
+    videos_with_metrics.sort((a, b) => {
+      const stats_a = a.stats ? mapVideoStats(a.stats) : null;
+      const stats_b = b.stats ? mapVideoStats(b.stats) : null;
+      const score_a = stats_a?.viralScore || 0;
+      const score_b = stats_b?.viralScore || 0;
+      return score_b - score_a;
     });
 
     // Limit results
-    const finalVideos = videosWithMetrics.slice(0, maxResults);
+    const final_videos = videos_with_metrics.slice(0, maxResults);
 
     // Save to collections if requested
     if (body.saveToCollection) {
-      await saveToCollection(user.id, body.collection_id, finalVideos);
+      await save_to_collection(user.id, body.collection_id, final_videos);
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        videos: finalVideos,
+        videos: final_videos,
         metadata: {
           region: regionCode,
           period,
-          filters: filterOptions,
+          filters: filter_options,
           totalBeforeFilter: maxResults * 2,
-          totalAfterFilter: videosWithMetrics.length,
-          returned: finalVideos.length,
+          totalAfterFilter: videos_with_metrics.length,
+          returned: final_videos.length,
           timestamp: new Date().toISOString(),
         },
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: 'Failed to perform advanced search',
@@ -248,25 +248,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-
 /**
  * Helper: Save videos to collection
  */
-async function saveToCollection(_userId: string, collection_id: string, videos: unknown[]) {
+async function save_to_collection(
+  _userId: string,
+  collection_id: string,
+  videos: Array<{ id: string }>
+) {
   const supabase = createRouteHandlerClient({ cookies });
 
-  const collectionItems = videos.map((video) => {
+  const collection_items = videos.map((video) => {
     if (!video || typeof video !== 'object' || !('id' in video)) {
       throw new Error('Invalid video data');
     }
-    const videoData = video as { id: string };
+    const video_data = video as { id: string };
     return {
       collection_id: collection_id,
-      video_id: videoData.id,
+      video_id: video_data.id,
       addedAt: new Date().toISOString(),
       itemData: video,
     };
   });
 
-  await supabase.from('collectionItems').insert(collectionItems);
+  await supabase.from('collectionItems').insert(collection_items);
 }

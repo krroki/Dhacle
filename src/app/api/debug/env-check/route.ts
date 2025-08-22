@@ -16,16 +16,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } = await supabase.auth.getUser();
 
   // 보안을 위해 특정 쿼리 파라미터가 있을 때만 동작
-  const searchParams = request.nextUrl.searchParams;
-  const debugKey = searchParams.get('key');
+  const search_params = request.nextUrl.searchParams;
+  const debug_key = search_params.get('key');
 
   // 이중 보안: 로그인 + 디버그 키
-  if (!user || debugKey !== 'debug-dhacle-2025') {
+  if (!user || debug_key !== 'debug-dhacle-2025') {
     return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   // 환경 변수 존재 여부 체크 (값은 노출하지 않음)
-  const envCheck = {
+  const env_check = {
     timestamp: new Date().toISOString(),
     runtime: {
       nodeEnv: process.env.NODE_ENV,
@@ -65,30 +65,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // 환경 변수 문제 진단
   const issues = [];
 
-  if (!envCheck.supabase.hasUrl) {
+  if (!env_check.supabase.hasUrl) {
     issues.push('NEXT_PUBLIC_SUPABASE_URL is missing');
   }
 
-  if (!envCheck.supabase.hasAnonKey) {
+  if (!env_check.supabase.hasAnonKey) {
     issues.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing');
   }
 
-  if (!envCheck.supabase.hasServiceRoleKey) {
+  if (!env_check.supabase.hasServiceRoleKey) {
     issues.push('SUPABASE_SERVICE_ROLE_KEY is missing');
   }
 
-  if (!envCheck.encryption.hasEncryptionKey) {
+  if (!env_check.encryption.hasEncryptionKey) {
     issues.push('ENCRYPTION_KEY is missing');
-  } else if (!envCheck.encryption.isValid64Chars) {
+  } else if (!env_check.encryption.isValid64Chars) {
     issues.push(
-      `ENCRYPTION_KEY should be 64 chars, got ${envCheck.encryption.encryptionKeyLength}`
+      `ENCRYPTION_KEY should be 64 chars, got ${env_check.encryption.encryptionKeyLength}`
     );
   }
 
   return NextResponse.json({
     success: issues.length === 0,
     issues,
-    envCheck,
+    envCheck: env_check,
     recommendation:
       issues.length > 0
         ? 'Check Vercel dashboard > Settings > Environment Variables'

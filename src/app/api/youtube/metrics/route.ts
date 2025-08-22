@@ -22,18 +22,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get('type') || 'video'; // 'video' or 'channel'
-    const id = searchParams.get('id');
-    const period = searchParams.get('period') || '7d';
+    const search_params = request.nextUrl.searchParams;
+    const type = search_params.get('type') || 'video'; // 'video' or 'channel'
+    const id = search_params.get('id');
+    const period = search_params.get('period') || '7d';
 
     if (!id) {
       return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (type === 'video') {
       // Get video metrics
-      const metrics = await getVideoMetrics(id, period);
+      const metrics = await get_video_metrics(id, period);
 
       return NextResponse.json({
         success: true,
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
     if (type === 'channel') {
       // Get channel metrics
-      const metrics = await getChannelMetrics(id, period);
+      const metrics = await get_channel_metrics(id, period);
 
       return NextResponse.json({
         success: true,
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
     return NextResponse.json({ error: 'Invalid type. Use "video" or "channel"' }, { status: 400 });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to fetch metrics',
@@ -92,10 +92,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -108,30 +108,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Calculate metrics for all videos
-    const videosWithMetrics = calculateMetrics(videos, options);
+    const videos_with_metrics = calculateMetrics(videos, options);
 
     // Group by performance tiers
-    const tiers = categorizeByPerformance(videosWithMetrics);
+    const tiers = categorize_by_performance(videos_with_metrics);
 
     // Calculate aggregate statistics
-    const aggregateStats = calculateAggregateStats(videosWithMetrics);
+    const aggregate_stats = calculate_aggregate_stats(videos_with_metrics);
 
     // Save metrics snapshot if requested
     if (body.saveSnapshot) {
-      await saveMetricsSnapshot(user.id, videosWithMetrics);
+      await save_metrics_snapshot(user.id, videos_with_metrics);
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        videos: videosWithMetrics,
+        videos: videos_with_metrics,
         tiers,
-        aggregateStats,
-        totalVideos: videosWithMetrics.length,
+        aggregateStats: aggregate_stats,
+        totalVideos: videos_with_metrics.length,
         timestamp: new Date().toISOString(),
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to calculate batch metrics',
@@ -146,25 +146,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 /**
  * Helper: Get video metrics from database
  */
-async function getVideoMetrics(video_id: string, period: string) {
+async function get_video_metrics(video_id: string, period: string) {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Calculate date range
-  const endDate = new Date();
-  const startDate = new Date();
+  const end_date = new Date();
+  const start_date = new Date();
 
   switch (period) {
     case '1d':
-      startDate.setDate(startDate.getDate() - 1);
+      start_date.setDate(start_date.getDate() - 1);
       break;
     case '7d':
-      startDate.setDate(startDate.getDate() - 7);
+      start_date.setDate(start_date.getDate() - 7);
       break;
     case '30d':
-      startDate.setDate(startDate.getDate() - 30);
+      start_date.setDate(start_date.getDate() - 30);
       break;
     default:
-      startDate.setDate(startDate.getDate() - 7);
+      start_date.setDate(start_date.getDate() - 7);
   }
 
   // Fetch video stats from database
@@ -172,8 +172,8 @@ async function getVideoMetrics(video_id: string, period: string) {
     .from('videoStats')
     .select('*')
     .eq('video_id', video_id)
-    .gte('snapshotAt', startDate.toISOString())
-    .lte('snapshotAt', endDate.toISOString())
+    .gte('snapshotAt', start_date.toISOString())
+    .lte('snapshotAt', end_date.toISOString())
     .order('snapshotAt', { ascending: true });
 
   if (error) {
@@ -192,49 +192,49 @@ async function getVideoMetrics(video_id: string, period: string) {
   }
 
   // Calculate metrics from stats
-  const latestStat = stats[stats.length - 1];
-  const firstStat = stats[0];
+  const latest_stat = stats[stats.length - 1];
+  const first_stat = stats[0];
 
   // Calculate growth rate
-  const viewGrowth = latestStat.view_count - firstStat.view_count;
-  const timeDiff =
-    new Date(latestStat.snapshotAt).getTime() - new Date(firstStat.snapshotAt).getTime();
-  const hoursDiff = timeDiff / (1000 * 60 * 60);
-  const growthRate = hoursDiff > 0 ? viewGrowth / hoursDiff : 0;
+  const view_growth = latest_stat.view_count - first_stat.view_count;
+  const time_diff =
+    new Date(latest_stat.snapshotAt).getTime() - new Date(first_stat.snapshotAt).getTime();
+  const hours_diff = time_diff / (1000 * 60 * 60);
+  const growth_rate = hours_diff > 0 ? view_growth / hours_diff : 0;
 
   // Calculate average and peak views
-  const allViews = stats.map((s) => s.view_count);
-  const averageViews = allViews.reduce((a, b) => a + b, 0) / allViews.length;
-  const peakViews = Math.max(...allViews);
+  const all_views = stats.map((s) => s.view_count);
+  const average_views = all_views.reduce((a, b) => a + b, 0) / all_views.length;
+  const peak_views = Math.max(...all_views);
 
   // Calculate VPH (Views Per Hour)
-  const vph = hoursDiff > 0 ? viewGrowth / hoursDiff : 0;
+  const vph = hours_diff > 0 ? view_growth / hours_diff : 0;
 
   // Calculate engagement rate
-  const engagementRate =
-    latestStat.view_count > 0
-      ? ((latestStat.like_count + latestStat.comment_count) / latestStat.view_count) * 100
+  const engagement_rate =
+    latest_stat.view_count > 0
+      ? ((latest_stat.like_count + latest_stat.comment_count) / latest_stat.view_count) * 100
       : 0;
 
   // Calculate viral score (custom formula)
-  const viralScore = calculateViralScore({
-    views: latestStat.view_count,
-    likes: latestStat.like_count,
-    comments: latestStat.comment_count,
+  const viral_score = calculate_viral_score({
+    views: latest_stat.view_count,
+    likes: latest_stat.like_count,
+    comments: latest_stat.comment_count,
     vph,
-    engagementRate,
+    engagementRate: engagement_rate,
   });
 
   return {
     vph,
-    engagementRate,
-    viralScore,
-    growthRate,
-    averageViews,
-    peakViews,
-    totalViews: latestStat.view_count,
-    totalLikes: latestStat.like_count,
-    totalComments: latestStat.comment_count,
+    engagementRate: engagement_rate,
+    viralScore: viral_score,
+    growthRate: growth_rate,
+    averageViews: average_views,
+    peakViews: peak_views,
+    totalViews: latest_stat.view_count,
+    totalLikes: latest_stat.like_count,
+    totalComments: latest_stat.comment_count,
     dataPoints: stats.length,
   };
 }
@@ -242,7 +242,7 @@ async function getVideoMetrics(video_id: string, period: string) {
 /**
  * Helper: Get channel metrics
  */
-async function getChannelMetrics(channel_id: string, _period: string) {
+async function get_channel_metrics(channel_id: string, _period: string) {
   const supabase = createRouteHandlerClient({ cookies });
 
   // Get channel videos with stats
@@ -282,17 +282,17 @@ async function getChannelMetrics(channel_id: string, _period: string) {
     .single();
 
   // Calculate basic metrics
-  const totalVideos = videos.length;
-  const totalViews = videos.reduce((sum, v) => {
+  const total_videos = videos.length;
+  const total_views = videos.reduce((sum, v) => {
     const stats = Array.isArray(v.videoStats) ? v.videoStats[0] : v.videoStats;
     return sum + (stats?.view_count || 0);
   }, 0);
-  const averageViews = totalVideos > 0 ? totalViews / totalVideos : 0;
+  const average_views = total_videos > 0 ? total_views / total_videos : 0;
 
   return {
-    totalVideos,
-    totalViews,
-    averageViews,
+    totalVideos: total_videos,
+    totalViews: total_views,
+    averageViews: average_views,
     totalSubscribers: channel?.subscriber_count || 0,
     engagementRate: 0, // Would need videoStats to calculate
   };
@@ -301,22 +301,22 @@ async function getChannelMetrics(channel_id: string, _period: string) {
 /**
  * Helper: Calculate viral score
  */
-function calculateViralScore(metrics: Record<string, number>): number {
+function calculate_viral_score(metrics: Record<string, number>): number {
   const { views = 0, likes = 0, comments = 0, vph = 0, engagementRate = 0 } = metrics;
 
   // Weighted formula for viral score
-  const viewScore = Math.log10(views + 1) * 20;
-  const engagementScore = engagementRate * 10;
-  const vphScore = Math.log10(vph + 1) * 15;
-  const interactionScore = Math.log10(likes + comments + 1) * 5;
+  const view_score = Math.log10(views + 1) * 20;
+  const engagement_score = engagementRate * 10;
+  const vph_score = Math.log10(vph + 1) * 15;
+  const interaction_score = Math.log10(likes + comments + 1) * 5;
 
-  return Math.min(100, viewScore + engagementScore + vphScore + interactionScore);
+  return Math.min(100, view_score + engagement_score + vph_score + interaction_score);
 }
 
 /**
  * Helper: Categorize videos by performance
  */
-function categorizeByPerformance(
+function categorize_by_performance(
   videos: Array<YouTubeVideo & { metrics?: { viralScore?: number } }>
 ) {
   const tiers = {
@@ -349,7 +349,7 @@ function categorizeByPerformance(
 /**
  * Helper: Calculate aggregate statistics
  */
-function calculateAggregateStats(
+function calculate_aggregate_stats(
   videos: Array<
     YouTubeVideo & {
       metrics?: {
@@ -371,23 +371,26 @@ function calculateAggregateStats(
     };
   }
 
-  const totalViews = videos.reduce((sum, v) => sum + Number(v.statistics?.view_count || 0), 0);
-  const totalLikes = videos.reduce((sum, v) => sum + Number(v.statistics?.like_count || 0), 0);
-  const totalComments = videos.reduce((sum, v) => sum + Number(v.statistics?.comment_count || 0), 0);
+  const total_views = videos.reduce((sum, v) => sum + Number(v.statistics?.view_count || 0), 0);
+  const total_likes = videos.reduce((sum, v) => sum + Number(v.statistics?.like_count || 0), 0);
+  const total_comments = videos.reduce(
+    (sum, v) => sum + Number(v.statistics?.comment_count || 0),
+    0
+  );
 
-  const averageViralScore =
+  const average_viral_score =
     videos.reduce((sum, v) => sum + (v.metrics?.viralScore || 0), 0) / videos.length;
-  const averageVph = videos.reduce((sum, v) => sum + (v.metrics?.vph || 0), 0) / videos.length;
-  const averageEngagement =
+  const average_vph = videos.reduce((sum, v) => sum + (v.metrics?.vph || 0), 0) / videos.length;
+  const average_engagement =
     videos.reduce((sum, v) => sum + (v.metrics?.engagementRate || 0), 0) / videos.length;
 
   return {
-    averageViralScore,
-    averageVph,
-    averageEngagement,
-    totalViews,
-    totalLikes,
-    totalComments,
+    averageViralScore: average_viral_score,
+    averageVph: average_vph,
+    averageEngagement: average_engagement,
+    totalViews: total_views,
+    totalLikes: total_likes,
+    totalComments: total_comments,
     videoCount: videos.length,
   };
 }
@@ -395,7 +398,7 @@ function calculateAggregateStats(
 /**
  * Helper: Save metrics snapshot
  */
-async function saveMetricsSnapshot(
+async function save_metrics_snapshot(
   _userId: string,
   videos: Array<
     YouTubeVideo & {

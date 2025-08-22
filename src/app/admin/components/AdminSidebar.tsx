@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-const menuItems = [
+const menu_items = [
   {
     icon: LayoutDashboard,
     label: '대시보드',
@@ -81,7 +81,7 @@ export function AdminSidebar() {
 
       <nav className="px-4 pb-6">
         <ul className="space-y-1">
-          {menuItems.map((item) => {
+          {menu_items.map((item) => {
             const Icon = item.icon;
             const is_active =
               pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));

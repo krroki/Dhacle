@@ -14,9 +14,8 @@ export function HeroSlide({ slide, index = 0 }: HeroSlideProps) {
   return (
     <Link
       href={slide.link}
-      className="relative block w-full overflow-hidden group"
+      className="relative block w-full overflow-hidden group aspect-[6/1]"
       aria-label={slide.alt}
-      style={{ aspectRatio: '6 / 1' }}
     >
       {/* 이미지/YouTube 썸네일 표시 */}
       <Image

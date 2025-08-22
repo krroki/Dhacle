@@ -29,9 +29,9 @@ interface LayoutContextType {
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
-  const layoutStore = useLayoutStore();
+  const layout_store = useLayoutStore();
 
-  return <LayoutContext.Provider value={layoutStore}>{children}</LayoutContext.Provider>;
+  return <LayoutContext.Provider value={layout_store}>{children}</LayoutContext.Provider>;
 }
 
 export const useLayout = () => {

@@ -24,16 +24,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 서비스 파라미터 (기본값: youtube)
-    const searchParams = request.nextUrl.searchParams;
-    const service_name = searchParams.get('service') || 'youtube';
+    const search_params = request.nextUrl.searchParams;
+    const service_name = search_params.get('service') || 'youtube';
 
     // API Key 조회
     const api_key = await getUserApiKey(user.id, service_name as string);
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // 민감한 정보 제거
-    const safeApiKey = {
+    const safe_api_key = {
       id: api_key.id,
       service_name: api_key.service_name,
       api_key_masked: api_key.api_key_masked,
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      data: safeApiKey,
+      data: safe_api_key,
     });
   } catch (_error) {
     return NextResponse.json(
@@ -100,10 +100,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -144,26 +144,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // API Key 저장
     console.log('[API Route] Before saveUserApiKey');
-    const savedKey = await saveUserApiKey({
+    const saved_key = await saveUserApiKey({
       user_id: user.id,
       api_key,
       service_name,
       metadata,
     });
-    console.log('[API Route] After saveUserApiKey:', { savedKeyId: savedKey?.id });
+    console.log('[API Route] After saveUserApiKey:', { savedKeyId: saved_key?.id });
 
     // 민감한 정보 제거
-    const safeApiKey = {
-      id: savedKey.id,
-      service_name: savedKey.service_name,
-      api_key_masked: savedKey.api_key_masked,
-      created_at: savedKey.created_at,
-      is_valid: savedKey.is_valid,
+    const safe_api_key = {
+      id: saved_key.id,
+      service_name: saved_key.service_name,
+      api_key_masked: saved_key.api_key_masked,
+      created_at: saved_key.created_at,
+      is_valid: saved_key.is_valid,
     };
 
     return NextResponse.json({
       success: true,
-      data: safeApiKey,
+      data: safe_api_key,
       message: 'API key saved successfully',
     });
   } catch (error) {
@@ -197,16 +197,16 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 서비스 파라미터 (기본값: youtube)
-    const searchParams = request.nextUrl.searchParams;
-    const service_name = searchParams.get('service') || 'youtube';
+    const search_params = request.nextUrl.searchParams;
+    const service_name = search_params.get('service') || 'youtube';
 
     // API Key 삭제
     const success = await deleteUserApiKey(user.id, service_name as string);

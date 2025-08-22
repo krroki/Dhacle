@@ -39,12 +39,14 @@ import { apiGet, apiPost } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type {
+  EntityExtraction,
   FlattenedYouTubeVideo,
   QuotaStatus as QuotaStatusType,
+  TrendAnalysis,
+  YouTubeLensVideoStats as VideoStats,
   YouTubeFavorite,
   YouTubeSearchFilters,
 } from '@/types';
-import type { EntityExtraction, TrendAnalysis, YouTubeLensVideoStats as VideoStats } from '@/types';
 
 // API 타입 정의
 interface ApiKeyData {
@@ -61,7 +63,7 @@ interface ApiKeyStatusResponse {
 }
 
 // API 함수들
-const fetchApiKeyStatus = async () => {
+const fetch_api_key_status = async () => {
   const data = await apiGet<ApiKeyStatusResponse>('/api/user/api-keys?service=youtube');
 
   // QuotaStatus 타입에 맞게 구성
@@ -106,7 +108,7 @@ interface SearchResponse {
   errorCode?: string;
 }
 
-const searchVideos = async (filters: YouTubeSearchFilters) => {
+const search_videos = async (filters: YouTubeSearchFilters) => {
   const result = await apiPost<SearchResponse>('/api/youtube/search', filters);
   return result;
 };
@@ -116,17 +118,15 @@ interface FavoritesResponse {
   data: YouTubeFavorite[];
 }
 
-
-const fetchFavorites = async () => {
+const fetch_favorites = async () => {
   const result = await apiGet<FavoritesResponse>('/api/youtube/favorites');
   return result;
 };
 
-
 function YouTubeLensContent() {
   const router = useRouter();
   // const _searchParams = useSearchParams(); // Currently unused
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: auth_loading } = useAuth();
 
   const {
     videos,
@@ -140,18 +140,18 @@ function YouTubeLensContent() {
     loadFavorites,
   } = useYouTubeLensStore();
 
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [active_tab, set_active_tab] = useState('dashboard');
+  const [is_searching, set_is_searching] = useState(false);
+  const [has_api_key, set_has_api_key] = useState(false);
 
   // API Key 상태 쿼리
   const {
-    data: apiKeyStatus,
-    isLoading: apiKeyLoading,
-    refetch: refetchApiKeyStatus,
+    data: api_key_status,
+    isLoading: api_key_loading,
+    refetch: refetch_api_key_status,
   } = useQuery({
     queryKey: ['youtube-api-key-status'],
-    queryFn: fetchApiKeyStatus,
+    queryFn: fetch_api_key_status,
     enabled: !!user,
     refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
   });
@@ -174,20 +174,19 @@ function YouTubeLensContent() {
       }>('/api/youtube/metrics?type=video');
       return response.data;
     },
-    enabled: !!user && !!apiKeyStatus?.hasApiKey,
+    enabled: !!user && !!api_key_status?.hasApiKey,
     refetchInterval: 5 * 60 * 1000, // 5분마다 갱신
   });
 
   // 즐겨찾기 쿼리
-  const { data: favoritesData } = useQuery({
+  const { data: favorites_data } = useQuery({
     queryKey: ['youtube-favorites'],
-    queryFn: fetchFavorites,
-    enabled: !!user && hasApiKey,
+    queryFn: fetch_favorites,
+    enabled: !!user && has_api_key,
   });
 
-
   // 검색 결과에서 할당량 업데이트
-  const updateQuotaFromSearch = useCallback(
+  const update_quota_from_search = useCallback(
     (result: {
       quota?: {
         used?: number;
@@ -216,23 +215,23 @@ function YouTubeLensContent() {
   );
 
   // 검색 실행
-  const handleSearch = useCallback(
+  const handle_search = useCallback(
     async (_query: string, filters: YouTubeSearchFilters) => {
-      if (!hasApiKey) {
+      if (!has_api_key) {
         toast.error('API Key를 먼저 등록해주세요');
         router.push('/settings/api-keys');
         return;
       }
 
-      setIsSearching(true);
+      set_is_searching(true);
       setError(null);
 
       try {
-        const result = await searchVideos(filters);
+        const result = await search_videos(filters);
 
         if (result.success) {
           setVideos(result.data.items);
-          updateQuotaFromSearch(result);
+          update_quota_from_search(result);
           toast.success(`${result.data.items.length}개의 영상을 찾았습니다`);
         } else if (result.errorCode === 'apiKeyRequired') {
           toast.error(result.error || 'API Key가 필요합니다');
@@ -247,57 +246,57 @@ function YouTubeLensContent() {
         // API Key 관련 오류 처리
         if (message.includes('API Key') || message.includes('api_key')) {
           toast.error(message);
-          const shouldRedirect = confirm(
+          const should_redirect = confirm(
             'API Key에 문제가 있습니다. 설정 페이지로 이동하시겠습니까?'
           );
-          if (shouldRedirect) {
+          if (should_redirect) {
             router.push('/settings/api-keys');
           }
         } else {
           toast.error(message);
         }
       } finally {
-        setIsSearching(false);
+        set_is_searching(false);
       }
     },
-    [hasApiKey, router, setVideos, updateQuotaFromSearch, setError]
+    [has_api_key, router, setVideos, update_quota_from_search, setError]
   );
 
   // 할당량 새로고침
-  const handleRefreshQuota = useCallback(async () => {
-    await refetchApiKeyStatus();
-  }, [refetchApiKeyStatus]);
+  const handle_refresh_quota = useCallback(async () => {
+    await refetch_api_key_status();
+  }, [refetch_api_key_status]);
 
   // 인증 체크
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!auth_loading && !user) {
       router.push('/auth/login?redirect=/tools/youtube-lens');
     }
-  }, [user, authLoading, router]);
+  }, [user, auth_loading, router]);
 
   // API Key 상태 업데이트
   useEffect(() => {
-    if (apiKeyStatus) {
-      setHasApiKey(apiKeyStatus.hasApiKey);
-      if (apiKeyStatus.quota) {
-        setQuotaStatus(apiKeyStatus.quota);
+    if (api_key_status) {
+      set_has_api_key(api_key_status.hasApiKey);
+      if (api_key_status.quota) {
+        setQuotaStatus(api_key_status.quota);
       }
     }
-  }, [apiKeyStatus, setQuotaStatus]);
+  }, [api_key_status, setQuotaStatus]);
 
   // 즐겨찾기 데이터 로드
   useEffect(() => {
-    if (favoritesData?.data) {
-      loadFavorites(favoritesData.data);
+    if (favorites_data?.data) {
+      loadFavorites(favorites_data.data);
     }
-  }, [favoritesData, loadFavorites]);
+  }, [favorites_data, loadFavorites]);
 
   // API Key 설정 페이지로 이동
-  const handleApiKeySetup = () => {
+  const handle_api_key_setup = () => {
     router.push('/settings/api-keys');
   };
 
-  if (authLoading || apiKeyLoading) {
+  if (auth_loading || api_key_loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -312,7 +311,7 @@ function YouTubeLensContent() {
     return null;
   }
 
-  const isAuthenticated = hasApiKey;
+  const is_authenticated = has_api_key;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -332,9 +331,9 @@ function YouTubeLensContent() {
           </div>
 
           <div className="flex items-center gap-2">
-            {!isAuthenticated ? (
+            {!is_authenticated ? (
               <Button
-                onClick={handleApiKeySetup}
+                onClick={handle_api_key_setup}
                 className="bg-yt-lens-primary hover:bg-yt-lens-primary-dark text-white"
               >
                 <Key className="mr-2 h-4 w-4" />
@@ -349,7 +348,7 @@ function YouTubeLensContent() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleApiKeySetup}
+                  onClick={handle_api_key_setup}
                   title="API Key 설정"
                 >
                   <Settings className="h-4 w-4" />
@@ -360,17 +359,17 @@ function YouTubeLensContent() {
         </div>
 
         {/* API 할당량 표시 */}
-        {apiKeyStatus?.quota && (
+        {api_key_status?.quota && (
           <QuotaStatus
-            quotaStatus={apiKeyStatus.quota}
-            onRefresh={handleRefreshQuota}
+            quotaStatus={api_key_status.quota}
+            onRefresh={handle_refresh_quota}
             compact={true}
             className="mb-4"
           />
         )}
 
         {/* API Key 필요 경고 */}
-        {!isAuthenticated && (
+        {!is_authenticated && (
           <Alert className="mb-4 border-yt-lens-secondary bg-yt-lens-secondary/10">
             <AlertCircle className="h-4 w-4 text-yt-lens-secondary" />
             <AlertTitle className="text-yt-lens-secondary">
@@ -385,7 +384,7 @@ function YouTubeLensContent() {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={active_tab} onValueChange={set_active_tab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-8 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
           <TabsTrigger
             value="dashboard"
@@ -479,16 +478,16 @@ function YouTubeLensContent() {
             </CardHeader>
             <CardContent>
               <SearchBar
-                onSearch={handleSearch}
-                isLoading={isSearching}
-                disabled={!isAuthenticated}
+                onSearch={handle_search}
+                isLoading={is_searching}
+                disabled={!is_authenticated}
               />
-              {!isAuthenticated && (
+              {!is_authenticated && (
                 <div className="mt-4 text-center">
                   <p className="text-sm text-muted-foreground mb-2">
                     YouTube 검색을 사용하려면 API Key 등록이 필요합니다.
                   </p>
-                  <Button variant="outline" size="sm" onClick={handleApiKeySetup}>
+                  <Button variant="outline" size="sm" onClick={handle_api_key_setup}>
                     <Key className="mr-2 h-4 w-4" />
                     API Key 등록하기
                   </Button>
@@ -498,10 +497,10 @@ function YouTubeLensContent() {
           </Card>
 
           {/* 비디오 그리드 */}
-          {(videos.length > 0 || isSearching) && (
+          {(videos.length > 0 || is_searching) && (
             <VideoGrid
               videos={videos}
-              isLoading={isSearching}
+              isLoading={is_searching}
               hasMore={false}
               onVideoSelect={(video) => {
                 // 비디오 선택 처리
@@ -555,7 +554,7 @@ function YouTubeLensContent() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setActiveTab('search');
+                          set_active_tab('search');
                           // 검색 실행
                         }}
                       >

@@ -51,7 +51,6 @@ interface DashboardSummary {
   followedChannels: DeltaData[];
 }
 
-
 export function DeltaDashboard() {
   const today = new Date().toISOString().split('T')[0];
 

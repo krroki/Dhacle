@@ -11,7 +11,7 @@ interface RevenueProofCardProps {
 }
 
 export function RevenueProofCard({ data }: RevenueProofCardProps) {
-  const formatAmount = (amount: number) => {
+  const format_amount = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', {
       style: 'currency',
       currency: 'KRW',
@@ -19,7 +19,7 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
     }).format(amount);
   };
 
-  const formatDate = (date: string) => {
+  const format_date = (date: string) => {
     const d = new Date(date);
     const now = new Date();
     const diff = now.getTime() - d.getTime();
@@ -43,7 +43,7 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
     return `${Math.floor(days / 365)}년 전`;
   };
 
-  const getPlatformColor = (platform: string) => {
+  const get_platform_color = (platform: string) => {
     switch (platform) {
       case 'youtube':
         return 'bg-red-500';
@@ -71,13 +71,13 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
         />
         {/* 플랫폼 배지 */}
         <Badge
-          className={`absolute top-2 left-2 ${getPlatformColor(data.platform)} text-white border-0`}
+          className={`absolute top-2 left-2 ${get_platform_color(data.platform)} text-white border-0`}
         >
           {data.platform}
         </Badge>
         {/* 수익 금액 오버레이 */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-          <p className="text-white font-bold text-lg">{formatAmount(data.amount)}</p>
+          <p className="text-white font-bold text-lg">{format_amount(data.amount)}</p>
         </div>
       </div>
 
@@ -102,7 +102,9 @@ export function RevenueProofCard({ data }: RevenueProofCardProps) {
             )}
           </div>
           <span className="text-xs text-muted-foreground">{data.user?.username}</span>
-          <span className="text-xs text-muted-foreground">· {data.created_at ? formatDate(data.created_at) : ''}</span>
+          <span className="text-xs text-muted-foreground">
+            · {data.created_at ? format_date(data.created_at) : ''}
+          </span>
         </div>
 
         {/* 상호작용 통계 */}

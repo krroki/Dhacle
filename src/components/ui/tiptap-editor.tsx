@@ -76,14 +76,14 @@ export function TiptapEditor({
     return null;
   }
 
-  const addImage = () => {
+  const add_image = () => {
     const url = window.prompt('이미지 URL을 입력하세요:');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
   };
 
-  const addLink = () => {
+  const add_link = () => {
     const url = window.prompt('링크 URL을 입력하세요:');
     if (url) {
       editor.chain().focus().setLink({ href: url }).run();
@@ -148,11 +148,11 @@ export function TiptapEditor({
 
         <div className="w-px h-8 bg-border mx-1" />
 
-        <Button type="button" variant="ghost" size="sm" onClick={addLink} className="h-8 w-8 p-0">
+        <Button type="button" variant="ghost" size="sm" onClick={add_link} className="h-8 w-8 p-0">
           <Link2 className="h-4 w-4" />
         </Button>
 
-        <Button type="button" variant="ghost" size="sm" onClick={addImage} className="h-8 w-8 p-0">
+        <Button type="button" variant="ghost" size="sm" onClick={add_image} className="h-8 w-8 p-0">
           <ImageIcon className="h-4 w-4" />
         </Button>
 

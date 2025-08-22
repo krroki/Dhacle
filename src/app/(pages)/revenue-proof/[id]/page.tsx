@@ -1,9 +1,9 @@
 // 수익인증 상세 페이지
 
-import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { RevenueProofDetail } from '@/components/features/revenue-proof/RevenueProofDetail';
-import type { Metadata } from 'next';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { RevenueProof } from '@/types';
 
 // 동적 페이지로 설정 (빌드 시 정적 생성 방지)
@@ -14,7 +14,9 @@ interface PageProps {
 }
 
 // 서버 컴포넌트로 초기 데이터 페치
-export default async function RevenueProofDetailPage({ params }: PageProps): Promise<React.JSX.Element> {
+export default async function RevenueProofDetailPage({
+  params,
+}: PageProps): Promise<React.JSX.Element> {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
 
@@ -51,30 +53,30 @@ export default async function RevenueProofDetailPage({ params }: PageProps): Pro
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const currentUserId = session?.user?.id;
+  const current_user_id = session?.user?.id;
 
   // 좋아요 여부 확인
-  let isLiked = false;
-  if (currentUserId) {
+  let is_liked = false;
+  if (current_user_id) {
     const { data: like } = await supabase
       .from('proof_likes')
       .select('*')
       .eq('proof_id', id)
-      .eq('user_id', currentUserId)
+      .eq('user_id', current_user_id)
       .single();
 
-    isLiked = !!like;
+    is_liked = !!like;
   }
 
-  const proofWithLike: RevenueProof & { isLiked: boolean; currentUserId?: string } = {
+  const proof_with_like: RevenueProof & { isLiked: boolean; currentUserId?: string } = {
     ...proof,
-    isLiked,
-    currentUserId,
+    isLiked: is_liked,
+    currentUserId: current_user_id,
   };
 
   return (
     <div className="container-responsive py-8">
-      <RevenueProofDetail initialData={proofWithLike} currentUserId={currentUserId} />
+      <RevenueProofDetail initialData={proof_with_like} currentUserId={current_user_id} />
     </div>
   );
 }
@@ -97,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const platformMap: Record<string, string> = {
+  const platform_map: Record<string, string> = {
     youtube: 'YouTube',
     instagram: 'Instagram',
     tiktok: 'TikTok',
@@ -105,6 +107,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: proof.title,
-    description: `${platformMap[proof.platform] || proof.platform} 수익 ${proof.amount.toLocaleString()}원 인증`,
+    description: `${platform_map[proof.platform] || proof.platform} 수익 ${proof.amount.toLocaleString()}원 인증`,
   };
 }

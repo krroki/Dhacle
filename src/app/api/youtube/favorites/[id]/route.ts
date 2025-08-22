@@ -9,28 +9,31 @@ import { type NextRequest, NextResponse } from 'next/server';
  * 즐겨찾기 업데이트
  * PATCH /api/youtube/favorites/[id]
  */
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const { id } = await params;
-    const favoriteId = id;
+    const favorite_id = id;
 
     // 소유권 확인
     const { data: existing } = await supabase
       .from('youtube_favorites')
       .select('id')
-      .eq('id', favoriteId)
+      .eq('id', favorite_id)
       .eq('user_id', user.id)
       .single();
 
@@ -57,15 +60,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // 업데이트 실행
-    const { data: updated, error: updateError } = await supabase
+    const { data: updated, error: update_error } = await supabase
       .from('youtube_favorites')
       .update(updates)
-      .eq('id', favoriteId)
+      .eq('id', favorite_id)
       .eq('user_id', user.id)
       .select()
       .single();
 
-    if (updateError) {
+    if (update_error) {
       return NextResponse.json({ error: 'Failed to update favorite' }, { status: 500 });
     }
 
@@ -92,26 +95,26 @@ export async function DELETE(
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const { id } = await params;
-    const favoriteId = id;
+    const favorite_id = id;
 
     // 소유권 확인 및 삭제
-    const { data: deleted, error: deleteError } = await supabase
+    const { data: deleted, error: delete_error } = await supabase
       .from('youtube_favorites')
       .delete()
-      .eq('id', favoriteId)
+      .eq('id', favorite_id)
       .eq('user_id', user.id)
       .select()
       .single();
 
-    if (deleteError || !deleted) {
+    if (delete_error || !deleted) {
       return NextResponse.json({ error: 'Favorite not found or already deleted' }, { status: 404 });
     }
 
@@ -129,32 +132,35 @@ export async function DELETE(
  * 즐겨찾기 단일 항목 조회
  * GET /api/youtube/favorites/[id]
  */
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     const { id } = await params;
-    const favoriteId = id;
+    const favorite_id = id;
 
     // 즐겨찾기 조회
-    const { data: favorite, error: fetchError } = await supabase
+    const { data: favorite, error: fetch_error } = await supabase
       .from('youtube_favorites')
       .select('*')
-      .eq('id', favoriteId)
+      .eq('id', favorite_id)
       .eq('user_id', user.id)
       .single();
 
-    if (fetchError || !favorite) {
+    if (fetch_error || !favorite) {
       return NextResponse.json({ error: 'Favorite not found' }, { status: 404 });
     }
 

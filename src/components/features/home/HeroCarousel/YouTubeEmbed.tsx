@@ -10,14 +10,14 @@ interface YouTubeEmbedProps {
 }
 
 export function YouTubeEmbed({ video_id, title = 'YouTube video' }: YouTubeEmbedProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [is_loaded, set_is_loaded] = useState(false);
   const thumbnail_url = `https://img.youtube.com/vi/${video_id}/maxresdefault.jpg`;
 
-  if (!isLoaded) {
+  if (!is_loaded) {
     return (
       <div
         className="relative w-full h-full cursor-pointer group"
-        onClick={() => setIsLoaded(true)}
+        onClick={() => set_is_loaded(true)}
       >
         <Image
           src={thumbnail_url}

@@ -10,13 +10,13 @@
  */
 export function generateRandomUsername(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
+  let random_string = '';
 
   for (let i = 0; i < 8; i++) {
-    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+    random_string += chars.charAt(Math.floor(Math.random() * chars.length));
   }
 
-  return `creator_${randomString}`;
+  return `creator_${random_string}`;
 }
 
 /**
@@ -46,6 +46,6 @@ export function isValidUsername(username: string): boolean {
   }
 
   // 영문, 숫자, 언더스코어만 허용
-  const validPattern = /^[a-zA-Z0-9_]+$/;
-  return validPattern.test(username);
+  const valid_pattern = /^[a-zA-Z0-9_]+$/;
+  return valid_pattern.test(username);
 }

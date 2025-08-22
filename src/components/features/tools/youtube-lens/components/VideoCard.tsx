@@ -41,7 +41,7 @@ interface VideoCardProps {
 }
 
 // 시간 포맷팅 함수 (초 단위를 시간 형태로 변환)
-function formatDuration(seconds: number): string {
+function format_duration(seconds: number): string {
   if (!seconds) {
     return '0:00';
   }
@@ -57,7 +57,7 @@ function formatDuration(seconds: number): string {
 }
 
 // 조회수 포맷팅 함수
-function formatViewCount(count: number): string {
+function format_view_count(count: number): string {
   if (count >= 1000000000) {
     return `${(count / 1000000000).toFixed(1)}B`;
   }
@@ -71,8 +71,8 @@ function formatViewCount(count: number): string {
 }
 
 // 날짜 포맷팅 함수
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+function format_date(date_string: string): string {
+  const date = new Date(date_string);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -105,10 +105,10 @@ export const VideoCard = memo(function VideoCard({
   onPlay,
   className,
 }: VideoCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [image_error, set_image_error] = useState(false);
+  const [is_hovered, set_is_hovered] = useState(false);
 
-  const handleSelect = useCallback(
+  const handle_select = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       onSelect?.(video.id);
@@ -116,7 +116,7 @@ export const VideoCard = memo(function VideoCard({
     [video.id, onSelect]
   );
 
-  const handleToggleFavorite = useCallback(
+  const handle_toggle_favorite = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       onToggleFavorite?.(video);
@@ -124,15 +124,15 @@ export const VideoCard = memo(function VideoCard({
     [video, onToggleFavorite]
   );
 
-  const handlePlay = useCallback(() => {
+  const handle_play = useCallback(() => {
     onPlay?.(video);
   }, [video, onPlay]);
 
-  const handleCopyLink = useCallback(() => {
+  const handle_copy_link = useCallback(() => {
     navigator.clipboard.writeText(`https://youtube.com/watch?v=${video.id}`);
   }, [video.id]);
 
-  const handleOpenInYouTube = useCallback(() => {
+  const handle_open_in_you_tube = useCallback(() => {
     window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');
   }, [video.id]);
 
@@ -145,9 +145,9 @@ export const VideoCard = memo(function VideoCard({
           isSelected && 'ring-2 ring-primary',
           className
         )}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={handlePlay}
+        onMouseEnter={() => set_is_hovered(true)}
+        onMouseLeave={() => set_is_hovered(false)}
+        onClick={handle_play}
       >
         {/* 썸네일 영역 */}
         <div className="relative aspect-[9/16] overflow-hidden bg-muted">
@@ -157,7 +157,7 @@ export const VideoCard = memo(function VideoCard({
               <Checkbox
                 checked={isSelected}
                 onCheckedChange={() => onSelect(video.id)}
-                onClick={handleSelect}
+                onClick={handle_select}
                 className="bg-background/80 backdrop-blur-sm"
               />
             </div>
@@ -173,7 +173,7 @@ export const VideoCard = memo(function VideoCard({
                 'bg-background/80 backdrop-blur-sm hover:bg-background/90',
                 isFavorite && 'text-red-500'
               )}
-              onClick={handleToggleFavorite}
+              onClick={handle_toggle_favorite}
             >
               <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
             </Button>
@@ -182,12 +182,12 @@ export const VideoCard = memo(function VideoCard({
           {/* 재생시간 */}
           <div className="absolute bottom-2 right-2 z-10">
             <Badge variant="secondary" className="bg-black/80 text-white">
-              {formatDuration(video.duration)}
+              {format_duration(video.duration)}
             </Badge>
           </div>
 
           {/* 호버시 재생 버튼 */}
-          {isHovered && (
+          {is_hovered && (
             <div className="absolute inset-0 z-[5] flex items-center justify-center bg-black/40 transition-opacity">
               <div className="rounded-full bg-white/90 p-3">
                 <Play className="h-8 w-8 text-black fill-current" />
@@ -196,14 +196,14 @@ export const VideoCard = memo(function VideoCard({
           )}
 
           {/* 썸네일 이미지 */}
-          {!imageError ? (
+          {!image_error ? (
             <Image
               src={video.thumbnail}
               alt={video.title}
               fill={true}
               className="object-cover"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              onError={() => setImageError(true)}
+              onError={() => set_image_error(true)}
               priority={false}
             />
           ) : (
@@ -224,11 +224,11 @@ export const VideoCard = memo(function VideoCard({
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Eye className="h-3 w-3" />
-              <span>{formatViewCount(video.view_count)}</span>
+              <span>{format_view_count(video.view_count)}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              <span>{formatDate(video.published_at)}</span>
+              <span>{format_date(video.published_at)}</span>
             </div>
           </div>
 
@@ -238,13 +238,13 @@ export const VideoCard = memo(function VideoCard({
               {video.like_count > 0 && (
                 <div className="flex items-center gap-1">
                   <ThumbsUp className="h-3 w-3" />
-                  <span>{formatViewCount(video.like_count)}</span>
+                  <span>{format_view_count(video.like_count)}</span>
                 </div>
               )}
               {video.comment_count > 0 && (
                 <div className="flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />
-                  <span>{formatViewCount(video.comment_count)}</span>
+                  <span>{format_view_count(video.comment_count)}</span>
                 </div>
               )}
             </div>
@@ -263,7 +263,7 @@ export const VideoCard = memo(function VideoCard({
           isSelected && 'ring-2 ring-primary',
           className
         )}
-        onClick={handlePlay}
+        onClick={handle_play}
       >
         <CardContent className="p-3">
           <div className="flex gap-3">
@@ -273,21 +273,21 @@ export const VideoCard = memo(function VideoCard({
                 <Checkbox
                   checked={isSelected}
                   onCheckedChange={() => onSelect(video.id)}
-                  onClick={handleSelect}
+                  onClick={handle_select}
                 />
               </div>
             )}
 
             {/* 썸네일 */}
             <div className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md bg-muted">
-              {!imageError ? (
+              {!image_error ? (
                 <Image
                   src={video.thumbnail}
                   alt={video.title}
                   fill={true}
                   className="object-cover"
                   sizes="160px"
-                  onError={() => setImageError(true)}
+                  onError={() => set_image_error(true)}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
@@ -298,7 +298,7 @@ export const VideoCard = memo(function VideoCard({
                 variant="secondary"
                 className="absolute bottom-1 right-1 bg-black/80 text-white text-xs"
               >
-                {formatDuration(video.duration)}
+                {format_duration(video.duration)}
               </Badge>
             </div>
 
@@ -308,9 +308,9 @@ export const VideoCard = memo(function VideoCard({
               <p className="text-sm text-muted-foreground">{video.channel_title}</p>
 
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>{formatViewCount(video.view_count)} 조회수</span>
-                <span>{formatDate(video.published_at)}</span>
-                {video.like_count > 0 && <span>좋아요 {formatViewCount(video.like_count)}</span>}
+                <span>{format_view_count(video.view_count)} 조회수</span>
+                <span>{format_date(video.published_at)}</span>
+                {video.like_count > 0 && <span>좋아요 {format_view_count(video.like_count)}</span>}
               </div>
 
               {/* 설명 미리보기 */}
@@ -327,7 +327,7 @@ export const VideoCard = memo(function VideoCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleToggleFavorite}
+                  onClick={handle_toggle_favorite}
                   className={cn(isFavorite && 'text-red-500')}
                 >
                   <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
@@ -341,11 +341,11 @@ export const VideoCard = memo(function VideoCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleOpenInYouTube}>
+                  <DropdownMenuItem onClick={handle_open_in_you_tube}>
                     <ExternalLink className="mr-2 h-4 w-4" />
                     YouTube에서 보기
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleCopyLink}>
+                  <DropdownMenuItem onClick={handle_copy_link}>
                     <Copy className="mr-2 h-4 w-4" />
                     링크 복사
                   </DropdownMenuItem>
@@ -375,27 +375,27 @@ export const VideoCard = memo(function VideoCard({
         isSelected && 'bg-accent ring-2 ring-primary',
         className
       )}
-      onClick={handlePlay}
+      onClick={handle_play}
     >
       {/* 선택 체크박스 */}
       {onSelect && (
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => onSelect(video.id)}
-          onClick={handleSelect}
+          onClick={handle_select}
         />
       )}
 
       {/* 썸네일 */}
       <div className="relative w-20 aspect-video flex-shrink-0 overflow-hidden rounded bg-muted">
-        {!imageError ? (
+        {!image_error ? (
           <Image
             src={video.thumbnail}
             alt={video.title}
             fill={true}
             className="object-cover"
             sizes="80px"
-            onError={() => setImageError(true)}
+            onError={() => set_image_error(true)}
           />
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -408,18 +408,18 @@ export const VideoCard = memo(function VideoCard({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{video.title}</p>
         <p className="text-xs text-muted-foreground truncate">
-          {video.channel_title} • {formatViewCount(video.view_count)} •{' '}
-          {formatDate(video.published_at)}
+          {video.channel_title} • {format_view_count(video.view_count)} •{' '}
+          {format_date(video.published_at)}
         </p>
       </div>
 
       {/* 재생시간 & 액션 */}
       <div className="flex items-center gap-2">
         <Badge variant="secondary" className="text-xs">
-          {formatDuration(video.duration)}
+          {format_duration(video.duration)}
         </Badge>
         {onToggleFavorite && (
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleToggleFavorite}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handle_toggle_favorite}>
             <Heart className={cn('h-4 w-4', isFavorite && 'fill-current text-red-500')} />
           </Button>
         )}

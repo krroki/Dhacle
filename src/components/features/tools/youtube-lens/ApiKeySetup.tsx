@@ -15,21 +15,21 @@ interface ApiKeySetupProps {
 }
 
 export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
-  const [api_key, setApiKey] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [api_key, set_api_key] = useState('');
+  const [loading, set_loading] = useState(false);
+  const [error, set_error] = useState<string | null>(null);
+  const [success, set_success] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handle_submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!api_key.trim()) {
-      setError('API 키를 입력해주세요');
+      set_error('API 키를 입력해주세요');
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    set_loading(true);
+    set_error(null);
 
     try {
       // API 키 검증 및 저장
@@ -38,22 +38,22 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
         service_name: 'youtube',
       });
 
-      setSuccess(true);
+      set_success(true);
       setTimeout(() => {
         onSuccess?.();
       }, 2000);
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
-          setError('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+          set_error('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
         } else {
-          setError(error.message || 'API 키 저장 실패');
+          set_error(error.message || 'API 키 저장 실패');
         }
       } else {
-        setError(error instanceof Error ? error.message : 'API 키 저장 중 오류가 발생했습니다');
+        set_error(error instanceof Error ? error.message : 'API 키 저장 중 오류가 발생했습니다');
       }
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   };
 
@@ -136,7 +136,7 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
         </div>
 
         {/* API 키 입력 폼 */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handle_submit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="api_key">YouTube API 키</Label>
             <Input
@@ -144,7 +144,7 @@ export default function ApiKeySetup({ onSuccess }: ApiKeySetupProps) {
               type="text"
               placeholder="AIzaSy..."
               value={api_key}
-              onChange={(e) => setApiKey(e.target.value)}
+              onChange={(e) => set_api_key(e.target.value)}
               disabled={loading}
               className="font-mono"
             />

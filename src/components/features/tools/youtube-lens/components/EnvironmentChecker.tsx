@@ -34,15 +34,15 @@ interface EnvironmentCheckerProps {
 }
 
 export function EnvironmentChecker({ onComplete, autoCheck = true }: EnvironmentCheckerProps) {
-  const [isChecking, setIsChecking] = useState(false);
-  const [checkResult, setCheckResult] = useState<{
+  const [is_checking, set_is_checking] = useState(false);
+  const [check_result, set_check_result] = useState<{
     configured: boolean;
     missingVars: string[];
     warnings: string[];
     progress: number;
   } | null>(null);
 
-  const [variables, setVariables] = useState<EnvironmentVariable[]>([
+  const [variables, set_variables] = useState<EnvironmentVariable[]>([
     {
       name: 'NEXT_PUBLIC_SITE_URL',
       category: 'client',
@@ -85,8 +85,8 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     },
   ]);
 
-  const checkEnvironment = useCallback(async () => {
-    setIsChecking(true);
+  const check_environment = useCallback(async () => {
+    set_is_checking(true);
 
     try {
       const data = await apiGet<{
@@ -96,19 +96,19 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       }>('/api/youtube/auth/check-config');
 
       // 변수 상태 업데이트
-      const updatedVars = variables.map((v) => ({
+      const updated_vars = variables.map((v) => ({
         ...v,
         status: (data.missingVars?.includes(v.name) ? 'missing' : 'configured') as
           | 'missing'
           | 'configured',
       }));
 
-      setVariables(updatedVars);
+      set_variables(updated_vars);
 
-      const configuredCount = updatedVars.filter((v) => v.status === 'configured').length;
-      const progress = (configuredCount / updatedVars.length) * 100;
+      const configured_count = updated_vars.filter((v) => v.status === 'configured').length;
+      const progress = (configured_count / updated_vars.length) * 100;
 
-      setCheckResult({
+      set_check_result({
         configured: data.hasAllRequired,
         missingVars: data.missingVars || [],
         warnings: [],
@@ -119,24 +119,24 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
         onComplete();
       }
     } catch (_error) {
-      setCheckResult({
+      set_check_result({
         configured: false,
         missingVars: variables.map((v) => v.name),
         warnings: ['환경 변수 확인 중 오류가 발생했습니다.'],
         progress: 0,
       });
     } finally {
-      setIsChecking(false);
+      set_is_checking(false);
     }
   }, [variables, onComplete]);
 
   useEffect(() => {
     if (autoCheck) {
-      checkEnvironment();
+      check_environment();
     }
-  }, [autoCheck, checkEnvironment]);
+  }, [autoCheck, check_environment]);
 
-  const getCategoryColor = (category: string) => {
+  const get_category_color = (category: string) => {
     switch (category) {
       case 'client':
         return 'default';
@@ -149,7 +149,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const get_status_icon = (status: string) => {
     switch (status) {
       case 'configured':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />;
@@ -170,8 +170,8 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
             <Settings className="h-5 w-5" />
             <CardTitle>환경 변수 상태</CardTitle>
           </div>
-          <Button variant="outline" size="sm" onClick={checkEnvironment} disabled={isChecking}>
-            {isChecking ? (
+          <Button variant="outline" size="sm" onClick={check_environment} disabled={is_checking}>
+            {is_checking ? (
               <>
                 <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                 확인 중...
@@ -187,19 +187,19 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
         <CardDescription>YouTube Lens 실행에 필요한 환경 변수 설정 상태입니다.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {checkResult && (
+        {check_result && (
           <>
             {/* 진행률 표시 */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>설정 진행률</span>
-                <span className="font-medium">{Math.round(checkResult.progress)}%</span>
+                <span className="font-medium">{Math.round(check_result.progress)}%</span>
               </div>
-              <Progress value={checkResult.progress} className="h-2" />
+              <Progress value={check_result.progress} className="h-2" />
             </div>
 
             {/* 상태 알림 */}
-            {checkResult.configured ? (
+            {check_result.configured ? (
               <Alert>
                 <CheckCircle2 className="h-4 w-4" />
                 <AlertTitle>설정 완료</AlertTitle>
@@ -212,19 +212,19 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
                 <XCircle className="h-4 w-4" />
                 <AlertTitle>설정 필요</AlertTitle>
                 <AlertDescription>
-                  {checkResult.missingVars.length}개의 환경 변수가 설정되지 않았습니다.
+                  {check_result.missingVars.length}개의 환경 변수가 설정되지 않았습니다.
                 </AlertDescription>
               </Alert>
             )}
 
             {/* 경고 메시지 */}
-            {checkResult.warnings.length > 0 && (
+            {check_result.warnings.length > 0 && (
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>주의사항</AlertTitle>
                 <AlertDescription>
                   <ul className="list-disc list-inside mt-2 space-y-1">
-                    {checkResult.warnings.map((warning, index) => (
+                    {check_result.warnings.map((warning, index) => (
                       <li key={index} className="text-sm">
                         {warning}
                       </li>
@@ -248,12 +248,12 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     {variable.icon}
-                    {getStatusIcon(variable.status)}
+                    {get_status_icon(variable.status)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <code className="text-sm font-mono">{variable.name}</code>
-                      <Badge variant={getCategoryColor(variable.category)}>
+                      <Badge variant={get_category_color(variable.category)}>
                         {variable.category}
                       </Badge>
                       {variable.required && <Badge variant="outline">필수</Badge>}
@@ -267,7 +267,7 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
         </div>
 
         {/* 도움말 */}
-        {checkResult && !checkResult.configured && (
+        {check_result && !check_result.configured && (
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground">
               환경 변수 설정 방법은 상단의 설정 가이드를 참고하세요.

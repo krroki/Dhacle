@@ -26,45 +26,45 @@ export default function LearnPage() {
   const params = useParams();
   const router = useRouter();
   const course_id = params.course_id as string;
-  const lessonId = params.lesson_id as string;
+  const lesson_id = params.lesson_id as string;
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
-  const [progress, setProgress] = useState<CourseProgress[]>([]);
-  const [notes, setNotes] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [user_id, setUserId] = useState<string>('');
+  const [course, set_course] = useState<Course | null>(null);
+  const [lessons, set_lessons] = useState<Lesson[]>([]);
+  const [current_lesson, set_current_lesson] = useState<Lesson | null>(null);
+  const [progress, set_progress] = useState<CourseProgress[]>([]);
+  const [notes, set_notes] = useState('');
+  const [loading, set_loading] = useState(true);
+  const [is_sidebar_open, set_is_sidebar_open] = useState(true);
+  const [user_id, set_user_id] = useState<string>('');
 
-  const loadCourseData = useCallback(async () => {
-    setLoading(true);
+  const load_course_data = useCallback(async () => {
+    set_loading(true);
     try {
       const supabase = createClient();
 
       // 강의 정보
-      const { data: courseData } = await supabase
+      const { data: course_data } = await supabase
         .from('courses')
         .select('*')
         .eq('id', course_id)
         .single();
 
-      if (courseData) {
-        setCourse(mapCourse(courseData));
+      if (course_data) {
+        set_course(mapCourse(course_data));
       }
 
       // 레슨 목록
-      const { data: lessonsData } = await supabase
+      const { data: lessons_data } = await supabase
         .from('lessons')
         .select('*')
         .eq('course_id', course_id)
         .order('order_index');
 
-      if (lessonsData) {
-        const mappedLessons = lessonsData.map(mapLesson);
-        setLessons(mappedLessons);
-        const current = mappedLessons.find((l: Lesson) => l.id === lessonId);
-        setCurrentLesson(current || null);
+      if (lessons_data) {
+        const mapped_lessons = lessons_data.map(mapLesson);
+        set_lessons(mapped_lessons);
+        const current = mapped_lessons.find((l: Lesson) => l.id === lesson_id);
+        set_current_lesson(current || null);
       }
 
       // 진도 정보
@@ -72,7 +72,7 @@ export default function LearnPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        setUserId(user.id); // 사용자 ID 설정
+        set_user_id(user.id); // 사용자 ID 설정
 
         // TODO: courseProgressExtended 뷰/테이블 생성 후 주석 해제
         // const { data: progressData } = await supabase
@@ -80,36 +80,36 @@ export default function LearnPage() {
         //   .select('*')
         //   .eq('user_id', user.id)
         //   .eq('course_id', course_id);
-        const progressData: CourseProgress[] = []; // 임시로 빈 배열 반환
+        const progress_data: CourseProgress[] = []; // 임시로 빈 배열 반환
 
-        if (progressData.length > 0) {
-          setProgress(progressData);
+        if (progress_data.length > 0) {
+          set_progress(progress_data);
 
           // 현재 레슨의 메모 가져오기
-          const currentProgress = progressData.find((p) => p.lesson_id === lessonId);
-          if (currentProgress?.notes) {
-            setNotes(currentProgress.notes);
+          const current_progress = progress_data.find((p) => p.lesson_id === lesson_id);
+          if (current_progress?.notes) {
+            set_notes(current_progress.notes);
           }
         }
       }
     } catch (_error) {
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
-  }, [course_id, lessonId]);
+  }, [course_id, lesson_id]);
 
   useEffect(() => {
-    loadCourseData();
-  }, [loadCourseData]);
+    load_course_data();
+  }, [load_course_data]);
 
-  const handleProgressUpdate = async (_time: number) => {
+  const handle_progress_update = async (_time: number) => {
     try {
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user || !currentLesson) {
+      if (!user || !current_lesson) {
         return;
       }
 
@@ -135,7 +135,7 @@ export default function LearnPage() {
     } catch (_error) {}
   };
 
-  const handleNoteSave = async () => {
+  const handle_note_save = async () => {
     try {
       const supabase = createClient();
       const {
@@ -150,7 +150,7 @@ export default function LearnPage() {
         {
           user_id: user.id,
           course_id: course_id,
-          lesson_id: lessonId,
+          lesson_id: lesson_id,
           notes,
           progress: 0,
         },
@@ -164,34 +164,34 @@ export default function LearnPage() {
     } catch (_error) {}
   };
 
-  const navigateToLesson = (lesson: Lesson) => {
+  const navigate_to_lesson = (lesson: Lesson) => {
     router.push(`/learn/${course_id}/${lesson.id}`);
   };
 
-  const getLessonProgress = (lessonId: string): number => {
-    const lessonProgress = progress.find((p) => p.lesson_id === lessonId);
+  const get_lesson_progress = (lessonId: string): number => {
+    const lesson_progress = progress.find((p) => p.lesson_id === lessonId);
     const lesson = lessons.find((l) => l.id === lessonId);
 
-    if (!lessonProgress || !lesson) {
+    if (!lesson_progress || !lesson) {
       return 0;
     }
 
-    return Math.min(100, Math.round((lessonProgress.progress / lesson.duration) * 100));
+    return Math.min(100, Math.round((lesson_progress.progress / lesson.duration) * 100));
   };
 
-  const isLessonCompleted = (lessonId: string): boolean => {
-    const lessonProgress = progress.find((p) => p.lesson_id === lessonId);
-    return lessonProgress?.completed || false;
+  const is_lesson_completed = (lessonId: string): boolean => {
+    const lesson_progress = progress.find((p) => p.lesson_id === lessonId);
+    return lesson_progress?.completed || false;
   };
 
-  const getCourseCompletionRate = (): number => {
+  const get_course_completion_rate = (): number => {
     if (lessons.length === 0) {
       return 0;
     }
 
-    const completedCount = lessons.filter((l) => isLessonCompleted(l.id)).length;
+    const completed_count = lessons.filter((l) => is_lesson_completed(l.id)).length;
 
-    return Math.round((completedCount / lessons.length) * 100);
+    return Math.round((completed_count / lessons.length) * 100);
   };
 
   if (loading) {
@@ -204,7 +204,7 @@ export default function LearnPage() {
     );
   }
 
-  if (!course || !currentLesson) {
+  if (!course || !current_lesson) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">강의를 찾을 수 없습니다.</p>
@@ -212,37 +212,37 @@ export default function LearnPage() {
     );
   }
 
-  const currentIndex = lessons.findIndex((l) => l.id === lessonId);
-  const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
-  const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+  const current_index = lessons.findIndex((l) => l.id === lesson_id);
+  const prev_lesson = current_index > 0 ? lessons[current_index - 1] : null;
+  const next_lesson = current_index < lessons.length - 1 ? lessons[current_index + 1] : null;
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* 사이드바 */}
       <div
-        className={`${isSidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r bg-white dark:bg-gray-800`}
+        className={`${is_sidebar_open ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r bg-white dark:bg-gray-800`}
       >
         <div className="p-4 border-b">
           <h2 className="font-semibold text-lg line-clamp-2">{course.title}</h2>
           <div className="mt-2 space-y-2">
-            <Progress value={getCourseCompletionRate()} className="h-2" />
-            <p className="text-sm text-muted-foreground">진도율: {getCourseCompletionRate()}%</p>
+            <Progress value={get_course_completion_rate()} className="h-2" />
+            <p className="text-sm text-muted-foreground">진도율: {get_course_completion_rate()}%</p>
           </div>
         </div>
 
         <div className="overflow-y-auto h-[calc(100vh-120px)]">
           <div className="p-2">
             {lessons.map((lesson, index) => {
-              const is_completed = isLessonCompleted(lesson.id);
-              const lessonProgress = getLessonProgress(lesson.id);
-              const isCurrent = lesson.id === lessonId;
+              const is_completed = is_lesson_completed(lesson.id);
+              const lesson_progress = get_lesson_progress(lesson.id);
+              const is_current = lesson.id === lesson_id;
 
               return (
                 <button
                   key={lesson.id}
-                  onClick={() => navigateToLesson(lesson)}
+                  onClick={() => navigate_to_lesson(lesson)}
                   className={`w-full text-left p-3 rounded-lg mb-2 transition-colors ${
-                    isCurrent
+                    is_current
                       ? 'bg-primary/10 border border-primary'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
@@ -251,7 +251,7 @@ export default function LearnPage() {
                     <div className="mt-1">
                       {is_completed ? (
                         <CheckCircle className="w-5 h-5 text-green-500" />
-                      ) : lessonProgress > 0 ? (
+                      ) : lesson_progress > 0 ? (
                         <div className="relative w-5 h-5">
                           <svg className="w-5 h-5 transform -rotate-90">
                             <circle
@@ -270,7 +270,7 @@ export default function LearnPage() {
                               stroke="currentColor"
                               strokeWidth="2"
                               fill="none"
-                              strokeDasharray={`${lessonProgress * 0.5} 100`}
+                              strokeDasharray={`${lesson_progress * 0.5} 100`}
                               className="text-primary"
                             />
                           </svg>
@@ -303,13 +303,17 @@ export default function LearnPage() {
         <div className="border-b bg-white dark:bg-gray-800 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => set_is_sidebar_open(!is_sidebar_open)}
+              >
                 <FileText className="w-4 h-4" />
               </Button>
               <div>
-                <h1 className="font-semibold text-lg">{currentLesson.title}</h1>
+                <h1 className="font-semibold text-lg">{current_lesson.title}</h1>
                 <p className="text-sm text-muted-foreground">
-                  레슨 {currentIndex + 1} / {lessons.length}
+                  레슨 {current_index + 1} / {lessons.length}
                 </p>
               </div>
             </div>
@@ -318,8 +322,8 @@ export default function LearnPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => prevLesson && navigateToLesson(prevLesson)}
-                disabled={!prevLesson}
+                onClick={() => prev_lesson && navigate_to_lesson(prev_lesson)}
+                disabled={!prev_lesson}
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 이전
@@ -327,8 +331,8 @@ export default function LearnPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => nextLesson && navigateToLesson(nextLesson)}
-                disabled={!nextLesson}
+                onClick={() => next_lesson && navigate_to_lesson(next_lesson)}
+                disabled={!next_lesson}
               >
                 다음
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -341,12 +345,12 @@ export default function LearnPage() {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto p-6 space-y-6">
             <VideoPlayer
-              streamUrl={currentLesson.video_url || ''}
-              lesson_id={lessonId}
+              streamUrl={current_lesson.video_url || ''}
+              lesson_id={lesson_id}
               user_id={user_id}
-              title={currentLesson.title}
-              onProgress={handleProgressUpdate}
-              initialProgress={progress.find((p) => p.lesson_id === lessonId)?.progress || 0}
+              title={current_lesson.title}
+              onProgress={handle_progress_update}
+              initialProgress={progress.find((p) => p.lesson_id === lesson_id)?.progress || 0}
             />
 
             {/* 레슨 정보 탭 */}
@@ -368,7 +372,7 @@ export default function LearnPage() {
                   <CardContent className="p-6">
                     <h3 className="font-semibold mb-3">레슨 설명</h3>
                     <p className="text-muted-foreground">
-                      {currentLesson.description || '이 레슨에서는 중요한 내용을 다룹니다.'}
+                      {current_lesson.description || '이 레슨에서는 중요한 내용을 다룹니다.'}
                     </p>
                   </CardContent>
                 </Card>
@@ -381,10 +385,10 @@ export default function LearnPage() {
                     <Textarea
                       placeholder="학습하면서 메모할 내용을 작성하세요..."
                       value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
+                      onChange={(e) => set_notes(e.target.value)}
                       className="min-h-[200px]"
                     />
-                    <Button onClick={handleNoteSave}>노트 저장</Button>
+                    <Button onClick={handle_note_save}>노트 저장</Button>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -399,7 +403,7 @@ export default function LearnPage() {
             </Tabs>
 
             {/* 수료 조건 */}
-            {getCourseCompletionRate() === 100 && (
+            {get_course_completion_rate() === 100 && (
               <Card className="bg-green-50 dark:bg-green-900/20 border-green-200">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">

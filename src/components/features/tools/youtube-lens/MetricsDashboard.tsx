@@ -71,7 +71,7 @@ function StatCard({
   trend = 'neutral',
   color = 'primary',
 }: StatCardProps) {
-  const getColorClasses = () => {
+  const get_color_classes = () => {
     switch (color) {
       case 'primary':
         return 'bg-yt-lens-primary/10 text-yt-lens-primary border-yt-lens-primary/20';
@@ -90,7 +90,7 @@ function StatCard({
     }
   };
 
-  const getTrendIcon = () => {
+  const get_trend_icon = () => {
     if (trend === 'up') {
       return <TrendingUp className="w-4 h-4 text-yt-lens-accent" />;
     }
@@ -105,7 +105,7 @@ function StatCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <div className={`p-2 rounded-lg ${getColorClasses()}`}>
+          <div className={`p-2 rounded-lg ${get_color_classes()}`}>
             <Icon className="w-4 h-4" />
           </div>
         </div>
@@ -115,7 +115,7 @@ function StatCard({
           <div className="text-2xl font-bold">{value}</div>
           {change !== undefined && (
             <div className="flex items-center gap-1 text-sm">
-              {getTrendIcon()}
+              {get_trend_icon()}
               <span
                 className={
                   trend === 'up'
@@ -144,11 +144,11 @@ export function MetricsDashboard({
   onRefresh,
   isLoading = false,
 }: MetricsDashboardProps) {
-  const [timeRange, setTimeRange] = useState('7d');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [time_range, set_time_range] = useState('7d');
+  const [active_tab, set_active_tab] = useState('overview');
 
   // Calculate aggregate metrics
-  const aggregateMetrics = useMemo(() => {
+  const aggregate_metrics = useMemo(() => {
     if (metrics.length === 0) {
       return {
         totalViews: 0,
@@ -162,33 +162,33 @@ export function MetricsDashboard({
       };
     }
 
-    const totalViews = metrics.reduce((sum, m) => sum + (m.view_count || 0), 0);
-    const totalLikes = metrics.reduce((sum, m) => sum + (m.like_count || 0), 0);
-    const avgVPH = metrics.reduce((sum, m) => sum + (m.viewsPerHour || 0), 0) / metrics.length;
-    const avgEngagement =
+    const total_views = metrics.reduce((sum, m) => sum + (m.view_count || 0), 0);
+    const total_likes = metrics.reduce((sum, m) => sum + (m.like_count || 0), 0);
+    const avg_vph = metrics.reduce((sum, m) => sum + (m.viewsPerHour || 0), 0) / metrics.length;
+    const avg_engagement =
       metrics.reduce((sum, m) => sum + (m.engagementRate || 0), 0) / metrics.length;
-    const viralVideos = metrics.filter((m) => (m.viralScore || 0) > 70).length;
-    const topPerformers = metrics.filter((m) => (m.viewsPerHour || 0) > 1000).length;
+    const viral_videos = metrics.filter((m) => (m.viralScore || 0) > 70).length;
+    const top_performers = metrics.filter((m) => (m.viewsPerHour || 0) > 1000).length;
 
     // Calculate growth rate from trends data
-    const mappedTrends = trends.map(mapTrendAnalysis);
-    const growthRate =
-      mappedTrends.length > 0 && mappedTrends[0]?.growthRate ? mappedTrends[0].growthRate : 0;
+    const mapped_trends = trends.map(mapTrendAnalysis);
+    const growth_rate =
+      mapped_trends.length > 0 && mapped_trends[0]?.growthRate ? mapped_trends[0].growthRate : 0;
 
     return {
-      totalViews,
-      totalLikes,
-      avgVPH: Math.round(avgVPH),
-      avgEngagement: avgEngagement.toFixed(2),
+      totalViews: total_views,
+      totalLikes: total_likes,
+      avgVPH: Math.round(avg_vph),
+      avgEngagement: avg_engagement.toFixed(2),
       totalVideos: metrics.length,
-      viralVideos,
-      topPerformers,
-      growthRate,
+      viralVideos: viral_videos,
+      topPerformers: top_performers,
+      growthRate: growth_rate,
     };
   }, [metrics, trends]);
 
   // Format large numbers
-  const formatNumber = (num: number): string => {
+  const format_number = (num: number): string => {
     if (num >= 1000000) {
       return `${(num / 1000000).toFixed(1)}M`;
     }
@@ -199,7 +199,7 @@ export function MetricsDashboard({
   };
 
   // Performance distribution
-  const performanceDistribution = useMemo(() => {
+  const performance_distribution = useMemo(() => {
     const distribution = {
       excellent: metrics.filter((m) => (m.viralScore || 0) > 80).length,
       good: metrics.filter((m) => (m.viralScore || 0) > 60 && (m.viralScore || 0) <= 80).length,
@@ -220,7 +220,7 @@ export function MetricsDashboard({
           <p className="text-muted-foreground mt-1">실시간 성과 지표 및 분석</p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={time_range} onValueChange={set_time_range}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -256,13 +256,13 @@ export function MetricsDashboard({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="총 조회수"
-          value={formatNumber(aggregateMetrics.totalViews)}
-          change={aggregateMetrics.growthRate}
+          value={format_number(aggregate_metrics.totalViews)}
+          change={aggregate_metrics.growthRate}
           icon={Eye}
           trend={
-            aggregateMetrics.growthRate > 0
+            aggregate_metrics.growthRate > 0
               ? 'up'
-              : aggregateMetrics.growthRate < 0
+              : aggregate_metrics.growthRate < 0
                 ? 'down'
                 : 'neutral'
           }
@@ -271,8 +271,8 @@ export function MetricsDashboard({
         />
         <StatCard
           title="평균 VPH"
-          value={formatNumber(aggregateMetrics.avgVPH)}
-          change={aggregateMetrics.growthRate}
+          value={format_number(aggregate_metrics.avgVPH)}
+          change={aggregate_metrics.growthRate}
           icon={Clock}
           trend="up"
           color="secondary"
@@ -280,7 +280,7 @@ export function MetricsDashboard({
         />
         <StatCard
           title="참여율"
-          value={`${aggregateMetrics.avgEngagement}%`}
+          value={`${aggregate_metrics.avgEngagement}%`}
           change={0}
           icon={Heart}
           trend="neutral"
@@ -289,17 +289,17 @@ export function MetricsDashboard({
         />
         <StatCard
           title="바이럴 영상"
-          value={aggregateMetrics.viralVideos}
+          value={aggregate_metrics.viralVideos}
           change={0}
           icon={Zap}
           trend="neutral"
           color="success"
-          description={`전체 ${aggregateMetrics.totalVideos}개 중`}
+          description={`전체 ${aggregate_metrics.totalVideos}개 중`}
         />
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={active_tab} onValueChange={set_active_tab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
           <TabsTrigger
             value="overview"
@@ -349,12 +349,12 @@ export function MetricsDashboard({
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">우수 (80+)</span>
                       <span className="text-sm text-muted-foreground">
-                        {performanceDistribution.excellent}개
+                        {performance_distribution.excellent}개
                       </span>
                     </div>
                     <Progress
                       value={
-                        (performanceDistribution.excellent / aggregateMetrics.totalVideos) * 100
+                        (performance_distribution.excellent / aggregate_metrics.totalVideos) * 100
                       }
                       className="h-2 bg-gray-200"
                     />
@@ -363,11 +363,11 @@ export function MetricsDashboard({
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">양호 (60-80)</span>
                       <span className="text-sm text-muted-foreground">
-                        {performanceDistribution.good}개
+                        {performance_distribution.good}개
                       </span>
                     </div>
                     <Progress
-                      value={(performanceDistribution.good / aggregateMetrics.totalVideos) * 100}
+                      value={(performance_distribution.good / aggregate_metrics.totalVideos) * 100}
                       className="h-2 bg-gray-200"
                     />
                   </div>
@@ -375,11 +375,13 @@ export function MetricsDashboard({
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">보통 (40-60)</span>
                       <span className="text-sm text-muted-foreground">
-                        {performanceDistribution.average}개
+                        {performance_distribution.average}개
                       </span>
                     </div>
                     <Progress
-                      value={(performanceDistribution.average / aggregateMetrics.totalVideos) * 100}
+                      value={
+                        (performance_distribution.average / aggregate_metrics.totalVideos) * 100
+                      }
                       className="h-2 bg-gray-200"
                     />
                   </div>
@@ -387,11 +389,11 @@ export function MetricsDashboard({
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">미흡 (40 이하)</span>
                       <span className="text-sm text-muted-foreground">
-                        {performanceDistribution.poor}개
+                        {performance_distribution.poor}개
                       </span>
                     </div>
                     <Progress
-                      value={(performanceDistribution.poor / aggregateMetrics.totalVideos) * 100}
+                      value={(performance_distribution.poor / aggregate_metrics.totalVideos) * 100}
                       className="h-2 bg-gray-200"
                     />
                   </div>
@@ -413,12 +415,12 @@ export function MetricsDashboard({
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">신규 영상</p>
                     <p className="text-2xl font-bold text-yt-lens-primary">
-                      {aggregateMetrics.totalVideos}
+                      {aggregate_metrics.totalVideos}
                     </p>
                     <Badge className="bg-yt-lens-accent/20 text-yt-lens-accent-dark">
                       <TrendingUp className="w-3 h-3 mr-1" />
-                      {aggregateMetrics.growthRate > 0 ? '+' : ''}
-                      {aggregateMetrics.growthRate.toFixed(1)}%
+                      {aggregate_metrics.growthRate > 0 ? '+' : ''}
+                      {aggregate_metrics.growthRate.toFixed(1)}%
                     </Badge>
                   </div>
                   <div className="space-y-1">
@@ -428,15 +430,15 @@ export function MetricsDashboard({
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">알림 발생</p>
-                    <p className="text-2xl font-bold">{aggregateMetrics.viralVideos}</p>
+                    <p className="text-2xl font-bold">{aggregate_metrics.viralVideos}</p>
                     <Badge
                       className={
-                        aggregateMetrics.viralVideos > 5
+                        aggregate_metrics.viralVideos > 5
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-green-100 text-green-800'
                       }
                     >
-                      {aggregateMetrics.viralVideos > 5 ? (
+                      {aggregate_metrics.viralVideos > 5 ? (
                         <>
                           <AlertCircle className="w-3 h-3 mr-1" />
                           주의
@@ -451,9 +453,9 @@ export function MetricsDashboard({
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">API 사용량</p>
-                    <p className="text-2xl font-bold">{aggregateMetrics.avgEngagement}%</p>
+                    <p className="text-2xl font-bold">{aggregate_metrics.avgEngagement}%</p>
                     <Progress
-                      value={Number.parseFloat(String(aggregateMetrics.avgEngagement))}
+                      value={Number.parseFloat(String(aggregate_metrics.avgEngagement))}
                       className="h-2 mt-2"
                     />
                   </div>
@@ -487,11 +489,11 @@ export function MetricsDashboard({
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-xs">
                             <Eye className="w-3 h-3 mr-1" />
-                            {formatNumber(metric.view_count || 0)}
+                            {format_number(metric.view_count || 0)}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             <Clock className="w-3 h-3 mr-1" />
-                            VPH: {formatNumber(metric.viewsPerHour || 0)}
+                            VPH: {format_number(metric.viewsPerHour || 0)}
                           </Badge>
                         </div>
                       </div>

@@ -16,20 +16,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 쿼리 파라미터 파싱
-    const searchParams = request.nextUrl.searchParams;
-    const page = Number.parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(Number.parseInt(searchParams.get('limit') || '50', 10), 100);
-    const tags = searchParams.get('tags')?.split(',').filter(Boolean);
-    const sortBy = searchParams.get('sortBy') || 'created_at';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
+    const search_params = request.nextUrl.searchParams;
+    const page = Number.parseInt(search_params.get('page') || '1', 10);
+    const limit = Math.min(Number.parseInt(search_params.get('limit') || '50', 10), 100);
+    const tags = search_params.get('tags')?.split(',').filter(Boolean);
+    const sort_by = search_params.get('sortBy') || 'created_at';
+    const sort_order = search_params.get('sortOrder') || 'desc';
 
     // 쿼리 빌드
     let query = supabase
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // 정렬
-    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    query = query.order(sort_by, { ascending: sort_order === 'asc' });
 
     // 페이지네이션
     const offset = (page - 1) * limit;
@@ -82,10 +82,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 즐겨찾기 추가
-    const { data: favorite, error: insertError } = await supabase
+    const { data: favorite, error: insert_error } = await supabase
       .from('youtube_favorites')
       .insert({
         user_id: user.id,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .select()
       .single();
 
-    if (insertError) {
+    if (insert_error) {
       return NextResponse.json({ error: 'Failed to add favorite' }, { status: 500 });
     }
 
@@ -150,10 +150,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     // 현재 사용자 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -173,7 +173,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     // 기존 즐겨찾기 확인
-    const videoIds = body.videos.map((v: unknown) => {
+    const video_ids = body.videos.map((v: unknown) => {
       if (!v || typeof v !== 'object') {
         throw new Error('Invalid video object');
       }
@@ -184,18 +184,18 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       .from('youtube_favorites')
       .select('video_id')
       .eq('user_id', user.id)
-      .in('video_id', videoIds);
+      .in('video_id', video_ids);
 
-    const existingIds = new Set(existing?.map((e) => e.video_id) || []);
+    const existing_ids = new Set(existing?.map((e) => e.video_id) || []);
 
     // 새로운 항목만 필터링
-    const newFavorites = body.videos
+    const new_favorites = body.videos
       .filter((v: unknown) => {
         if (!v || typeof v !== 'object') {
           return false;
         }
         const video = v as Record<string, unknown>;
-        return !existingIds.has(String(video.video_id || ''));
+        return !existing_ids.has(String(video.video_id || ''));
       })
       .map((v: unknown) => {
         if (!v || typeof v !== 'object') {
@@ -213,7 +213,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         };
       });
 
-    if (newFavorites.length === 0) {
+    if (new_favorites.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'All videos are already in favorites',
@@ -223,12 +223,12 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     // 일괄 추가
-    const { data: added, error: insertError } = await supabase
+    const { data: added, error: insert_error } = await supabase
       .from('youtube_favorites')
-      .insert(newFavorites)
+      .insert(new_favorites)
       .select();
 
-    if (insertError) {
+    if (insert_error) {
       return NextResponse.json({ error: 'Failed to add favorites' }, { status: 500 });
     }
 
@@ -236,7 +236,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       success: true,
       message: `Added ${added?.length || 0} favorites`,
       added: added?.length || 0,
-      skipped: existingIds.size,
+      skipped: existing_ids.size,
       data: added,
     });
   } catch (_error: unknown) {

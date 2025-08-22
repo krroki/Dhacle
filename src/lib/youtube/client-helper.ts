@@ -8,7 +8,6 @@ import { google, type youtube_v3 } from 'googleapis';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
 
-
 /**
  * Get or create YouTube API client
  * @param userId - Optional user ID for server-side calls
@@ -56,7 +55,6 @@ export async function trackQuotaUsage(_operation: string, _units: number): Promi
     } = await supabase.auth.getUser();
 
     if (user) {
-
       // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
       // API 사용량 추적 기능은 추후 구현 필요
       /*
@@ -78,7 +76,8 @@ export async function trackQuotaUsage(_operation: string, _units: number): Promi
           .eq('id', existing.id);
       } else {
       */
-      if (false) { // 임시 비활성화
+      if (false) {
+        // 임시 비활성화
         // Create new record
         /*
         await supabase.from('api_usage').insert({
@@ -112,7 +111,6 @@ export async function getRemainingQuota(): Promise<{
     if (!user) {
       return { used: 0, limit: 10000, remaining: 10000 };
     }
-
 
     // Get user's subscription limits
     // TODO: subscriptions 테이블이 없으므로 임시로 주석 처리
@@ -152,9 +150,9 @@ export async function getRemainingQuota(): Promise<{
 /**
  * Check if operation would exceed quota
  */
-export async function checkQuotaBeforeOperation(estimatedUnits: number): Promise<boolean> {
+export async function checkQuotaBeforeOperation(estimated_units: number): Promise<boolean> {
   const { remaining } = await getRemainingQuota();
-  return remaining >= estimatedUnits;
+  return remaining >= estimated_units;
 }
 
 /**

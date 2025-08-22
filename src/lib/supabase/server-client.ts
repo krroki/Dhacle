@@ -9,27 +9,27 @@ import type { Database } from '@/types';
  * Must be used in Server Components, Route Handlers, and Server Actions
  */
 export async function createSupabaseServerClient() {
-  const cookieStore = await cookies();
+  const cookie_store = await cookies();
 
   // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabase_url || !supabase_anon_key) {
     throw new Error(
       'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
         'Please check your environment configuration.'
     );
   }
 
-  return createSupabaseSSRClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createSupabaseSSRClient<Database>(supabase_url, supabase_anon_key, {
     cookies: {
       get(name: string) {
-        return cookieStore.get(name)?.value;
+        return cookie_store.get(name)?.value;
       },
       set(name: string, value: string, options: CookieOptions) {
         try {
-          cookieStore.set({ name, value, ...options });
+          cookie_store.set({ name, value, ...options });
         } catch {
           // The `set` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
@@ -39,7 +39,7 @@ export async function createSupabaseServerClient() {
       remove(name: string) {
         try {
           // Properly delete the cookie instead of just clearing its value
-          cookieStore.delete(name);
+          cookie_store.delete(name);
         } catch {
           // The `remove` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
@@ -61,10 +61,10 @@ export const createClient = createSupabaseServerClient;
  * Never expose Service Role Key to the client
  */
 export async function createSupabaseServiceRoleClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const service_role_key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabase_url || !service_role_key) {
     throw new Error(
       'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
         'Please check your environment configuration.'
@@ -73,7 +73,7 @@ export async function createSupabaseServiceRoleClient() {
 
   // Service Role Key bypasses RLS policies
   // Using createSupabaseClient directly for service role key
-  return createSupabaseClient<Database>(supabaseUrl, serviceRoleKey, {
+  return createSupabaseClient<Database>(supabase_url, service_role_key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -86,29 +86,29 @@ export async function createSupabaseServiceRoleClient() {
  * This version is optimized for API routes where we can modify cookies
  */
 export async function createSupabaseRouteHandlerClient() {
-  const cookieStore = await cookies();
+  const cookie_store = await cookies();
 
   // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabase_url || !supabase_anon_key) {
     throw new Error(
       'Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
         'Please check your environment configuration.'
     );
   }
 
-  return createSupabaseSSRClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createSupabaseSSRClient<Database>(supabase_url, supabase_anon_key, {
     cookies: {
       get(name: string) {
-        return cookieStore.get(name)?.value;
+        return cookie_store.get(name)?.value;
       },
       set(name: string, value: string, options: CookieOptions) {
-        cookieStore.set({ name, value, ...options });
+        cookie_store.set({ name, value, ...options });
       },
       remove(name: string) {
-        cookieStore.delete(name);
+        cookie_store.delete(name);
       },
     },
   });

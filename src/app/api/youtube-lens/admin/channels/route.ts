@@ -18,15 +18,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   // 관리자 권한 체크
-  const adminEmails = ['glemfkcl@naver.com'];
-  if (!adminEmails.includes(user.email || '')) {
+  const admin_emails = ['glemfkcl@naver.com'];
+  if (!admin_emails.includes(user.email || '')) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
-    const searchQuery = searchParams.get('q');
+    const search_query = searchParams.get('q');
 
     let query = supabase.from('yl_channels').select('*').order('created_at', { ascending: false });
 
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // 검색
-    if (searchQuery) {
-      query = query.or(`title.ilike.%${searchQuery}%,channel_id.ilike.%${searchQuery}%`);
+    if (search_query) {
+      query = query.or(`title.ilike.%${search_query}%,channel_id.ilike.%${search_query}%`);
     }
 
     const { data, error } = await query;
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (error) throw error;
 
     // snake_case를 camelCase로 변환
-    const camelCaseData = data?.map((channel) => ({
+    const camel_case_data = data?.map((channel) => ({
       channel_id: channel.channel_id,
       title: channel.title,
       handle: channel.handle,
@@ -71,8 +71,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       updated_at: channel.updated_at,
     }));
 
-    return NextResponse.json({ data: camelCaseData || [] });
-  } catch (error) {
+    return NextResponse.json({ data: camel_case_data || [] });
+  } catch (error: unknown) {
     console.error('Admin channels GET error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to fetch channels' },
@@ -94,8 +94,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // 관리자 권한 체크
-  const adminEmails = ['glemfkcl@naver.com'];
-  if (!adminEmails.includes(user.email || '')) {
+  const admin_emails = ['glemfkcl@naver.com'];
+  if (!admin_emails.includes(user.email || '')) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
@@ -108,38 +108,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // YouTube API로 채널 정보 가져오기
-    const ytAdminKey = process.env.YT_ADMIN_KEY;
-    if (!ytAdminKey) {
+    const yt_admin_key = process.env.YT_ADMIN_KEY;
+    if (!yt_admin_key) {
       throw new Error('YouTube Admin API key not configured');
     }
 
-    const ytResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channel_id}&key=${ytAdminKey}`
+    const yt_response = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channel_id}&key=${yt_admin_key}`
     );
-    const ytData = await ytResponse.json();
+    const yt_data = await yt_response.json();
 
-    if (!ytData.items || ytData.items.length === 0) {
+    if (!yt_data.items || yt_data.items.length === 0) {
       return NextResponse.json({ error: 'Channel not found on YouTube' }, { status: 404 });
     }
 
-    const channelInfo = ytData.items[0];
+    const channel_info = yt_data.items[0];
 
     // DB에 채널 추가
     const { data, error } = await supabase
       .from('yl_channels')
       .insert({
         channel_id: channel_id,
-        title: channelInfo.snippet.title,
-        handle: channelInfo.snippet.customUrl?.replace('@', ''),
-        description: channelInfo.snippet.description,
-        thumbnail_url: channelInfo.snippet.thumbnails?.default?.url,
+        title: channel_info.snippet.title,
+        handle: channel_info.snippet.customUrl?.replace('@', ''),
+        description: channel_info.snippet.description,
+        thumbnail_url: channel_info.snippet.thumbnails?.default?.url,
         approval_status: 'pending',
         source: 'manual',
-        subscriber_count: Number.parseInt(channelInfo.statistics.subscriber_count || '0'),
-        view_count_total: Number.parseInt(channelInfo.statistics.view_count || '0'),
-        video_count: Number.parseInt(channelInfo.statistics.videoCount || '0'),
-        country: channelInfo.snippet.country || 'KR',
-        language: channelInfo.snippet.defaultLanguage || 'ko',
+        subscriber_count: Number.parseInt(channel_info.statistics.subscriber_count || '0'),
+        view_count_total: Number.parseInt(channel_info.statistics.view_count || '0'),
+        video_count: Number.parseInt(channel_info.statistics.videoCount || '0'),
+        country: channel_info.snippet.country || 'KR',
+        language: channel_info.snippet.defaultLanguage || 'ko',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         subscriber_count: data.subscriber_count,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Admin channel POST error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to add channel' },

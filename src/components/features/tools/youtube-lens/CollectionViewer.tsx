@@ -37,20 +37,20 @@ export default function CollectionViewer({
   collectionName,
   onClose,
 }: CollectionViewerProps) {
-  const [items, setItems] = useState<(CollectionItem & { video: Video })[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [items, set_items] = useState<(CollectionItem & { video: Video })[]>([]);
+  const [loading, set_loading] = useState(true);
+  const [selected_video, set_selected_video] = useState<Video | null>(null);
   const [_editingItem, _setEditingItem] = useState<CollectionItem | null>(null);
   const [_notes, _setNotes] = useState('');
 
   // 컬렉션 비디오 목록 조회
-  const fetchCollectionVideos = useCallback(async () => {
-    setLoading(true);
+  const fetch_collection_videos = useCallback(async () => {
+    set_loading(true);
     try {
       const data = await apiGet<{ items: (CollectionItem & { video: Video })[] }>(
         `/api/youtube/collections/items?collectionId=${collection_id}`
       );
-      setItems(
+      set_items(
         (data.items || []).map((item) => ({
           ...item,
           video: mapVideo(item.video),
@@ -67,16 +67,16 @@ export default function CollectionViewer({
         toast.error('비디오 목록을 불러오는데 실패했습니다');
       }
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, [collection_id]);
 
   useEffect(() => {
-    fetchCollectionVideos();
-  }, [fetchCollectionVideos]);
+    fetch_collection_videos();
+  }, [fetch_collection_videos]);
 
   // 컬렉션에서 비디오 제거
-  const handleRemoveVideo = async (video_id: string) => {
+  const handle_remove_video = async (video_id: string) => {
     if (!confirm('이 비디오를 컬렉션에서 제거하시겠습니까?')) {
       return;
     }
@@ -86,7 +86,7 @@ export default function CollectionViewer({
         `/api/youtube/collections/items?collectionId=${collection_id}&video_id=${video_id}`
       );
       toast.success('비디오가 제거되었습니다');
-      setItems(items.filter((item) => item.video_id !== video_id));
+      set_items(items.filter((item) => item.video_id !== video_id));
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
@@ -101,17 +101,17 @@ export default function CollectionViewer({
   };
 
   // YouTube에서 열기
-  const openInYouTube = (video_id: string) => {
+  const open_in_you_tube = (video_id: string) => {
     window.open(`https://www.youtube.com/watch?v=${video_id}`, '_blank');
   };
 
   // 비디오 상세 보기
-  const viewVideoDetails = (video: Video) => {
-    setSelectedVideo(video);
+  const view_video_details = (video: Video) => {
+    set_selected_video(video);
   };
 
   // 조회수 포맷팅
-  const formatViewCount = (count: number): string => {
+  const format_view_count = (count: number): string => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`;
     }
@@ -122,32 +122,32 @@ export default function CollectionViewer({
   };
 
   // 날짜 포맷팅
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+  const format_date = (date_string: string): string => {
+    const date = new Date(date_string);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diff_time = Math.abs(now.getTime() - date.getTime());
+    const diff_days = Math.ceil(diff_time / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 1) {
+    if (diff_days < 1) {
       return '오늘';
     }
-    if (diffDays < 2) {
+    if (diff_days < 2) {
       return '어제';
     }
-    if (diffDays < 7) {
-      return `${diffDays}일 전`;
+    if (diff_days < 7) {
+      return `${diff_days}일 전`;
     }
-    if (diffDays < 30) {
-      return `${Math.floor(diffDays / 7)}주 전`;
+    if (diff_days < 30) {
+      return `${Math.floor(diff_days / 7)}주 전`;
     }
-    if (diffDays < 365) {
-      return `${Math.floor(diffDays / 30)}개월 전`;
+    if (diff_days < 365) {
+      return `${Math.floor(diff_days / 30)}개월 전`;
     }
-    return `${Math.floor(diffDays / 365)}년 전`;
+    return `${Math.floor(diff_days / 365)}년 전`;
   };
 
   // Duration 포맷팅
-  const formatDuration = (seconds: number): string => {
+  const format_duration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -215,7 +215,7 @@ export default function CollectionViewer({
                 )}
                 {item.video.durationSeconds && (
                   <Badge variant="secondary" className="absolute bottom-2 right-2">
-                    {formatDuration(item.video.durationSeconds)}
+                    {format_duration(item.video.durationSeconds)}
                   </Badge>
                 )}
               </div>
@@ -225,8 +225,8 @@ export default function CollectionViewer({
               </CardHeader>
               <CardContent className="pb-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>조회수 {formatViewCount(0)}</span>
-                  <span>{formatDate(item.video.published_at)}</span>
+                  <span>조회수 {format_view_count(0)}</span>
+                  <span>{format_date(item.video.published_at)}</span>
                 </div>
                 {item.notes && (
                   <div className="mt-2 p-2 bg-muted rounded-md">
@@ -249,7 +249,7 @@ export default function CollectionViewer({
                     variant="ghost"
                     size="sm"
                     className="flex-1"
-                    onClick={() => viewVideoDetails(item.video)}
+                    onClick={() => view_video_details(item.video)}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     상세
@@ -258,7 +258,7 @@ export default function CollectionViewer({
                     variant="ghost"
                     size="sm"
                     className="flex-1"
-                    onClick={() => openInYouTube(item.video.video_id)}
+                    onClick={() => open_in_you_tube(item.video.video_id)}
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     YouTube
@@ -266,7 +266,7 @@ export default function CollectionViewer({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveVideo(item.video_id)}
+                    onClick={() => handle_remove_video(item.video_id)}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -278,37 +278,37 @@ export default function CollectionViewer({
       )}
 
       {/* 비디오 상세 다이얼로그 */}
-      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+      <Dialog open={!!selected_video} onOpenChange={(open) => !open && set_selected_video(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{selectedVideo?.title}</DialogTitle>
+            <DialogTitle>{selected_video?.title}</DialogTitle>
             <DialogDescription>비디오 상세 정보</DialogDescription>
           </DialogHeader>
-          {selectedVideo && (
+          {selected_video && (
             <div className="space-y-4">
               <div className="aspect-video relative">
-                {selectedVideo.thumbnails && (
+                {selected_video.thumbnails && (
                   <Image
                     src={
-                      typeof selectedVideo.thumbnails === 'string'
-                        ? JSON.parse(selectedVideo.thumbnails)?.high?.url || ''
-                        : (selectedVideo.thumbnails as { high?: { url: string } })?.high?.url || ''
+                      typeof selected_video.thumbnails === 'string'
+                        ? JSON.parse(selected_video.thumbnails)?.high?.url || ''
+                        : (selected_video.thumbnails as { high?: { url: string } })?.high?.url || ''
                     }
-                    alt={selectedVideo.title}
+                    alt={selected_video.title}
                     fill={true}
                     className="object-cover rounded-lg"
                   />
                 )}
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{selectedVideo.description}</p>
+                <p className="text-sm text-muted-foreground">{selected_video.description}</p>
                 <div className="flex items-center gap-4 text-sm">
-                  <span>채널: {selectedVideo.channel_id}</span>
-                  <span>게시일: {new Date(selectedVideo.published_at).toLocaleDateString()}</span>
+                  <span>채널: {selected_video.channel_id}</span>
+                  <span>게시일: {new Date(selected_video.published_at).toLocaleDateString()}</span>
                 </div>
-                {selectedVideo.tags && (
+                {selected_video.tags && (
                   <div className="flex flex-wrap gap-1">
-                    {selectedVideo.tags.map((tag, idx) => (
+                    {selected_video.tags.map((tag, idx) => (
                       <Badge key={idx} variant="secondary">
                         {tag}
                       </Badge>
@@ -321,11 +321,11 @@ export default function CollectionViewer({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => selectedVideo && openInYouTube(selectedVideo.video_id)}
+              onClick={() => selected_video && open_in_you_tube(selected_video.video_id)}
             >
               YouTube에서 보기
             </Button>
-            <Button onClick={() => setSelectedVideo(null)}>닫기</Button>
+            <Button onClick={() => set_selected_video(null)}>닫기</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

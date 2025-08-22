@@ -8,7 +8,7 @@
  */
 
 import { Activity, AlertCircle, BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,25 +25,26 @@ export function TrendChart({
   title = '트렌드 분석',
   description = '키워드 성장률 및 트렌드 패턴',
 }: TrendChartProps) {
+  const sentiment_bar_ref = useRef<HTMLDivElement>(null);
   // Sort trends by growth rate
-  const sortedTrends = useMemo(() => {
+  const sorted_trends = useMemo(() => {
     return [...trends].sort((a, b) => {
-      const aRate = typeof a.growthRate === 'number' ? a.growthRate : 0;
-      const bRate = typeof b.growthRate === 'number' ? b.growthRate : 0;
-      return bRate - aRate;
+      const a_rate = typeof a.growthRate === 'number' ? a.growthRate : 0;
+      const b_rate = typeof b.growthRate === 'number' ? b.growthRate : 0;
+      return b_rate - a_rate;
     });
   }, [trends]);
 
   // Top growing and declining trends
-  const topGrowing = sortedTrends
+  const top_growing = sorted_trends
     .filter((t) => typeof t.growthRate === 'number' && t.growthRate > 0)
     .slice(0, 5);
-  const topDeclining = sortedTrends
+  const top_declining = sorted_trends
     .filter((t) => typeof t.growthRate === 'number' && t.growthRate < 0)
     .slice(0, 5);
 
   // Sentiment distribution
-  const sentimentCounts = useMemo(() => {
+  const sentiment_counts = useMemo(() => {
     const counts = { positive: 0, negative: 0, neutral: 0 };
     trends.forEach((trend) => {
       counts[trend.sentiment]++;
@@ -51,7 +52,20 @@ export function TrendChart({
     return counts;
   }, [trends]);
 
-  const getSentimentColor = (sentiment: string) => {
+  // Set CSS variables for dynamic widths
+  useEffect(() => {
+    if (sentiment_bar_ref.current && trends.length > 0) {
+      const positive_percent = (sentiment_counts.positive / trends.length) * 100;
+      const neutral_percent = (sentiment_counts.neutral / trends.length) * 100;
+      const negative_percent = (sentiment_counts.negative / trends.length) * 100;
+
+      sentiment_bar_ref.current.style.setProperty('--positive-width', `${positive_percent}%`);
+      sentiment_bar_ref.current.style.setProperty('--neutral-width', `${neutral_percent}%`);
+      sentiment_bar_ref.current.style.setProperty('--negative-width', `${negative_percent}%`);
+    }
+  }, [sentiment_counts, trends.length]);
+
+  const get_sentiment_color = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
         return 'text-green-600 bg-green-50';
@@ -62,7 +76,7 @@ export function TrendChart({
     }
   };
 
-  const getGrowthIcon = (rate: number) => {
+  const get_growth_icon = (rate: number) => {
     if (rate > 0) {
       return <TrendingUp className="w-4 h-4 text-green-600" />;
     }
@@ -72,7 +86,7 @@ export function TrendChart({
     return <Activity className="w-4 h-4 text-gray-600" />;
   };
 
-  const formatGrowthRate = (rate: number) => {
+  const format_growth_rate = (rate: number) => {
     const percentage = (rate * 100).toFixed(1);
     return rate > 0 ? `+${percentage}%` : `${percentage}%`;
   };
@@ -120,8 +134,8 @@ export function TrendChart({
 
           <TabsContent value="growing" className="space-y-4">
             <div className="space-y-3">
-              {topGrowing.length > 0 ? (
-                topGrowing.map((trend, index) => (
+              {top_growing.length > 0 ? (
+                top_growing.map((trend, index) => (
                   <div
                     key={`${trend.keyword}-${index}`}
                     className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
@@ -138,7 +152,7 @@ export function TrendChart({
                           </Badge>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${getSentimentColor(String(trend.sentiment ?? 'neutral'))}`}
+                            className={`text-xs ${get_sentiment_color(String(trend.sentiment ?? 'neutral'))}`}
                           >
                             {trend.sentiment === 'positive'
                               ? '긍정'
@@ -150,9 +164,9 @@ export function TrendChart({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {getGrowthIcon(trend.growthRate)}
+                      {get_growth_icon(trend.growthRate)}
                       <span className="font-bold text-green-600">
-                        {formatGrowthRate(trend.growthRate)}
+                        {format_growth_rate(trend.growthRate)}
                       </span>
                     </div>
                   </div>
@@ -165,8 +179,8 @@ export function TrendChart({
 
           <TabsContent value="declining" className="space-y-4">
             <div className="space-y-3">
-              {topDeclining.length > 0 ? (
-                topDeclining.map((trend, index) => (
+              {top_declining.length > 0 ? (
+                top_declining.map((trend, index) => (
                   <div
                     key={`${trend.keyword}-${index}`}
                     className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
@@ -183,7 +197,7 @@ export function TrendChart({
                           </Badge>
                           <Badge
                             variant="outline"
-                            className={`text-xs ${getSentimentColor(String(trend.sentiment ?? 'neutral'))}`}
+                            className={`text-xs ${get_sentiment_color(String(trend.sentiment ?? 'neutral'))}`}
                           >
                             {trend.sentiment === 'positive'
                               ? '긍정'
@@ -195,9 +209,9 @@ export function TrendChart({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {getGrowthIcon(trend.growthRate)}
+                      {get_growth_icon(trend.growthRate)}
                       <span className="font-bold text-red-600">
-                        {formatGrowthRate(trend.growthRate)}
+                        {format_growth_rate(trend.growthRate)}
                       </span>
                     </div>
                   </div>
@@ -213,43 +227,37 @@ export function TrendChart({
               {/* Sentiment Distribution */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
-                  <p className="text-2xl font-bold text-green-700">{sentimentCounts.positive}</p>
+                  <p className="text-2xl font-bold text-green-700">{sentiment_counts.positive}</p>
                   <p className="text-sm text-green-600 mt-1">긍정적</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-2xl font-bold text-gray-700">{sentimentCounts.neutral}</p>
+                  <p className="text-2xl font-bold text-gray-700">{sentiment_counts.neutral}</p>
                   <p className="text-sm text-gray-600 mt-1">중립적</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-red-50 border border-red-200">
-                  <p className="text-2xl font-bold text-red-700">{sentimentCounts.negative}</p>
+                  <p className="text-2xl font-bold text-red-700">{sentiment_counts.negative}</p>
                   <p className="text-sm text-red-600 mt-1">부정적</p>
                 </div>
               </div>
 
-              {/* Sentiment Percentage Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden flex">
-                {sentimentCounts.positive > 0 && (
-                  <div
-                    className="bg-green-500 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ width: `${(sentimentCounts.positive / trends.length) * 100}%` }}
-                  >
-                    {((sentimentCounts.positive / trends.length) * 100).toFixed(0)}%
+              {/* Sentiment Percentage Bar - Using CSS variables with Tailwind */}
+              <div
+                ref={sentiment_bar_ref}
+                className="w-full bg-gray-200 rounded-full h-8 overflow-hidden flex"
+              >
+                {sentiment_counts.positive > 0 && (
+                  <div className="bg-green-500 h-full flex items-center justify-center text-white text-xs font-medium w-[var(--positive-width)]">
+                    {((sentiment_counts.positive / trends.length) * 100).toFixed(0)}%
                   </div>
                 )}
-                {sentimentCounts.neutral > 0 && (
-                  <div
-                    className="bg-gray-400 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ width: `${(sentimentCounts.neutral / trends.length) * 100}%` }}
-                  >
-                    {((sentimentCounts.neutral / trends.length) * 100).toFixed(0)}%
+                {sentiment_counts.neutral > 0 && (
+                  <div className="bg-gray-400 h-full flex items-center justify-center text-white text-xs font-medium w-[var(--neutral-width)]">
+                    {((sentiment_counts.neutral / trends.length) * 100).toFixed(0)}%
                   </div>
                 )}
-                {sentimentCounts.negative > 0 && (
-                  <div
-                    className="bg-red-500 h-full flex items-center justify-center text-white text-xs font-medium"
-                    style={{ width: `${(sentimentCounts.negative / trends.length) * 100}%` }}
-                  >
-                    {((sentimentCounts.negative / trends.length) * 100).toFixed(0)}%
+                {sentiment_counts.negative > 0 && (
+                  <div className="bg-red-500 h-full flex items-center justify-center text-white text-xs font-medium w-[var(--negative-width)]">
+                    {((sentiment_counts.negative / trends.length) * 100).toFixed(0)}%
                   </div>
                 )}
               </div>
@@ -270,7 +278,7 @@ export function TrendChart({
 
                     return (
                       <div key={sentiment} className="flex items-center gap-2">
-                        <Badge variant="outline" className={getSentimentColor(sentiment)}>
+                        <Badge variant="outline" className={get_sentiment_color(sentiment)}>
                           {sentiment === 'positive'
                             ? '긍정'
                             : sentiment === 'negative'

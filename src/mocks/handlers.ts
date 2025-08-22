@@ -111,9 +111,9 @@ export const handlers = [
   // ========== 사용자 인증 API Mocks ==========
   http.get('/api/user/profile', ({ cookies }) => {
     // 쿠키를 통한 인증 상태 시뮬레이션
-    const isAuthenticated = cookies['sb-access-token'];
+    const is_authenticated = cookies['sb-access-token'];
 
-    if (!isAuthenticated) {
+    if (!is_authenticated) {
       return HttpResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -129,7 +129,6 @@ export const handlers = [
   }),
 
   http.post('/api/user/api-keys', async () => {
-
     return HttpResponse.json({
       success: true,
       message: 'API 키가 저장되었습니다.',
@@ -153,8 +152,8 @@ export const handlers = [
   }),
 
   http.post('/api/revenue-proof', async ({ request }) => {
-    const formData = await request.formData();
-    const title = formData.get('title');
+    const form_data = await request.formData();
+    const title = form_data.get('title');
 
     return HttpResponse.json({
       id: 'new_proof',
@@ -172,13 +171,13 @@ export const handlers = [
       return HttpResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
-    const paymentData = body as Record<string, unknown>;
+    const payment_data = body as Record<string, unknown>;
 
     return HttpResponse.json({
       orderId: `order_${Date.now()}`,
-      amount: paymentData.amount || 0,
-      orderName: paymentData.orderName || '',
-      customerEmail: paymentData.customerEmail || '',
+      amount: payment_data.amount || 0,
+      orderName: payment_data.orderName || '',
+      customerEmail: payment_data.customerEmail || '',
       successUrl: '/payment/success',
       failUrl: '/payment/fail',
     });

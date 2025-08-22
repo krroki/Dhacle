@@ -48,19 +48,19 @@ export default function PopularShortsList({
   initialPeriod = '7d',
   onVideoSelect,
 }: PopularShortsListProps) {
-  const [videos, setVideos] = useState<VideoWithStats[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [requiresApiKey, setRequiresApiKey] = useState(false);
-  const [region, setRegion] = useState(initialRegion);
-  const [period, setPeriod] = useState(initialPeriod);
-  const [selectedTier, setSelectedTier] = useState<string>('all');
+  const [videos, set_videos] = useState<VideoWithStats[]>([]);
+  const [loading, set_loading] = useState(false);
+  const [error, set_error] = useState<string | null>(null);
+  const [requires_api_key, set_requires_api_key] = useState(false);
+  const [region, set_region] = useState(initialRegion);
+  const [period, set_period] = useState(initialPeriod);
+  const [selected_tier, set_selected_tier] = useState<string>('all');
 
   // Fetch popular shorts
-  const fetchPopularShorts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setRequiresApiKey(false);
+  const fetch_popular_shorts = useCallback(async () => {
+    set_loading(true);
+    set_error(null);
+    set_requires_api_key(false);
 
     try {
       const data = await apiGet<{
@@ -70,12 +70,12 @@ export default function PopularShortsList({
         };
       }>(`/api/youtube/popular?region=${region}&period=${period}`);
 
-      setVideos(data.data.videos || []);
+      set_videos(data.data.videos || []);
     } catch (error) {
       if (error instanceof ApiError) {
         // Check if API key is required
         if (error.data && typeof error.data === 'object' && 'requiresApiKey' in error.data) {
-          setRequiresApiKey(true);
+          set_requires_api_key(true);
           return;
         }
 
@@ -83,51 +83,51 @@ export default function PopularShortsList({
         if (error.status === 401) {
           // Check the error message to determine the issue type
           const error_message = error.message?.toLowerCase() || '';
-          const errorData = error.data as
+          const error_data = error.data as
             | { requiresApiKey?: boolean; error_code?: string; error?: string }
             | undefined;
 
           // If it contains "api key" related messages, it's an API key issue
-          const isApiKeyError =
-            errorData?.requiresApiKey ||
-            errorData?.error_code === 'api_key_required' ||
+          const is_api_key_error =
+            error_data?.requiresApiKey ||
+            error_data?.error_code === 'api_key_required' ||
             error_message.includes('api key') ||
             error_message.includes('api 키');
 
-          if (isApiKeyError) {
-            setRequiresApiKey(true);
-            setError('YouTube API Key 설정이 필요합니다');
+          if (is_api_key_error) {
+            set_requires_api_key(true);
+            set_error('YouTube API Key 설정이 필요합니다');
           } else {
             // Only redirect to login if it's truly an authentication issue
             // Check if we're actually logged in first
-            const isLoggedIn = document.cookie.includes('sb-');
-            if (!isLoggedIn) {
+            const is_logged_in = document.cookie.includes('sb-');
+            if (!is_logged_in) {
               window.location.href = '/auth/login?redirect=/tools/youtube-lens';
             } else {
               // User is logged in but getting 401 - might be a session issue
-              setError('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
+              set_error('세션이 만료되었습니다. 새로고침 후 다시 시도해주세요.');
             }
           }
           return;
         }
-        setError(error.message);
+        set_error(error.message);
       } else {
         const error_message =
           error instanceof Error ? error.message : 'An unexpected error occurred';
-        setError(error_message);
+        set_error(error_message);
       }
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, [region, period]);
 
   // Initial fetch
   useEffect(() => {
-    fetchPopularShorts();
-  }, [fetchPopularShorts]);
+    fetch_popular_shorts();
+  }, [fetch_popular_shorts]);
 
   // Format number with K/M suffix
-  const formatNumber = (num: number): string => {
+  const format_number = (num: number): string => {
     if (num >= 1000000) {
       return `${(num / 1000000).toFixed(1)}M`;
     }
@@ -138,7 +138,7 @@ export default function PopularShortsList({
   };
 
   // Format duration
-  const formatDuration = (duration: string): string => {
+  const format_duration = (duration: string): string => {
     const match = duration.match(/PT(\d+)S/);
     if (match && match[1]) {
       const seconds = Number.parseInt(match[1], 10);
@@ -148,7 +148,7 @@ export default function PopularShortsList({
   };
 
   // Get tier badge color
-  const getTierColor = (score: number): string => {
+  const get_tier_color = (score: number): string => {
     if (score >= 80) {
       return 'bg-red-500'; // Viral
     }
@@ -165,7 +165,7 @@ export default function PopularShortsList({
   };
 
   // Get tier name
-  const getTierName = (score: number): string => {
+  const get_tier_name = (score: number): string => {
     if (score >= 80) {
       return 'Viral';
     }
@@ -182,18 +182,18 @@ export default function PopularShortsList({
   };
 
   // Filter videos by tier
-  const filteredVideos =
-    selectedTier === 'all'
+  const filtered_videos =
+    selected_tier === 'all'
       ? videos
       : videos.filter((video) => {
           const score = video.stats?.viralScore || 0;
-          const tierName = getTierName(score).toLowerCase();
-          return tierName === selectedTier;
+          const tier_name = get_tier_name(score).toLowerCase();
+          return tier_name === selected_tier;
         });
 
   // Export to CSV
-  const exportToCSV = () => {
-    const csvContent = [
+  const export_to_csv = () => {
+    const csv_content = [
       [
         'Title',
         'Channel',
@@ -205,7 +205,7 @@ export default function PopularShortsList({
         'Viral Score',
         'URL',
       ],
-      ...filteredVideos.map((video) => [
+      ...filtered_videos.map((video) => [
         video.title,
         video.channel?.title || '',
         video.stats?.view_count || 0,
@@ -220,7 +220,7 @@ export default function PopularShortsList({
       .map((row) => row.join(','))
       .join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csv_content], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -229,12 +229,12 @@ export default function PopularShortsList({
   };
 
   // Show API key setup if required
-  if (requiresApiKey) {
+  if (requires_api_key) {
     return (
       <ApiKeySetup
         onSuccess={() => {
-          setRequiresApiKey(false);
-          fetchPopularShorts();
+          set_requires_api_key(false);
+          fetch_popular_shorts();
         }}
       />
     );
@@ -251,7 +251,7 @@ export default function PopularShortsList({
         <CardContent>
           <div className="flex flex-wrap gap-4">
             {/* Region selector */}
-            <Select value={region} onValueChange={setRegion}>
+            <Select value={region} onValueChange={set_region}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select region" />
               </SelectTrigger>
@@ -266,7 +266,7 @@ export default function PopularShortsList({
             </Select>
 
             {/* Period selector */}
-            <Select value={period} onValueChange={setPeriod}>
+            <Select value={period} onValueChange={set_period}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
@@ -279,15 +279,15 @@ export default function PopularShortsList({
 
             {/* Actions */}
             <div className="flex gap-2 ml-auto">
-              <Button variant="outline" size="sm" onClick={fetchPopularShorts} disabled={loading}>
+              <Button variant="outline" size="sm" onClick={fetch_popular_shorts} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={exportToCSV}
-                disabled={filteredVideos.length === 0}
+                onClick={export_to_csv}
+                disabled={filtered_videos.length === 0}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
@@ -298,7 +298,7 @@ export default function PopularShortsList({
       </Card>
 
       {/* Performance Tiers */}
-      <Tabs value={selectedTier} onValueChange={setSelectedTier}>
+      <Tabs value={selected_tier} onValueChange={set_selected_tier}>
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="all">All ({videos.length})</TabsTrigger>
           <TabsTrigger value="viral">
@@ -339,7 +339,7 @@ export default function PopularShortsList({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={selectedTier} className="mt-6">
+        <TabsContent value={selected_tier} className="mt-6">
           {/* Error state */}
           {error && (
             <Alert variant="destructive">
@@ -364,9 +364,9 @@ export default function PopularShortsList({
           )}
 
           {/* Videos grid */}
-          {!loading && filteredVideos.length > 0 && (
+          {!loading && filtered_videos.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredVideos.map((video) => (
+              {filtered_videos.map((video) => (
                 <Card
                   key={video.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
@@ -382,20 +382,20 @@ export default function PopularShortsList({
                         className="object-cover rounded-lg"
                       />
                       <Badge
-                        className={`absolute top-2 right-2 ${getTierColor(video.stats?.viralScore || 0)} text-white`}
+                        className={`absolute top-2 right-2 ${get_tier_color(video.stats?.viralScore || 0)} text-white`}
                       >
-                        {getTierName(video.stats?.viralScore || 0)}
+                        {get_tier_name(video.stats?.viralScore || 0)}
                       </Badge>
                       <Badge className="absolute bottom-2 right-2 bg-black/70 text-white">
                         <Clock className="w-3 h-3 mr-1" />
-                        {formatDuration(video.durationSeconds ? `PT${video.durationSeconds}S` : 'PT0S')}
+                        {format_duration(
+                          video.durationSeconds ? `PT${video.durationSeconds}S` : 'PT0S'
+                        )}
                       </Badge>
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-semibold text-sm mb-1 line-clamp-2">
-                      {video.title}
-                    </h3>
+                    <h3 className="font-semibold text-sm mb-1 line-clamp-2">{video.title}</h3>
 
                     {/* Channel */}
                     <p className="text-xs text-muted-foreground mb-3">
@@ -407,15 +407,15 @@ export default function PopularShortsList({
                       <div className="flex items-center justify-between text-xs">
                         <span className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
-                          {formatNumber(Number(video.stats?.view_count || 0))}
+                          {format_number(Number(video.stats?.view_count || 0))}
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="w-3 h-3" />
-                          {formatNumber(Number(video.stats?.like_count || 0))}
+                          {format_number(Number(video.stats?.like_count || 0))}
                         </span>
                         <span className="flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
-                          {formatNumber(Number(video.stats?.comment_count || 0))}
+                          {format_number(Number(video.stats?.comment_count || 0))}
                         </span>
                       </div>
 
@@ -425,7 +425,7 @@ export default function PopularShortsList({
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">VPH</span>
                             <span className="font-medium">
-                              {formatNumber(video.stats.viewsPerHour ?? 0)}
+                              {format_number(video.stats.viewsPerHour ?? 0)}
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
@@ -476,7 +476,7 @@ export default function PopularShortsList({
           )}
 
           {/* Empty state */}
-          {!loading && filteredVideos.length === 0 && !error && (
+          {!loading && filtered_videos.length === 0 && !error && (
             <Card>
               <CardContent className="text-center py-12">
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />

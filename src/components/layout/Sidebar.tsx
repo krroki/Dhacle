@@ -16,7 +16,7 @@ interface SidebarItem {
   progress?: number;
 }
 
-const sidebarData: Record<string, SidebarItem[]> = {
+const sidebar_data: Record<string, SidebarItem[]> = {
   '/courses': [
     {
       id: 'intro',
@@ -111,11 +111,11 @@ const sidebarData: Record<string, SidebarItem[]> = {
 export function Sidebar() {
   const pathname = usePathname();
   const { isSidebarOpen, setSidebarOpen } = useLayoutStore();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expanded_items, set_expanded_items] = useState<string[]>([]);
 
   // Determine which sidebar data to use based on current path
-  const getSidebarItems = () => {
-    for (const [path, items] of Object.entries(sidebarData)) {
+  const get_sidebar_items = () => {
+    for (const [path, items] of Object.entries(sidebar_data)) {
       if (pathname.startsWith(path)) {
         return items;
       }
@@ -123,23 +123,23 @@ export function Sidebar() {
     return null;
   };
 
-  const sidebarItems = getSidebarItems();
+  const sidebar_items = get_sidebar_items();
 
   // Don't show sidebar on mypage (has its own sidebar) or if no matching data
-  if (pathname.startsWith('/mypage') || !sidebarItems) {
+  if (pathname.startsWith('/mypage') || !sidebar_items) {
     return null;
   }
 
-  const toggleExpanded = (id: string) => {
-    setExpandedItems((prev) =>
+  const toggle_expanded = (id: string) => {
+    set_expanded_items((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
-  const renderSidebarItem = (item: SidebarItem, depth = 0) => {
-    const isExpanded = expandedItems.includes(item.id);
+  const render_sidebar_item = (item: SidebarItem, depth = 0) => {
+    const is_expanded = expanded_items.includes(item.id);
     const is_active = pathname === item.href;
-    const hasChildren = item.children && item.children.length > 0;
+    const has_children = item.children && item.children.length > 0;
 
     return (
       <div key={item.id}>
@@ -152,14 +152,14 @@ export function Sidebar() {
               : 'hover:bg-muted text-muted-foreground hover:text-foreground'
           )}
           onClick={() => {
-            if (hasChildren) {
-              toggleExpanded(item.id);
+            if (has_children) {
+              toggle_expanded(item.id);
             } else if (item.href) {
               // Navigation handled by Link component
             }
           }}
         >
-          {item.href && !hasChildren ? (
+          {item.href && !has_children ? (
             <Link href={item.href} className="flex-1 flex items-center gap-2">
               {depth > 0 && <Circle className="h-2 w-2" />}
               <span>{item.label}</span>
@@ -176,14 +176,14 @@ export function Sidebar() {
               )}
             </div>
           )}
-          {hasChildren && (
+          {has_children && (
             <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-90')}
+              className={cn('h-4 w-4 transition-transform', is_expanded && 'rotate-90')}
             />
           )}
         </div>
         <AnimatePresence>
-          {hasChildren && isExpanded && (
+          {has_children && is_expanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -192,7 +192,7 @@ export function Sidebar() {
               className="overflow-hidden"
             >
               <div className="mt-1">
-                {item.children?.map((child) => renderSidebarItem(child, depth + 1))}
+                {item.children?.map((child) => render_sidebar_item(child, depth + 1))}
               </div>
             </motion.div>
           )}
@@ -227,7 +227,7 @@ export function Sidebar() {
             {pathname.startsWith('/mypage') && '마이페이지'}
             {pathname.startsWith('/tools') && '도구 모음'}
           </h2>
-          <nav className="space-y-1">{sidebarItems.map((item) => renderSidebarItem(item))}</nav>
+          <nav className="space-y-1">{sidebar_items.map((item) => render_sidebar_item(item))}</nav>
         </div>
       </aside>
 
@@ -246,7 +246,9 @@ export function Sidebar() {
                 {pathname.startsWith('/mypage') && '마이페이지'}
                 {pathname.startsWith('/tools') && '도구 모음'}
               </h2>
-              <nav className="space-y-1">{sidebarItems.map((item) => renderSidebarItem(item))}</nav>
+              <nav className="space-y-1">
+                {sidebar_items.map((item) => render_sidebar_item(item))}
+              </nav>
             </div>
           </aside>
         </>

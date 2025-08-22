@@ -13,23 +13,23 @@ interface EnvCheckResult {
  * 클라이언트 사이드에서도 사용 가능합니다.
  */
 export function checkYouTubeEnvVars(): EnvCheckResult {
-  const requiredVars = {
+  const required_vars = {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL,
   };
 
-  const missingVars: string[] = [];
+  const missing_vars: string[] = [];
   const warnings: string[] = [];
 
   // 필수 환경 변수 체크
-  Object.entries(requiredVars).forEach(([key, value]) => {
+  Object.entries(required_vars).forEach(([key, value]) => {
     if (!value) {
-      missingVars.push(key);
+      missing_vars.push(key);
     }
   });
 
   // localhost 경고
   if (
-    requiredVars.NEXT_PUBLIC_SITE_URL?.includes('localhost') &&
+    required_vars.NEXT_PUBLIC_SITE_URL?.includes('localhost') &&
     typeof window !== 'undefined' &&
     !window.location.hostname.includes('localhost')
   ) {
@@ -37,8 +37,8 @@ export function checkYouTubeEnvVars(): EnvCheckResult {
   }
 
   return {
-    isConfigured: missingVars.length === 0,
-    missingVars,
+    isConfigured: missing_vars.length === 0,
+    missingVars: missing_vars,
     warnings,
   };
 }
@@ -47,32 +47,32 @@ export function checkYouTubeEnvVars(): EnvCheckResult {
  * 서버 사이드에서만 사용 가능한 환경 변수 체크
  */
 export function checkYouTubeServerEnvVars(): EnvCheckResult {
-  const serverVars = {
+  const server_vars = {
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   };
 
-  const clientCheck = checkYouTubeEnvVars();
-  const missingVars = [...clientCheck.missingVars];
-  const warnings = [...clientCheck.warnings];
+  const client_check = checkYouTubeEnvVars();
+  const missing_vars = [...client_check.missingVars];
+  const warnings = [...client_check.warnings];
 
   // 서버 환경 변수 체크
-  Object.entries(serverVars).forEach(([key, value]) => {
+  Object.entries(server_vars).forEach(([key, value]) => {
     if (!value) {
-      missingVars.push(key);
+      missing_vars.push(key);
     }
   });
 
   // 암호화 키 길이 체크 (64자 = 32바이트 hex string)
-  if (serverVars.ENCRYPTION_KEY && serverVars.ENCRYPTION_KEY.length !== 64) {
+  if (server_vars.ENCRYPTION_KEY && server_vars.ENCRYPTION_KEY.length !== 64) {
     warnings.push(
-      `ENCRYPTION_KEY가 올바르지 않습니다 (현재: ${serverVars.ENCRYPTION_KEY.length}자, 필요: 64자)`
+      `ENCRYPTION_KEY가 올바르지 않습니다 (현재: ${server_vars.ENCRYPTION_KEY.length}자, 필요: 64자)`
     );
   }
 
   return {
-    isConfigured: missingVars.length === 0 && warnings.length === 0,
-    missingVars,
+    isConfigured: missing_vars.length === 0 && warnings.length === 0,
+    missingVars: missing_vars,
     warnings,
   };
 }
@@ -88,13 +88,13 @@ export function isDevelopment(): boolean {
  * Google OAuth URL이 올바르게 설정되었는지 체크
  */
 export function validateOAuthRedirectUri(): boolean {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
+  const site_url = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!site_url) {
     return false;
   }
 
   try {
-    const url = new URL(siteUrl);
+    const url = new URL(site_url);
     // localhost나 https를 사용하는지 체크
     return url.hostname === 'localhost' || url.protocol === 'https:';
   } catch {

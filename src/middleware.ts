@@ -77,30 +77,30 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // Wave 3: Rate Limiting 적용
-  const clientIp = getClientIp(request as unknown as Request);
-  const identifier = `${clientIp}:${pathname}`;
+  const client_ip = getClientIp(request as unknown as Request);
+  const identifier = `${client_ip}:${pathname}`;
 
   // 인증 관련 엔드포인트는 더 엄격한 제한
   const limiter =
     pathname.includes('/auth/') || pathname.includes('/login') ? authRateLimiter : apiRateLimiter;
 
-  const rateLimitResult = limiter.check(identifier);
+  const rate_limit_result = limiter.check(identifier);
 
-  if (!rateLimitResult.allowed) {
-    return createRateLimitResponse(rateLimitResult.resetTime);
+  if (!rate_limit_result.allowed) {
+    return createRateLimitResponse(rate_limit_result.resetTime);
   }
 
   // 응답 헤더 설정 - 이미 위에서 생성한 response 사용
   const response = res;
 
   // 1. 캐싱 정책 설정
-  if (isPrivateDataRoute(pathname)) {
+  if (is_private_data_route(pathname)) {
     // 개인 데이터는 캐싱 금지
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
     response.headers.set('Surrogate-Control', 'no-store');
-  } else if (isPublicRoute(pathname)) {
+  } else if (is_public_route(pathname)) {
     // 공개 데이터는 짧은 시간 캐싱 허용 (5분)
     response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300');
   } else {
@@ -124,13 +124,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // 3. CORS 설정 (필요한 경우)
   const origin = request.headers.get('origin');
-  const allowedOrigins = [
+  const allowed_origins = [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     'https://dhacle.com',
     'https://www.dhacle.com',
   ];
 
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && allowed_origins.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin);
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -138,20 +138,20 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // 4. Rate Limiting 헤더 (Wave 3 구현 완료)
-  response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
-  response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
-  response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.resetTime).toISOString());
+  response.headers.set('X-RateLimit-Limit', rate_limit_result.limit.toString());
+  response.headers.set('X-RateLimit-Remaining', rate_limit_result.remaining.toString());
+  response.headers.set('X-RateLimit-Reset', new Date(rate_limit_result.resetTime).toISOString());
 
   return response;
 }
 
 // 개인 데이터 경로 확인
-function isPrivateDataRoute(pathname: string): boolean {
+function is_private_data_route(pathname: string): boolean {
   return PRIVATE_DATA_ROUTES.some((route) => pathname.startsWith(route));
 }
 
 // 공개 경로 확인
-function isPublicRoute(pathname: string): boolean {
+function is_public_route(pathname: string): boolean {
   return PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route));
 }
 

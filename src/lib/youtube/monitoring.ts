@@ -36,13 +36,13 @@ export class ChannelFolderManager {
   /**
    * Add channels to a folder
    */
-  async addChannelsToFolder(folderId: string, channelIds: string[]): Promise<void> {
-    const folderChannels = channelIds.map((channel_id) => ({
-      folder_id: folderId,
+  async addChannelsToFolder(folder_id: string, channel_ids: string[]): Promise<void> {
+    const folder_channels = channel_ids.map((channel_id) => ({
+      folder_id: folder_id,
       channel_id: channel_id,
     }));
 
-    const { error } = await supabase.from('folderChannels').insert(folderChannels);
+    const { error } = await supabase.from('folderChannels').insert(folder_channels);
 
     if (error) {
       throw error;
@@ -74,11 +74,11 @@ export class ChannelFolderManager {
   /**
    * Update folder settings
    */
-  async updateFolder(folderId: string, updates: Partial<SourceFolder>): Promise<SourceFolder> {
+  async updateFolder(folder_id: string, updates: Partial<SourceFolder>): Promise<SourceFolder> {
     const { data, error } = await supabase
       .from('sourceFolders')
       .update(updates)
-      .eq('id', folderId)
+      .eq('id', folder_id)
       .select()
       .single();
 
@@ -91,8 +91,8 @@ export class ChannelFolderManager {
   /**
    * Delete a folder
    */
-  async deleteFolder(folderId: string): Promise<void> {
-    const { error } = await supabase.from('sourceFolders').delete().eq('id', folderId);
+  async deleteFolder(folder_id: string): Promise<void> {
+    const { error } = await supabase.from('sourceFolders').delete().eq('id', folder_id);
 
     if (error) {
       throw error;
@@ -143,15 +143,16 @@ export class AlertRuleEngine {
 
     for (const rule of rules) {
       let triggered = false;
-      let actualValue = 0;
+      let actual_value = 0;
 
       switch (rule.metricType) {
         case 'view_count':
-          actualValue = typeof video.statistics?.view_count === 'number' 
-            ? video.statistics.view_count 
-            : parseInt(String(video.statistics?.view_count || 0));
+          actual_value =
+            typeof video.statistics?.view_count === 'number'
+              ? video.statistics.view_count
+              : Number.parseInt(String(video.statistics?.view_count || 0));
           triggered = this.compareValue(
-            actualValue,
+            actual_value,
             rule.comparisonOperator || '>',
             rule.thresholdValue
           );
@@ -159,9 +160,9 @@ export class AlertRuleEngine {
 
         case 'vph':
           if (video.metrics?.viewsPerHour !== undefined) {
-            actualValue = video.metrics.viewsPerHour;
+            actual_value = video.metrics.viewsPerHour;
             triggered = this.compareValue(
-              actualValue,
+              actual_value,
               rule.comparisonOperator || '>',
               rule.thresholdValue
             );
@@ -170,9 +171,9 @@ export class AlertRuleEngine {
 
         case 'engagementRate':
           if (video.metrics?.engagementRate !== undefined) {
-            actualValue = video.metrics.engagementRate;
+            actual_value = video.metrics.engagementRate;
             triggered = this.compareValue(
-              actualValue,
+              actual_value,
               rule.comparisonOperator || '>',
               rule.thresholdValue
             );
@@ -181,9 +182,9 @@ export class AlertRuleEngine {
 
         case 'viralScore':
           if (video.metrics?.viralScore !== undefined) {
-            actualValue = video.metrics.viralScore;
+            actual_value = video.metrics.viralScore;
             triggered = this.compareValue(
-              actualValue,
+              actual_value,
               rule.comparisonOperator || '>',
               rule.thresholdValue
             );
@@ -192,11 +193,11 @@ export class AlertRuleEngine {
 
         case 'growthRate': {
           // Calculate growth rate from historical data
-          const growthRate = await this.calculateGrowthRate(video.id);
-          if (growthRate !== null) {
-            actualValue = growthRate;
+          const growth_rate = await this.calculateGrowthRate(video.id);
+          if (growth_rate !== null) {
+            actual_value = growth_rate;
             triggered = this.compareValue(
-              actualValue,
+              actual_value,
               rule.comparisonOperator || '>',
               rule.thresholdValue
             );
@@ -214,9 +215,9 @@ export class AlertRuleEngine {
           channel_id: video.snippet.channel_id,
           alertType: rule.ruleType,
           title: `${rule.name} Alert`,
-          message: `Alert: ${video.snippet.title} - ${rule.metricType} is ${actualValue} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
+          message: `Alert: ${video.snippet.title} - ${rule.metricType} is ${actual_value} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
           severity: 'warning' as const,
-          metricValue: actualValue,
+          metricValue: actual_value,
           triggeredAt: new Date().toISOString(),
           contextData: { video_title: video.snippet.title },
           is_read: false,
@@ -268,20 +269,20 @@ export class AlertRuleEngine {
     }
 
     const [recent, previous] = data;
-    
+
     if (!recent || !previous) {
       return null;
     }
-    
-    const viewDiff = recent.view_count - previous.view_count;
-    const timeDiff =
-      new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
-    const hoursDiff = timeDiff / (1000 * 60 * 60);
 
-    if (hoursDiff === 0 || previous.view_count === 0) {
+    const view_diff = recent.view_count - previous.view_count;
+    const time_diff =
+      new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
+    const hours_diff = time_diff / (1000 * 60 * 60);
+
+    if (hours_diff === 0 || previous.view_count === 0) {
       return 0;
     }
-    return ((viewDiff / previous.view_count) * 100) / hoursDiff; // Growth rate per hour as percentage
+    return ((view_diff / previous.view_count) * 100) / hours_diff; // Growth rate per hour as percentage
   }
 
   /**
@@ -311,7 +312,7 @@ export class MonitoringScheduler {
   /**
    * Start monitoring for a user
    */
-  async startMonitoring(user_id: string, intervalMinutes = 60): Promise<void> {
+  async startMonitoring(user_id: string, interval_minutes = 60): Promise<void> {
     // Clear existing interval if any
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -325,7 +326,7 @@ export class MonitoringScheduler {
       async () => {
         await this.runMonitoringCheck(user_id);
       },
-      intervalMinutes * 60 * 1000
+      interval_minutes * 60 * 1000
     );
   }
 
@@ -358,34 +359,34 @@ export class MonitoringScheduler {
       }
 
       // Collect all channel IDs from folders
-      const channelIds = new Set<string>();
+      const channel_ids = new Set<string>();
       for (const folder of folders) {
         if (folder.isMonitoringEnabled && folder.folderChannels) {
           folder.folderChannels.forEach((fc) => {
-            channelIds.add(fc.channel_id);
+            channel_ids.add(fc.channel_id);
           });
         }
       }
 
-      if (channelIds.size === 0) {
+      if (channel_ids.size === 0) {
         console.log('No channels to monitor');
         return;
       }
 
       // Fetch recent videos from channels
-      const videos = await this.fetchChannelVideos(Array.from(channelIds));
+      const videos = await this.fetchChannelVideos(Array.from(channel_ids));
 
       // Check each video against rules
-      const allAlerts: Alert[] = [];
+      const all_alerts: Alert[] = [];
       for (const video of videos) {
         const alerts = await this.ruleEngine.checkVideoAgainstRules(video, rules);
-        allAlerts.push(...alerts);
+        all_alerts.push(...alerts);
       }
 
       // Save alerts
-      if (allAlerts.length > 0) {
-        await this.ruleEngine.saveAlerts(allAlerts);
-        console.log(`Generated ${allAlerts.length} alerts`);
+      if (all_alerts.length > 0) {
+        await this.ruleEngine.saveAlerts(all_alerts);
+        console.log(`Generated ${all_alerts.length} alerts`);
       }
 
       // Update last check timestamp
@@ -396,10 +397,10 @@ export class MonitoringScheduler {
   /**
    * Fetch recent videos from channels
    */
-  private async fetchChannelVideos(channelIds: string[]): Promise<YouTubeVideo[]> {
+  private async fetchChannelVideos(channel_ids: string[]): Promise<YouTubeVideo[]> {
     // This would typically call YouTube API
     // For now, returning empty array as YouTube API integration is separate
-    console.log(`Would fetch videos from channels: ${channelIds.join(', ')}`);
+    console.log(`Would fetch videos from channels: ${channel_ids.join(', ')}`);
     return [];
   }
 
@@ -441,17 +442,17 @@ export const monitoringUtils = {
    * Get alert severity
    */
   getAlertSeverity(alert: Alert): 'low' | 'medium' | 'high' | 'critical' {
-    const metricValue = alert.metricValue || 0;
+    const metric_value = alert.metricValue || 0;
 
     // Define severity based on metric value ranges
     // This is customizable based on requirements
-    if (metricValue > 1000000) {
+    if (metric_value > 1000000) {
       return 'critical';
     }
-    if (metricValue > 100000) {
+    if (metric_value > 100000) {
       return 'high';
     }
-    if (metricValue > 10000) {
+    if (metric_value > 10000) {
       return 'medium';
     }
     return 'low';
@@ -471,7 +472,7 @@ export const monitoringUtils = {
       channelFolderManager.getUserFolders(user_id),
     ]);
 
-    const channelCount = folders.reduce((count, folder) => {
+    const channel_count = folders.reduce((count, folder) => {
       if (folder.isMonitoringEnabled && folder.folderChannels) {
         return count + folder.folderChannels.length;
       }
@@ -479,9 +480,9 @@ export const monitoringUtils = {
     }, 0);
 
     return {
-      isHealthy: rules.length > 0 && channelCount > 0,
+      isHealthy: rules.length > 0 && channel_count > 0,
       activeRules: rules.length,
-      monitoredChannels: channelCount,
+      monitoredChannels: channel_count,
     };
   },
 };

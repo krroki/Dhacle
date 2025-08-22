@@ -21,27 +21,27 @@ interface InstructorFilterProps {
 }
 
 export function InstructorFilter({ instructors, onFilterChange }: InstructorFilterProps) {
-  const [filters, setFilters] = useState<CourseFilters>({});
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, set_filters] = useState<CourseFilters>({});
+  const [show_advanced, set_show_advanced] = useState(false);
+  const [search_query, set_search_query] = useState('');
 
-  const handleFilterChange = (newFilters: CourseFilters) => {
-    const updated = { ...filters, ...newFilters };
-    setFilters(updated);
+  const handle_filter_change = (new_filters: CourseFilters) => {
+    const updated = { ...filters, ...new_filters };
+    set_filters(updated);
     onFilterChange?.(updated);
   };
 
-  const handleSearch = () => {
-    handleFilterChange({ search: searchQuery });
+  const handle_search = () => {
+    handle_filter_change({ search: search_query });
   };
 
-  const clearFilters = () => {
-    setFilters({});
-    setSearchQuery('');
+  const clear_filters = () => {
+    set_filters({});
+    set_search_query('');
     onFilterChange?.({});
   };
 
-  const activeFilterCount = Object.keys(filters).filter(
+  const active_filter_count = Object.keys(filters).filter(
     (key) => filters[key as keyof CourseFilters] !== undefined
   ).length;
 
@@ -54,19 +54,23 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
           <Input
             type="text"
             placeholder="강의 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            value={search_query}
+            onChange={(e) => set_search_query(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handle_search()}
             className="pl-10"
           />
         </div>
-        <Button onClick={handleSearch}>검색</Button>
-        <Button variant="outline" onClick={() => setShowAdvanced(!showAdvanced)} className="gap-2">
+        <Button onClick={handle_search}>검색</Button>
+        <Button
+          variant="outline"
+          onClick={() => set_show_advanced(!show_advanced)}
+          className="gap-2"
+        >
           <SlidersHorizontal className="w-4 h-4" />
           필터
-          {activeFilterCount > 0 && (
+          {active_filter_count > 0 && (
             <Badge variant="secondary" className="ml-1">
-              {activeFilterCount}
+              {active_filter_count}
             </Badge>
           )}
         </Button>
@@ -77,7 +81,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
         <Button
           variant={!filters.instructor ? 'default' : 'outline'}
           size="sm"
-          onClick={() => handleFilterChange({ instructor: undefined })}
+          onClick={() => handle_filter_change({ instructor: undefined })}
         >
           전체 강사
         </Button>
@@ -86,7 +90,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
             key={instructor}
             variant={filters.instructor === instructor ? 'default' : 'outline'}
             size="sm"
-            onClick={() => handleFilterChange({ instructor })}
+            onClick={() => handle_filter_change({ instructor })}
           >
             {instructor}
           </Button>
@@ -94,12 +98,12 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
       </div>
 
       {/* 고급 필터 */}
-      {showAdvanced && (
+      {show_advanced && (
         <div className="border rounded-lg p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-medium">상세 필터</h3>
-            {activeFilterCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+            {active_filter_count > 0 && (
+              <Button variant="ghost" size="sm" onClick={clear_filters} className="gap-1">
                 <X className="w-3 h-3" />
                 초기화
               </Button>
@@ -114,21 +118,21 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
                 <Button
                   variant={filters.is_free === true ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: true })}
+                  onClick={() => handle_filter_change({ is_free: true })}
                 >
                   무료
                 </Button>
                 <Button
                   variant={filters.is_free === false ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: false })}
+                  onClick={() => handle_filter_change({ is_free: false })}
                 >
                   유료
                 </Button>
                 <Button
                   variant={filters.is_free === undefined ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleFilterChange({ is_free: undefined })}
+                  onClick={() => handle_filter_change({ is_free: undefined })}
                 >
                   전체
                 </Button>
@@ -141,7 +145,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Select
                 value={filters.rating?.toString()}
                 onValueChange={(value) =>
-                  handleFilterChange({ rating: value ? Number.parseFloat(value) : undefined })
+                  handle_filter_change({ rating: value ? Number.parseFloat(value) : undefined })
                 }
               >
                 <SelectTrigger>
@@ -163,7 +167,7 @@ export function InstructorFilter({ instructors, onFilterChange }: InstructorFilt
               <Select
                 value={filters.status}
                 onValueChange={(value) =>
-                  handleFilterChange({
+                  handle_filter_change({
                     status: value as 'upcoming' | 'active' | 'completed' | undefined,
                   })
                 }

@@ -16,8 +16,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import type { Database } from '@/types';
 
+// 동적 페이지로 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic';
+
 // 뱃지 아이콘 매핑
-const badgeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+const badge_icons: Record<string, React.ComponentType<{ className?: string }>> = {
   firstCourse: BookOpen,
   fiveCourses: Target,
   tenCourses: Trophy,
@@ -31,7 +34,7 @@ const badgeIcons: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 // 뱃지 색상 매핑
-const badgeColors: { [key: string]: string } = {
+const badge_colors: { [key: string]: string } = {
   bronze: 'bg-orange-100 text-orange-700 border-orange-300',
   silver: 'bg-gray-100 text-gray-700 border-gray-300',
   gold: 'bg-yellow-100 text-yellow-700 border-yellow-300',
@@ -60,25 +63,25 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
   }
 
   // 사용자의 뱃지 가져오기
-  const { data: userBadges } = await supabase
+  const { data: user_badges } = await supabase
     .from('badges')
     .select('*')
     .eq('user_id', user.id)
     .order('earned_at', { ascending: false });
 
   // Map snake_case from database to camelCase for the component
-  const badges: UserBadge[] = (userBadges || []).map(badge => ({
+  const badges: UserBadge[] = (user_badges || []).map((badge) => ({
     id: badge.id,
     user_id: badge.user_id,
     badgeType: badge.badge_type,
     badgeLevel: badge.badge_level || 'bronze',
     earnedAt: badge.earned_at || new Date().toISOString(),
     title: badge.title,
-    description: badge.description || ''
+    description: badge.description || '',
   }));
 
   // 획득 가능한 뱃지 목록 (더미 데이터)
-  const availableBadges = [
+  const available_badges = [
     {
       type: 'firstCourse',
       title: '첫 강의 수강',
@@ -145,7 +148,7 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
   ];
 
   // 획득한 뱃지 타입 목록
-  const earnedBadgeTypes = new Set(badges.map((b: UserBadge) => b.badgeType));
+  const earned_badge_types = new Set(badges.map((b: UserBadge) => b.badgeType));
 
   return (
     <div className="space-y-6">
@@ -174,7 +177,7 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
               <div>
                 <p className="text-sm text-gray-600">획득률</p>
                 <p className="text-2xl font-bold mt-1">
-                  {Math.round((badges.length / availableBadges.length) * 100)}%
+                  {Math.round((badges.length / available_badges.length) * 100)}%
                 </p>
               </div>
               <Target className="h-8 w-8 text-blue-600" />
@@ -209,16 +212,16 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {badges.map((badge: UserBadge) => {
-                const Icon = badgeIcons[badge.badgeType] || badgeIcons.default;
-                const colorClass = badgeColors[badge.badgeLevel] || badgeColors.default;
+                const Icon = badge_icons[badge.badgeType] || badge_icons.default;
+                const color_class = badge_colors[badge.badgeLevel] || badge_colors.default;
 
                 return (
                   <div
                     key={badge.id}
-                    className={`p-4 rounded-lg border-2 ${colorClass} bg-opacity-20`}
+                    className={`p-4 rounded-lg border-2 ${color_class} bg-opacity-20`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`p-3 rounded-full ${colorClass}`}>
+                      <div className={`p-3 rounded-full ${color_class}`}>
                         {Icon && <Icon className="h-6 w-6" />}
                       </div>
                       <div className="flex-1">
@@ -245,24 +248,24 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableBadges.map((badge) => {
-              const Icon = badgeIcons[badge.type] || badgeIcons.default;
-              const colorClass = badgeColors[badge.level] || badgeColors.default;
-              const isEarned = earnedBadgeTypes.has(badge.type);
+            {available_badges.map((badge) => {
+              const Icon = badge_icons[badge.type] || badge_icons.default;
+              const color_class = badge_colors[badge.level] || badge_colors.default;
+              const is_earned = earned_badge_types.has(badge.type);
 
               return (
                 <div
                   key={badge.type}
                   className={`p-4 rounded-lg border-2 ${
-                    isEarned
-                      ? `${colorClass} bg-opacity-20`
+                    is_earned
+                      ? `${color_class} bg-opacity-20`
                       : 'border-gray-200 bg-gray-50 opacity-60'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className={`p-3 rounded-full ${
-                        isEarned ? colorClass : 'bg-gray-200 text-gray-400'
+                        is_earned ? color_class : 'bg-gray-200 text-gray-400'
                       }`}
                     >
                       {Icon && <Icon className="h-6 w-6" />}
@@ -271,14 +274,16 @@ export default async function MyBadgesPage(): Promise<React.JSX.Element> {
                       <div className="flex items-center gap-2">
                         <h4
                           className={`font-semibold ${
-                            isEarned ? 'text-gray-900' : 'text-gray-600'
+                            is_earned ? 'text-gray-900' : 'text-gray-600'
                           }`}
                         >
                           {badge.title}
                         </h4>
-                        {isEarned && <CheckCircle className="h-4 w-4 text-green-600" />}
+                        {is_earned && <CheckCircle className="h-4 w-4 text-green-600" />}
                       </div>
-                      <p className={`text-sm mt-1 ${isEarned ? 'text-gray-600' : 'text-gray-500'}`}>
+                      <p
+                        className={`text-sm mt-1 ${is_earned ? 'text-gray-600' : 'text-gray-500'}`}
+                      >
                         {badge.description}
                       </p>
                       <p className="text-xs text-gray-500 mt-2">조건: {badge.condition}</p>

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const page = Number.parseInt(searchParams.get('page') || '1', 10);
     const limit = Number.parseInt(searchParams.get('limit') || '10', 10);
     const offset = (page - 1) * limit;
-    const includeHidden = searchParams.get('includeHidden') === 'true';
+    const include_hidden = searchParams.get('includeHidden') === 'true';
 
     // 내 인증 목록 조회
     let query = supabase
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .range(offset, offset + limit - 1);
 
     // 숨김 포함 여부
-    if (!includeHidden) {
+    if (!include_hidden) {
       query = query.eq('is_hidden', false);
     }
 
@@ -66,23 +66,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // 각 인증에 대한 추가 정보 조회
-    const proofsWithDetails = await Promise.all(
+    const proofs_with_details = await Promise.all(
       (proofs || []).map(async (proof: RevenueProof) => {
         // 오늘 작성 여부 확인
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const created_at = proof.created_at ? new Date(proof.created_at) : new Date();
-        const isToday = created_at >= today;
+        const is_today = created_at >= today;
 
         // 24시간 내 수정 가능 여부
-        const hoursSinceCreation = (Date.now() - created_at.getTime()) / (1000 * 60 * 60);
-        const canEdit = hoursSinceCreation <= 24;
+        const hours_since_creation = (Date.now() - created_at.getTime()) / (1000 * 60 * 60);
+        const can_edit = hours_since_creation <= 24;
 
         return {
           ...proof,
-          isToday: isToday,
-          canEdit: canEdit,
-          hoursRemaining: canEdit ? Math.floor(24 - hoursSinceCreation) : 0,
+          isToday: is_today,
+          canEdit: can_edit,
+          hoursRemaining: can_edit ? Math.floor(24 - hours_since_creation) : 0,
         };
       })
     );
@@ -90,45 +90,46 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 통계 정보 계산
     const stats = {
       totalProofs: count || 0,
-      total_amount: proofsWithDetails.reduce(
+      total_amount: proofs_with_details.reduce(
         (sum: number, p: RevenueProofWithDetails) => sum + p.amount,
         0
       ),
-      totalLikes: proofsWithDetails.reduce(
+      totalLikes: proofs_with_details.reduce(
         (sum: number, p: RevenueProofWithDetails) => sum + (p.likes_count ?? 0),
         0
       ),
-      totalComments: proofsWithDetails.reduce(
+      totalComments: proofs_with_details.reduce(
         (sum: number, p: RevenueProofWithDetails) => sum + (p.comments_count ?? 0),
         0
       ),
-      hiddenCount: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
+      hiddenCount: proofs_with_details.filter((p: RevenueProofWithDetails) => p.is_hidden).length,
       platforms: {
-        youtube: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'youtube')
-          .length,
-        instagram: proofsWithDetails.filter(
+        youtube: proofs_with_details.filter(
+          (p: RevenueProofWithDetails) => p.platform === 'youtube'
+        ).length,
+        instagram: proofs_with_details.filter(
           (p: RevenueProofWithDetails) => p.platform === 'instagram'
         ).length,
-        tiktok: proofsWithDetails.filter((p: RevenueProofWithDetails) => p.platform === 'tiktok')
+        tiktok: proofs_with_details.filter((p: RevenueProofWithDetails) => p.platform === 'tiktok')
           .length,
       },
     };
 
     // 오늘 인증 여부 확인
-    const todayProof = proofsWithDetails.find((p: RevenueProofWithDetails) => p.isToday);
-    const canCreateToday = !todayProof;
+    const today_proof = proofs_with_details.find((p: RevenueProofWithDetails) => p.isToday);
+    const can_create_today = !today_proof;
 
     // 다음 인증 가능 시간 계산
-    let nextAvailable = null;
-    if (!canCreateToday && todayProof && todayProof.created_at) {
-      const tomorrow = new Date(todayProof.created_at);
+    let next_available = null;
+    if (!can_create_today && today_proof && today_proof.created_at) {
+      const tomorrow = new Date(today_proof.created_at);
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0);
-      nextAvailable = tomorrow.toISOString();
+      next_available = tomorrow.toISOString();
     }
 
     return NextResponse.json({
-      data: proofsWithDetails,
+      data: proofs_with_details,
       pagination: {
         page,
         limit,
@@ -136,8 +137,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         totalPages: Math.ceil((count || 0) / limit),
       },
       stats,
-      canCreateToday,
-      nextAvailable,
+      canCreateToday: can_create_today,
+      nextAvailable: next_available,
     });
   } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
@@ -159,9 +160,9 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     // 확인 토큰 검증 (안전장치)
     const { searchParams } = new URL(request.url);
-    const confirmToken = searchParams.get('confirm');
+    const confirm_token = searchParams.get('confirm');
 
-    if (confirmToken !== 'DELETE_ALL_MY_PROOFS') {
+    if (confirm_token !== 'DELETE_ALL_MY_PROOFS') {
       return NextResponse.json({ error: '확인 토큰이 올바르지 않습니다' }, { status: 400 });
     }
 

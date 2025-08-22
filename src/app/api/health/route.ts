@@ -11,74 +11,74 @@ export async function GET(): Promise<NextResponse> {
 
   try {
     // Test 1: Environment variables
-    const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const has_url = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const has_key = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    console.log('Environment check:', { hasUrl, hasKey });
+    console.log('Environment check:', { hasUrl: has_url, hasKey: has_key });
 
     // Test 2: Create Supabase client
-    let clientCreated = false;
-    let supabaseError = null;
+    let client_created = false;
+    let supabase_error = null;
 
     try {
       const supabase = await createRouteHandlerClient({ cookies });
-      clientCreated = true;
+      client_created = true;
       console.log('Supabase client created successfully');
 
       // Test 3: Simple query to check database connection
-      const { data: tableCheck, error: tableError } = await supabase
+      const { data: table_check, error: table_error } = await supabase
         .from('revenue_proofs')
         .select('id')
         .limit(1);
 
       console.log('Table query result:', {
-        hasData: !!tableCheck,
-        error: tableError?.message,
+        hasData: !!table_check,
+        error: table_error?.message,
       });
 
       // Test 4: Check auth session
       const {
         data: { user },
-        error: authError,
+        error: auth_error,
       } = await supabase.auth.getUser();
 
       console.log('Auth check:', {
         hasSession: !!user,
-        error: authError?.message,
+        error: auth_error?.message,
       });
 
       return NextResponse.json({
         status: 'healthy',
         environment: {
-          hasUrl,
-          hasKey,
+          hasUrl: has_url,
+          hasKey: has_key,
           nodeEnv: process.env.NODE_ENV,
         },
         supabase: {
-          clientCreated,
-          tableAccess: !tableError,
-          tableError: tableError?.message || null,
-          authWorking: !authError,
-          authError: authError?.message || null,
+          clientCreated: client_created,
+          tableAccess: !table_error,
+          tableError: table_error?.message || null,
+          authWorking: !auth_error,
+          authError: auth_error?.message || null,
           hasSession: !!user,
         },
         timestamp: new Date().toISOString(),
       });
     } catch (error: unknown) {
-      supabaseError = error instanceof Error ? error.message : 'Unknown error';
+      supabase_error = error instanceof Error ? error.message : 'Unknown error';
     }
 
     return NextResponse.json(
       {
         status: 'unhealthy',
         environment: {
-          hasUrl,
-          hasKey,
+          hasUrl: has_url,
+          hasKey: has_key,
           nodeEnv: process.env.NODE_ENV,
         },
         supabase: {
-          clientCreated,
-          error: supabaseError,
+          clientCreated: client_created,
+          error: supabase_error,
         },
         timestamp: new Date().toISOString(),
       },

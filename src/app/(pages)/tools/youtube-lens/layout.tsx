@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 
 export default function YouTubeLensLayout({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
+  const [query_client] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
@@ -20,7 +20,7 @@ export default function YouTubeLensLayout({ children }: { children: React.ReactN
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={query_client}>
       {children}
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

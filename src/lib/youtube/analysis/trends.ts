@@ -43,7 +43,7 @@ interface PatternAnalysis {
 /**
  * Calculate moving average
  */
-function movingAverage(data: number[], window: number): number[] {
+function moving_average(data: number[], window: number): number[] {
   const result: number[] = [];
 
   for (let i = 0; i < data.length; i++) {
@@ -58,11 +58,10 @@ function movingAverage(data: number[], window: number): number[] {
   return result;
 }
 
-
 /**
  * Calculate linear regression (slope and intercept)
  */
-function linearRegression(data: TimeSeriesPoint[]): {
+function linear_regression(data: TimeSeriesPoint[]): {
   slope: number;
   intercept: number;
   r2: number;
@@ -73,27 +72,27 @@ function linearRegression(data: TimeSeriesPoint[]): {
   }
 
   // Convert timestamps to numeric values (hours from first point)
-  const firstTime = data[0]?.timestamp.getTime() ?? 0;
-  const x = data.map((d) => (d.timestamp.getTime() - firstTime) / (1000 * 60 * 60)); // hours
+  const first_time = data[0]?.timestamp.getTime() ?? 0;
+  const x = data.map((d) => (d.timestamp.getTime() - first_time) / (1000 * 60 * 60)); // hours
   const y = data.map((d) => d.value);
 
-  const sumX = x.reduce((a, b) => a + b, 0);
-  const sumY = y.reduce((a, b) => a + b, 0);
-  const sumXY = x.reduce((sum, xi, i) => sum + xi * (y[i] ?? 0), 0);
-  const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+  const sum_x = x.reduce((a, b) => a + b, 0);
+  const sum_y = y.reduce((a, b) => a + b, 0);
+  const sum_xy = x.reduce((sum, xi, i) => sum + xi * (y[i] ?? 0), 0);
+  const sum_x2 = x.reduce((sum, xi) => sum + xi * xi, 0);
 
-  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
+  const slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x);
+  const intercept = (sum_y - slope * sum_x) / n;
 
   // Calculate R-squared
-  const meanY = sumY / n;
-  const ssTotal = y.reduce((sum, yi) => sum + (yi - meanY) ** 2, 0);
-  const ssResidual = y.reduce((sum, yi, i) => {
+  const mean_y = sum_y / n;
+  const ss_total = y.reduce((sum, yi) => sum + (yi - mean_y) ** 2, 0);
+  const ss_residual = y.reduce((sum, yi, i) => {
     const predicted = slope * (x[i] ?? 0) + intercept;
     return sum + (yi - predicted) ** 2;
   }, 0);
 
-  const r2 = 1 - ssResidual / ssTotal;
+  const r2 = 1 - ss_residual / ss_total;
 
   return { slope, intercept, r2 };
 }
@@ -113,63 +112,67 @@ export function detectTrend(data: TimeSeriesPoint[]): TrendDetectionResult {
   }
 
   // Calculate linear regression for overall trend
-  const regression = linearRegression(data);
+  const regression = linear_regression(data);
 
   // Calculate acceleration (second derivative)
-  const midPoint = Math.floor(data.length / 2);
-  const firstHalf = data.slice(0, midPoint);
-  const secondHalf = data.slice(midPoint);
+  const mid_point = Math.floor(data.length / 2);
+  const first_half = data.slice(0, mid_point);
+  const second_half = data.slice(mid_point);
 
-  const firstRegression = linearRegression(firstHalf);
-  const secondRegression = linearRegression(secondHalf);
-  const acceleration = secondRegression.slope - firstRegression.slope;
+  const first_regression = linear_regression(first_half);
+  const second_regression = linear_regression(second_half);
+  const acceleration = second_regression.slope - first_regression.slope;
 
   // Determine trend type
-  let trendType: TrendDetectionResult['trendType'] = 'stable';
+  let trend_type: TrendDetectionResult['trendType'] = 'stable';
 
   if (Math.abs(regression.slope) < 0.01) {
-    trendType = 'stable';
+    trend_type = 'stable';
   } else if (regression.slope > 0) {
     if (acceleration > 0.1) {
-      trendType = 'viral'; // Accelerating growth
+      trend_type = 'viral'; // Accelerating growth
     } else {
-      trendType = 'rising';
+      trend_type = 'rising';
     }
   } else if (acceleration < -0.1) {
-    trendType = 'dying'; // Accelerating decline
+    trend_type = 'dying'; // Accelerating decline
   } else {
-    trendType = 'falling';
+    trend_type = 'falling';
   }
 
   // Predict next value
-  const lastTime = data[data.length - 1]?.timestamp.getTime() ?? 0;
-  const firstTime = data[0]?.timestamp.getTime() ?? 0;
-  const nextTime =
-    (lastTime + 24 * 60 * 60 * 1000 - firstTime) / (1000 * 60 * 60);
-  const nextValue = regression.slope * nextTime + regression.intercept;
+  const last_time = data[data.length - 1]?.timestamp.getTime() ?? 0;
+  const first_time = data[0]?.timestamp.getTime() ?? 0;
+  const next_time = (last_time + 24 * 60 * 60 * 1000 - first_time) / (1000 * 60 * 60);
+  const next_value = regression.slope * next_time + regression.intercept;
 
   // Calculate confidence interval based on standard error
   const predictions = data.map((d, _i) => {
-    const x = (d.timestamp.getTime() - firstTime) / (1000 * 60 * 60);
+    const x = (d.timestamp.getTime() - first_time) / (1000 * 60 * 60);
     return regression.slope * x + regression.intercept;
   });
 
   const residuals = data.map((d, i) => d.value - (predictions[i] ?? 0));
-  const standardError = Math.sqrt(residuals.reduce((sum, r) => sum + r * r, 0) / (data.length - 2));
+  const standard_error = Math.sqrt(
+    residuals.reduce((sum, r) => sum + r * r, 0) / (data.length - 2)
+  );
 
-  const confidenceInterval: [number, number] = [
-    nextValue - 1.96 * standardError,
-    nextValue + 1.96 * standardError,
+  const confidence_interval: [number, number] = [
+    next_value - 1.96 * standard_error,
+    next_value + 1.96 * standard_error,
   ];
 
   return {
-    trendType: trendType,
+    trendType: trend_type,
     slope: regression.slope,
     acceleration,
     confidence: Math.min(Math.abs(regression.r2), 0.99),
     prediction: {
-      nextValue: Math.max(0, nextValue),
-      confidenceInterval: [Math.max(0, confidenceInterval[0]), Math.max(0, confidenceInterval[1])],
+      nextValue: Math.max(0, next_value),
+      confidenceInterval: [
+        Math.max(0, confidence_interval[0]),
+        Math.max(0, confidence_interval[1]),
+      ],
     },
   };
 }
@@ -190,44 +193,44 @@ export function analyzePatterns(
   const values = stats.map((s) => s[metric] || 0);
 
   // Check for daily patterns (24-hour cycle)
-  const hourlyData = stats.map((s) => ({
+  const hourly_data = stats.map((s) => ({
     hour: new Date(s.snapshotAt || 0).getHours(),
     value: s[metric] || 0,
   }));
 
-  const hourlyAverages = new Map<number, number[]>();
-  hourlyData.forEach((d) => {
-    if (!hourlyAverages.has(d.hour)) {
-      hourlyAverages.set(d.hour, []);
+  const hourly_averages = new Map<number, number[]>();
+  hourly_data.forEach((d) => {
+    if (!hourly_averages.has(d.hour)) {
+      hourly_averages.set(d.hour, []);
     }
-    hourlyAverages.get(d.hour)?.push(d.value);
+    hourly_averages.get(d.hour)?.push(d.value);
   });
 
   // Calculate variance in hourly patterns
-  const hourlyVariance = Array.from(hourlyAverages.values()).map((values) => {
+  const hourly_variance = Array.from(hourly_averages.values()).map((values) => {
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     return values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
   });
 
-  const avgVariance = hourlyVariance.reduce((a, b) => a + b, 0) / hourlyVariance.length;
+  const avg_variance = hourly_variance.reduce((a, b) => a + b, 0) / hourly_variance.length;
 
   // Detect seasonal pattern (daily cycle)
-  if (avgVariance > 100) {
+  if (avg_variance > 100) {
     patterns.push({
       patternType: 'seasonal',
-      strength: Math.min(avgVariance / 1000, 1),
+      strength: Math.min(avg_variance / 1000, 1),
       period: 24, // hours
       description: 'Daily viewing pattern detected with peak hours',
     });
   }
 
   // Detect trend pattern
-  const timeSeries: TimeSeriesPoint[] = stats.map((s) => ({
+  const time_series: TimeSeriesPoint[] = stats.map((s) => ({
     timestamp: new Date(s.snapshotAt || 0),
     value: s[metric] || 0,
   }));
 
-  const trend = detectTrend(timeSeries);
+  const trend = detectTrend(time_series);
   if (Math.abs(trend.slope) > 0.01) {
     patterns.push({
       patternType: 'trend',
@@ -237,17 +240,17 @@ export function analyzePatterns(
   }
 
   // Detect irregular patterns (spikes and drops)
-  const ma = movingAverage(values, Math.min(5, Math.floor(values.length / 3)));
+  const ma = moving_average(values, Math.min(5, Math.floor(values.length / 3)));
   const deviations = values.map((v, i) => {
-    const maValue = ma[i] ?? 1; // Avoid division by zero
-    return Math.abs((v || 0) - maValue) / maValue;
+    const ma_value = ma[i] ?? 1; // Avoid division by zero
+    return Math.abs((v || 0) - ma_value) / ma_value;
   });
-  const avgDeviation = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+  const avg_deviation = deviations.reduce((a, b) => a + b, 0) / deviations.length;
 
-  if (avgDeviation > 0.3) {
+  if (avg_deviation > 0.3) {
     patterns.push({
       patternType: 'irregular',
-      strength: Math.min(avgDeviation, 1),
+      strength: Math.min(avg_deviation, 1),
       description: 'High volatility with significant spikes or drops',
     });
   }
@@ -275,7 +278,7 @@ export function findViralMoments(
     return [];
   }
 
-  const viralMoments = [];
+  const viral_moments = [];
 
   // Calculate hourly growth rates
   for (let i = 1; i < stats.length; i++) {
@@ -286,16 +289,16 @@ export function findViralMoments(
       continue;
     }
 
-    const timeDiff =
+    const time_diff =
       (new Date(curr.snapshotAt || 0).getTime() - new Date(prev.snapshotAt || 0).getTime()) /
       (1000 * 60 * 60); // hours
 
-    if (timeDiff === 0) {
+    if (time_diff === 0) {
       continue;
     }
 
-    const viewGrowth = ((curr.view_count || 0) - (prev.view_count || 0)) / timeDiff;
-    const avgGrowth =
+    const view_growth = ((curr.view_count || 0) - (prev.view_count || 0)) / time_diff;
+    const avg_growth =
       stats.reduce((sum, s, idx) => {
         if (idx === 0) {
           return sum;
@@ -305,42 +308,45 @@ export function findViralMoments(
           return sum;
         }
         const td =
-          (new Date(s.snapshotAt || 0).getTime() - new Date(p.snapshotAt || 0).getTime()) / (1000 * 60 * 60);
+          (new Date(s.snapshotAt || 0).getTime() - new Date(p.snapshotAt || 0).getTime()) /
+          (1000 * 60 * 60);
         return sum + (td > 0 ? ((s.view_count || 0) - (p.view_count || 0)) / td : 0);
       }, 0) /
       (stats.length - 1);
 
     // Check if this is a viral moment
-    if (viewGrowth > avgGrowth * threshold) {
+    if (view_growth > avg_growth * threshold) {
       // Find duration of viral period
-      let duration = timeDiff;
+      let duration = time_diff;
       let j = i + 1;
       while (j < stats.length) {
-        const currentStat = stats[j];
-        const prevStat = stats[j - 1];
-        
-        if (!currentStat || !prevStat) {
+        const current_stat = stats[j];
+        const prev_stat = stats[j - 1];
+
+        if (!current_stat || !prev_stat) {
           break;
         }
-        
-        const nextGrowth =
-          ((currentStat.view_count || 0) - (prevStat.view_count || 0)) /
-          ((new Date(currentStat.snapshotAt || 0).getTime() - new Date(prevStat.snapshotAt || 0).getTime()) /
+
+        const next_growth =
+          ((current_stat.view_count || 0) - (prev_stat.view_count || 0)) /
+          ((new Date(current_stat.snapshotAt || 0).getTime() -
+            new Date(prev_stat.snapshotAt || 0).getTime()) /
             (1000 * 60 * 60));
 
-        if (nextGrowth < avgGrowth * threshold) {
+        if (next_growth < avg_growth * threshold) {
           break;
         }
 
         duration +=
-          (new Date(currentStat.snapshotAt || 0).getTime() - new Date(prevStat.snapshotAt || 0).getTime()) /
+          (new Date(current_stat.snapshotAt || 0).getTime() -
+            new Date(prev_stat.snapshotAt || 0).getTime()) /
           (1000 * 60 * 60);
         j++;
       }
 
-      viralMoments.push({
+      viral_moments.push({
         timestamp: curr.snapshotAt || '',
-        growthRate: viewGrowth,
+        growthRate: view_growth,
         metrics: {
           views: curr.view_count || 0,
           likes: curr.like_count || 0,
@@ -353,15 +359,15 @@ export function findViralMoments(
     }
   }
 
-  return viralMoments;
+  return viral_moments;
 }
 
 /**
  * Compare video performance against category benchmarks
  */
 export function compareToBenchmark(
-  videoStats: VideoStats,
-  categoryBenchmarks: {
+  video_stats: VideoStats,
+  category_benchmarks: {
     avgViews: number;
     avgLikes: number;
     avgComments: number;
@@ -385,13 +391,16 @@ export function compareToBenchmark(
   categoryRank: 'top_5' | 'top_10' | 'top_25' | 'above_average' | 'below_average';
 } {
   // Calculate ratios
-  const viewRatio = (videoStats.view_count || 0) / categoryBenchmarks.avgViews;
-  const likeRatio = (videoStats.like_count || 0) / categoryBenchmarks.avgLikes;
-  const commentRatio = (videoStats.comment_count || 0) / categoryBenchmarks.avgComments;
-  const vphRatio = (videoStats.viewsPerHour || 0) / categoryBenchmarks.avgVph;
+  const view_ratio = (video_stats.view_count || 0) / category_benchmarks.avgViews;
+  const like_ratio = (video_stats.like_count || 0) / category_benchmarks.avgLikes;
+  const comment_ratio = (video_stats.comment_count || 0) / category_benchmarks.avgComments;
+  const vph_ratio = (video_stats.viewsPerHour || 0) / category_benchmarks.avgVph;
 
   // Calculate percentiles
-  function getPercentile(value: number, benchmarks: typeof categoryBenchmarks.percentiles): number {
+  function get_percentile(
+    value: number,
+    benchmarks: typeof category_benchmarks.percentiles
+  ): number {
     if (value >= benchmarks.p95) {
       return 95;
     }
@@ -410,37 +419,40 @@ export function compareToBenchmark(
     return 10;
   }
 
-  const viewPercentile = getPercentile(videoStats.view_count || 0, categoryBenchmarks.percentiles);
+  const view_percentile = get_percentile(
+    video_stats.view_count || 0,
+    category_benchmarks.percentiles
+  );
 
   // Calculate performance index (0-100)
-  const performanceIndex = Math.min(
+  const performance_index = Math.min(
     100,
-    viewRatio * 25 + likeRatio * 25 + commentRatio * 25 + vphRatio * 25
+    view_ratio * 25 + like_ratio * 25 + comment_ratio * 25 + vph_ratio * 25
   );
 
   // Determine category rank
-  let categoryRank: 'top_5' | 'top_10' | 'top_25' | 'above_average' | 'below_average';
-  if (viewPercentile >= 95) {
-    categoryRank = 'top_5';
-  } else if (viewPercentile >= 90) {
-    categoryRank = 'top_10';
-  } else if (viewPercentile >= 75) {
-    categoryRank = 'top_25';
-  } else if (viewPercentile >= 50) {
-    categoryRank = 'above_average';
+  let category_rank: 'top_5' | 'top_10' | 'top_25' | 'above_average' | 'below_average';
+  if (view_percentile >= 95) {
+    category_rank = 'top_5';
+  } else if (view_percentile >= 90) {
+    category_rank = 'top_10';
+  } else if (view_percentile >= 75) {
+    category_rank = 'top_25';
+  } else if (view_percentile >= 50) {
+    category_rank = 'above_average';
   } else {
-    categoryRank = 'below_average';
+    category_rank = 'below_average';
   }
 
   return {
-    performanceIndex: Math.round(performanceIndex),
+    performanceIndex: Math.round(performance_index),
     metricsComparison: {
-      views: { ratio: viewRatio, percentile: viewPercentile },
-      likes: { ratio: likeRatio, percentile: viewPercentile }, // Using same percentile for simplicity
-      comments: { ratio: commentRatio, percentile: viewPercentile },
-      vph: { ratio: vphRatio, percentile: viewPercentile },
+      views: { ratio: view_ratio, percentile: view_percentile },
+      likes: { ratio: like_ratio, percentile: view_percentile }, // Using same percentile for simplicity
+      comments: { ratio: comment_ratio, percentile: view_percentile },
+      vph: { ratio: vph_ratio, percentile: view_percentile },
     },
-    categoryRank: categoryRank,
+    categoryRank: category_rank,
   };
 }
 
@@ -449,7 +461,7 @@ export function compareToBenchmark(
  */
 export function generateTrendReport(
   videos: Array<Video & { stats?: VideoStats[] }>,
-  timeWindowDays = 7
+  time_window_days = 7
 ): {
   overallTrend: TrendDetectionResult;
   viralVideos: Array<{ video_id: string; viralMoments: ReturnType<typeof findViralMoments> }>;
@@ -458,15 +470,15 @@ export function generateTrendReport(
   decliningVideos: Array<{ video_id: string; declineRate: number }>;
 } {
   const now = new Date();
-  const windowStart = new Date(now.getTime() - timeWindowDays * 24 * 60 * 60 * 1000);
+  const window_start = new Date(now.getTime() - time_window_days * 24 * 60 * 60 * 1000);
 
   // Aggregate all stats for overall trend
-  const allStats: TimeSeriesPoint[] = [];
+  const all_stats: TimeSeriesPoint[] = [];
   videos.forEach((video) => {
     if (video.stats) {
       video.stats.forEach((stat) => {
-        if (new Date(stat.snapshotAt || 0) >= windowStart) {
-          allStats.push({
+        if (new Date(stat.snapshotAt || 0) >= window_start) {
+          all_stats.push({
             timestamp: new Date(stat.snapshotAt || 0),
             value: stat.view_count || 0,
             video_id: video.video_id,
@@ -477,13 +489,13 @@ export function generateTrendReport(
   });
 
   // Sort by timestamp
-  allStats.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  all_stats.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
   // Detect overall trend
-  const overallTrend = detectTrend(allStats);
+  const overall_trend = detectTrend(all_stats);
 
   // Find viral videos
-  const viralVideos = videos
+  const viral_videos = videos
     .filter((v) => v.stats && v.stats.length > 0)
     .map((video) => ({
       video_id: video.video_id,
@@ -492,7 +504,7 @@ export function generateTrendReport(
     .filter((v) => v.viralMoments.length > 0);
 
   // Analyze patterns
-  const patternCounts: Record<string, number> = {
+  const pattern_counts: Record<string, number> = {
     seasonal: 0,
     cyclical: 0,
     irregular: 0,
@@ -503,13 +515,13 @@ export function generateTrendReport(
     if (video.stats && video.stats.length >= 7) {
       const patterns = analyzePatterns(video.stats);
       patterns.forEach((p) => {
-        patternCounts[p.patternType] = (patternCounts[p.patternType] ?? 0) + 1;
+        pattern_counts[p.patternType] = (pattern_counts[p.patternType] ?? 0) + 1;
       });
     }
   });
 
   // Find growth leaders and declining videos
-  const videoTrends = videos
+  const video_trends = videos
     .filter((v) => v.stats && v.stats.length >= 2)
     .map((video) => {
       const stats = video.stats;
@@ -519,35 +531,35 @@ export function generateTrendReport(
           slope: 0,
         };
       }
-      const timeSeries: TimeSeriesPoint[] = stats.map((s) => ({
+      const time_series: TimeSeriesPoint[] = stats.map((s) => ({
         timestamp: new Date(s.snapshotAt || 0),
         value: s.view_count || 0,
       }));
-      const trend = detectTrend(timeSeries);
+      const trend = detectTrend(time_series);
       return {
         video_id: video.video_id,
         slope: trend.slope,
       };
     });
 
-  const growthLeaders = videoTrends
+  const growth_leaders = video_trends
     .filter((v) => v.slope > 0)
     .sort((a, b) => b.slope - a.slope)
     .slice(0, 5)
     .map((v) => ({ video_id: v.video_id, growthRate: v.slope }));
 
-  const decliningVideos = videoTrends
+  const declining_videos = video_trends
     .filter((v) => v.slope < 0)
     .sort((a, b) => a.slope - b.slope)
     .slice(0, 5)
     .map((v) => ({ video_id: v.video_id, declineRate: Math.abs(v.slope) }));
 
   return {
-    overallTrend: overallTrend,
-    viralVideos: viralVideos,
-    patternSummary: patternCounts,
-    growthLeaders: growthLeaders,
-    decliningVideos: decliningVideos,
+    overallTrend: overall_trend,
+    viralVideos: viral_videos,
+    patternSummary: pattern_counts,
+    growthLeaders: growth_leaders,
+    decliningVideos: declining_videos,
   };
 }
 

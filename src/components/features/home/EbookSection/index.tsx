@@ -7,8 +7,8 @@ import { SectionTitle } from '../shared/SectionTitle';
 import { EbookCard } from './EbookCard';
 
 export function EbookSection() {
-  const freeEbooks = dummyEbooks.filter((ebook) => ebook.is_free);
-  const paidEbooks = dummyEbooks.filter((ebook) => !ebook.is_free);
+  const free_ebooks = dummyEbooks.filter((ebook) => ebook.is_free);
+  const paid_ebooks = dummyEbooks.filter((ebook) => !ebook.is_free);
 
   return (
     <section className="py-12 bg-muted/30">
@@ -30,7 +30,7 @@ export function EbookSection() {
 
           <TabsContent value="free">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {freeEbooks.map((ebook) => (
+              {free_ebooks.map((ebook) => (
                 <EbookCard key={ebook.id} ebook={ebook} />
               ))}
             </div>
@@ -38,7 +38,7 @@ export function EbookSection() {
 
           <TabsContent value="paid">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {paidEbooks.map((ebook) => (
+              {paid_ebooks.map((ebook) => (
                 <EbookCard key={ebook.id} ebook={ebook} />
               ))}
             </div>

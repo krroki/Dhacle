@@ -30,9 +30,9 @@ interface RankingUser {
   user_id: string;
   total_amount: number;
   proof_count?: number;
-  user: {
-    id: string;
-    username: string;
+  user?: {
+    id: string | null;
+    username: string | null;
     avatar_url?: string;
   };
 }
@@ -61,10 +61,10 @@ export function RankingDashboard({
   rewards,
   currentMonth,
 }: RankingDashboardProps) {
-  const [selectedTab, setSelectedTab] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
+  const [selected_tab, set_selected_tab] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   // 순위 변동 아이콘 (더미 데이터 - 실제로는 이전 순위와 비교)
-  const getRankChangeIcon = (_rank: number) => {
+  const get_rank_change_icon = (_rank: number) => {
     const random = Math.random();
     if (random < 0.3) {
       return <ChevronUp className="h-4 w-4 text-green-500" />;
@@ -76,7 +76,7 @@ export function RankingDashboard({
   };
 
   // 순위별 아이콘
-  const getRankIcon = (rank: number) => {
+  const get_rank_icon = (rank: number) => {
     switch (rank) {
       case 1:
         return <Crown className="h-5 w-5 text-yellow-500" />;
@@ -90,7 +90,7 @@ export function RankingDashboard({
   };
 
   // 순위별 스타일
-  const getRankStyle = (rank: number) => {
+  const get_rank_style = (rank: number) => {
     switch (rank) {
       case 1:
         return 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950 dark:to-amber-950 border-yellow-200 dark:border-yellow-800';
@@ -104,7 +104,7 @@ export function RankingDashboard({
   };
 
   // 배지 색상
-  const getBadgeColor = (badge: string) => {
+  const get_badge_color = (badge: string) => {
     switch (badge) {
       case 'gold':
         return 'bg-yellow-500 text-white';
@@ -124,7 +124,7 @@ export function RankingDashboard({
   };
 
   // 랭킹 리스트 렌더링
-  const renderRankingList = (rankings: RankingUser[], showProofCount = false) => {
+  const render_ranking_list = (rankings: RankingUser[], show_proof_count = false) => {
     if (rankings.length === 0) {
       return (
         <div className="text-center py-12 text-muted-foreground">
@@ -141,7 +141,7 @@ export function RankingDashboard({
           {rankings.map((user) => (
             <Card
               key={user.user_id}
-              className={`transition-all hover:shadow-md ${getRankStyle(user.rank)}`}
+              className={`transition-all hover:shadow-md ${get_rank_style(user.rank)}`}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -149,8 +149,8 @@ export function RankingDashboard({
                     {/* 순위 */}
                     <div className="flex items-center gap-2 min-w-[60px]">
                       <span className="text-2xl font-bold">{user.rank}</span>
-                      {getRankIcon(user.rank)}
-                      {getRankChangeIcon(user.rank)}
+                      {get_rank_icon(user.rank)}
+                      {get_rank_change_icon(user.rank)}
                     </div>
 
                     {/* 사용자 정보 */}
@@ -161,7 +161,7 @@ export function RankingDashboard({
                       </Avatar>
                       <div>
                         <p className="font-medium">{user.user?.username}</p>
-                        {showProofCount && (
+                        {show_proof_count && (
                           <p className="text-xs text-muted-foreground">인증 {user.proof_count}회</p>
                         )}
                       </div>
@@ -173,7 +173,7 @@ export function RankingDashboard({
                     <p className="text-xl font-bold">₩{user.total_amount.toLocaleString()}</p>
                     {user.rank <= 3 && (
                       <Badge
-                        className={getBadgeColor(
+                        className={get_badge_color(
                           user.rank === 1 ? 'gold' : user.rank === 2 ? 'silver' : 'bronze'
                         )}
                       >
@@ -211,7 +211,7 @@ export function RankingDashboard({
             {rewards.monthly.slice(0, 3).map((reward, index) => (
               <div key={index} className="flex items-center gap-3">
                 <Badge
-                  className={getBadgeColor(
+                  className={get_badge_color(
                     index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'
                   )}
                 >
@@ -278,8 +278,8 @@ export function RankingDashboard({
 
       {/* 랭킹 탭 */}
       <Tabs
-        value={selectedTab}
-        onValueChange={(v) => setSelectedTab(v as 'daily' | 'weekly' | 'monthly')}
+        value={selected_tab}
+        onValueChange={(v) => set_selected_tab(v as 'daily' | 'weekly' | 'monthly')}
       >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="daily">
@@ -303,7 +303,7 @@ export function RankingDashboard({
                 <CardTitle>오늘의 수익 랭킹</CardTitle>
                 <CardDescription>{new Date().toLocaleDateString('ko-KR')} 기준</CardDescription>
               </CardHeader>
-              <CardContent>{renderRankingList(dailyRankings.slice(0, 20))}</CardContent>
+              <CardContent>{render_ranking_list(dailyRankings.slice(0, 20))}</CardContent>
             </Card>
           </TabsContent>
 
@@ -313,7 +313,7 @@ export function RankingDashboard({
                 <CardTitle>이번 주 수익 랭킹</CardTitle>
                 <CardDescription>최근 7일간 누적 수익 기준</CardDescription>
               </CardHeader>
-              <CardContent>{renderRankingList(weeklyRankings.slice(0, 50), true)}</CardContent>
+              <CardContent>{render_ranking_list(weeklyRankings.slice(0, 50), true)}</CardContent>
             </Card>
           </TabsContent>
 
@@ -323,7 +323,7 @@ export function RankingDashboard({
                 <CardTitle>{currentMonth} 월간 수익 랭킹</CardTitle>
                 <CardDescription>이번 달 누적 수익 기준 TOP 100</CardDescription>
               </CardHeader>
-              <CardContent>{renderRankingList(monthlyRankings, true)}</CardContent>
+              <CardContent>{render_ranking_list(monthlyRankings, true)}</CardContent>
             </Card>
           </TabsContent>
         </div>
@@ -345,13 +345,13 @@ export function RankingDashboard({
             {rewards.monthly.map((reward, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg border ${index < 3 ? getRankStyle(index + 1) : ''}`}
+                className={`p-4 rounded-lg border ${index < 3 ? get_rank_style(index + 1) : ''}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      {typeof reward.rank === 'number' && getRankIcon(reward.rank)}
-                      <Badge className={getBadgeColor(reward.badge)}>
+                      {typeof reward.rank === 'number' && get_rank_icon(reward.rank)}
+                      <Badge className={get_badge_color(reward.badge)}>
                         {typeof reward.rank === 'number' ? `${reward.rank}위` : `${reward.rank}위`}
                       </Badge>
                     </div>

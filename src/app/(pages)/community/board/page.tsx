@@ -34,57 +34,57 @@ interface Post {
 }
 
 export default function CommunityBoardPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showNewPost, setShowNewPost] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '' });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [posts, set_posts] = useState<Post[]>([]);
+  const [loading, set_loading] = useState(true);
+  const [show_new_post, set_show_new_post] = useState(false);
+  const [new_post, set_new_post] = useState({ title: '', content: '' });
+  const [submitting, set_submitting] = useState(false);
+  const [error, set_error] = useState('');
+  const [page, set_page] = useState(1);
+  const [total_pages, set_total_pages] = useState(1);
 
-  const fetchPosts = useCallback(async () => {
+  const fetch_posts = useCallback(async () => {
     try {
-      setLoading(true);
+      set_loading(true);
       const data = await apiGet<{ posts: Post[]; totalPages: number }>(
         `/api/community/posts?category=board&page=${page}`
       );
-      setPosts(data.posts || []);
-      setTotalPages(data.totalPages || 1);
+      set_posts(data.posts || []);
+      set_total_pages(data.totalPages || 1);
     } catch (_error) {
-      setError('게시글을 불러오는데 실패했습니다');
+      set_error('게시글을 불러오는데 실패했습니다');
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, [page]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    fetch_posts();
+  }, [fetch_posts]);
 
-  const handleSubmit = async () => {
-    if (!newPost.title.trim() || !newPost.content.trim()) {
-      setError('제목과 내용을 모두 입력해주세요');
+  const handle_submit = async () => {
+    if (!new_post.title.trim() || !new_post.content.trim()) {
+      set_error('제목과 내용을 모두 입력해주세요');
       return;
     }
 
     try {
-      setSubmitting(true);
-      setError('');
+      set_submitting(true);
+      set_error('');
 
       await apiPost<{ id: string; title: string; content: string }>('/api/community/posts', {
         category: 'board',
-        title: newPost.title,
-        content: newPost.content,
+        title: new_post.title,
+        content: new_post.content,
       });
 
-      setShowNewPost(false);
-      setNewPost({ title: '', content: '' });
-      fetchPosts();
+      set_show_new_post(false);
+      set_new_post({ title: '', content: '' });
+      fetch_posts();
     } catch (error) {
-      setError(error instanceof Error ? error.message : '게시글 작성에 실패했습니다');
+      set_error(error instanceof Error ? error.message : '게시글 작성에 실패했습니다');
     } finally {
-      setSubmitting(false);
+      set_submitting(false);
     }
   };
 
@@ -104,7 +104,7 @@ export default function CommunityBoardPage() {
           <h1 className="text-3xl font-bold">자유 게시판</h1>
           <p className="text-muted-foreground mt-1">크리에이터들이 자유롭게 소통하는 공간입니다</p>
         </div>
-        <Button onClick={() => setShowNewPost(true)}>
+        <Button onClick={() => set_show_new_post(true)}>
           <Plus className="mr-2 h-4 w-4" />새 글 작성
         </Button>
       </div>
@@ -126,7 +126,7 @@ export default function CommunityBoardPage() {
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">아직 게시글이 없습니다</h3>
             <p className="text-muted-foreground mb-4">첫 번째 게시글을 작성해보세요!</p>
-            <Button onClick={() => setShowNewPost(true)}>
+            <Button onClick={() => set_show_new_post(true)}>
               <Plus className="mr-2 h-4 w-4" />첫 글 작성하기
             </Button>
           </CardContent>
@@ -170,22 +170,22 @@ export default function CommunityBoardPage() {
       )}
 
       {/* 페이지네이션 */}
-      {totalPages > 1 && (
+      {total_pages > 1 && (
         <div className="flex justify-center gap-2 mt-8">
           <Button
             variant="outline"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => set_page((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             이전
           </Button>
           <span className="flex items-center px-4">
-            {page} / {totalPages}
+            {page} / {total_pages}
           </span>
           <Button
             variant="outline"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
+            onClick={() => set_page((p) => Math.min(total_pages, p + 1))}
+            disabled={page === total_pages}
           >
             다음
           </Button>
@@ -193,7 +193,7 @@ export default function CommunityBoardPage() {
       )}
 
       {/* 새 글 작성 다이얼로그 */}
-      <Dialog open={showNewPost} onOpenChange={setShowNewPost}>
+      <Dialog open={show_new_post} onOpenChange={set_show_new_post}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>새 글 작성</DialogTitle>
@@ -203,8 +203,8 @@ export default function CommunityBoardPage() {
             <div>
               <Input
                 placeholder="제목을 입력하세요"
-                value={newPost.title}
-                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                value={new_post.title}
+                onChange={(e) => set_new_post({ ...new_post, title: e.target.value })}
                 disabled={submitting}
               />
             </div>
@@ -212,8 +212,8 @@ export default function CommunityBoardPage() {
               <Textarea
                 placeholder="내용을 입력하세요"
                 rows={10}
-                value={newPost.content}
-                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                value={new_post.content}
+                onChange={(e) => set_new_post({ ...new_post, content: e.target.value })}
                 disabled={submitting}
                 className="resize-none"
               />
@@ -225,10 +225,14 @@ export default function CommunityBoardPage() {
               </Alert>
             )}
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowNewPost(false)} disabled={submitting}>
+              <Button
+                variant="outline"
+                onClick={() => set_show_new_post(false)}
+                disabled={submitting}
+              >
                 취소
               </Button>
-              <Button onClick={handleSubmit} disabled={submitting}>
+              <Button onClick={handle_submit} disabled={submitting}>
                 {submitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

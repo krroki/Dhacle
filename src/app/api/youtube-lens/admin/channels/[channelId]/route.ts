@@ -22,8 +22,8 @@ export async function PUT(
   }
 
   // 관리자 권한 체크
-  const adminEmails = ['glemfkcl@naver.com'];
-  if (!adminEmails.includes(user.email || '')) {
+  const admin_emails = ['glemfkcl@naver.com'];
+  if (!admin_emails.includes(user.email || '')) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
@@ -31,29 +31,29 @@ export async function PUT(
     const body = await request.json();
     const { status, notes, category, subcategory, dominantFormat } = body;
 
-    const updateData: Record<string, unknown> = {
+    const update_data: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
     // 상태 변경
     if (status) {
-      updateData.approval_status = status;
-      updateData.approval_notes = notes;
+      update_data.approval_status = status;
+      update_data.approval_notes = notes;
 
       if (status === 'approved') {
-        updateData.approved_by = user.id;
-        updateData.approved_at = new Date().toISOString();
+        update_data.approved_by = user.id;
+        update_data.approved_at = new Date().toISOString();
       }
     }
 
     // 카테고리 정보 업데이트
-    if (category !== undefined) updateData.category = category;
-    if (subcategory !== undefined) updateData.subcategory = subcategory;
-    if (dominantFormat !== undefined) updateData.dominant_format = dominantFormat;
+    if (category !== undefined) update_data.category = category;
+    if (subcategory !== undefined) update_data.subcategory = subcategory;
+    if (dominantFormat !== undefined) update_data.dominant_format = dominantFormat;
 
     const { data, error } = await supabase
       .from('yl_channels')
-      .update(updateData)
+      .update(update_data)
       .eq('channel_id', channel_id)
       .select()
       .single();
@@ -94,8 +94,8 @@ export async function DELETE(
   }
 
   // 관리자 권한 체크
-  const adminEmails = ['glemfkcl@naver.com'];
-  if (!adminEmails.includes(user.email || '')) {
+  const admin_emails = ['glemfkcl@naver.com'];
+  if (!admin_emails.includes(user.email || '')) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 

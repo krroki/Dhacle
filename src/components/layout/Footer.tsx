@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 import { Button, Input, Separator } from '@/components/ui';
 
-const footerLinks = {
+const footer_links = {
   service: [
     { label: '서비스 약관', href: '/terms' },
     { label: '개인정보 처리방침', href: '/privacy' },
@@ -40,7 +40,7 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [
+const social_links = [
   {
     name: 'YouTube',
     icon: Youtube,
@@ -74,7 +74,7 @@ const socialLinks = [
 ];
 
 export function Footer() {
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handle_newsletter_submit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: 뉴스레터 구독 기능 구현 필요
     // - Supabase newsletter_subscribers 테이블 생성
@@ -102,7 +102,7 @@ export function Footer() {
             {/* Newsletter */}
             <div className="mb-6">
               <h4 className="text-sm font-semibold mb-2">뉴스레터 구독</h4>
-              <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+              <form onSubmit={handle_newsletter_submit} className="flex gap-2">
                 <Input
                   type="email"
                   placeholder="이메일을 입력하세요"
@@ -122,7 +122,7 @@ export function Footer() {
             <div>
               <h4 className="text-sm font-semibold mb-3">소셜 미디어</h4>
               <div className="flex gap-3">
-                {socialLinks.map((social) => {
+                {social_links.map((social) => {
                   const Icon = social.icon;
                   return (
                     <Link
@@ -145,7 +145,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-3">서비스</h4>
             <ul className="space-y-2">
-              {footerLinks.service.map((link) => (
+              {footer_links.service.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -161,7 +161,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-3">교육</h4>
             <ul className="space-y-2">
-              {footerLinks.education.map((link) => (
+              {footer_links.education.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -177,7 +177,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-3">커뮤니티</h4>
             <ul className="space-y-2">
-              {footerLinks.community.map((link) => (
+              {footer_links.community.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

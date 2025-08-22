@@ -57,80 +57,81 @@ const MODEL_COEFFICIENTS = {
 /**
  * Calculate feature vector from video data
  */
-function extractFeatures(
+function extract_features(
   video: Video,
   stats: VideoStats[],
-  channelStats?: {
+  channel_stats?: {
     subscriber_count: number;
     avgViews: number;
   }
 ): FeatureVector {
   // Sort stats by time
-  const sortedStats = [...stats].sort(
+  const sorted_stats = [...stats].sort(
     (a, b) => new Date(a.snapshotAt || 0).getTime() - new Date(b.snapshotAt || 0).getTime()
   );
 
   // Calculate initial velocity (views in first measurement period)
-  const firstStatsRaw = sortedStats[0];
-  const initialVelocity = firstStatsRaw ? (firstStatsRaw.views_per_hour || 0) : 0;
+  const first_stats_raw = sorted_stats[0];
+  const initial_velocity = first_stats_raw ? first_stats_raw.views_per_hour || 0 : 0;
 
   // Calculate acceleration
   let acceleration = 0;
-  if (sortedStats.length >= 2) {
-    const velocities = sortedStats.map((s) => {
+  if (sorted_stats.length >= 2) {
+    const velocities = sorted_stats.map((s) => {
       return s.views_per_hour || 0;
     });
-    const velocityChanges = velocities.slice(1).map((v, i) => v - (velocities[i] ?? 0));
+    const velocity_changes = velocities.slice(1).map((v, i) => v - (velocities[i] ?? 0));
     acceleration =
-      velocityChanges.reduce((sum, change) => sum + change, 0) / velocityChanges.length;
+      velocity_changes.reduce((sum, change) => sum + change, 0) / velocity_changes.length;
   }
 
   // Calculate engagement rate
-  const latestStats = sortedStats[sortedStats.length - 1];
-  const engagementRate = latestStats
-    ? ((latestStats.like_count ?? 0) + (latestStats.comment_count ?? 0)) / Math.max(1, latestStats.view_count ?? 0)
+  const latest_stats = sorted_stats[sorted_stats.length - 1];
+  const engagement_rate = latest_stats
+    ? ((latest_stats.like_count ?? 0) + (latest_stats.comment_count ?? 0)) /
+      Math.max(1, latest_stats.view_count ?? 0)
     : 0;
 
   // Extract metadata features
-  const titleLength = video.title.length;
-  const descriptionLength = (video.description || '').length;
-  const tagCount = (video.tags || []).length;
+  const title_length = video.title.length;
+  const description_length = (video.description || '').length;
+  const tag_count = (video.tags || []).length;
 
   // Time features
-  const publishedDate = new Date(video.published_at);
-  const publishedHour = publishedDate.getHours();
-  const isWeekend = publishedDate.getDay() === 0 || publishedDate.getDay() === 6;
+  const published_date = new Date(video.published_at);
+  const published_hour = published_date.getHours();
+  const is_weekend = published_date.getDay() === 0 || published_date.getDay() === 6;
 
   // Channel features (use defaults if not provided)
-  const channelSubscriberCount = channelStats?.subscriber_count || 1000;
-  const channelAvgViews = channelStats?.avgViews || 100;
+  const channel_subscriber_count = channel_stats?.subscriber_count || 1000;
+  const channel_avg_views = channel_stats?.avgViews || 100;
 
   // Category competitiveness (placeholder - would be calculated from category data)
-  const categoryCompetitiveness = 0.5;
+  const category_competitiveness = 0.5;
 
   // Thumbnail quality (placeholder - would use image analysis)
-  const thumbnailQuality = 0.7;
+  const thumbnail_quality = 0.7;
 
   return {
-    initialVelocity: initialVelocity,
+    initialVelocity: initial_velocity,
     acceleration,
-    engagementRate: engagementRate,
-    titleLength: titleLength,
-    descriptionLength: descriptionLength,
-    tagCount: tagCount,
-    thumbnailQuality: thumbnailQuality,
-    publishedHour: publishedHour,
-    isWeekend: isWeekend,
-    channelSubscriberCount: channelSubscriberCount,
-    channelAvgViews: channelAvgViews,
-    categoryCompetitiveness: categoryCompetitiveness,
+    engagementRate: engagement_rate,
+    titleLength: title_length,
+    descriptionLength: description_length,
+    tagCount: tag_count,
+    thumbnailQuality: thumbnail_quality,
+    publishedHour: published_hour,
+    isWeekend: is_weekend,
+    channelSubscriberCount: channel_subscriber_count,
+    channelAvgViews: channel_avg_views,
+    categoryCompetitiveness: category_competitiveness,
   };
 }
 
 /**
  * Predict growth trajectory based on features
  */
-function predictTrajectory(features: FeatureVector): GrowthTrajectory {
+function predict_trajectory(features: FeatureVector): GrowthTrajectory {
   // Score for each trajectory type
   const scores = {
     exponential: 0,
@@ -177,9 +178,9 @@ function predictTrajectory(features: FeatureVector): GrowthTrajectory {
   }
 
   // Find trajectory with highest score
-  const maxScore = Math.max(...Object.values(scores));
+  const max_score = Math.max(...Object.values(scores));
   const trajectory = Object.entries(scores).find(
-    ([_, score]) => score === maxScore
+    ([_, score]) => score === max_score
   )?.[0] as GrowthTrajectory;
 
   return trajectory || 'linear';
@@ -188,17 +189,17 @@ function predictTrajectory(features: FeatureVector): GrowthTrajectory {
 /**
  * Calculate viral probability (0-1)
  */
-function calculateViralProbability(features: FeatureVector): number {
+function calculate_viral_probability(features: FeatureVector): number {
   const weights = MODEL_COEFFICIENTS.exponential;
 
   // Normalize features to 0-1 scale
-  const normalizedVelocity = Math.min(features.initialVelocity / 1000, 1);
-  const normalizedAcceleration = Math.min(Math.max(features.acceleration / 100, -1), 1);
-  const normalizedEngagement = Math.min(features.engagementRate / 0.1, 1); // 10% is max
-  const normalizedChannel = Math.min(features.channelSubscriberCount / 1000000, 1); // 1M is max
+  const normalized_velocity = Math.min(features.initialVelocity / 1000, 1);
+  const normalized_acceleration = Math.min(Math.max(features.acceleration / 100, -1), 1);
+  const normalized_engagement = Math.min(features.engagementRate / 0.1, 1); // 10% is max
+  const normalized_channel = Math.min(features.channelSubscriberCount / 1000000, 1); // 1M is max
 
   // Metadata score
-  const metadataScore =
+  const metadata_score =
     Math.min(features.titleLength / 100, 1) * 0.3 +
     Math.min(features.descriptionLength / 5000, 1) * 0.2 +
     Math.min(features.tagCount / 30, 1) * 0.2 +
@@ -206,11 +207,11 @@ function calculateViralProbability(features: FeatureVector): number {
 
   // Calculate weighted probability
   const probability =
-    normalizedVelocity * weights.initialVelocityWeight +
-    normalizedAcceleration * weights.accelerationWeight +
-    normalizedEngagement * weights.engagementWeight +
-    normalizedChannel * weights.channelWeight +
-    metadataScore * weights.metadataWeight;
+    normalized_velocity * weights.initialVelocityWeight +
+    normalized_acceleration * weights.accelerationWeight +
+    normalized_engagement * weights.engagementWeight +
+    normalized_channel * weights.channelWeight +
+    metadata_score * weights.metadataWeight;
 
   // Apply sigmoid to keep in 0-1 range
   return 1 / (1 + Math.exp(-4 * (probability - 0.5)));
@@ -219,57 +220,57 @@ function calculateViralProbability(features: FeatureVector): number {
 /**
  * Predict future view count using growth model
  */
-function predictViews(
-  currentViews: number,
+function predict_views(
+  current_views: number,
   trajectory: GrowthTrajectory,
   features: FeatureVector,
-  daysAhead: number
+  days_ahead: number
 ): number {
-  const hoursAhead = daysAhead * 24;
+  const hours_ahead = days_ahead * 24;
 
   switch (trajectory) {
     case 'exponential': {
       // Exponential growth with decay
-      const growthRate = 1 + features.acceleration / 100;
-      const decayFactor = MODEL_COEFFICIENTS.decayFactors.hourly ** hoursAhead;
-      return currentViews * growthRate ** (hoursAhead / 24) * decayFactor;
+      const growth_rate = 1 + features.acceleration / 100;
+      const decay_factor = MODEL_COEFFICIENTS.decayFactors.hourly ** hours_ahead;
+      return current_views * growth_rate ** (hours_ahead / 24) * decay_factor;
     }
 
     case 'linear': {
       // Linear growth
-      const dailyGrowth = features.initialVelocity * 24;
-      return currentViews + dailyGrowth * daysAhead;
+      const daily_growth = features.initialVelocity * 24;
+      return current_views + daily_growth * days_ahead;
     }
 
     case 'logarithmic': {
       // Logarithmic growth (diminishing returns)
-      const logBase = Math.E;
-      const scaleFactor = features.initialVelocity * 100;
-      return currentViews + (scaleFactor * Math.log(1 + daysAhead)) / Math.log(logBase);
+      const log_base = Math.E;
+      const scale_factor = features.initialVelocity * 100;
+      return current_views + (scale_factor * Math.log(1 + days_ahead)) / Math.log(log_base);
     }
 
     case 'plateau': {
       // Minimal growth after reaching plateau
-      const plateauGrowth = features.initialVelocity * 0.1; // 10% of initial velocity
-      return currentViews + plateauGrowth * hoursAhead;
+      const plateau_growth = features.initialVelocity * 0.1; // 10% of initial velocity
+      return current_views + plateau_growth * hours_ahead;
     }
 
     case 'declining': {
       // Declining views (rare for YouTube but possible)
-      const declineRate = MODEL_COEFFICIENTS.decayFactors.daily ** daysAhead;
-      return currentViews * declineRate;
+      const decline_rate = MODEL_COEFFICIENTS.decayFactors.daily ** days_ahead;
+      return current_views * decline_rate;
     }
 
     default:
-      return currentViews;
+      return current_views;
   }
 }
 
 /**
  * Calculate confidence interval for prediction
  */
-function calculateConfidenceInterval(
-  predictedValue: number,
+function calculate_confidence_interval(
+  predicted_value: number,
   features: FeatureVector,
   trajectory: GrowthTrajectory
 ): [number, number] {
@@ -291,10 +292,10 @@ function calculateConfidenceInterval(
     uncertainty += 0.05; // More uncertainty for low engagement
   }
 
-  const lowerBound = predictedValue * (1 - uncertainty);
-  const upperBound = predictedValue * (1 + uncertainty);
+  const lower_bound = predicted_value * (1 - uncertainty);
+  const upper_bound = predicted_value * (1 + uncertainty);
 
-  return [Math.max(0, lowerBound), upperBound];
+  return [Math.max(0, lower_bound), upper_bound];
 }
 
 /**
@@ -303,46 +304,46 @@ function calculateConfidenceInterval(
 export async function predictVideoPerformance(
   video: Video,
   stats: VideoStats[],
-  horizonDays = 30,
-  channelStats?: {
+  horizon_days = 30,
+  channel_stats?: {
     subscriber_count: number;
     avgViews: number;
   }
 ): Promise<PredictionModel> {
   // Extract features
-  const features = extractFeatures(video, stats, channelStats);
+  const features = extract_features(video, stats, channel_stats);
 
   // Predict trajectory
-  const trajectory = predictTrajectory(features);
+  const trajectory = predict_trajectory(features);
 
   // Calculate viral probability
-  const viralProbability = calculateViralProbability(features);
+  const viral_probability = calculate_viral_probability(features);
 
   // Get current stats
-  const latestStats = stats.sort(
+  const latest_stats = stats.sort(
     (a, b) => new Date(b.snapshotAt || 0).getTime() - new Date(a.snapshotAt || 0).getTime()
   )[0];
 
-  const currentViews = latestStats?.view_count || 0;
+  const current_views = latest_stats?.view_count || 0;
 
   // Predict future metrics
-  const predictedViews = predictViews(currentViews, trajectory, features, horizonDays);
+  const predicted_views = predict_views(current_views, trajectory, features, horizon_days);
 
   // Predict likes based on engagement rate
-  const predictedLikes = predictedViews * features.engagementRate * 0.8; // 80% of engagement is likes
+  const predicted_likes = predicted_views * features.engagementRate * 0.8; // 80% of engagement is likes
 
   // Calculate confidence interval
-  const confidenceInterval = calculateConfidenceInterval(predictedViews, features, trajectory);
+  const confidence_interval = calculate_confidence_interval(predicted_views, features, trajectory);
 
   return {
     video_id: video.video_id,
-    predictedViews: Math.round(predictedViews),
-    predictedLikes: Math.round(predictedLikes),
+    predictedViews: Math.round(predicted_views),
+    predictedLikes: Math.round(predicted_likes),
     confidenceInterval: {
-      lower: Math.round(confidenceInterval[0]),
-      upper: Math.round(confidenceInterval[1]),
+      lower: Math.round(confidence_interval[0]),
+      upper: Math.round(confidence_interval[1]),
     },
-    viralProbability: viralProbability,
+    viralProbability: viral_probability,
     growthTrajectory: trajectory,
     predictionDate: new Date().toISOString(),
     modelVersion: '1.0.0',
@@ -361,11 +362,11 @@ export async function batchPredict(
       avgViews: number;
     };
   }>,
-  horizonDays = 30
+  horizon_days = 30
 ): Promise<PredictionModel[]> {
   const predictions = await Promise.all(
     videos.map(({ video, stats, channelStats }) =>
-      predictVideoPerformance(video, stats, horizonDays, channelStats)
+      predictVideoPerformance(video, stats, horizon_days, channelStats)
     )
   );
 
@@ -379,9 +380,9 @@ export function findViralCandidates(predictions: PredictionModel[], limit = 10):
   return predictions
     .filter((p) => typeof p.viralProbability === 'number' && p.viralProbability > 0.5)
     .sort((a, b) => {
-      const probA = typeof a.viralProbability === 'number' ? a.viralProbability : 0;
-      const probB = typeof b.viralProbability === 'number' ? b.viralProbability : 0;
-      return probB - probA;
+      const prob_a = typeof a.viralProbability === 'number' ? a.viralProbability : 0;
+      const prob_b = typeof b.viralProbability === 'number' ? b.viralProbability : 0;
+      return prob_b - prob_a;
     })
     .slice(0, limit);
 }
@@ -402,57 +403,57 @@ export function analyzePredictionAccuracy(
   viralPredictionAccuracy: number;
   withinConfidenceInterval: number;
 } {
-  let totalAbsoluteError = 0;
-  let totalPercentageError = 0;
-  let correctTrajectories = 0;
-  let correctViralPredictions = 0;
-  let withinInterval = 0;
+  let total_absolute_error = 0;
+  let total_percentage_error = 0;
+  let correct_trajectories = 0;
+  let correct_viral_predictions = 0;
+  let within_interval = 0;
 
   predictions.forEach(({ prediction, actualViews, actualLikes: _actualLikes }) => {
     // Calculate errors
-    const viewError = Math.abs(prediction.predictedViews - actualViews);
-    totalAbsoluteError += viewError;
+    const view_error = Math.abs(prediction.predictedViews - actualViews);
+    total_absolute_error += view_error;
 
-    const percentageError = actualViews > 0 ? viewError / actualViews : 0;
-    totalPercentageError += percentageError;
+    const percentage_error = actualViews > 0 ? view_error / actualViews : 0;
+    total_percentage_error += percentage_error;
 
     // Check if within confidence interval
     if (
       actualViews >= prediction.confidenceInterval.lower &&
       actualViews <= prediction.confidenceInterval.upper
     ) {
-      withinInterval++;
+      within_interval++;
     }
 
     // Check trajectory accuracy (simplified)
-    const actualGrowth = actualViews > prediction.predictedViews ? 'growing' : 'declining';
-    const predictedGrowth = ['exponential', 'linear', 'logarithmic'].includes(
+    const actual_growth = actualViews > prediction.predictedViews ? 'growing' : 'declining';
+    const predicted_growth = ['exponential', 'linear', 'logarithmic'].includes(
       prediction.growthTrajectory
     )
       ? 'growing'
       : 'declining';
 
-    if (actualGrowth === predictedGrowth) {
-      correctTrajectories++;
+    if (actual_growth === predicted_growth) {
+      correct_trajectories++;
     }
 
     // Check viral prediction accuracy
-    const wasViral = actualViews > prediction.predictedViews * 2; // 2x growth is "viral"
-    const predictedViral = prediction.viralProbability > 0.7;
+    const was_viral = actualViews > prediction.predictedViews * 2; // 2x growth is "viral"
+    const predicted_viral = prediction.viralProbability > 0.7;
 
-    if (wasViral === predictedViral) {
-      correctViralPredictions++;
+    if (was_viral === predicted_viral) {
+      correct_viral_predictions++;
     }
   });
 
   const count = predictions.length;
 
   return {
-    meanAbsoluteError: totalAbsoluteError / count,
-    meanPercentageError: totalPercentageError / count,
-    trajectoryAccuracy: correctTrajectories / count,
-    viralPredictionAccuracy: correctViralPredictions / count,
-    withinConfidenceInterval: withinInterval / count,
+    meanAbsoluteError: total_absolute_error / count,
+    meanPercentageError: total_percentage_error / count,
+    trajectoryAccuracy: correct_trajectories / count,
+    viralPredictionAccuracy: correct_viral_predictions / count,
+    withinConfidenceInterval: within_interval / count,
   };
 }
 
@@ -472,7 +473,7 @@ export function generatePredictionReport(predictions: PredictionModel[]): {
     declining: number; // negative growth
   };
 } {
-  const trajectoryDist: Record<GrowthTrajectory, number> = {
+  const trajectory_dist: Record<GrowthTrajectory, number> = {
     exponential: 0,
     linear: 0,
     logarithmic: 0,
@@ -480,32 +481,32 @@ export function generatePredictionReport(predictions: PredictionModel[]): {
     declining: 0,
   };
 
-  let totalViralProb = 0;
-  const growthRates = predictions.map((p) => {
-    trajectoryDist[p.growthTrajectory]++;
-    totalViralProb += p.viralProbability;
+  let total_viral_prob = 0;
+  const growth_rates = predictions.map((p) => {
+    trajectory_dist[p.growthTrajectory]++;
+    total_viral_prob += p.viralProbability;
 
     // Calculate growth rate
-    const currentViews = p.predictedViews / 2; // Rough estimate of current
-    const growthRate = (p.predictedViews - currentViews) / currentViews;
+    const current_views = p.predictedViews / 2; // Rough estimate of current
+    const growth_rate = (p.predictedViews - current_views) / current_views;
 
-    return { prediction: p, growthRate };
+    return { prediction: p, growthRate: growth_rate };
   });
 
-  const growthSummary = {
-    highGrowth: growthRates.filter((g) => g.growthRate > 1).length,
-    moderateGrowth: growthRates.filter((g) => g.growthRate >= 0.2 && g.growthRate <= 1).length,
-    lowGrowth: growthRates.filter((g) => g.growthRate >= 0 && g.growthRate < 0.2).length,
-    declining: growthRates.filter((g) => g.growthRate < 0).length,
+  const growth_summary = {
+    highGrowth: growth_rates.filter((g) => g.growthRate > 1).length,
+    moderateGrowth: growth_rates.filter((g) => g.growthRate >= 0.2 && g.growthRate <= 1).length,
+    lowGrowth: growth_rates.filter((g) => g.growthRate >= 0 && g.growthRate < 0.2).length,
+    declining: growth_rates.filter((g) => g.growthRate < 0).length,
   };
 
   return {
     totalPredictions: predictions.length,
     viralCandidates: predictions.filter((p) => p.viralProbability > 0.7).length,
-    trajectoryDistribution: trajectoryDist,
-    avgViralProbability: totalViralProb / predictions.length,
+    trajectoryDistribution: trajectory_dist,
+    avgViralProbability: total_viral_prob / predictions.length,
     topViralVideos: findViralCandidates(predictions, 5),
-    growthSummary: growthSummary,
+    growthSummary: growth_summary,
   };
 }
 

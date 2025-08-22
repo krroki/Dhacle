@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { createServerClient } from '@/lib/supabase/server-client';
-import type { UserApiKey, Json } from '@/types';
+import type { Json, UserApiKey } from '@/types';
 
 const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
@@ -26,21 +26,21 @@ export async function getDecryptedApiKey(
 
     // AES-256 복호화
     // The encrypted_key field contains IV (first 32 chars) + encrypted data
-    const combinedData = data?.encrypted_key;
-    if (!combinedData || combinedData.length < 33) {
+    const combined_data = data?.encrypted_key;
+    if (!combined_data || combined_data.length < 33) {
       return null;
     }
-    
-    const iv = combinedData.slice(0, 32);
-    const encryptedData = combinedData.slice(32);
-    
+
+    const iv = combined_data.slice(0, 32);
+    const encrypted_data = combined_data.slice(32);
+
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
       Buffer.from(ENCRYPTION_KEY, 'hex'),
       Buffer.from(iv, 'hex')
     );
 
-    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    let decrypted = decipher.update(encrypted_data, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
 
     return decrypted;
@@ -78,13 +78,13 @@ export async function saveApiKey(
     .eq('service_name', service_name);
 
   // 새 키 저장 (IV와 encrypted data를 concatenate)
-  const maskedKey = `****${api_key.slice(-4)}`; // Show last 4 chars
-  
+  const masked_key = `****${api_key.slice(-4)}`; // Show last 4 chars
+
   const { error } = await supabase.from('user_api_keys').insert({
     user_id: user_id,
     service_name: service_name,
     encrypted_key: iv + encrypted, // Store IV + encrypted data together
-    api_key_masked: maskedKey,
+    api_key_masked: masked_key,
     is_active: true,
   });
 
@@ -137,7 +137,7 @@ export async function saveUserApiKey(params: {
     .eq('service_name', service_name);
 
   // API 키 마스킹 (처음 10자리만 보이고 나머지는 *)
-  const apiKeyMasked = api_key.substring(0, 10) + '*'.repeat(Math.max(0, api_key.length - 10));
+  const api_key_masked = api_key.substring(0, 10) + '*'.repeat(Math.max(0, api_key.length - 10));
 
   // 새 키 저장 (IV와 encrypted data를 concatenate)
   const { data, error } = await supabase
@@ -146,7 +146,7 @@ export async function saveUserApiKey(params: {
       user_id: user_id,
       service_name: service_name as string,
       encrypted_key: iv + encrypted, // Store IV + encrypted data together
-      api_key_masked: apiKeyMasked,
+      api_key_masked: api_key_masked,
       is_active: true,
       is_valid: true,
       metadata: metadata as unknown as Json | null,

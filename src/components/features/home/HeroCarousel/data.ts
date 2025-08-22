@@ -57,14 +57,14 @@ export const getYouTubeThumbnail = (
   video_id: string,
   quality: 'max' | 'high' | 'medium' | 'default' = 'high'
 ) => {
-  const qualityMap = {
+  const quality_map = {
     max: 'maxresdefault',
     high: 'hqdefault',
     medium: 'mqdefault',
     default: 'sddefault',
   };
 
-  return `https://img.youtube.com/vi/${video_id}/${qualityMap[quality]}.jpg`;
+  return `https://img.youtube.com/vi/${video_id}/${quality_map[quality]}.jpg`;
 };
 
 // 이미지 프리로드 헬퍼 함수

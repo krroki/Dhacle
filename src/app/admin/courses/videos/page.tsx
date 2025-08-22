@@ -18,50 +18,50 @@ import {
 import { apiUpload } from '@/lib/api-client';
 
 export default function VideoUploadPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [course_id, setCourseId] = useState('');
-  const [lessonId, setLessonId] = useState('');
-  const [lessonTitle, setLessonTitle] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [file, set_file] = useState<File | null>(null);
+  const [course_id, set_course_id] = useState('');
+  const [lesson_id, set_lesson_id] = useState('');
+  const [lesson_title, set_lesson_title] = useState('');
+  const [uploading, set_uploading] = useState(false);
+  const [progress, set_progress] = useState(0);
+  const [error, set_error] = useState('');
+  const [success, set_success] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
+  const handle_file_change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected_file = e.target.files?.[0];
+    if (selected_file) {
       // 파일 크기 체크 (500MB)
-      if (selectedFile.size > 500 * 1024 * 1024) {
-        setError('파일 크기는 500MB를 초과할 수 없습니다');
+      if (selected_file.size > 500 * 1024 * 1024) {
+        set_error('파일 크기는 500MB를 초과할 수 없습니다');
         return;
       }
-      setFile(selectedFile);
-      setError('');
+      set_file(selected_file);
+      set_error('');
     }
   };
 
-  const handleUpload = async () => {
-    if (!file || !course_id || !lessonId || !lessonTitle) {
-      setError('모든 필드를 입력해주세요');
+  const handle_upload = async () => {
+    if (!file || !course_id || !lesson_id || !lesson_title) {
+      set_error('모든 필드를 입력해주세요');
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('course_id', course_id);
-    formData.append('lessonId', lessonId);
-    formData.append('lessonTitle', lessonTitle);
+    const form_data = new FormData();
+    form_data.append('file', file);
+    form_data.append('course_id', course_id);
+    form_data.append('lessonId', lesson_id);
+    form_data.append('lessonTitle', lesson_title);
 
-    setUploading(true);
-    setError('');
-    setSuccess(false);
+    set_uploading(true);
+    set_error('');
+    set_success(false);
 
     try {
       // 진행률 시뮬레이션 (실제로는 XMLHttpRequest 또는 fetch with streams 사용)
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => {
+      const progress_interval = setInterval(() => {
+        set_progress((prev) => {
           if (prev >= 90) {
-            clearInterval(progressInterval);
+            clearInterval(progress_interval);
             return 90;
           }
           return prev + 10;
@@ -69,26 +69,26 @@ export default function VideoUploadPage() {
       }, 500);
 
       // FormData 업로드는 apiUpload 사용
-      await apiUpload('/api/admin/video/upload', formData);
+      await apiUpload('/api/admin/video/upload', form_data);
 
-      clearInterval(progressInterval);
-      setProgress(100);
-      setSuccess(true);
+      clearInterval(progress_interval);
+      set_progress(100);
+      set_success(true);
 
       // 성공 후 폼 초기화
       setTimeout(() => {
-        setFile(null);
-        setCourseId('');
-        setLessonId('');
-        setLessonTitle('');
-        setProgress(0);
-        setSuccess(false);
+        set_file(null);
+        set_course_id('');
+        set_lesson_id('');
+        set_lesson_title('');
+        set_progress(0);
+        set_success(false);
       }, 3000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : '비디오 업로드 중 오류가 발생했습니다');
-      setProgress(0);
+      set_error(error instanceof Error ? error.message : '비디오 업로드 중 오류가 발생했습니다');
+      set_progress(0);
     } finally {
-      setUploading(false);
+      set_uploading(false);
     }
   };
 
@@ -109,7 +109,7 @@ export default function VideoUploadPage() {
                 id="video"
                 type="file"
                 accept="video/mp4,video/webm,video/ogg"
-                onChange={handleFileChange}
+                onChange={handle_file_change}
                 disabled={uploading}
               />
               {file && (
@@ -125,7 +125,7 @@ export default function VideoUploadPage() {
             {/* 강의 선택 */}
             <div className="space-y-2">
               <Label htmlFor="courseId">강의 선택 *</Label>
-              <Select value={course_id} onValueChange={setCourseId} disabled={uploading}>
+              <Select value={course_id} onValueChange={set_course_id} disabled={uploading}>
                 <SelectTrigger id="courseId">
                   <SelectValue placeholder="강의를 선택하세요" />
                 </SelectTrigger>
@@ -143,8 +143,8 @@ export default function VideoUploadPage() {
               <Label htmlFor="lessonId">레슨 ID *</Label>
               <Input
                 id="lessonId"
-                value={lessonId}
-                onChange={(e) => setLessonId(e.target.value)}
+                value={lesson_id}
+                onChange={(e) => set_lesson_id(e.target.value)}
                 placeholder="예: lesson-001"
                 disabled={uploading}
               />
@@ -156,8 +156,8 @@ export default function VideoUploadPage() {
               <Label htmlFor="lessonTitle">레슨 제목 *</Label>
               <Input
                 id="lessonTitle"
-                value={lessonTitle}
-                onChange={(e) => setLessonTitle(e.target.value)}
+                value={lesson_title}
+                onChange={(e) => set_lesson_title(e.target.value)}
                 placeholder="예: 1강. YouTube Shorts 시작하기"
                 disabled={uploading}
               />
@@ -194,7 +194,7 @@ export default function VideoUploadPage() {
 
             {/* 업로드 버튼 */}
             <Button
-              onClick={handleUpload}
+              onClick={handle_upload}
               disabled={uploading || !file}
               className="w-full"
               size="lg"

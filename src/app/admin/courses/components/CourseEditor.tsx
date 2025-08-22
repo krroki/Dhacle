@@ -38,12 +38,12 @@ import type { Course } from '@/types';
 
 interface CourseEditorProps {
   course?: Course;
-  onSave: (courseData: Partial<Course>) => Promise<void>;
+  onSave: (course_data: Partial<Course>) => Promise<void>;
   isSaving?: boolean;
 }
 
 export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
-  const [formData, setFormData] = useState({
+  const [form_data, set_form_data] = useState({
     title: course?.title || '',
     subtitle: course?.subtitle || '',
     description: course?.description || '',
@@ -88,32 +88,32 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
     },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handle_input_change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
+    set_form_data((prev) => ({
       ...prev,
       [name]: type === 'number' ? Number(value) : value,
     }));
   };
 
-  const handleSwitchChange = (name: string) => (checked: boolean) => {
-    setFormData((prev) => ({
+  const handle_switch_change = (name: string) => (checked: boolean) => {
+    set_form_data((prev) => ({
       ...prev,
       [name]: checked,
     }));
   };
 
-  const handleSelectChange = (name: string) => (value: string) => {
-    setFormData((prev) => ({
+  const handle_select_change = (name: string) => (value: string) => {
+    set_form_data((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async () => {
+  const handle_submit = async () => {
     const content = editor?.getJSON();
     await onSave({
-      ...formData,
+      ...form_data,
       contentBlocks: JSON.stringify(content),
     });
   };
@@ -247,8 +247,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="title"
                     name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
+                    value={form_data.title}
+                    onChange={handle_input_change}
                     placeholder="예: YouTube Shorts 마스터 클래스"
                     required={true}
                   />
@@ -258,8 +258,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="subtitle"
                     name="subtitle"
-                    value={formData.subtitle}
-                    onChange={handleInputChange}
+                    value={form_data.subtitle}
+                    onChange={handle_input_change}
                     placeholder="예: 30일 만에 10만 구독자 달성하기"
                   />
                 </div>
@@ -270,8 +270,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                 <Textarea
                   id="description"
                   name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
+                  value={form_data.description}
+                  onChange={handle_input_change}
                   placeholder="강의에 대한 간단한 설명을 작성하세요"
                   rows={4}
                 />
@@ -283,8 +283,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="instructor_name"
                     name="instructor_name"
-                    value={formData.instructor_name}
-                    onChange={handleInputChange}
+                    value={form_data.instructor_name}
+                    onChange={handle_input_change}
                     placeholder="예: 홍길동"
                     required={true}
                   />
@@ -294,8 +294,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="category"
                     name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
+                    value={form_data.category}
+                    onChange={handle_input_change}
                     placeholder="예: 콘텐츠 제작"
                   />
                 </div>
@@ -308,17 +308,17 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                     id="price"
                     name="price"
                     type="number"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    disabled={formData.is_free}
+                    value={form_data.price}
+                    onChange={handle_input_change}
+                    disabled={form_data.is_free}
                     min={0}
                   />
                 </div>
                 <div className="flex items-center space-x-2 mt-8">
                   <Switch
                     id="isFree"
-                    checked={formData.is_free}
-                    onCheckedChange={handleSwitchChange('is_free')}
+                    checked={form_data.is_free}
+                    onCheckedChange={handle_switch_change('is_free')}
                   />
                   <Label htmlFor="isFree">무료 강의</Label>
                 </div>
@@ -330,8 +330,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="thumbnail_url"
                     name="thumbnail_url"
-                    value={formData.thumbnail_url}
-                    onChange={handleInputChange}
+                    value={form_data.thumbnail_url}
+                    onChange={handle_input_change}
                     placeholder="https://..."
                   />
                 </div>
@@ -340,8 +340,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                   <Input
                     id="previewVideoUrl"
                     name="previewVideoUrl"
-                    value={formData.previewVideoUrl}
-                    onChange={handleInputChange}
+                    value={form_data.previewVideoUrl}
+                    onChange={handle_input_change}
                     placeholder="https://..."
                   />
                 </div>
@@ -373,7 +373,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>상태</Label>
-                  <Select value={formData.status} onValueChange={handleSelectChange('status')}>
+                  <Select value={form_data.status} onValueChange={handle_select_change('status')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -388,8 +388,8 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
                 <div className="space-y-2">
                   <Label>난이도</Label>
                   <Select
-                    value={formData.difficulty}
-                    onValueChange={handleSelectChange('difficulty')}
+                    value={form_data.difficulty}
+                    onValueChange={handle_select_change('difficulty')}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -404,7 +404,10 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
                 <div className="space-y-2">
                   <Label>언어</Label>
-                  <Select value={formData.language} onValueChange={handleSelectChange('language')}>
+                  <Select
+                    value={form_data.language}
+                    onValueChange={handle_select_change('language')}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -422,7 +425,7 @@ export function CourseEditor({ course, onSave, isSaving }: CourseEditorProps) {
 
       <div className="flex justify-end gap-4">
         <Button variant="outline">취소</Button>
-        <Button onClick={handleSubmit} disabled={isSaving}>
+        <Button onClick={handle_submit} disabled={isSaving}>
           {isSaving ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />

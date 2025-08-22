@@ -86,31 +86,32 @@ const categories = [
 
 export default async function CategoriesPage(): Promise<React.JSX.Element> {
   const response = await getCourses();
-  const rawCourses = response.courses;
-  const allCourses = rawCourses.map(mapCourse);
+  const raw_courses = response.courses;
+  const all_courses = raw_courses.map(mapCourse);
 
   // 카테고리별 강의 수 계산
-  const getCourseCountByCategory = (categoryTags: string[]) => {
-    return allCourses.filter((course) => {
-      const courseTags = course.tags || [];
+  const get_course_count_by_category = (category_tags: string[]) => {
+    return all_courses.filter((course) => {
+      const course_tags = course.tags || [];
       const course_title = course.title.toLowerCase();
-      const courseDesc = course.description?.toLowerCase() || '';
+      const course_desc = course.description?.toLowerCase() || '';
 
-      return categoryTags.some(
-        (tag) => courseTags.includes(tag) || course_title.includes(tag) || courseDesc.includes(tag)
+      return category_tags.some(
+        (tag) =>
+          course_tags.includes(tag) || course_title.includes(tag) || course_desc.includes(tag)
       );
     }).length;
   };
 
-  const getColorClasses = (color: string): { bg: string; border: string; text: string } => {
-    const defaultColors = {
+  const get_color_classes = (color: string): { bg: string; border: string; text: string } => {
+    const default_colors = {
       bg: 'bg-blue-50 dark:bg-blue-950/20',
       border: 'border-blue-200 dark:border-blue-900',
       text: 'text-blue-600 dark:text-blue-400',
     };
 
     const colors: Record<string, { bg: string; border: string; text: string }> = {
-      blue: defaultColors,
+      blue: default_colors,
       yellow: {
         bg: 'bg-yellow-50 dark:bg-yellow-950/20',
         border: 'border-yellow-200 dark:border-yellow-900',
@@ -137,7 +138,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
         text: 'text-indigo-600 dark:text-indigo-400',
       },
     };
-    return colors[color] ?? defaultColors;
+    return colors[color] ?? default_colors;
   };
 
   return (
@@ -167,7 +168,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
         {/* 전체 통계 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-4xl mx-auto">
           <div className="bg-white dark:bg-gray-900 border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{allCourses.length}</div>
+            <div className="text-2xl font-bold text-primary">{all_courses.length}</div>
             <p className="text-sm text-muted-foreground">전체 강의</p>
           </div>
           <div className="bg-white dark:bg-gray-900 border rounded-lg p-4 text-center">
@@ -176,7 +177,7 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
           </div>
           <div className="bg-white dark:bg-gray-900 border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-primary">
-              {allCourses.filter((c) => c.is_free).length}
+              {all_courses.filter((c) => c.is_free).length}
             </div>
             <p className="text-sm text-muted-foreground">무료 강의</p>
           </div>
@@ -193,8 +194,8 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {categories.map((category) => {
           const Icon = category.icon;
-          const courseCount = getCourseCountByCategory(category.tags);
-          const colors = getColorClasses(category.color);
+          const course_count = get_course_count_by_category(category.tags);
+          const colors = get_color_classes(category.color);
 
           return (
             <Link key={category.id} href={`/courses?category=${category.id}`} className="group">
@@ -204,17 +205,17 @@ export default async function CategoriesPage(): Promise<React.JSX.Element> {
                     <div className={`p-3 rounded-lg bg-white dark:bg-gray-900 ${colors.text}`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    {courseCount > 0 && <Badge variant="secondary">{courseCount}개 강의</Badge>}
+                    {course_count > 0 && <Badge variant="secondary">{course_count}개 강의</Badge>}
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <CardTitle className="text-xl mb-2">{category.name}</CardTitle>
                   <p className="text-muted-foreground text-sm mb-4">{category.description}</p>
 
-                  {courseCount > 0 ? (
+                  {course_count > 0 ? (
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-primary">바로 학습하기 →</span>
-                      {courseCount >= 5 && (
+                      {course_count >= 5 && (
                         <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                           <Sparkles className="w-3 h-3 mr-1" />
                           인기

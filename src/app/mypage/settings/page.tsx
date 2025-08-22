@@ -9,13 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [loading, set_loading] = useState(false);
+  const [message, set_message] = useState('');
   const router = useRouter();
   const supabase = createBrowserClient();
 
-  const handleLogout = async () => {
-    setLoading(true);
+  const handle_logout = async () => {
+    set_loading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -24,13 +24,13 @@ export default function SettingsPage() {
 
       router.push('/');
     } catch (_error) {
-      setMessage('로그아웃 중 오류가 발생했습니다');
+      set_message('로그아웃 중 오류가 발생했습니다');
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handle_delete_account = async () => {
     if (!confirm('정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       return;
     }
@@ -39,14 +39,14 @@ export default function SettingsPage() {
       return;
     }
 
-    setLoading(true);
+    set_loading(true);
     try {
       // TODO: 계정 삭제 API 구현
-      setMessage('계정 삭제 기능은 준비 중입니다. 고객센터로 문의해주세요.');
+      set_message('계정 삭제 기능은 준비 중입니다. 고객센터로 문의해주세요.');
     } catch (_error) {
-      setMessage('계정 삭제 중 오류가 발생했습니다');
+      set_message('계정 삭제 중 오류가 발생했습니다');
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   };
 
@@ -192,7 +192,7 @@ export default function SettingsPage() {
               <p className="font-medium">로그아웃</p>
               <p className="text-sm text-gray-600">현재 기기에서 로그아웃합니다</p>
             </div>
-            <Button variant="outline" onClick={handleLogout} disabled={loading}>
+            <Button variant="outline" onClick={handle_logout} disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -209,7 +209,7 @@ export default function SettingsPage() {
               <p className="font-medium text-red-600">계정 삭제</p>
               <p className="text-sm text-gray-600">계정과 모든 데이터를 영구 삭제합니다</p>
             </div>
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
+            <Button variant="destructive" onClick={handle_delete_account} disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

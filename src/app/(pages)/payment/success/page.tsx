@@ -11,25 +11,25 @@ import { createClient } from '@/lib/supabase/browser-client';
 import type { Course } from '@/types';
 
 function PaymentSuccessContent() {
-  const searchParams = useSearchParams();
+  const search_params = useSearchParams();
   const router = useRouter();
 
   // 토스페이먼츠 파라미터
-  const orderId = searchParams.get('orderId');
-  const paymentKey = searchParams.get('paymentKey');
-  const amount = searchParams.get('amount');
+  const order_id = search_params.get('orderId');
+  const payment_key = search_params.get('paymentKey');
+  const amount = search_params.get('amount');
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [isProcessing, setIsProcessing] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [course, set_course] = useState<Course | null>(null);
+  const [is_processing, set_is_processing] = useState(true);
+  const [error, set_error] = useState<string | null>(null);
 
-  const loadCourseData = useCallback(async (course_id: string) => {
+  const load_course_data = useCallback(async (course_id: string) => {
     const supabase = createClient();
     const { data } = await supabase.from('courses').select('*').eq('id', course_id).single();
 
     if (data) {
       // DB 데이터를 Course 타입으로 변환
-      const courseData: Course = {
+      const course_data: Course = {
         id: data.id,
         title: data.title,
         description: data.description ?? undefined,
@@ -48,11 +48,11 @@ function PaymentSuccessContent() {
         created_at: data.created_at || new Date().toISOString(),
         updated_at: data.updated_at || data.created_at || new Date().toISOString(),
       };
-      setCourse(courseData);
+      set_course(course_data);
     }
   }, []);
 
-  const confirmPayment = useCallback(async () => {
+  const confirm_payment = useCallback(async () => {
     try {
       const data = await apiPost<{
         success: boolean;
@@ -64,8 +64,8 @@ function PaymentSuccessContent() {
         };
         error?: string;
       }>('/api/payment/confirm', {
-        orderId,
-        paymentKey,
+        orderId: order_id,
+        paymentKey: payment_key,
         amount: Number.parseInt(amount || '0', 10),
       });
 
@@ -79,26 +79,26 @@ function PaymentSuccessContent() {
 
       // 강의 정보 로드
       if (data.purchase?.course_id) {
-        loadCourseData(data.purchase.course_id);
+        load_course_data(data.purchase.course_id);
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
+      set_error(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
     } finally {
-      setIsProcessing(false);
+      set_is_processing(false);
     }
-  }, [orderId, paymentKey, amount, loadCourseData]);
+  }, [order_id, payment_key, amount, load_course_data]);
 
   useEffect(() => {
-    if (!orderId || !paymentKey || !amount) {
-      setError('결제 정보가 올바르지 않습니다.');
-      setIsProcessing(false);
+    if (!order_id || !payment_key || !amount) {
+      set_error('결제 정보가 올바르지 않습니다.');
+      set_is_processing(false);
       return;
     }
 
-    confirmPayment();
-  }, [orderId, paymentKey, amount, confirmPayment]);
+    confirm_payment();
+  }, [order_id, payment_key, amount, confirm_payment]);
 
-  if (isProcessing) {
+  if (is_processing) {
     return (
       <div className="container mx-auto px-4 py-16 max-w-2xl">
         <div className="text-center">

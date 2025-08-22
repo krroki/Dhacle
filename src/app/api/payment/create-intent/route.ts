@@ -20,18 +20,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { course_id, couponCode } = body;
 
     // 강의 정보 조회
-    const { data: course, error: courseError } = await supabase
+    const { data: course, error: course_error } = await supabase
       .from('courses')
       .select('*')
       .eq('id', course_id)
       .single();
 
-    if (courseError || !course) {
+    if (course_error || !course) {
       return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
     }
 
     // 이미 구매했는지 확인
-    const { data: existingPurchase } = await supabase
+    const { data: existing_purchase } = await supabase
       .from('purchases')
       .select('*')
       .eq('user_id', user.id)
@@ -39,35 +39,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .eq('status', 'completed')
       .single();
 
-    if (existingPurchase) {
+    if (existing_purchase) {
       return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
     }
 
-    let finalPrice = course.price;
-    let appliedCoupon = null;
+    let final_price = course.price;
+    let applied_coupon = null;
 
     // 쿠폰 적용
     if (couponCode) {
-      const { data: coupon, error: couponError } = await supabase
+      const { data: coupon, error: coupon_error } = await supabase
         .from('coupons')
         .select('*')
         .eq('code', couponCode.toUpperCase())
         .eq('is_active', true)
         .single();
 
-      if (!couponError && coupon) {
+      if (!coupon_error && coupon) {
         const now = new Date();
-        const validFrom = new Date(coupon.validFrom);
-        const validUntil = new Date(coupon.validUntil);
+        const valid_from = new Date(coupon.validFrom);
+        const valid_until = new Date(coupon.validUntil);
 
-        if (now >= validFrom && now <= validUntil) {
+        if (now >= valid_from && now <= valid_until) {
           if (coupon.discountType === 'percentage') {
-            finalPrice = Math.round(course.price * (1 - coupon.discountValue / 100));
+            final_price = Math.round(course.price * (1 - coupon.discountValue / 100));
           } else {
-            finalPrice = Math.max(0, course.price - coupon.discountValue);
+            final_price = Math.max(0, course.price - coupon.discountValue);
           }
 
-          appliedCoupon = coupon;
+          applied_coupon = coupon;
 
           // 쿠폰 사용 횟수 증가
           await supabase
@@ -81,25 +81,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // 주문 ID 생성 (고유해야 함)
-    const orderId = `ORDER_${Date.now()}_${course_id}_${user.id.substring(0, 8)}`;
+    const order_id = `ORDER_${Date.now()}_${course_id}_${user.id.substring(0, 8)}`;
 
     // 구매 레코드 생성 (pending 상태)
-    const { data: purchase, error: purchaseError } = await supabase
+    const { data: purchase, error: purchase_error } = await supabase
       .from('purchases')
       .insert({
         user_id: user.id,
         course_id: course_id,
         amount: course.price,
-        finalAmount: finalPrice,
+        finalAmount: final_price,
         payment_method: 'tosspayments',
-        paymentIntentId: orderId, // 주문 ID 저장
+        paymentIntentId: order_id, // 주문 ID 저장
         status: 'pending',
-        couponId: appliedCoupon?.id,
+        couponId: applied_coupon?.id,
       })
       .select()
       .single();
 
-    if (purchaseError) {
+    if (purchase_error) {
       return NextResponse.json({ error: '구매 처리 중 오류가 발생했습니다.' }, { status: 500 });
     }
 
@@ -113,17 +113,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 토스페이먼츠는 프론트엔드에서 직접 결제 요청
     // 서버는 주문 정보만 생성
     return NextResponse.json({
-      orderId,
-      amount: finalPrice,
+      orderId: order_id,
+      amount: final_price,
       orderName: course.title,
       customerName: profile?.username || '고객',
       customerEmail: profile?.email || user.email,
       purchaseId: purchase.id,
-      appliedCoupon: appliedCoupon
+      appliedCoupon: applied_coupon
         ? {
-            code: appliedCoupon.code,
-            discountType: appliedCoupon.discountType,
-            discountValue: appliedCoupon.discountValue,
+            code: applied_coupon.code,
+            discountType: applied_coupon.discountType,
+            discountValue: applied_coupon.discountValue,
           }
         : null,
     });

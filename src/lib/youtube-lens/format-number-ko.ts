@@ -14,31 +14,31 @@ export function formatNumberKo(num: number | null | undefined, decimals = 1): st
   if (num == null) return '0';
 
   // 음수 처리
-  const isNegative = num < 0;
-  const absNum = Math.abs(num);
+  const is_negative = num < 0;
+  const abs_num = Math.abs(num);
 
   // 1000 미만
-  if (absNum < 1000) {
-    return isNegative ? `-${absNum}` : `${absNum}`;
+  if (abs_num < 1000) {
+    return is_negative ? `-${abs_num}` : `${abs_num}`;
   }
 
   // 1천 ~ 1만 미만
-  if (absNum < 10000) {
-    const value = (absNum / 1000).toFixed(decimals);
+  if (abs_num < 10000) {
+    const value = (abs_num / 1000).toFixed(decimals);
     const formatted =
       Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
         ? Math.floor(Number.parseFloat(value)).toString()
         : value;
-    return isNegative ? `-${formatted}천` : `${formatted}천`;
+    return is_negative ? `-${formatted}천` : `${formatted}천`;
   }
 
   // 1만 이상
-  const value = (absNum / 10000).toFixed(decimals);
+  const value = (abs_num / 10000).toFixed(decimals);
   const formatted =
     Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
       ? Math.floor(Number.parseFloat(value)).toString()
       : value;
-  return isNegative ? `-${formatted}만` : `${formatted}만`;
+  return is_negative ? `-${formatted}만` : `${formatted}만`;
 }
 
 /**
@@ -63,12 +63,12 @@ export function formatPercent(value: number | null | undefined, decimals = 1): s
   if (value == null) return '0%';
 
   const formatted = value.toFixed(decimals);
-  const cleanFormatted =
+  const clean_formatted =
     Number.parseFloat(formatted) === Math.floor(Number.parseFloat(formatted))
       ? Math.floor(Number.parseFloat(formatted)).toString()
       : formatted;
 
-  return `${cleanFormatted}%`;
+  return `${clean_formatted}%`;
 }
 
 /**
@@ -91,11 +91,11 @@ export function formatGrowthRate(rate: number | null | undefined): string {
 export function formatLargeNumber(num: number | null | undefined): string {
   if (num == null) return '0';
 
-  const absNum = Math.abs(num);
+  const abs_num = Math.abs(num);
 
   // 1억 이상
-  if (absNum >= 100000000) {
-    const value = (absNum / 100000000).toFixed(1);
+  if (abs_num >= 100000000) {
+    const value = (abs_num / 100000000).toFixed(1);
     const formatted =
       Number.parseFloat(value) === Math.floor(Number.parseFloat(value))
         ? Math.floor(Number.parseFloat(value)).toString()

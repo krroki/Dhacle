@@ -65,12 +65,12 @@ interface YouTubeLensState {
   setError: (error: string | null) => void;
 
   setNextPageToken: (token: string | undefined) => void;
-  setHasMore: (hasMore: boolean) => void;
+  setHasMore: (has_more: boolean) => void;
 
   reset: () => void;
 }
 
-const initialState = {
+const initial_state = {
   videos: [],
   selectedVideos: new Set<string>(),
   favoriteVideos: new Map<string, YouTubeFavorite>(),
@@ -102,7 +102,7 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
   devtools(
     persist(
       (set, get) => ({
-        ...initialState,
+        ...initial_state,
 
         // 비디오 관련 액션
         setVideos: (videos) => set({ videos }),
@@ -116,13 +116,13 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
 
         toggleVideoSelection: (video_id) =>
           set((state) => {
-            const newSelected = new Set(state.selectedVideos);
-            if (newSelected.has(video_id)) {
-              newSelected.delete(video_id);
+            const new_selected = new Set(state.selectedVideos);
+            if (new_selected.has(video_id)) {
+              new_selected.delete(video_id);
             } else {
-              newSelected.add(video_id);
+              new_selected.add(video_id);
             }
-            return { selectedVideos: newSelected };
+            return { selectedVideos: new_selected };
           }),
 
         selectAllVideos: () =>
@@ -135,7 +135,7 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
         // 즐겨찾기 관련 액션
         addFavorite: (video, tags = [], notes = '') =>
           set((state) => {
-            const newFavorites = new Map(state.favoriteVideos);
+            const new_favorites = new Map(state.favoriteVideos);
             const favorite: YouTubeFavorite = {
               id: crypto.randomUUID(),
               user_id: '', // 실제 구현시 auth에서 가져옴
@@ -146,29 +146,29 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             };
-            newFavorites.set(video.id, favorite);
-            return { favoriteVideos: newFavorites };
+            new_favorites.set(video.id, favorite);
+            return { favoriteVideos: new_favorites };
           }),
 
         removeFavorite: (video_id) =>
           set((state) => {
-            const newFavorites = new Map(state.favoriteVideos);
-            newFavorites.delete(video_id);
-            return { favoriteVideos: newFavorites };
+            const new_favorites = new Map(state.favoriteVideos);
+            new_favorites.delete(video_id);
+            return { favoriteVideos: new_favorites };
           }),
 
         updateFavorite: (video_id, updates) =>
           set((state) => {
-            const newFavorites = new Map(state.favoriteVideos);
-            const existing = newFavorites.get(video_id);
+            const new_favorites = new Map(state.favoriteVideos);
+            const existing = new_favorites.get(video_id);
             if (existing) {
-              newFavorites.set(video_id, {
+              new_favorites.set(video_id, {
                 ...existing,
                 ...updates,
                 updated_at: new Date().toISOString(),
               });
             }
-            return { favoriteVideos: newFavorites };
+            return { favoriteVideos: new_favorites };
           }),
 
         loadFavorites: (favorites) =>
@@ -186,8 +186,8 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
 
         addToSearchHistory: (query) =>
           set((state) => {
-            const newHistory = [query, ...state.searchHistory.filter((q) => q !== query)];
-            return { searchHistory: newHistory.slice(0, 20) }; // 최대 20개 저장
+            const new_history = [query, ...state.searchHistory.filter((q) => q !== query)];
+            return { searchHistory: new_history.slice(0, 20) }; // 최대 20개 저장
           }),
 
         clearSearchHistory: () => set({ searchHistory: [] }),
@@ -214,18 +214,18 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
               return {};
             }
 
-            const newUsed = state.quotaStatus.used + units;
-            const newRemaining = 10000 - newUsed; // 기본 할당량 10000
-            const newPercentage = (newUsed / 10000) * 100;
+            const new_used = state.quotaStatus.used + units;
+            const new_remaining = 10000 - new_used; // 기본 할당량 10000
+            const new_percentage = (new_used / 10000) * 100;
 
             return {
               quotaStatus: {
                 ...state.quotaStatus,
-                used: newUsed,
-                remaining: newRemaining,
-                percentage: newPercentage,
-                warning: newPercentage > 80,
-                critical: newPercentage > 95,
+                used: new_used,
+                remaining: new_remaining,
+                percentage: new_percentage,
+                warning: new_percentage > 80,
+                critical: new_percentage > 95,
               },
             };
           }),
@@ -236,10 +236,10 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
         setError: (error) => set({ error }),
 
         setNextPageToken: (token) => set({ nextPageToken: token }),
-        setHasMore: (hasMore) => set({ hasMore }),
+        setHasMore: (has_more) => set({ hasMore: has_more }),
 
         // 전체 초기화
-        reset: () => set(initialState),
+        reset: () => set(initial_state),
       }),
       {
         name: 'youtube-lens-storage',

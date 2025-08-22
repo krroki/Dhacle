@@ -24,7 +24,7 @@ export interface Notification {
   link?: string;
 }
 
-const notificationIcons = {
+const notification_icons = {
   info: AlertCircle,
   success: Check,
   warning: AlertCircle,
@@ -33,7 +33,7 @@ const notificationIcons = {
   achievement: Trophy,
 };
 
-const notificationColors = {
+const notification_colors = {
   info: 'text-blue-500',
   success: 'text-green-500',
   warning: 'text-yellow-500',
@@ -53,7 +53,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
   // - 실시간 알림 구독 (Supabase Realtime)
   // - 알림 읽음 상태 업데이트 API
   // - 푸시 알림 지원 (Service Worker)
-  const [notifications, setNotifications] = useState<Notification[]>([
+  const [notifications, set_notifications] = useState<Notification[]>([
     // 임시 더미 데이터 - 실제 구현 시 Supabase에서 가져올 예정
     {
       id: '1',
@@ -92,22 +92,22 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
     },
   ]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unread_count = notifications.filter((n) => !n.read).length;
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const mark_as_read = (id: string) => {
+    set_notifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const mark_all_as_read = () => {
+    set_notifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  const delete_notification = (id: string) => {
+    set_notifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const handleNotificationClick = (notification: Notification) => {
-    markAsRead(notification.id);
+  const handle_notification_click = (notification: Notification) => {
+    mark_as_read(notification.id);
     if (notification.link) {
       window.location.href = notification.link;
     }
@@ -118,12 +118,12 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       <DropdownMenuTrigger asChild={true}>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
+          {unread_count > 0 && (
             <Badge
               className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center"
               variant="destructive"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unread_count > 9 ? '9+' : unread_count}
             </Badge>
           )}
         </Button>
@@ -132,17 +132,17 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold">알림</h3>
-            {unreadCount > 0 && (
+            {unread_count > 0 && (
               <Badge variant="secondary" className="h-5 px-1.5">
-                {unreadCount}개
+                {unread_count}개
               </Badge>
             )}
           </div>
-          {unreadCount > 0 && (
+          {unread_count > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={markAllAsRead}
+              onClick={mark_all_as_read}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
               모두 읽음
@@ -159,8 +159,8 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
           ) : (
             <div className="divide-y">
               {notifications.map((notification) => {
-                const Icon = notificationIcons[notification.type];
-                const colorClass = notificationColors[notification.type];
+                const Icon = notification_icons[notification.type];
+                const color_class = notification_colors[notification.type];
 
                 return (
                   <div
@@ -169,10 +169,10 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
                       'p-4 hover:bg-muted/50 transition-colors cursor-pointer group',
                       !notification.read && 'bg-primary/5'
                     )}
-                    onClick={() => handleNotificationClick(notification)}
+                    onClick={() => handle_notification_click(notification)}
                   >
                     <div className="flex gap-3">
-                      <div className={cn('mt-0.5', colorClass)}>
+                      <div className={cn('mt-0.5', color_class)}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 space-y-1">
@@ -192,7 +192,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteNotification(notification.id);
+                          delete_notification(notification.id);
                         }}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded"
                       >

@@ -11,7 +11,10 @@ import { z } from 'zod';
 import { reportSchema } from '@/lib/validations/revenue-proof';
 
 // POST: 신고 처리
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: proof_id } = await params;
@@ -25,13 +28,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 인증이 존재하는지 확인
-    const { data: proof, error: proofError } = await supabase
+    const { data: proof, error: proof_error } = await supabase
       .from('revenue_proofs')
       .select('id, user_id, is_hidden, reports_count')
       .eq('id', proof_id)
       .single();
 
-    if (proofError || !proof) {
+    if (proof_error || !proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
@@ -46,14 +49,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 중복 신고 확인
-    const { data: existingReport } = await supabase
+    const { data: existing_report } = await supabase
       .from('proof_reports')
       .select('id')
       .eq('proof_id', proof_id)
       .eq('reporterId', user.id)
       .single();
 
-    if (existingReport) {
+    if (existing_report) {
       return NextResponse.json({ error: '이미 신고한 인증입니다' }, { status: 400 });
     }
 
@@ -61,10 +64,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const body = await request.json();
 
     // 입력값 검증
-    const validatedData = reportSchema.parse(body);
+    const validated_data = reportSchema.parse(body);
 
     // 악용 경고 확인
-    if (!validatedData.acknowledged) {
+    if (!validated_data.acknowledged) {
       return NextResponse.json(
         { error: '신고 악용 시 제재 조치에 동의해야 합니다' },
         { status: 400 }
@@ -72,55 +75,55 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 신고 등록
-    const { error: insertError } = await supabase.from('proof_reports').insert({
+    const { error: insert_error } = await supabase.from('proof_reports').insert({
       proof_id: proof_id,
       reporterId: user.id,
-      reason: validatedData.reason,
-      details: validatedData.details || null,
+      reason: validated_data.reason,
+      details: validated_data.details || null,
     });
 
-    if (insertError) {
+    if (insert_error) {
       return NextResponse.json({ error: '신고 처리 중 오류가 발생했습니다' }, { status: 500 });
     }
 
     // 신고 수 증가
-    const newReportsCount = proof.reports_count + 1;
+    const new_reports_count = proof.reports_count + 1;
 
-    const { error: updateError } = await supabase
+    const { error: update_error } = await supabase
       .from('revenue_proofs')
       .update({
-        reports_count: newReportsCount,
+        reports_count: new_reports_count,
         // 3회 이상 신고 시 자동 숨김
-        is_hidden: newReportsCount >= 3,
+        is_hidden: new_reports_count >= 3,
       })
       .eq('id', proof_id);
 
-    if (updateError) {
+    if (update_error) {
     }
 
     // 3회 신고 도달 시 관리자 알림 (추후 구현)
-    if (newReportsCount === 3) {
+    if (new_reports_count === 3) {
       // TODO: 관리자 알림 시스템 구현
       console.log(`Alert: Revenue proof ${proof_id} has been auto-hidden after 3 reports`);
 
       // 관리자 알림 로그 기록
-      const { error: notificationError } = await supabase.from('adminNotifications').insert({
+      const { error: notification_error } = await supabase.from('adminNotifications').insert({
         type: 'autoHiddenProof',
         data: {
           proof_id: proof_id,
-          reports_count: newReportsCount,
+          reports_count: new_reports_count,
           hiddenAt: new Date().toISOString(),
         },
       });
 
-      if (notificationError) {
+      if (notification_error) {
       }
     }
 
     return NextResponse.json({
       message: '신고가 접수되었습니다',
-      is_hidden: newReportsCount >= 3,
-      reportsCount: newReportsCount,
+      is_hidden: new_reports_count >= 3,
+      reportsCount: new_reports_count,
     });
   } catch (error) {
     // Zod 검증 에러
@@ -139,7 +142,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 // GET: 신고 사유 목록 조회 (관리자용)
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     // 세션 검사
     const supabase = createRouteHandlerClient({ cookies });
@@ -174,7 +180,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     // 신고 사유별 집계
-    const reasonCounts = reports?.reduce(
+    const reason_counts = reports?.reduce(
       (acc, report) => {
         acc[report.reason] = (acc[report.reason] || 0) + 1;
         return acc;
@@ -185,7 +191,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({
       data: reports || [],
       count: reports?.length || 0,
-      reasonCounts,
+      reasonCounts: reason_counts,
     });
   } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });

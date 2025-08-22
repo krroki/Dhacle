@@ -155,7 +155,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     const collection_manager = new ServerCollectionManager();
-    const { success, error } = await collection_manager.reorderCollectionItems(collection_id, items);
+    const { success, error } = await collection_manager.reorderCollectionItems(
+      collection_id,
+      items
+    );
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

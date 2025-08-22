@@ -186,20 +186,20 @@ const SENTIMENT_KEYWORDS = {
 /**
  * Detect language of text
  */
-function detectLanguage(text: string): 'ko' | 'en' | 'mixed' {
-  const koreanChars = (text.match(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g) || []).length;
-  const englishChars = (text.match(/[a-zA-Z]/g) || []).length;
-  const total = koreanChars + englishChars;
+function detect_language(text: string): 'ko' | 'en' | 'mixed' {
+  const korean_chars = (text.match(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g) || []).length;
+  const english_chars = (text.match(/[a-zA-Z]/g) || []).length;
+  const total = korean_chars + english_chars;
 
   if (total === 0) {
     return 'en';
   }
 
-  const koreanRatio = koreanChars / total;
-  if (koreanRatio > 0.7) {
+  const korean_ratio = korean_chars / total;
+  if (korean_ratio > 0.7) {
     return 'ko';
   }
-  if (koreanRatio < 0.3) {
+  if (korean_ratio < 0.3) {
     return 'en';
   }
   return 'mixed';
@@ -208,7 +208,7 @@ function detectLanguage(text: string): 'ko' | 'en' | 'mixed' {
 /**
  * Tokenize Korean text (simple word boundary approach)
  */
-function tokenizeKorean(text: string): string[] {
+function tokenize_korean(text: string): string[] {
   // Simple tokenization by spaces and punctuation
   // In production, you'd use a proper Korean tokenizer like mecab-ko
   return text
@@ -220,7 +220,7 @@ function tokenizeKorean(text: string): string[] {
 /**
  * Tokenize English text
  */
-function tokenizeEnglish(text: string): string[] {
+function tokenize_english(text: string): string[] {
   return text
     .toLowerCase()
     .split(/[\s,.\-!?()[\]{}'"]/g)
@@ -231,18 +231,18 @@ function tokenizeEnglish(text: string): string[] {
 /**
  * Extract keywords using TF-IDF approach
  */
-function extractKeywords(text: string, limit = 10): string[] {
-  const language = detectLanguage(text);
-  const tokens = language === 'ko' ? tokenizeKorean(text) : tokenizeEnglish(text);
+function extract_keywords(text: string, limit = 10): string[] {
+  const language = detect_language(text);
+  const tokens = language === 'ko' ? tokenize_korean(text) : tokenize_english(text);
 
   // Calculate term frequency
-  const termFreq = new Map<string, number>();
+  const term_freq = new Map<string, number>();
   tokens.forEach((token) => {
-    termFreq.set(token, (termFreq.get(token) || 0) + 1);
+    term_freq.set(token, (term_freq.get(token) || 0) + 1);
   });
 
   // Sort by frequency and return top keywords
-  return Array.from(termFreq.entries())
+  return Array.from(term_freq.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
     .map(([term]) => term);
@@ -251,7 +251,7 @@ function extractKeywords(text: string, limit = 10): string[] {
 /**
  * Extract brands from text
  */
-function extractBrands(text: string): string[] {
+function extract_brands(text: string): string[] {
   const brands = new Set<string>();
 
   BRAND_PATTERNS.forEach((pattern) => {
@@ -267,20 +267,20 @@ function extractBrands(text: string): string[] {
 /**
  * Extract people names (simple pattern matching)
  */
-function extractPeople(text: string): string[] {
+function extract_people(text: string): string[] {
   const people = new Set<string>();
 
   // Korean name patterns (성 + 이름)
-  const koreanNames = text.match(/[김이박최정강조윤장임][가-힣]{1,2}/g) || [];
-  koreanNames.forEach((name) => {
+  const korean_names = text.match(/[김이박최정강조윤장임][가-힣]{1,2}/g) || [];
+  korean_names.forEach((name) => {
     if (name.length >= 2 && name.length <= 4) {
       people.add(name);
     }
   });
 
   // English name patterns (Capitalized words)
-  const englishNames = text.match(/[A-Z][a-z]+ [A-Z][a-z]+/g) || [];
-  englishNames.forEach((name) => people.add(name));
+  const english_names = text.match(/[A-Z][a-z]+ [A-Z][a-z]+/g) || [];
+  english_names.forEach((name) => people.add(name));
 
   return Array.from(people);
 }
@@ -288,11 +288,11 @@ function extractPeople(text: string): string[] {
 /**
  * Extract locations (simple pattern matching)
  */
-function extractLocations(text: string): string[] {
+function extract_locations(text: string): string[] {
   const locations = new Set<string>();
 
   // Common location patterns
-  const locationPatterns = [
+  const location_patterns = [
     /서울|seoul/gi,
     /부산|busan/gi,
     /대구|daegu/gi,
@@ -312,7 +312,7 @@ function extractLocations(text: string): string[] {
     /london|런던/gi,
   ];
 
-  locationPatterns.forEach((pattern) => {
+  location_patterns.forEach((pattern) => {
     const matches = text.match(pattern);
     if (matches) {
       matches.forEach((match) => locations.add(match));
@@ -325,50 +325,50 @@ function extractLocations(text: string): string[] {
 /**
  * Analyze sentiment of text
  */
-function analyzeSentiment(text: string): {
+function analyze_sentiment(text: string): {
   sentiment: 'positive' | 'negative' | 'neutral';
   confidence: number;
 } {
-  const lowerText = text.toLowerCase();
-  let positiveScore = 0;
-  let negativeScore = 0;
+  const lower_text = text.toLowerCase();
+  let positive_score = 0;
+  let negative_score = 0;
 
   // Check positive keywords
   SENTIMENT_KEYWORDS.positive.korean.forEach((keyword) => {
     if (text.includes(keyword)) {
-      positiveScore += 2;
+      positive_score += 2;
     }
   });
   SENTIMENT_KEYWORDS.positive.english.forEach((keyword) => {
-    if (lowerText.includes(keyword)) {
-      positiveScore += 1;
+    if (lower_text.includes(keyword)) {
+      positive_score += 1;
     }
   });
 
   // Check negative keywords
   SENTIMENT_KEYWORDS.negative.korean.forEach((keyword) => {
     if (text.includes(keyword)) {
-      negativeScore += 2;
+      negative_score += 2;
     }
   });
   SENTIMENT_KEYWORDS.negative.english.forEach((keyword) => {
-    if (lowerText.includes(keyword)) {
-      negativeScore += 1;
+    if (lower_text.includes(keyword)) {
+      negative_score += 1;
     }
   });
 
   // Calculate sentiment
-  const total = positiveScore + negativeScore;
+  const total = positive_score + negative_score;
   if (total === 0) {
     return { sentiment: 'neutral', confidence: 0.5 };
   }
 
-  const confidence = Math.max(positiveScore, negativeScore) / total;
+  const confidence = Math.max(positive_score, negative_score) / total;
 
-  if (positiveScore > negativeScore) {
+  if (positive_score > negative_score) {
     return { sentiment: 'positive', confidence };
   }
-  if (negativeScore > positiveScore) {
+  if (negative_score > positive_score) {
     return { sentiment: 'negative', confidence };
   }
   return { sentiment: 'neutral', confidence: 0.5 };
@@ -379,15 +379,15 @@ function analyzeSentiment(text: string): {
  */
 export async function extractEntities(video: Video): Promise<EntityExtraction> {
   const text = `${video.title} ${video.description || ''} ${(video.tags || []).join(' ')}`;
-  const language = detectLanguage(text);
+  const language = detect_language(text);
 
-  const keywords = extractKeywords(text, 20);
-  const brands = extractBrands(text);
-  const people = extractPeople(text);
-  const locations = extractLocations(text);
+  const keywords = extract_keywords(text, 20);
+  const brands = extract_brands(text);
+  const people = extract_people(text);
+  const locations = extract_locations(text);
 
   // Extract topics (group related keywords)
-  const topics = extractTopics(keywords);
+  const topics = extract_topics(keywords);
 
   return {
     entities: {
@@ -398,7 +398,7 @@ export async function extractEntities(video: Video): Promise<EntityExtraction> {
       locations,
     },
     language: language === 'ko' ? 'Korean' : language === 'en' ? 'English' : 'Mixed',
-    confidence: calculateConfidence(keywords, brands, people, locations),
+    confidence: calculate_confidence(keywords, brands, people, locations),
     processedAt: new Date().toISOString(),
   };
 }
@@ -406,8 +406,8 @@ export async function extractEntities(video: Video): Promise<EntityExtraction> {
 /**
  * Extract topics from keywords
  */
-function extractTopics(keywords: string[]): string[] {
-  const topicPatterns = {
+function extract_topics(keywords: string[]): string[] {
+  const topic_patterns = {
     Technology: /tech|코딩|프로그래밍|개발|ai|인공지능|computer|소프트웨어/i,
     Gaming: /game|게임|플레이|play|스트림|stream|e-?sports/i,
     Beauty: /뷰티|beauty|화장|makeup|cosmetic|skincare|스킨케어/i,
@@ -420,46 +420,46 @@ function extractTopics(keywords: string[]): string[] {
     Entertainment: /예능|entertainment|comedy|코미디|funny|재미/i,
   };
 
-  const detectedTopics = new Set<string>();
+  const detected_topics = new Set<string>();
 
   keywords.forEach((keyword) => {
-    Object.entries(topicPatterns).forEach(([topic, pattern]) => {
+    Object.entries(topic_patterns).forEach(([topic, pattern]) => {
       if (pattern.test(keyword)) {
-        detectedTopics.add(topic);
+        detected_topics.add(topic);
       }
     });
   });
 
-  return Array.from(detectedTopics);
+  return Array.from(detected_topics);
 }
 
 /**
  * Calculate confidence score for entity extraction
  */
-function calculateConfidence(
+function calculate_confidence(
   keywords: string[],
   brands: string[],
   people: string[],
   locations: string[]
 ): number {
-  const totalEntities = keywords.length + brands.length + people.length + locations.length;
+  const total_entities = keywords.length + brands.length + people.length + locations.length;
 
-  if (totalEntities === 0) {
+  if (total_entities === 0) {
     return 0;
   }
 
   // Base confidence on entity diversity and count
-  let confidence = Math.min(totalEntities / 20, 1) * 0.5;
+  let confidence = Math.min(total_entities / 20, 1) * 0.5;
 
   // Boost confidence if multiple entity types are found
-  const typesFound = [
+  const types_found = [
     keywords.length > 0,
     brands.length > 0,
     people.length > 0,
     locations.length > 0,
   ].filter(Boolean).length;
 
-  confidence += (typesFound / 4) * 0.5;
+  confidence += (types_found / 4) * 0.5;
 
   return Math.min(confidence, 0.95);
 }
@@ -467,15 +467,18 @@ function calculateConfidence(
 /**
  * Analyze trends from multiple videos
  */
-export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promise<TrendAnalysis[]> {
+export async function analyzeTrends(
+  videos: Video[],
+  time_window_days = 7
+): Promise<TrendAnalysis[]> {
   const now = new Date();
-  const windowStart = new Date(now.getTime() - timeWindowDays * 24 * 60 * 60 * 1000);
+  const window_start = new Date(now.getTime() - time_window_days * 24 * 60 * 60 * 1000);
 
   // Filter videos within time window
-  const recentVideos = videos.filter((v) => new Date(v.published_at) >= windowStart);
+  const recent_videos = videos.filter((v) => new Date(v.published_at) >= window_start);
 
   // Extract all keywords from recent videos
-  const allKeywords = new Map<
+  const all_keywords = new Map<
     string,
     {
       count: number;
@@ -486,30 +489,30 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
     }
   >();
 
-  for (const video of recentVideos) {
+  for (const video of recent_videos) {
     const text = `${video.title} ${video.description || ''}`;
-    const keywords = extractKeywords(text, 10);
-    const { sentiment } = analyzeSentiment(text);
-    const videoDate = new Date(video.published_at);
+    const keywords = extract_keywords(text, 10);
+    const { sentiment } = analyze_sentiment(text);
+    const video_date = new Date(video.published_at);
 
     keywords.forEach((keyword) => {
-      const existing = allKeywords.get(keyword);
+      const existing = all_keywords.get(keyword);
       if (existing) {
         existing.count++;
         existing.videos.push(video.video_id);
         existing.sentiments.push(sentiment);
-        if (videoDate < existing.firstSeen) {
-          existing.firstSeen = videoDate;
+        if (video_date < existing.firstSeen) {
+          existing.firstSeen = video_date;
         }
-        if (videoDate > existing.lastSeen) {
-          existing.lastSeen = videoDate;
+        if (video_date > existing.lastSeen) {
+          existing.lastSeen = video_date;
         }
       } else {
-        allKeywords.set(keyword, {
+        all_keywords.set(keyword, {
           count: 1,
           videos: [video.video_id],
-          firstSeen: videoDate,
-          lastSeen: videoDate,
+          firstSeen: video_date,
+          lastSeen: video_date,
           sentiments: [sentiment],
         });
       }
@@ -519,20 +522,20 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
   // Calculate trends
   const trends: TrendAnalysis[] = [];
 
-  allKeywords.forEach((data, keyword) => {
+  all_keywords.forEach((data, keyword) => {
     if (data.count >= 2) {
       // Minimum frequency threshold
-      const daysDiff = Math.max(
+      const days_diff = Math.max(
         1,
         (data.lastSeen.getTime() - data.firstSeen.getTime()) / (24 * 60 * 60 * 1000)
       );
-      const growthRate = data.count / daysDiff;
+      const growth_rate = data.count / days_diff;
 
       // Calculate dominant sentiment
-      const sentimentCounts = { positive: 0, negative: 0, neutral: 0 };
-      data.sentiments.forEach((s) => sentimentCounts[s]++);
-      const sortedSentiments = Object.entries(sentimentCounts).sort((a, b) => b[1] - a[1]);
-      const dominantSentiment = (sortedSentiments[0]?.[0] ?? 'neutral') as
+      const sentiment_counts = { positive: 0, negative: 0, neutral: 0 };
+      data.sentiments.forEach((s) => sentiment_counts[s]++);
+      const sorted_sentiments = Object.entries(sentiment_counts).sort((a, b) => b[1] - a[1]);
+      const dominant_sentiment = (sorted_sentiments[0]?.[0] ?? 'neutral') as
         | 'positive'
         | 'negative'
         | 'neutral';
@@ -540,11 +543,11 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
       trends.push({
         keyword,
         frequency: data.count,
-        growthRate: growthRate,
+        growthRate: growth_rate,
         firstSeen: data.firstSeen.toISOString(),
         lastSeen: data.lastSeen.toISOString(),
         relatedVideos: data.videos.slice(0, 10),
-        sentiment: dominantSentiment,
+        sentiment: dominant_sentiment,
         confidence: Math.min(data.count / 10, 0.95),
       });
     }
@@ -552,9 +555,9 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
 
   // Sort by growth rate
   return trends.sort((a, b) => {
-    const aRate = typeof a.growthRate === 'number' ? a.growthRate : 0;
-    const bRate = typeof b.growthRate === 'number' ? b.growthRate : 0;
-    return bRate - aRate;
+    const a_rate = typeof a.growthRate === 'number' ? a.growthRate : 0;
+    const b_rate = typeof b.growthRate === 'number' ? b.growthRate : 0;
+    return b_rate - a_rate;
   });
 }
 
@@ -562,7 +565,7 @@ export async function analyzeTrends(videos: Video[], timeWindowDays = 7): Promis
  * Generate NLP analysis report
  */
 export function generateNLPReport(
-  entityExtractions: EntityExtraction[],
+  entity_extractions: EntityExtraction[],
   trends: TrendAnalysis[]
 ): {
   totalProcessed: number;
@@ -577,14 +580,14 @@ export function generateNLPReport(
     neutral: number;
   };
 } {
-  const languageCounts: Record<string, number> = {};
-  const keywordCounts = new Map<string, number>();
-  const topicCounts = new Map<string, number>();
-  const brandCounts = new Map<string, number>();
+  const language_counts: Record<string, number> = {};
+  const keyword_counts = new Map<string, number>();
+  const topic_counts = new Map<string, number>();
+  const brand_counts = new Map<string, number>();
 
-  entityExtractions.forEach((extraction) => {
+  entity_extractions.forEach((extraction) => {
     // Language distribution
-    languageCounts[extraction.language] = (languageCounts[extraction.language] || 0) + 1;
+    language_counts[extraction.language] = (language_counts[extraction.language] || 0) + 1;
 
     // Type guard for entities
     if (!extraction.entities || typeof extraction.entities !== 'object') {
@@ -599,43 +602,43 @@ export function generateNLPReport(
 
     // Aggregate keywords
     entities.keywords?.forEach((keyword) => {
-      keywordCounts.set(keyword, (keywordCounts.get(keyword) || 0) + 1);
+      keyword_counts.set(keyword, (keyword_counts.get(keyword) || 0) + 1);
     });
 
     // Aggregate topics
     entities.topics?.forEach((topic) => {
-      topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
+      topic_counts.set(topic, (topic_counts.get(topic) || 0) + 1);
     });
 
     // Aggregate brands
     entities.brands?.forEach((brand) => {
-      brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
+      brand_counts.set(brand, (brand_counts.get(brand) || 0) + 1);
     });
   });
 
   // Calculate sentiment distribution from trends
-  const sentimentDist = { positive: 0, negative: 0, neutral: 0 };
+  const sentiment_dist = { positive: 0, negative: 0, neutral: 0 };
   trends.forEach((trend) => {
-    sentimentDist[trend.sentiment]++;
+    sentiment_dist[trend.sentiment]++;
   });
 
   return {
-    totalProcessed: entityExtractions.length,
-    languageDistribution: languageCounts,
-    topKeywords: Array.from(keywordCounts.entries())
+    totalProcessed: entity_extractions.length,
+    languageDistribution: language_counts,
+    topKeywords: Array.from(keyword_counts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
       .map(([keyword, count]) => ({ keyword, count })),
-    topTopics: Array.from(topicCounts.entries())
+    topTopics: Array.from(topic_counts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([topic, count]) => ({ topic, count })),
-    topBrands: Array.from(brandCounts.entries())
+    topBrands: Array.from(brand_counts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([brand, count]) => ({ brand, count })),
     trendingKeywords: trends.slice(0, 10),
-    sentimentDistribution: sentimentDist,
+    sentimentDistribution: sentiment_dist,
   };
 }
 

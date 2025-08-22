@@ -15,10 +15,10 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -47,9 +47,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 중복되지 않는 닉네임 생성 (최대 10회 시도)
     let nickname = '';
     let attempts = 0;
-    const maxAttempts = 10;
+    const max_attempts = 10;
 
-    while (attempts < maxAttempts) {
+    while (attempts < max_attempts) {
       nickname = generateRandomNickname();
 
       // TODO: randomNickname 필드 추가 후 중복 체크 구현
@@ -69,7 +69,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       attempts++;
     }
 
-    if (attempts >= maxAttempts) {
+    if (attempts >= max_attempts) {
       return NextResponse.json({ error: 'Failed to generate unique nickname' }, { status: 500 });
     }
 
@@ -106,10 +106,10 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -117,7 +117,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     const suggestions = generateMultipleNicknames(5);
 
     // 중복 체크
-    const availableSuggestions = [];
+    const available_suggestions = [];
     for (const suggestion of suggestions) {
       // TODO: randomNickname 필드 추가 후 중복 체크 구현
       // const { data: existing } = await supabase
@@ -129,12 +129,12 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       // if (!existing) {
       //   availableSuggestions.push(suggestion);
       // }
-      availableSuggestions.push(suggestion); // 임시로 바로 추가
+      available_suggestions.push(suggestion); // 임시로 바로 추가
     }
 
     // 부족하면 추가 생성
-    while (availableSuggestions.length < 5) {
-      const newNickname = generateRandomNickname();
+    while (available_suggestions.length < 5) {
+      const new_nickname = generateRandomNickname();
       // TODO: randomNickname 필드 추가 후 중복 체크 구현
       // const { data: existing } = await supabase
       //   .from('profiles')
@@ -145,13 +145,13 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       // if (!existing && !availableSuggestions.includes(newNickname)) {
       //   availableSuggestions.push(newNickname);
       // }
-      if (!availableSuggestions.includes(newNickname)) {
-        availableSuggestions.push(newNickname); // 임시로 중복만 체크
+      if (!available_suggestions.includes(new_nickname)) {
+        available_suggestions.push(new_nickname); // 임시로 중복만 체크
       }
     }
 
     return NextResponse.json({
-      suggestions: availableSuggestions.slice(0, 5),
+      suggestions: available_suggestions.slice(0, 5),
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

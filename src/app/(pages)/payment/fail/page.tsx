@@ -8,38 +8,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { apiPost } from '@/lib/api-client';
 
 function PaymentFailContent() {
-  const searchParams = useSearchParams();
+  const search_params = useSearchParams();
   const router = useRouter();
 
-  const orderId = searchParams.get('orderId');
-  const code = searchParams.get('code');
-  const message = searchParams.get('message');
+  const order_id = search_params.get('orderId');
+  const code = search_params.get('code');
+  const message = search_params.get('message');
 
-  const [isProcessing, _setIsProcessing] = useState(false);
+  const [is_processing, _setIsProcessing] = useState(false);
 
-  const updateFailureStatus = useCallback(async () => {
+  const update_failure_status = useCallback(async () => {
     try {
       await apiPost('/api/payment/fail', {
-        orderId,
+        orderId: order_id,
         code,
         message,
       });
     } catch (_error) {}
-  }, [orderId, code, message]);
+  }, [order_id, code, message]);
 
   useEffect(() => {
-    if (orderId) {
+    if (order_id) {
       // 서버에 결제 실패 상태 업데이트
-      updateFailureStatus();
+      update_failure_status();
     }
-  }, [orderId, updateFailureStatus]);
+  }, [order_id, update_failure_status]);
 
-  const handleRetry = () => {
+  const handle_retry = () => {
     // 이전 페이지로 돌아가서 다시 시도
     router.back();
   };
 
-  const getErrorMessage = () => {
+  const get_error_message = () => {
     if (message) {
       return message;
     }
@@ -61,12 +61,12 @@ function PaymentFailContent() {
           </div>
 
           <CardTitle className="text-2xl">결제를 완료할 수 없습니다</CardTitle>
-          <CardDescription className="text-base mt-2">{getErrorMessage()}</CardDescription>
+          <CardDescription className="text-base mt-2">{get_error_message()}</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {orderId && (
-            <div className="text-center text-sm text-muted-foreground">주문번호: {orderId}</div>
+          {order_id && (
+            <div className="text-center text-sm text-muted-foreground">주문번호: {order_id}</div>
           )}
 
           <div className="bg-muted/50 rounded-lg p-4">
@@ -93,7 +93,7 @@ function PaymentFailContent() {
               강의 목록으로
             </Button>
 
-            <Button className="flex-1" onClick={handleRetry} disabled={isProcessing}>
+            <Button className="flex-1" onClick={handle_retry} disabled={is_processing}>
               <RefreshCw className="w-4 h-4 mr-2" />
               다시 시도하기
             </Button>

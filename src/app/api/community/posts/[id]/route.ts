@@ -21,13 +21,16 @@ interface CommentWithProfile {
  * GET /api/community/posts/[id]
  * 게시글 상세 조회
  */
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;
 
     // 게시글 조회
-    const { data: post, error: postError } = await supabase
+    const { data: post, error: post_error } = await supabase
       .from('community_posts')
       .select(`
         *,
@@ -55,18 +58,18 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       .eq('id', post_id)
       .single();
 
-    if (postError) {
-      if (postError.code === 'PGRST116') {
+    if (post_error) {
+      if (post_error.code === 'PGRST116') {
         return NextResponse.json({ error: '게시글을 찾을 수 없습니다' }, { status: 404 });
       }
-      throw postError;
+      throw post_error;
     }
 
     // 조회수 증가 (별도 RPC 호출)
     await supabase.rpc('incrementViewCount', { post_id: post_id });
 
     // 데이터 가공
-    const formattedPost = {
+    const formatted_post = {
       ...post,
       author: post.users,
       comments:
@@ -80,7 +83,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
     return NextResponse.json({
       success: true,
-      post: formattedPost,
+      post: formatted_post,
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -91,7 +94,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
  * PUT /api/community/posts/[id]
  * 게시글 수정
  */
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;
@@ -99,10 +105,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -148,7 +154,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
  * DELETE /api/community/posts/[id]
  * 게시글 삭제
  */
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { id: post_id } = await params;
@@ -156,10 +165,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 

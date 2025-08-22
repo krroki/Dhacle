@@ -72,7 +72,7 @@ interface NavItem {
   subItems?: SubItem[];
 }
 
-const navItems: NavItem[] = [
+const nav_items: NavItem[] = [
   {
     label: '강의',
     href: '/courses',
@@ -230,11 +230,11 @@ const navItems: NavItem[] = [
 export function Header() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [userRole, setUserRole] = useState<'user' | 'instructor' | 'admin' | null>(null);
+  const [mounted, set_mounted] = useState(false);
+  const [is_scrolled, set_is_scrolled] = useState(false);
+  const [last_scroll_y, set_last_scroll_y] = useState(0);
+  const [search_query, set_search_query] = useState('');
+  const [user_role, set_user_role] = useState<'user' | 'instructor' | 'admin' | null>(null);
 
   const {
     isHeaderVisible,
@@ -251,20 +251,20 @@ export function Header() {
 
   // Get auth state from context
   const { user, signOut } = useAuth();
-  const isAuthenticated = !!user;
+  const is_authenticated = !!user;
 
   useEffect(() => {
-    setMounted(true);
+    set_mounted(true);
   }, []);
 
   // Fetch user role from profiles table
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetch_user_role = async () => {
       if (user) {
         // TODO: Add 'role' field to profiles table in DB
         // For now, default to 'user' role
-        setUserRole('user');
-        
+        set_user_role('user');
+
         // const supabase = createBrowserClient();
         // const { data, error } = await supabase
         //   .from('profiles')
@@ -276,55 +276,55 @@ export function Header() {
         //   setUserRole(data.role as 'user' | 'instructor' | 'admin');
         // }
       } else {
-        setUserRole(null);
+        set_user_role(null);
       }
     };
 
-    fetchUserRole();
+    fetch_user_role();
   }, [user]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+    const handle_scroll = () => {
+      const current_scroll_y = window.scrollY;
 
       // Add scrolled class when scrolled more than 10px
-      setIsScrolled(currentScrollY > 10);
+      set_is_scrolled(current_scroll_y > 10);
 
       // Hide/show header based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (current_scroll_y > last_scroll_y && current_scroll_y > 100) {
         // Scrolling down - hide header
         setHeaderVisible(false);
-      } else if (currentScrollY < lastScrollY) {
+      } else if (current_scroll_y < last_scroll_y) {
         // Scrolling up - show header
         setHeaderVisible(true);
       }
 
       // Always show header when at top
-      if (currentScrollY <= 10) {
+      if (current_scroll_y <= 10) {
         setHeaderVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
+      set_last_scroll_y(current_scroll_y);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, setHeaderVisible]);
+    window.addEventListener('scroll', handle_scroll, { passive: true });
+    return () => window.removeEventListener('scroll', handle_scroll);
+  }, [last_scroll_y, setHeaderVisible]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handle_search = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (search_query.trim()) {
       // TODO: 실제 검색 기능 구현 필요
       // - Supabase full-text search 구현
       // - 검색 결과 페이지 생성
       // - 검색 히스토리 저장
-      console.log('검색 기능 구현 예정:', searchQuery);
+      console.log('검색 기능 구현 예정:', search_query);
       // Navigate to search results page
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+      window.location.href = `/search?q=${encodeURIComponent(search_query)}`;
     }
   };
 
-  const handleLogout = async () => {
+  const handle_logout = async () => {
     await signOut();
     window.location.href = '/';
   };
@@ -333,7 +333,7 @@ export function Header() {
     <header
       className={cn(
         'bg-background/95 backdrop-blur-sm border-b transition-all duration-300 relative z-[1000]',
-        isScrolled ? 'h-10 shadow-sm' : 'h-20',
+        is_scrolled ? 'h-10 shadow-sm' : 'h-20',
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
       )}
     >
@@ -366,7 +366,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList>
-              {navItems.map((item) => {
+              {nav_items.map((item) => {
                 if (item.subItems) {
                   return (
                     <NavigationMenuItem key={item.href}>
@@ -389,22 +389,22 @@ export function Header() {
                       </Link>
                       <NavigationMenuContent>
                         <div className="grid gap-2 p-4 w-[400px] lg:w-[500px]">
-                          {item.subItems.map((subItem) => (
-                            <NavigationMenuLink key={subItem.href} asChild={true}>
+                          {item.subItems.map((sub_item) => (
+                            <NavigationMenuLink key={sub_item.href} asChild={true}>
                               <Link
-                                href={subItem.href}
+                                href={sub_item.href}
                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary group"
                               >
                                 <div className="flex items-center gap-3">
-                                  {subItem.icon && (
-                                    <subItem.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                                  {sub_item.icon && (
+                                    <sub_item.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
                                   )}
                                   <div className="flex-1">
                                     <div className="text-sm font-medium leading-none mb-1">
-                                      {subItem.label}
+                                      {sub_item.label}
                                     </div>
                                     <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                                      {subItem.description}
+                                      {sub_item.description}
                                     </p>
                                   </div>
                                 </div>
@@ -442,14 +442,14 @@ export function Header() {
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:block">
+          <form onSubmit={handle_search} className="hidden md:block">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="검색어를 입력하세요"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={search_query}
+                onChange={(e) => set_search_query(e.target.value)}
                 className="pl-10 pr-4 w-64 h-9"
               />
             </div>
@@ -471,7 +471,7 @@ export function Header() {
             </Button>
           )}
 
-          {isAuthenticated ? (
+          {is_authenticated ? (
             <>
               {/* Notifications */}
               <NotificationDropdown isOpen={isNotificationOpen} onOpenChange={toggleNotification} />
@@ -521,7 +521,7 @@ export function Header() {
                       설정
                     </Link>
                   </DropdownMenuItem>
-                  {userRole === 'admin' && (
+                  {user_role === 'admin' && (
                     <DropdownMenuItem asChild={true}>
                       <Link href="/admin" className="flex items-center gap-2">
                         <Shield className="h-4 w-4" />
@@ -529,7 +529,7 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                  <DropdownMenuItem onClick={handle_logout} className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     로그아웃
                   </DropdownMenuItem>
@@ -557,14 +557,14 @@ export function Header() {
       {/* Mobile Search Bar */}
       {isSearchOpen && (
         <div className="md:hidden border-t p-4">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handle_search}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="검색어를 입력하세요"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={search_query}
+                onChange={(e) => set_search_query(e.target.value)}
                 className="pl-10 pr-4 w-full"
                 autoFocus={true}
               />
@@ -577,7 +577,7 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute left-0 right-0 top-full bg-background border-b shadow-lg z-[1100]">
           <nav className="p-4 space-y-2 max-h-[calc(100vh-var(--header-height))] overflow-y-auto">
-            {navItems.map((item) => {
+            {nav_items.map((item) => {
               if (item.subItems) {
                 return (
                   <div key={item.href} className="space-y-1">
@@ -590,23 +590,23 @@ export function Header() {
                       )}
                     </div>
                     <div className="ml-4 space-y-1">
-                      {item.subItems.map((subItem) => (
+                      {item.subItems.map((sub_item) => (
                         <Link
-                          key={subItem.href}
-                          href={subItem.href}
+                          key={sub_item.href}
+                          href={sub_item.href}
                           onClick={() => toggleMobileMenu()}
                           className={cn(
                             'flex items-center gap-3 p-2 rounded-md hover:bg-primary/10 hover:text-primary',
-                            pathname === subItem.href && 'bg-primary/10 text-primary'
+                            pathname === sub_item.href && 'bg-primary/10 text-primary'
                           )}
                         >
-                          {subItem.icon && (
-                            <subItem.icon className="h-4 w-4 text-muted-foreground" />
+                          {sub_item.icon && (
+                            <sub_item.icon className="h-4 w-4 text-muted-foreground" />
                           )}
                           <div className="flex-1">
-                            <div className="text-sm">{subItem.label}</div>
+                            <div className="text-sm">{sub_item.label}</div>
                             <div className="text-xs text-muted-foreground">
-                              {subItem.description}
+                              {sub_item.description}
                             </div>
                           </div>
                         </Link>

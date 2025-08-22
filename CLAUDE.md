@@ -152,10 +152,11 @@ npm run lint:biome:fix          # 코드 품질 자동 수정
 
 ---
 
-## 13개 핵심 문서 체계
+## 14개 핵심 문서 체계
 
-> **13개 핵심 문서 체계**:
+> **14개 핵심 문서 체계** (2025-08-22 업데이트):
 > - 🤖 AI 작업 지침: `/CLAUDE.md` (이 문서)
+> - 🌉 **컨텍스트 브릿지**: `/docs/CONTEXT_BRIDGE.md` (🆕 프로젝트 특화 규칙)
 > - 📊 프로젝트 현황: `/docs/PROJECT.md`
 > - 🗺️ 프로젝트 구조: `/docs/CODEMAP.md`
 > - ✅ 작업 검증: `/docs/CHECKLIST.md`
@@ -349,20 +350,29 @@ npm run types:auto-fix
 
 ## 4. 보안 자동 적용 규칙 (필수)
 
-### 🚨 API Route 작성 필수 규칙 (일치성 강제)
+### 🚨 Supabase 클라이언트 패턴 통일 (2025-08-22 중요 업데이트)
+
+#### ⚡ 빌드 오류 방지를 위한 필수 패턴
 ```typescript
-// ✅ 올바른 패턴 - 반드시 이것만 사용!
+// ✅ Server Component에서 (pages, layouts) - 프로젝트 표준 패턴
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+
+export const dynamic = 'force-dynamic'; // 정적 생성 방지 (환경변수 오류 방지)
+
+export default async function Page() {
+  const supabase = await createSupabaseServerClient();
+  // 사용...
+}
+
+// ✅ API Route에서 - 프로젝트 표준 패턴  
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
-export async function GET/POST/PUT/DELETE() {
-  // 1. Supabase 클라이언트 생성 (이 방식만 허용!)
+export async function GET(): Promise<NextResponse> { // 반환 타입 명시
   const supabase = createRouteHandlerClient({ cookies });
   
-  // 2. 인증 체크 (getUser() 사용 - getSession() 금지!)
   const { data: { user } } = await supabase.auth.getUser();
-  
-  // 3. 401 응답 형식 (정확히 이 형식 유지!)
   if (!user) {
     return NextResponse.json(
       { error: 'User not authenticated' },
@@ -373,13 +383,33 @@ export async function GET/POST/PUT/DELETE() {
   // 비즈니스 로직...
 }
 
-// ❌ 절대 금지 패턴들:
-// - createServerClient() 사용 금지
-// - createSupabaseRouteHandlerClient() 사용 금지
-// - @supabase/ssr에서 직접 import 금지
-// - getSession() 사용 금지
-// - 다른 형식의 401 응답 금지
+// ✅ Client Component에서
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser-client';
+
+'use client';
+export function ClientComponent() {
+  const supabase = createSupabaseBrowserClient();
+  // 사용...
+}
 ```
+
+#### ❌ 절대 금지 패턴들 (Vercel 빌드 실패 원인)
+```typescript
+// ❌ Server Component에서 금지
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+// → 빌드 시 환경변수 오류 발생!
+
+// ❌ API Route에서 금지
+import { createServerClient } from '@supabase/ssr';
+// → 프로젝트 패턴과 불일치
+
+// ❌ 기타 금지 사항
+- getSession() 사용 금지 → getUser() 사용
+- new Response() 금지 → NextResponse.json() 사용
+- 환경변수 직접 접근 금지 → 래퍼 함수 사용
+```
+
+### 🚨 API Route 작성 필수 규칙 (일치성 강제)
 
 ### 새 테이블 생성 시
 ```sql
@@ -700,9 +730,11 @@ npm run security:complete # RLS + TTL + 테스트
 
 ### 문서 검증 프로토콜
 **작업 시작 시 필수 체크**:
-- [ ] 13개 핵심 문서 확인 완료
+- [ ] 14개 핵심 문서 확인 완료
+- [ ] **CONTEXT_BRIDGE.md 최우선 확인** 🆕
 - [ ] 문서 역할 경계 준수
   - CLAUDE.md: AI 지침만 (이슈 현황 ❌)
+  - CONTEXT_BRIDGE.md: 프로젝트 특화 규칙 (최신 변경사항) 🆕
   - PROJECT.md: 프로젝트 현황만 (상세 기술 스택 ❌)
   - CODEMAP.md: 구조만 (구현 상태 ❌)
   - WIREFRAME.md: UI-API 연결과 구현 상태 ✅

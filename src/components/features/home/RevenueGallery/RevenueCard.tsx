@@ -19,7 +19,7 @@ const PlatformIcon = {
 
 export function RevenueCard({ proof }: RevenueCardProps) {
   const Icon = PlatformIcon[proof.platform];
-  const formattedAmount = new Intl.NumberFormat('ko-KR', {
+  const formatted_amount = new Intl.NumberFormat('ko-KR', {
     style: 'currency',
     currency: 'KRW',
   }).format(proof.amount);
@@ -41,7 +41,7 @@ export function RevenueCard({ proof }: RevenueCardProps) {
           <h4 className="font-semibold text-sm truncate">{proof.user_name}</h4>
           <VerifiedBadge verified={proof.verified} />
         </div>
-        <p className="text-lg font-bold text-primary">{formattedAmount}</p>
+        <p className="text-lg font-bold text-primary">{formatted_amount}</p>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Icon className="w-3 h-3" />
           <span>{proof.date}</span>

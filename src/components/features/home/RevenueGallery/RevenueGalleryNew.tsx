@@ -11,11 +11,11 @@ import type { RevenueProof } from '@/types';
 import { SectionTitle } from '../shared/SectionTitle';
 
 export function RevenueGalleryNew() {
-  const [items, setItems] = useState<RevenueProof[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [items, set_items] = useState<RevenueProof[]>([]);
+  const [is_loading, set_is_loading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const load_data = async () => {
       try {
         const result = await getRevenueProofs({
           limit: 12, // 더 많은 데이터 로드
@@ -23,26 +23,26 @@ export function RevenueGalleryNew() {
         });
 
         if (result.data && result.data.length > 0) {
-          setItems(result.data);
+          set_items(result.data);
         } else {
           // 데이터가 없을 때도 로딩 상태를 false로 설정
-          setItems([]);
+          set_items([]);
         }
       } catch (_error) {
         // 오류 발생 시 빈 배열로 설정
-        setItems([]);
+        set_items([]);
       } finally {
-        setIsLoading(false);
+        set_is_loading(false);
       }
     };
 
-    loadData();
+    load_data();
   }, []);
 
   // 데이터가 있을 때 무한 스크롤을 위해 복제
-  const duplicatedItems = items.length > 0 ? [...items, ...items] : [];
+  const duplicated_items = items.length > 0 ? [...items, ...items] : [];
 
-  if (isLoading) {
+  if (is_loading) {
     return (
       <section className="py-12 overflow-hidden bg-muted/30">
         <div className="container-responsive mb-8">
@@ -127,7 +127,7 @@ export function RevenueGalleryNew() {
               },
             }}
           >
-            {duplicatedItems.map((item, index) => (
+            {duplicated_items.map((item, index) => (
               <div key={`${item.id}-${index}`} className="flex-shrink-0 w-[280px]">
                 <Link href={`/revenue-proof/${item.id}`}>
                   <div className="transform transition-transform hover:scale-105">

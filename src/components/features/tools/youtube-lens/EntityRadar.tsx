@@ -28,7 +28,7 @@ export function EntityRadar({
   description = 'NLP 기반 키워드 및 엔티티 추출 결과',
 }: EntityRadarProps) {
   // Aggregate all entities
-  const aggregatedEntities = useMemo(() => {
+  const aggregated_entities = useMemo(() => {
     const keywords = new Map<string, number>();
     const topics = new Map<string, number>();
     const brands = new Map<string, number>();
@@ -102,7 +102,7 @@ export function EntityRadar({
   }, [entities]);
 
   // Calculate average confidence
-  const avgConfidence = useMemo(() => {
+  const avg_confidence = useMemo(() => {
     if (entities.length === 0) {
       return 0;
     }
@@ -113,7 +113,7 @@ export function EntityRadar({
     return ((sum / entities.length) * 100).toFixed(1);
   }, [entities]);
 
-  const getFrequencyColor = (frequency: number, max: number) => {
+  const get_frequency_color = (frequency: number, max: number) => {
     const ratio = frequency / max;
     if (ratio > 0.7) {
       return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -145,7 +145,7 @@ export function EntityRadar({
       );
     }
 
-    const maxFreq = items[0]?.[1] || 1;
+    const max_freq = items[0]?.[1] || 1;
 
     return (
       <ScrollArea className="h-[300px]">
@@ -159,7 +159,7 @@ export function EntityRadar({
                 <Icon className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium">{item}</span>
               </div>
-              <Badge variant="outline" className={getFrequencyColor(frequency, maxFreq)}>
+              <Badge variant="outline" className={get_frequency_color(frequency, max_freq)}>
                 {frequency}
               </Badge>
             </div>
@@ -199,7 +199,7 @@ export function EntityRadar({
           </div>
           <div className="flex gap-2">
             <Badge variant="outline">{entities.length}개 비디오 분석</Badge>
-            <Badge variant="secondary">신뢰도 {avgConfidence}%</Badge>
+            <Badge variant="secondary">신뢰도 {avg_confidence}%</Badge>
           </div>
         </div>
       </CardHeader>
@@ -217,11 +217,11 @@ export function EntityRadar({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
-                  상위 {aggregatedEntities.keywords.length}개 키워드
+                  상위 {aggregated_entities.keywords.length}개 키워드
                 </p>
-                {aggregatedEntities.languages.length > 0 && (
+                {aggregated_entities.languages.length > 0 && (
                   <div className="flex gap-1">
-                    {aggregatedEntities.languages.map(([lang, count]) => (
+                    {aggregated_entities.languages.map(([lang, count]) => (
                       <Badge key={lang} variant="outline" className="text-xs">
                         {lang} ({count})
                       </Badge>
@@ -230,7 +230,7 @@ export function EntityRadar({
                 )}
               </div>
               <EntityList
-                items={aggregatedEntities.keywords}
+                items={aggregated_entities.keywords}
                 icon={Hash}
                 emptyMessage="추출된 키워드가 없습니다"
               />
@@ -240,12 +240,12 @@ export function EntityRadar({
           <TabsContent value="topics" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.topics.length > 0
-                  ? `${aggregatedEntities.topics.length}개 토픽 감지됨`
+                {aggregated_entities.topics.length > 0
+                  ? `${aggregated_entities.topics.length}개 토픽 감지됨`
                   : '토픽 분석 중'}
               </p>
               <EntityList
-                items={aggregatedEntities.topics}
+                items={aggregated_entities.topics}
                 icon={Tag}
                 emptyMessage="감지된 토픽이 없습니다"
               />
@@ -255,12 +255,12 @@ export function EntityRadar({
           <TabsContent value="brands" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.brands.length > 0
-                  ? `${aggregatedEntities.brands.length}개 브랜드 언급됨`
+                {aggregated_entities.brands.length > 0
+                  ? `${aggregated_entities.brands.length}개 브랜드 언급됨`
                   : '브랜드 분석 중'}
               </p>
               <EntityList
-                items={aggregatedEntities.brands}
+                items={aggregated_entities.brands}
                 icon={Building2}
                 emptyMessage="언급된 브랜드가 없습니다"
               />
@@ -270,12 +270,12 @@ export function EntityRadar({
           <TabsContent value="people" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.people.length > 0
-                  ? `${aggregatedEntities.people.length}명 인물 감지됨`
+                {aggregated_entities.people.length > 0
+                  ? `${aggregated_entities.people.length}명 인물 감지됨`
                   : '인물 분석 중'}
               </p>
               <EntityList
-                items={aggregatedEntities.people}
+                items={aggregated_entities.people}
                 icon={Users}
                 emptyMessage="감지된 인물이 없습니다"
               />
@@ -285,12 +285,12 @@ export function EntityRadar({
           <TabsContent value="locations" className="mt-4">
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                {aggregatedEntities.locations.length > 0
-                  ? `${aggregatedEntities.locations.length}개 장소 언급됨`
+                {aggregated_entities.locations.length > 0
+                  ? `${aggregated_entities.locations.length}개 장소 언급됨`
                   : '장소 분석 중'}
               </p>
               <EntityList
-                items={aggregatedEntities.locations}
+                items={aggregated_entities.locations}
                 icon={MapPin}
                 emptyMessage="언급된 장소가 없습니다"
               />
@@ -302,13 +302,21 @@ export function EntityRadar({
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm font-medium text-gray-700 mb-3">주요 엔티티 클라우드</p>
           <div className="flex flex-wrap gap-2">
-            {aggregatedEntities.keywords.slice(0, 15).map(([keyword, freq]) => {
+            {aggregated_entities.keywords.slice(0, 15).map(([keyword, freq]) => {
               const size = Math.min(Math.max(12 + freq * 2, 12), 24);
+              // Map size to Tailwind font size classes
+              const get_font_size_class = (size: number) => {
+                if (size <= 14) return 'text-xs';
+                if (size <= 16) return 'text-sm';
+                if (size <= 18) return 'text-base';
+                if (size <= 20) return 'text-lg';
+                return 'text-xl';
+              };
+
               return (
                 <span
                   key={keyword}
-                  className="inline-flex items-center px-2 py-1 rounded-full bg-white border text-gray-700 hover:bg-purple-50 hover:border-purple-300 transition-colors cursor-pointer"
-                  style={{ fontSize: `${size}px` }}
+                  className={`inline-flex items-center px-2 py-1 rounded-full bg-white border text-gray-700 hover:bg-purple-50 hover:border-purple-300 transition-colors cursor-pointer ${get_font_size_class(size)}`}
                 >
                   {keyword}
                 </span>

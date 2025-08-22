@@ -203,8 +203,8 @@ export function sanitizeJSON(obj: unknown): unknown {
     for (const key in obj) {
       if (Object.hasOwn(obj, key)) {
         // 키도 sanitize
-        const cleanKey = sanitizePlainText(key);
-        cleaned[cleanKey] = sanitizeJSON((obj as Record<string, unknown>)[key]);
+        const clean_key = sanitizePlainText(key);
+        cleaned[clean_key] = sanitizeJSON((obj as Record<string, unknown>)[key]);
       }
     }
     return cleaned;

@@ -42,20 +42,20 @@ export class CryptoUtil {
   /**
    * 암호화된 텍스트를 복호화
    */
-  static decrypt(encryptedText: string): string {
+  static decrypt(encrypted_text: string): string {
     try {
       const key = CryptoUtil.getEncryptionKey();
-      const decrypted = CryptoJS.AES.decrypt(encryptedText, key, {
+      const decrypted = CryptoJS.AES.decrypt(encrypted_text, key, {
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7,
       });
-      const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      const decrypted_text = decrypted.toString(CryptoJS.enc.Utf8);
 
-      if (!decryptedText) {
+      if (!decrypted_text) {
         throw new Error('Failed to decrypt - invalid key or corrupted data');
       }
 
-      return decryptedText;
+      return decrypted_text;
     } catch (_error) {
       throw new Error('Failed to decrypt data');
     }
@@ -65,35 +65,35 @@ export class CryptoUtil {
    * 객체를 JSON 문자열로 변환 후 암호화
    */
   static encryptObject<T>(obj: T): string {
-    const jsonString = JSON.stringify(obj);
-    return CryptoUtil.encrypt(jsonString);
+    const json_string = JSON.stringify(obj);
+    return CryptoUtil.encrypt(json_string);
   }
 
   /**
    * 암호화된 문자열을 복호화 후 객체로 변환
    */
-  static decryptObject<T>(encryptedText: string): T {
-    const decryptedText = CryptoUtil.decrypt(encryptedText);
-    return JSON.parse(decryptedText) as T;
+  static decryptObject<T>(encrypted_text: string): T {
+    const decrypted_text = CryptoUtil.decrypt(encrypted_text);
+    return JSON.parse(decrypted_text) as T;
   }
 
   /**
    * CSRF 토큰 생성
    */
   static generateCSRFToken(): string {
-    const randomBytes = CryptoJS.lib.WordArray.random(32);
-    return CryptoJS.enc.Base64.stringify(randomBytes);
+    const random_bytes = CryptoJS.lib.WordArray.random(32);
+    return CryptoJS.enc.Base64.stringify(random_bytes);
   }
 
   /**
    * CSRF 토큰 검증
    */
-  static verifyCSRFToken(token: string, storedToken: string): boolean {
-    if (!token || !storedToken) {
+  static verifyCSRFToken(token: string, stored_token: string): boolean {
+    if (!token || !stored_token) {
       return false;
     }
     // 타이밍 공격 방지를 위한 안전한 비교
-    return CryptoJS.SHA256(token).toString() === CryptoJS.SHA256(storedToken).toString();
+    return CryptoJS.SHA256(token).toString() === CryptoJS.SHA256(stored_token).toString();
   }
 
   /**
@@ -103,9 +103,9 @@ export class CryptoUtil {
     if (!api_key || api_key.length < 8) {
       return '***';
     }
-    const firstFour = api_key.substring(0, 4);
-    const lastFour = api_key.substring(api_key.length - 4);
-    return `${firstFour}...${lastFour}`;
+    const first_four = api_key.substring(0, 4);
+    const last_four = api_key.substring(api_key.length - 4);
+    return `${first_four}...${last_four}`;
   }
 
   /**
@@ -118,8 +118,8 @@ export class CryptoUtil {
   /**
    * 시간 제한 토큰 생성
    */
-  static generateTimeLimitedToken(data: unknown, expiresInMinutes = 15): string {
-    const expires_at = Date.now() + expiresInMinutes * 60 * 1000;
+  static generateTimeLimitedToken(data: unknown, expires_in_minutes = 15): string {
+    const expires_at = Date.now() + expires_in_minutes * 60 * 1000;
     const payload = {
       data,
       expires_at,

@@ -101,13 +101,13 @@ export class QuotaManager {
 
   async loadQuotaState(): Promise<void> {
     const used = await connection.get('youtube:quota:used');
-    const resetTime = await connection.get('youtube:quota:resetTime');
+    const reset_time = await connection.get('youtube:quota:resetTime');
 
     if (used) {
       this.usedQuota = Number.parseInt(used, 10);
     }
-    if (resetTime) {
-      this.resetTime = new Date(resetTime);
+    if (reset_time) {
+      this.resetTime = new Date(reset_time);
     }
   }
 }
@@ -141,9 +141,9 @@ export class YouTubeQueueManager {
   }
 
   // 큐 초기화
-  initializeQueue(jobType: JobType): Queue {
-    if (!this.queues.has(jobType)) {
-      const queue = new Queue(`youtube-${jobType}`, {
+  initializeQueue(job_type: JobType): Queue {
+    if (!this.queues.has(job_type)) {
+      const queue = new Queue(`youtube-${job_type}`, {
         connection,
         defaultJobOptions: {
           attempts: 3,
@@ -161,10 +161,10 @@ export class YouTubeQueueManager {
         },
       });
 
-      this.queues.set(jobType, queue);
+      this.queues.set(job_type, queue);
     }
 
-    return this.queues.get(jobType)!;
+    return this.queues.get(job_type)!;
   }
 
   // 작업 추가
@@ -172,10 +172,10 @@ export class YouTubeQueueManager {
     const queue = this.initializeQueue(data.type);
 
     // 쿼터 체크
-    const quotaCost = this.getQuotaCost(data.type);
-    const hasQuota = await this.quotaManager.checkQuota(quotaCost);
+    const quota_cost = this.getQuotaCost(data.type);
+    const has_quota = await this.quotaManager.checkQuota(quota_cost);
 
-    if (!hasQuota) {
+    if (!has_quota) {
       throw new Error('Daily quota exceeded. Please try again tomorrow.');
     }
 
@@ -196,9 +196,9 @@ export class YouTubeQueueManager {
     // 우선순위별로 정렬
     jobs.sort((a, b) => (a.priority || 3) - (b.priority || 3));
 
-    for (const jobData of jobs) {
+    for (const job_data of jobs) {
       try {
-        const job = await this.addJob(jobData);
+        const job = await this.addJob(job_data);
         results.push(job);
       } catch (_error) {}
     }
@@ -207,18 +207,18 @@ export class YouTubeQueueManager {
   }
 
   // 작업 상태 조회
-  async getJobStatus(jobId: string, jobType: JobType): Promise<Job | undefined> {
-    const queue = this.queues.get(jobType);
+  async getJobStatus(job_id: string, job_type: JobType): Promise<Job | undefined> {
+    const queue = this.queues.get(job_type);
     if (!queue) {
       return undefined;
     }
 
-    return queue.getJob(jobId);
+    return queue.getJob(job_id);
   }
 
   // 큐 상태 조회
-  async getQueueStatus(jobType: JobType) {
-    const queue = this.queues.get(jobType);
+  async getQueueStatus(job_type: JobType) {
+    const queue = this.queues.get(job_type);
     if (!queue) {
       return null;
     }
@@ -245,48 +245,48 @@ export class YouTubeQueueManager {
   async getAllQueuesStatus() {
     const statuses: Record<string, unknown> = {};
 
-    for (const jobType of Object.values(JobType)) {
-      statuses[jobType] = await this.getQueueStatus(jobType as JobType);
+    for (const job_type of Object.values(JobType)) {
+      statuses[job_type] = await this.getQueueStatus(job_type as JobType);
     }
 
-    const quotaStatus = await this.quotaManager.getQuotaStatus();
+    const quota_status = await this.quotaManager.getQuotaStatus();
 
     return {
       queues: statuses,
-      quota: quotaStatus,
+      quota: quota_status,
     };
   }
 
   // 큐 일시정지
-  async pauseQueue(jobType: JobType): Promise<void> {
-    const queue = this.queues.get(jobType);
+  async pauseQueue(job_type: JobType): Promise<void> {
+    const queue = this.queues.get(job_type);
     if (queue) {
       await queue.pause();
-      console.log(`Queue ${jobType} paused`);
+      console.log(`Queue ${job_type} paused`);
     }
   }
 
   // 큐 재개
-  async resumeQueue(jobType: JobType): Promise<void> {
-    const queue = this.queues.get(jobType);
+  async resumeQueue(job_type: JobType): Promise<void> {
+    const queue = this.queues.get(job_type);
     if (queue) {
       await queue.resume();
-      console.log(`Queue ${jobType} resumed`);
+      console.log(`Queue ${job_type} resumed`);
     }
   }
 
   // 큐 정리
-  async cleanQueue(jobType: JobType, grace = 0): Promise<void> {
-    const queue = this.queues.get(jobType);
+  async cleanQueue(job_type: JobType, grace = 0): Promise<void> {
+    const queue = this.queues.get(job_type);
     if (queue) {
       await queue.clean(grace, 1000); // 1000개 제한
-      console.log(`Queue ${jobType} cleaned`);
+      console.log(`Queue ${job_type} cleaned`);
     }
   }
 
   // 실패한 작업 재시도
-  async retryFailedJobs(jobType: JobType): Promise<void> {
-    const queue = this.queues.get(jobType);
+  async retryFailedJobs(job_type: JobType): Promise<void> {
+    const queue = this.queues.get(job_type);
     if (!queue) {
       return;
     }
@@ -296,7 +296,7 @@ export class YouTubeQueueManager {
       await job.retry();
     }
 
-    console.log(`Retried ${failed.length} failed jobs in ${jobType}`);
+    console.log(`Retried ${failed.length} failed jobs in ${job_type}`);
   }
 
   // 이벤트 리스너 설정
@@ -313,7 +313,7 @@ export class YouTubeQueueManager {
   }
 
   // 쿼터 비용 계산
-  private getQuotaCost(jobType: JobType): number {
+  private getQuotaCost(job_type: JobType): number {
     const costs: Record<JobType, number> = {
       [JobType.SEARCH]: 100,
       [JobType.VIDEO_DETAILS]: 1,
@@ -322,7 +322,7 @@ export class YouTubeQueueManager {
       [JobType.VIDEO_STATS]: 1,
     };
 
-    return costs[jobType] || 1;
+    return costs[job_type] || 1;
   }
 
   // 지연 시간 계산

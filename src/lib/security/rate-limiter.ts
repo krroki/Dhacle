@@ -18,9 +18,9 @@ class RateLimiter {
   private readonly windowMs: number;
   private readonly maxRequests: number;
 
-  constructor(windowMs = 60000, maxRequests = 60) {
-    this.windowMs = windowMs;
-    this.maxRequests = maxRequests;
+  constructor(window_ms = 60000, max_requests = 60) {
+    this.windowMs = window_ms;
+    this.maxRequests = max_requests;
 
     // 메모리 정리를 위한 인터벌 설정 (5분마다)
     setInterval(() => this.cleanup(), 300000);
@@ -82,15 +82,15 @@ class RateLimiter {
    */
   private cleanup(): void {
     const now = Date.now();
-    const expiredKeys: string[] = [];
+    const expired_keys: string[] = [];
 
     this.store.forEach((entry, key) => {
       if (entry.resetTime <= now) {
-        expiredKeys.push(key);
+        expired_keys.push(key);
       }
     });
 
-    expiredKeys.forEach((key) => this.store.delete(key));
+    expired_keys.forEach((key) => this.store.delete(key));
   }
 
   /**
@@ -123,15 +123,15 @@ export const uploadRateLimiter = new RateLimiter(3600000, 10); // 시간당 10�
 // IP 주소 추출 헬퍼
 export function getClientIp(request: Request): string {
   // Vercel/Cloudflare 헤더 확인
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    const firstIp = forwardedFor.split(',')[0];
-    return firstIp ? firstIp.trim() : 'unknown';
+  const forwarded_for = request.headers.get('x-forwarded-for');
+  if (forwarded_for) {
+    const first_ip = forwarded_for.split(',')[0];
+    return first_ip ? first_ip.trim() : 'unknown';
   }
 
-  const realIp = request.headers.get('x-real-ip');
-  if (realIp) {
-    return realIp;
+  const real_ip = request.headers.get('x-real-ip');
+  if (real_ip) {
+    return real_ip;
   }
 
   // 기본값
@@ -139,22 +139,22 @@ export function getClientIp(request: Request): string {
 }
 
 // Rate limit 응답 생성 헬퍼
-export function createRateLimitResponse(resetTime: number): NextResponse {
-  const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
+export function createRateLimitResponse(reset_time: number): NextResponse {
+  const retry_after = Math.ceil((reset_time - Date.now()) / 1000);
 
   return new NextResponse(
     JSON.stringify({
       error: 'Too many requests. Please try again later.',
-      retryAfter,
+      retryAfter: retry_after,
     }),
     {
       status: 429,
       headers: {
         'Content-Type': 'application/json',
-        'Retry-After': retryAfter.toString(),
+        'Retry-After': retry_after.toString(),
         'X-RateLimit-Limit': '60',
         'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': new Date(resetTime).toISOString(),
+        'X-RateLimit-Reset': new Date(reset_time).toISOString(),
       },
     }
   );

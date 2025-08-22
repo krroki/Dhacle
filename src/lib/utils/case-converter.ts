@@ -3,9 +3,10 @@
  * React/라이브러리 예약어를 보호하면서 데이터 키만 변환
  */
 
-import { snakeToCamelCase as baseSnakeToCamel, camelToSnakeCase as baseCamelToSnake } from './db-types';
-
-
+import {
+  camelToSnakeCase as baseCamelToSnake,
+  snakeToCamelCase as baseSnakeToCamel,
+} from './db-types';
 
 /**
  * API 응답을 camelCase로 변환 (React 예약어 보호)
@@ -15,7 +16,7 @@ export function snakeToCamelCase<T>(obj: T): T {
   if (obj && typeof obj === 'object' && 'displayName' in obj) {
     return obj;
   }
-  
+
   // 기본 변환 함수 사용
   return baseSnakeToCamel(obj) as T;
 }
@@ -28,7 +29,7 @@ export function camelToSnakeCase<T>(obj: T): T {
   if (obj && typeof obj === 'object' && 'displayName' in obj) {
     return obj;
   }
-  
+
   // 기본 변환 함수 사용
   return baseCamelToSnake(obj) as T;
 }

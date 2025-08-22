@@ -13,7 +13,7 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
-  const formatDuration = (seconds: number): string => {
+  const format_duration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     if (hours > 0) {
@@ -22,7 +22,7 @@ export function CourseCard({ course }: CourseCardProps) {
     return `${minutes}분`;
   };
 
-  const formatPrice = (price: number): string => {
+  const format_price = (price: number): string => {
     if (price === 0) {
       return '무료';
     }
@@ -93,7 +93,7 @@ export function CourseCard({ course }: CourseCardProps) {
             {course.total_duration > 0 && (
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>{formatDuration(course.total_duration)}</span>
+                <span>{format_duration(course.total_duration)}</span>
               </div>
             )}
           </div>
@@ -104,17 +104,17 @@ export function CourseCard({ course }: CourseCardProps) {
               {course.discount_price && course.discount_price < course.price ? (
                 <>
                   <span className="text-lg font-bold text-primary">
-                    {formatPrice(course.discount_price)}
+                    {format_price(course.discount_price)}
                   </span>
                   <span className="text-sm text-muted-foreground line-through">
-                    {formatPrice(course.price)}
+                    {format_price(course.price)}
                   </span>
                   <Badge variant="destructive" className="text-xs">
                     {Math.round((1 - course.discount_price / course.price) * 100)}% 할인
                   </Badge>
                 </>
               ) : (
-                <span className="text-lg font-bold text-primary">{formatPrice(course.price)}</span>
+                <span className="text-lg font-bold text-primary">{format_price(course.price)}</span>
               )}
             </div>
           </div>

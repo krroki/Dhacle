@@ -27,7 +27,7 @@ interface PaymentOption {
   popular?: boolean;
 }
 
-const paymentOptions: PaymentOption[] = [
+const payment_options: PaymentOption[] = [
   {
     value: '카드',
     label: '신용/체크카드',
@@ -83,14 +83,14 @@ export function PaymentMethodSelector({
   onSuccess,
   onError,
 }: PaymentMethodSelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('카드');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [selected_method, set_selected_method] = useState<PaymentMethod>('카드');
+  const [is_processing, set_is_processing] = useState(false);
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
+  const handle_payment = async () => {
+    set_is_processing(true);
 
     try {
-      await requestPayment(selectedMethod, {
+      await requestPayment(selected_method, {
         amount,
         orderId,
         orderName,
@@ -108,11 +108,11 @@ export function PaymentMethodSelector({
         onError?.(error);
       }
     } finally {
-      setIsProcessing(false);
+      set_is_processing(false);
     }
   };
 
-  const formatPrice = (price: number): string => {
+  const format_price = (price: number): string => {
     return `₩${price.toLocaleString()}`;
   };
 
@@ -124,11 +124,11 @@ export function PaymentMethodSelector({
       </CardHeader>
       <CardContent className="space-y-6">
         <RadioGroup
-          value={selectedMethod}
-          onValueChange={(value) => setSelectedMethod(value as PaymentMethod)}
+          value={selected_method}
+          onValueChange={(value) => set_selected_method(value as PaymentMethod)}
         >
           <div className="grid gap-3">
-            {paymentOptions.map((option) => (
+            {payment_options.map((option) => (
               <div key={option.value} className="relative">
                 {option.popular && (
                   <span className="absolute -top-2 right-2 z-10 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
@@ -156,18 +156,18 @@ export function PaymentMethodSelector({
         <div className="rounded-lg bg-muted p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">결제 금액</span>
-            <span className="text-2xl font-bold text-primary">{formatPrice(amount)}</span>
+            <span className="text-2xl font-bold text-primary">{format_price(amount)}</span>
           </div>
         </div>
 
-        <Button onClick={handlePayment} disabled={isProcessing} className="w-full" size="lg">
-          {isProcessing ? (
+        <Button onClick={handle_payment} disabled={is_processing} className="w-full" size="lg">
+          {is_processing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               처리 중...
             </>
           ) : (
-            <>{formatPrice(amount)} 결제하기</>
+            <>{format_price(amount)} 결제하기</>
           )}
         </Button>
 

@@ -17,18 +17,18 @@ interface DBCollection {
 /**
  * DB 컬렉션 데이터를 Frontend Collection 타입으로 변환
  */
-function mapDbCollectionToCollection(dbCollection: DBCollection): Collection {
+function map_db_collection_to_collection(db_collection: DBCollection): Collection {
   return {
-    id: dbCollection.id,
-    user_id: dbCollection.user_id,
-    name: dbCollection.name,
-    description: dbCollection.description,
-    is_public: dbCollection.is_public ?? false,
-    coverImage: dbCollection.cover_image_url,
-    tags: dbCollection.tags,
-    itemCount: dbCollection.item_count ?? 0,
-    created_at: dbCollection.created_at ?? new Date().toISOString(),
-    updated_at: dbCollection.updated_at ?? new Date().toISOString(),
+    id: db_collection.id,
+    user_id: db_collection.user_id,
+    name: db_collection.name,
+    description: db_collection.description,
+    is_public: db_collection.is_public ?? false,
+    coverImage: db_collection.cover_image_url,
+    tags: db_collection.tags,
+    itemCount: db_collection.item_count ?? 0,
+    created_at: db_collection.created_at ?? new Date().toISOString(),
+    updated_at: db_collection.updated_at ?? new Date().toISOString(),
     deleted_at: null,
   };
 }
@@ -80,7 +80,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
+      return { data: collection ? map_db_collection_to_collection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -111,7 +111,10 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collections ? collections.map(mapDbCollectionToCollection) : null, error: null };
+      return {
+        data: collections ? collections.map(map_db_collection_to_collection) : null,
+        error: null,
+      };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -145,7 +148,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
+      return { data: collection ? map_db_collection_to_collection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -189,7 +192,7 @@ export class ServerCollectionManager {
       }
 
       // 최대 position 값 조회
-      const { data: maxPositionItem } = await supabase
+      const { data: max_position_item } = await supabase
         .from('collection_items')
         .select('position')
         .eq('collection_id', collection_id)
@@ -197,7 +200,7 @@ export class ServerCollectionManager {
         .limit(1)
         .single();
 
-      const nextPosition = maxPositionItem ? (maxPositionItem.position || 0) + 1 : 0;
+      const next_position = max_position_item ? (max_position_item.position || 0) + 1 : 0;
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await supabase
@@ -206,7 +209,7 @@ export class ServerCollectionManager {
           collection_id: collection_id,
           video_id: video_id,
           notes: notes || null,
-          position: nextPosition,
+          position: next_position,
           added_by: user.id,
         })
         .select()
@@ -226,15 +229,17 @@ export class ServerCollectionManager {
         .eq('id', collection_id);
 
       // Convert DB response to CollectionItem type
-      const collectionItem = item ? {
-        ...item,
-        position: item.position || 0,
-        tags: [],  // tags 필드가 DB에 없음
-        addedAt: item.created_at || new Date().toISOString(),
-        addedBy: item.added_by || user.id,
-      } : null;
-      
-      return { data: collectionItem, error: null };
+      const collection_item = item
+        ? {
+            ...item,
+            position: item.position || 0,
+            tags: [], // tags 필드가 DB에 없음
+            addedAt: item.created_at || new Date().toISOString(),
+            addedBy: item.added_by || user.id,
+          }
+        : null;
+
+      return { data: collection_item, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -326,26 +331,28 @@ export class ServerCollectionManager {
       }
 
       // Convert DB response to CollectionItem type, filtering out invalid video joins
-      const collectionItems = (items || [])
-        .filter(item => {
+      const collection_items = (items || [])
+        .filter((item) => {
           // Check if video is a proper object with required fields, not an error
           const video = item.video;
-          return video && 
-            typeof video === 'object' && 
+          return (
+            video &&
+            typeof video === 'object' &&
             !('error' in video) &&
             'id' in video &&
-            'video_id' in video;
+            'video_id' in video
+          );
         })
-        .map(item => ({
+        .map((item) => ({
           ...item,
           position: item.position || 0,
-          tags: [],  // tags 필드가 DB에 없음
+          tags: [], // tags 필드가 DB에 없음
           addedAt: item.created_at || new Date().toISOString(),
           addedBy: item.added_by || '',
           video: item.video as unknown as Video, // Cast to Video type since we've validated it above
         }));
-      
-      return { data: collectionItems, error: null };
+
+      return { data: collection_items, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -375,8 +382,8 @@ export class ServerCollectionManager {
       }
 
       // 컬렉션 소유권 확인
-      const { data: existingCollection } = await this.getCollection(collection_id);
-      if (!existingCollection) {
+      const { data: existing_collection } = await this.getCollection(collection_id);
+      if (!existing_collection) {
         return { data: null, error: new Error('Collection not found or access denied') };
       }
 
@@ -395,7 +402,7 @@ export class ServerCollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection ? mapDbCollectionToCollection(collection) : null, error: null };
+      return { data: collection ? map_db_collection_to_collection(collection) : null, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -404,7 +411,9 @@ export class ServerCollectionManager {
   /**
    * 컬렉션 삭제 (소프트 삭제)
    */
-  async deleteCollection(collection_id: string): Promise<{ success: boolean; error: Error | null }> {
+  async deleteCollection(
+    collection_id: string
+  ): Promise<{ success: boolean; error: Error | null }> {
     try {
       const supabase = await this.getSupabase();
       const {
@@ -465,7 +474,7 @@ export class ServerCollectionManager {
       }
 
       // 각 아이템의 position 업데이트
-      const updatePromises = items.map((item) =>
+      const update_promises = items.map((item) =>
         supabase
           .from('collection_items')
           .update({ position: item.position })
@@ -473,10 +482,10 @@ export class ServerCollectionManager {
           .eq('video_id', item.video_id)
       );
 
-      const results = await Promise.all(updatePromises);
-      const hasError = results.some((result) => result.error);
+      const results = await Promise.all(update_promises);
+      const has_error = results.some((result) => result.error);
 
-      if (hasError) {
+      if (has_error) {
         return { success: false, error: new Error('Failed to reorder some items') };
       }
 

@@ -51,7 +51,7 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
     }
 
     // DB 타입을 Frontend 타입으로 변환
-    const courses: Course[] = (data || []).map(course => ({
+    const courses: Course[] = (data || []).map((course) => ({
       id: course.id,
       title: course.title,
       subtitle: '',
@@ -74,7 +74,7 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
       level: course.level as 'beginner' | 'intermediate' | 'advanced' | undefined,
       requirements: course.requirements || undefined,
       whatYouLearn: course.what_youll_learn || undefined,
-    }))
+    }));
 
     return {
       courses,
@@ -95,13 +95,13 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
     const supabase = await createSupabaseServerClient();
 
     // 강의 정보 (instructorProfiles 관계 제거)
-    const { data: course, error: courseError } = await supabase
+    const { data: course, error: course_error } = await supabase
       .from('courses')
       .select('*')
       .eq('id', course_id)
       .single();
 
-    if (courseError || !course) {
+    if (course_error || !course) {
       return null;
     }
 
@@ -146,17 +146,17 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
 
       // 진도 정보
       if (is_enrolled || is_purchased) {
-        const { data: progressData } = await supabase
+        const { data: progress_data } = await supabase
           .from('progress')
           .select('*')
           .eq('user_id', user.id)
           .eq('course_id', course_id);
 
-        progress = (progressData || []).map(p => ({
+        progress = (progress_data || []).map((p) => ({
           id: p.id,
           user_id: p.user_id || '',
           course_id: p.course_id || '',
-          lesson_id: p.lesson_id || null,  // Use null for optional field
+          lesson_id: p.lesson_id || null, // Use null for optional field
           progress: 0,
           completed: p.completed || false,
           watchCount: 0,
@@ -169,31 +169,33 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
     }
 
     // DB 타입을 Frontend 타입으로 변환
-    const mappedCourse: Course | null = course ? {
-      id: course.id,
-      title: course.title,
-      subtitle: '',
-      description: course.description || '',
-      instructor_id: course.instructor_id || undefined,
-      instructor_name: course.instructor_name,
-      thumbnail_url: course.thumbnail_url || undefined,
-      price: course.price,
-      is_free: course.is_free || false,
-      isPremium: course.price > 0,
-      total_duration: 0,
-      student_count: course.total_students || 0,
-      average_rating: course.average_rating || 0,
-      reviewCount: 0,
-      status: 'active' as const,
-      launchDate: course.created_at || new Date().toISOString(),
-      created_at: course.created_at || new Date().toISOString(),
-      updated_at: course.updated_at || new Date().toISOString(),
-      category: course.category || undefined,
-      level: course.level as 'beginner' | 'intermediate' | 'advanced' | undefined,
-      requirements: course.requirements || undefined,
-      whatYouLearn: course.what_youll_learn || undefined,
-    } : null;
-    
+    const mapped_course: Course | null = course
+      ? {
+          id: course.id,
+          title: course.title,
+          subtitle: '',
+          description: course.description || '',
+          instructor_id: course.instructor_id || undefined,
+          instructor_name: course.instructor_name,
+          thumbnail_url: course.thumbnail_url || undefined,
+          price: course.price,
+          is_free: course.is_free || false,
+          isPremium: course.price > 0,
+          total_duration: 0,
+          student_count: course.total_students || 0,
+          average_rating: course.average_rating || 0,
+          reviewCount: 0,
+          status: 'active' as const,
+          launchDate: course.created_at || new Date().toISOString(),
+          created_at: course.created_at || new Date().toISOString(),
+          updated_at: course.updated_at || new Date().toISOString(),
+          category: course.category || undefined,
+          level: course.level as 'beginner' | 'intermediate' | 'advanced' | undefined,
+          requirements: course.requirements || undefined,
+          whatYouLearn: course.what_youll_learn || undefined,
+        }
+      : null;
+
     // Lesson 타입 변환
     interface Lesson {
       id: string;
@@ -208,8 +210,8 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
       created_at: string;
       updated_at: string;
     }
-    
-    const mappedLessons: Lesson[] = (lessons || []).map(lesson => ({
+
+    const mapped_lessons: Lesson[] = (lessons || []).map((lesson) => ({
       id: lesson.id,
       course_id: lesson.course_id || '',
       title: lesson.title,
@@ -221,17 +223,17 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
       is_free: lesson.is_preview || false,
       created_at: lesson.created_at || new Date().toISOString(),
       updated_at: lesson.updated_at || new Date().toISOString(),
-    }))
+    }));
 
     // If course not found, return null instead of partial response
-    if (!mappedCourse) {
+    if (!mapped_course) {
       console.error('Course not found:', course_id);
       return null;
     }
 
     return {
-      course: mappedCourse,
-      lessons: mappedLessons as Lesson[],
+      course: mapped_course,
+      lessons: mapped_lessons as Lesson[],
       is_enrolled,
       is_purchased,
       progress: (progress || []) as CourseProgress[],
@@ -259,7 +261,7 @@ export async function getCoursesByInstructor(instructor_name: string): Promise<C
   }
 
   // DB 타입을 Frontend 타입으로 변환
-  return (data || []).map(course => ({
+  return (data || []).map((course) => ({
     id: course.id,
     title: course.title,
     subtitle: '',
@@ -305,16 +307,16 @@ export async function getFreeCourses(): Promise<Course[]> {
     }
 
     // DB 타입을 Frontend 타입으로 변환
-    return (data || []).map(course => ({
+    return (data || []).map((course) => ({
       id: course.id,
       title: course.title,
-      subtitle: undefined,  // DB에 subtitle 필드 없음
+      subtitle: undefined, // DB에 subtitle 필드 없음
       description: course.description || undefined,
       instructor_id: course.instructor_id || undefined,
       instructor_name: course.instructor_name,
       thumbnail_url: course.thumbnail_url || undefined,
       price: course.price,
-      discount_price: undefined,  // DB에 discount_price 필드 없음
+      discount_price: undefined, // DB에 discount_price 필드 없음
       is_free: course.is_free || false,
       isPremium: course.price > 0,
       total_duration: 0,
@@ -350,16 +352,16 @@ export async function getPopularCourses(): Promise<Course[]> {
     }
 
     // DB 타입을 Frontend 타입으로 변환
-    return (data || []).map(course => ({
+    return (data || []).map((course) => ({
       id: course.id,
       title: course.title,
-      subtitle: undefined,  // DB에 subtitle 필드 없음
+      subtitle: undefined, // DB에 subtitle 필드 없음
       description: course.description || undefined,
       instructor_id: course.instructor_id || undefined,
       instructor_name: course.instructor_name,
       thumbnail_url: course.thumbnail_url || undefined,
       price: course.price,
-      discount_price: undefined,  // DB에 discount_price 필드 없음
+      discount_price: undefined, // DB에 discount_price 필드 없음
       is_free: course.is_free || false,
       isPremium: course.price > 0,
       total_duration: 0,
@@ -395,16 +397,16 @@ export async function getNewCourses(): Promise<Course[]> {
     }
 
     // DB 타입을 Frontend 타입으로 변환
-    return (data || []).map(course => ({
+    return (data || []).map((course) => ({
       id: course.id,
       title: course.title,
-      subtitle: undefined,  // DB에 subtitle 필드 없음
+      subtitle: undefined, // DB에 subtitle 필드 없음
       description: course.description || undefined,
       instructor_id: course.instructor_id || undefined,
       instructor_name: course.instructor_name,
       thumbnail_url: course.thumbnail_url || undefined,
       price: course.price,
-      discount_price: undefined,  // DB에 discount_price 필드 없음
+      discount_price: undefined, // DB에 discount_price 필드 없음
       is_free: course.is_free || false,
       isPremium: course.price > 0,
       total_duration: 0,
@@ -442,10 +444,10 @@ export async function getMyPurchasedCourses(user_id: string): Promise<Course[]> 
   return (
     (data
       ?.map((item: unknown) => {
-        const typedItem = item as { course: Course };
-        const course = typedItem.course;
+        const typed_item = item as { course: Course };
+        const course = typed_item.course;
         if (!course) return null;
-        
+
         return {
           id: course.id,
           title: course.title,
@@ -497,10 +499,10 @@ export async function getMyActiveCourses(user_id: string): Promise<Course[]> {
   return (
     (data
       ?.map((item: unknown) => {
-        const typedItem = item as { course: Course };
-        const course = typedItem.course;
+        const typed_item = item as { course: Course };
+        const course = typed_item.course;
         if (!course) return null;
-        
+
         return {
           id: course.id,
           title: course.title,
@@ -537,24 +539,24 @@ export async function getCourseProgress(user_id: string, course_id: string): Pro
   const supabase = await createSupabaseServerClient();
 
   // 전체 레슨 수
-  const { count: totalLessons } = await supabase
+  const { count: total_lessons } = await supabase
     .from('lessons')
     .select('*', { count: 'exact', head: true })
     .eq('course_id', course_id);
 
   // 완료한 레슨 수
-  const { count: completedLessons } = await supabase
+  const { count: completed_lessons } = await supabase
     .from('progress')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user_id)
     .eq('course_id', course_id)
     .eq('completed', true);
 
-  if (!totalLessons || totalLessons === 0) {
+  if (!total_lessons || total_lessons === 0) {
     return 0;
   }
 
-  return Math.round(((completedLessons || 0) / totalLessons) * 100);
+  return Math.round(((completed_lessons || 0) / total_lessons) * 100);
 }
 
 /**
@@ -572,15 +574,15 @@ export async function getUniqueInstructors(): Promise<string[]> {
     return [];
   }
 
-  const uniqueInstructors = [
+  const unique_instructors = [
     ...new Set(
       data
         ?.map((item: unknown) => {
-          const typedItem = item as { instructor_name: string };
-          return typedItem.instructor_name;
+          const typed_item = item as { instructor_name: string };
+          return typed_item.instructor_name;
         })
         .filter(Boolean)
     ),
   ];
-  return uniqueInstructors as string[];
+  return unique_instructors as string[];
 }

@@ -183,12 +183,12 @@ export function VideoGrid({
     removeFavorite,
   } = useYouTubeLensStore();
 
-  const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes'>('date');
-  const infiniteLoaderRef = useRef<InfiniteLoader>(null);
+  const [sort_by, set_sort_by] = useState<'date' | 'views' | 'likes'>('date');
+  const infinite_loader_ref = useRef<InfiniteLoader>(null);
 
   // 비디오 정렬
-  const sortedVideos = [...videos].sort((a, b) => {
-    switch (sortBy) {
+  const sorted_videos = [...videos].sort((a, b) => {
+    switch (sort_by) {
       case 'views':
         return b.view_count - a.view_count;
       case 'likes':
@@ -199,7 +199,7 @@ export function VideoGrid({
   });
 
   // 선택 토글
-  const handleToggleSelect = useCallback(
+  const handle_toggle_select = useCallback(
     (video_id: string) => {
       toggleVideoSelection(video_id);
     },
@@ -207,7 +207,7 @@ export function VideoGrid({
   );
 
   // 즐겨찾기 토글
-  const handleToggleFavorite = useCallback(
+  const handle_toggle_favorite = useCallback(
     (video: FlattenedYouTubeVideo) => {
       if (favoriteVideos.has(video.id)) {
         removeFavorite(video.id);
@@ -219,7 +219,7 @@ export function VideoGrid({
   );
 
   // 비디오 재생
-  const handlePlay = useCallback(
+  const handle_play = useCallback(
     (video: FlattenedYouTubeVideo) => {
       onVideoSelect?.(video);
       // YouTube 플레이어 열기 또는 모달 표시
@@ -229,7 +229,7 @@ export function VideoGrid({
   );
 
   // 전체 선택 토글
-  const handleToggleSelectAll = useCallback(() => {
+  const handle_toggle_select_all = useCallback(() => {
     if (selectedVideos.size === videos.length) {
       clearSelectedVideos();
     } else {
@@ -238,7 +238,7 @@ export function VideoGrid({
   }, [selectedVideos.size, videos.length, clearSelectedVideos, selectAllVideos]);
 
   // 선택된 비디오 다운로드
-  const handleDownloadSelected = useCallback(() => {
+  const handle_download_selected = useCallback(() => {
     const selected = videos.filter((v) => selectedVideos.has(v.id));
     const data = JSON.stringify(selected, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -251,7 +251,7 @@ export function VideoGrid({
   }, [videos, selectedVideos]);
 
   // 무한 스크롤 로드
-  const loadMoreItems = useCallback(
+  const load_more_items = useCallback(
     async (_startIndex: number, _stopIndex: number) => {
       if (onLoadMore && !isLoading) {
         await onLoadMore();
@@ -261,13 +261,13 @@ export function VideoGrid({
   );
 
   // 아이템 로드 여부 확인
-  const isItemLoaded = useCallback(
+  const is_item_loaded = useCallback(
     (index: number) => !hasMore || index < videos.length,
     [hasMore, videos.length]
   );
 
   // 그리드 뷰 컬럼 계산
-  const getColumnCount = (width: number) => {
+  const get_column_count = (width: number) => {
     if (width < 640) {
       return 2;
     }
@@ -299,7 +299,7 @@ export function VideoGrid({
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {/* 전체 선택 */}
-          <Button variant="outline" size="sm" onClick={handleToggleSelectAll} className="gap-2">
+          <Button variant="outline" size="sm" onClick={handle_toggle_select_all} className="gap-2">
             {selectedVideos.size === videos.length ? (
               <>
                 <CheckSquare className="h-4 w-4" />
@@ -320,7 +320,7 @@ export function VideoGrid({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleDownloadSelected}
+                onClick={handle_download_selected}
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
@@ -333,8 +333,8 @@ export function VideoGrid({
         <div className="flex items-center gap-2">
           {/* 정렬 */}
           <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as 'date' | 'views' | 'likes')}
+            value={sort_by}
+            onValueChange={(value) => set_sort_by(value as 'date' | 'views' | 'likes')}
           >
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -389,26 +389,26 @@ export function VideoGrid({
           // 가상 스크롤
           <AutoSizer>
             {({ height, width }) => {
-              const itemData = {
-                videos: sortedVideos,
-                columns: viewMode === 'grid' ? getColumnCount(width) : 1,
+              const item_data = {
+                videos: sorted_videos,
+                columns: viewMode === 'grid' ? get_column_count(width) : 1,
                 selectedVideos,
                 favoriteVideos,
-                onToggleSelect: handleToggleSelect,
-                onToggleFavorite: handleToggleFavorite,
-                onPlay: handlePlay,
+                onToggleSelect: handle_toggle_select,
+                onToggleFavorite: handle_toggle_favorite,
+                onPlay: handle_play,
               };
 
               if (viewMode === 'grid') {
-                const columns = getColumnCount(width);
-                const rowCount = Math.ceil(sortedVideos.length / columns);
+                const columns = get_column_count(width);
+                const row_count = Math.ceil(sorted_videos.length / columns);
 
                 return (
                   <InfiniteLoader
-                    ref={infiniteLoaderRef}
-                    isItemLoaded={isItemLoaded}
-                    itemCount={hasMore ? sortedVideos.length + 1 : sortedVideos.length}
-                    loadMoreItems={loadMoreItems}
+                    ref={infinite_loader_ref}
+                    isItemLoaded={is_item_loaded}
+                    itemCount={hasMore ? sorted_videos.length + 1 : sorted_videos.length}
+                    loadMoreItems={load_more_items}
                   >
                     {({ onItemsRendered, ref }) => (
                       <FixedSizeGrid
@@ -416,10 +416,10 @@ export function VideoGrid({
                         columnCount={columns}
                         columnWidth={width / columns}
                         height={height}
-                        rowCount={rowCount}
+                        rowCount={row_count}
                         rowHeight={400}
                         width={width}
-                        itemData={itemData}
+                        itemData={item_data}
                         onItemsRendered={({
                           visibleRowStartIndex,
                           visibleRowStopIndex,
@@ -440,23 +440,23 @@ export function VideoGrid({
                   </InfiniteLoader>
                 );
               }
-              const itemHeight = viewMode === 'list' ? 140 : 80;
+              const item_height = viewMode === 'list' ? 140 : 80;
 
               return (
                 <InfiniteLoader
-                  ref={infiniteLoaderRef}
-                  isItemLoaded={isItemLoaded}
-                  itemCount={hasMore ? sortedVideos.length + 1 : sortedVideos.length}
-                  loadMoreItems={loadMoreItems}
+                  ref={infinite_loader_ref}
+                  isItemLoaded={is_item_loaded}
+                  itemCount={hasMore ? sorted_videos.length + 1 : sorted_videos.length}
+                  loadMoreItems={load_more_items}
                 >
                   {({ onItemsRendered, ref }) => (
                     <FixedSizeList
                       ref={ref}
                       height={height}
-                      itemCount={sortedVideos.length}
-                      itemSize={itemHeight}
+                      itemCount={sorted_videos.length}
+                      itemSize={item_height}
                       width={width}
-                      itemData={itemData}
+                      itemData={item_data}
                       onItemsRendered={onItemsRendered}
                     >
                       {viewMode === 'list'
@@ -468,7 +468,7 @@ export function VideoGrid({
                           }: {
                             index: number;
                             style: React.CSSProperties;
-                            data: typeof itemData;
+                            data: typeof item_data;
                           }) => {
                             const video = data.videos[index];
                             if (!video) {

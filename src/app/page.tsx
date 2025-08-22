@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 };
 
 // 구조화된 데이터 (JSON-LD)
-const organizationSchema = {
+const organization_schema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: '디하클',
@@ -69,7 +69,7 @@ const organizationSchema = {
   },
 };
 
-const websiteSchema = {
+const website_schema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: '디하클',
@@ -84,7 +84,7 @@ const websiteSchema = {
   },
 };
 
-const educationalOrganizationSchema = {
+const educational_organization_schema = {
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
   name: '디하클',
@@ -103,17 +103,17 @@ export default function HomePage() {
       <Script
         id="organization-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organization_schema) }}
       />
       <Script
         id="website-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(website_schema) }}
       />
       <Script
         id="educational-organization-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(educationalOrganizationSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(educational_organization_schema) }}
       />
 
       <div className="w-full">

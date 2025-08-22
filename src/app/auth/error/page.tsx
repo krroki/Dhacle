@@ -5,14 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function AuthErrorContent() {
-  const searchParams = useSearchParams();
-  const error = searchParams?.get('error') || null;
-  const errorDescription = searchParams?.get('errorDescription') || null;
+  const search_params = useSearchParams();
+  const error = search_params?.get('error') || null;
+  const error_description = search_params?.get('errorDescription') || null;
 
   // 에러 메시지 매핑
-  const getErrorMessage = () => {
-    if (errorDescription) {
-      return errorDescription;
+  const get_error_message = () => {
+    if (error_description) {
+      return error_description;
     }
 
     switch (error) {
@@ -33,7 +33,7 @@ function AuthErrorContent() {
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold text-gray-900">로그인 오류</h2>
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{getErrorMessage()}</p>
+            <p className="text-red-800">{get_error_message()}</p>
             {error && <p className="text-sm text-red-600 mt-2">에러 코드: {error}</p>}
           </div>
 

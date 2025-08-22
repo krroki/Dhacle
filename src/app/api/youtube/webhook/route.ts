@@ -17,13 +17,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Webhook endpoints must be public (no authentication required)
     // YouTube servers will call this without authentication
-    const searchParams = request.nextUrl.searchParams;
+    const search_params = request.nextUrl.searchParams;
 
     // Extract verification parameters
-    const mode = searchParams.get('hub.mode');
-    const topic = searchParams.get('hub.topic');
-    const challenge = searchParams.get('hub.challenge');
-    const leaseSeconds = searchParams.get('hub.leaseSeconds');
+    const mode = search_params.get('hub.mode');
+    const topic = search_params.get('hub.topic');
+    const challenge = search_params.get('hub.challenge');
+    const lease_seconds = search_params.get('hub.leaseSeconds');
 
     // Validate required parameters
     if (!mode || !topic || !challenge) {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       mode,
       topic,
       challenge,
-      leaseSeconds: leaseSeconds || undefined,
+      leaseSeconds: lease_seconds || undefined,
     });
 
     if (result.success && result.challenge) {
@@ -70,13 +70,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const signature = request.headers.get('x-hub-signature') || null;
 
     // Extract channel ID from the XML (simplified parsing)
-    const channelIdMatch = body.match(/<yt:channel_id>([^<]+)<\/yt:channel_id>/);
+    const channel_id_match = body.match(/<yt:channel_id>([^<]+)<\/yt:channel_id>/);
 
-    if (!channelIdMatch) {
+    if (!channel_id_match) {
       return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
     }
 
-    const channel_id = channelIdMatch[1];
+    const channel_id = channel_id_match[1];
 
     // Process the notification
     const result = await pubsubManager.processNotification(body, signature || '');
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Trigger any additional processing here
       // For example, update statistics, send alerts, etc.
       if (result.video) {
-        await handleVideoUpdate(result.video);
+        await handle_video_update(result.video);
       }
 
       // Hub expects 2xx response
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 /**
  * Handle video updates (called after successful notification processing)
  */
-async function handleVideoUpdate(video: unknown) {
+async function handle_video_update(video: unknown) {
   try {
     // Import monitoring system dynamically to avoid circular dependencies
     // const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
@@ -119,12 +119,12 @@ async function handleVideoUpdate(video: unknown) {
     // await alertEngine.checkVideoAgainstRules(video, rules);
 
     // Type guard to check if video has expected properties
-    const isVideoObject = (v: unknown): v is { video_id?: string; deleted?: boolean } => {
+    const is_video_object = (v: unknown): v is { video_id?: string; deleted?: boolean } => {
       return typeof v === 'object' && v !== null;
     };
 
     // Update video statistics if needed
-    if (isVideoObject(video) && video.video_id && !video.deleted) {
+    if (is_video_object(video) && video.video_id && !video.deleted) {
       // Fetch latest statistics from YouTube API
       // This would need to be implemented with proper YouTube API integration
       // const apiClient = new YouTubeAPIClient();

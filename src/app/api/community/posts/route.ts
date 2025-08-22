@@ -12,9 +12,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const searchParams = req.nextUrl.searchParams;
-    const category = searchParams.get('category') || 'board';
-    const page = Number.parseInt(searchParams.get('page') || '1', 10);
+    const search_params = req.nextUrl.searchParams;
+    const category = search_params.get('category') || 'board';
+    const page = Number.parseInt(search_params.get('page') || '1', 10);
     const limit = 20;
     const offset = (page - 1) * limit;
 
@@ -75,10 +75,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 

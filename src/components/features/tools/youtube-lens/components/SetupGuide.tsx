@@ -21,22 +21,22 @@ interface SetupGuideProps {
 }
 
 export function SetupGuide({ missingVars = [] }: SetupGuideProps) {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copied_index, set_copied_index] = useState<number | null>(null);
 
-  const handleCopy = (text: string, index: number) => {
+  const handle_copy = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
+    set_copied_index(index);
+    setTimeout(() => set_copied_index(null), 2000);
   };
 
-  const envTemplate = `# YouTube Lens 설정
+  const env_template = `# YouTube Lens 설정
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=GOCSPX-your-client-secret
 YOUTUBE_API_KEY=AIzaSy-your-api-key
 ENCRYPTION_KEY=`;
 
-  const encryptionKeyCommand = `require('crypto').randomBytes(32).toString('hex')`;
+  const encryption_key_command = `require('crypto').randomBytes(32).toString('hex')`;
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -57,9 +57,9 @@ ENCRYPTION_KEY=`;
             <AlertDescription>
               다음 환경 변수가 설정되지 않았습니다:
               <div className="mt-2 flex flex-wrap gap-2">
-                {missingVars.map((varName) => (
-                  <Badge key={varName} variant="destructive">
-                    {varName}
+                {missingVars.map((var_name) => (
+                  <Badge key={var_name} variant="destructive">
+                    {var_name}
                   </Badge>
                 ))}
               </div>
@@ -139,8 +139,8 @@ ENCRYPTION_KEY=`;
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">1. .env.local 파일 생성</h4>
-                  <Button variant="outline" size="sm" onClick={() => handleCopy(envTemplate, 0)}>
-                    {copiedIndex === 0 ? (
+                  <Button variant="outline" size="sm" onClick={() => handle_copy(env_template, 0)}>
+                    {copied_index === 0 ? (
                       <>
                         <CheckCircle className="mr-2 h-3 w-3" />
                         복사됨
@@ -153,7 +153,9 @@ ENCRYPTION_KEY=`;
                     )}
                   </Button>
                 </div>
-                <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">{envTemplate}</pre>
+                <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                  {env_template}
+                </pre>
               </div>
 
               <div className="space-y-2">
@@ -162,9 +164,9 @@ ENCRYPTION_KEY=`;
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleCopy(encryptionKeyCommand, 1)}
+                    onClick={() => handle_copy(encryption_key_command, 1)}
                   >
-                    {copiedIndex === 1 ? (
+                    {copied_index === 1 ? (
                       <>
                         <CheckCircle className="mr-2 h-3 w-3" />
                         복사됨
@@ -182,7 +184,7 @@ ENCRYPTION_KEY=`;
                     <Terminal className="h-3 w-3" />
                     Node.js 콘솔에서 실행:
                   </div>
-                  <code className="text-xs">{encryptionKeyCommand}</code>
+                  <code className="text-xs">{encryption_key_command}</code>
                 </div>
               </div>
 

@@ -20,13 +20,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function GetApiKeyPage() {
-  const [copiedStep, setCopiedStep] = useState<number | null>(null);
+  const [copied_step, set_copied_step] = useState<number | null>(null);
 
-  const copyToClipboard = (text: string, step: number) => {
+  const copy_to_clipboard = (text: string, step: number) => {
     navigator.clipboard.writeText(text);
-    setCopiedStep(step);
+    set_copied_step(step);
     toast.success('클립보드에 복사되었습니다');
-    setTimeout(() => setCopiedStep(null), 2000);
+    setTimeout(() => set_copied_step(null), 2000);
   };
 
   return (
@@ -165,9 +165,9 @@ export default function GetApiKeyPage() {
                   variant="ghost"
                   size="sm"
                   className="mt-2"
-                  onClick={() => copyToClipboard('dhacle-youtube', 2)}
+                  onClick={() => copy_to_clipboard('dhacle-youtube', 2)}
                 >
-                  {copiedStep === 2 ? (
+                  {copied_step === 2 ? (
                     <CheckCircle2 className="mr-2 h-4 w-4" />
                   ) : (
                     <Copy className="mr-2 h-4 w-4" />

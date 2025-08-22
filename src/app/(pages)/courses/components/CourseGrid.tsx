@@ -11,11 +11,11 @@ interface CourseGridProps {
 }
 
 export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
-  const [courses, setCourses] = useState<Course[]>(initialCourses);
-  const [loading, setLoading] = useState(false);
+  const [courses, set_courses] = useState<Course[]>(initialCourses);
+  const [loading, set_loading] = useState(false);
 
-  const filterCourses = useCallback(async (): Promise<void> => {
-    setLoading(true);
+  const filter_courses = useCallback(async (): Promise<void> => {
+    set_loading(true);
     try {
       // 클라이언트 사이드 필터링
       let filtered = [...initialCourses];
@@ -36,26 +36,26 @@ export function CourseGrid({ initialCourses, filters }: CourseGridProps) {
         );
       }
       if (filters?.search) {
-        const searchLower = filters.search.toLowerCase();
+        const search_lower = filters.search.toLowerCase();
         filtered = filtered.filter(
           (c) =>
-            c.title.toLowerCase().includes(searchLower) ||
-            c.description?.toLowerCase().includes(searchLower)
+            c.title.toLowerCase().includes(search_lower) ||
+            c.description?.toLowerCase().includes(search_lower)
         );
       }
 
-      setCourses(filtered);
+      set_courses(filtered);
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, [initialCourses, filters]);
 
   // 필터 변경 시 강의 목록 갱신
   useEffect(() => {
     if (filters) {
-      filterCourses();
+      filter_courses();
     }
-  }, [filters, filterCourses]);
+  }, [filters, filter_courses]);
 
   if (loading) {
     return (

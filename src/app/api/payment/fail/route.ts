@@ -10,10 +10,10 @@ import type { Json } from '@/types';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // 세션 검사
-    const authSupabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-    } = await authSupabase.auth.getUser();
+    } = await auth_supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const supabase = await createClient();
 
     // 구매 상태를 실패로 업데이트
-    const { data: purchase, error: updateError } = await supabase
+    const { data: purchase, error: update_error } = await supabase
       .from('purchases')
       .update({
         payment_status: 'failed',
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .select()
       .single();
 
-    if (updateError) {
+    if (update_error) {
       return NextResponse.json({ error: '주문 상태 업데이트에 실패했습니다.' }, { status: 500 });
     }
 

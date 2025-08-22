@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   description: '디하클 마이페이지 - 프로필, 수강 강의, 수익 인증 관리',
 };
 
-export default async function MyPageLayout({ children }: { children: React.ReactNode }): Promise<React.JSX.Element> {
+export default async function MyPageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): Promise<React.JSX.Element> {
   // 인증 체크
   const supabase = (await createSupabaseServerClient()) as SupabaseClient<Database>;
   const {
@@ -22,18 +26,24 @@ export default async function MyPageLayout({ children }: { children: React.React
   }
 
   // 프로필 정보 가져오기
-  const { data: dbProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-  
+  const { data: db_profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
   // Map database profile to component Profile interface
-  const profile = dbProfile ? {
-    id: dbProfile.id || user.id,
-    username: dbProfile.username,
-    displayNickname: dbProfile.full_name, // Using full_name as display nickname
-    naverCafeVerified: false, // This field doesn't exist in DB, using default
-    created_at: dbProfile.created_at || '',
-    updated_at: dbProfile.updated_at || '',
-    full_name: dbProfile.full_name // Also keep full_name for template usage
-  } : null;
+  const profile = db_profile
+    ? {
+        id: db_profile.id || user.id,
+        username: db_profile.username,
+        displayNickname: db_profile.full_name, // Using full_name as display nickname
+        naverCafeVerified: false, // This field doesn't exist in DB, using default
+        created_at: db_profile.created_at || '',
+        updated_at: db_profile.updated_at || '',
+        full_name: db_profile.full_name, // Also keep full_name for template usage
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -34,25 +34,25 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // 에러 타입 분류
-    let errorType: State['errorType'] = 'unknown';
+    let error_type: State['errorType'] = 'unknown';
 
     if (error.message.includes('환경 변수') || error.message.includes('NEXT_PUBLIC')) {
-      errorType = 'config';
+      error_type = 'config';
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
-      errorType = 'network';
+      error_type = 'network';
     } else if (error.message.includes('auth') || error.message.includes('OAuth')) {
-      errorType = 'auth';
+      error_type = 'auth';
     }
 
     return {
       hasError: true,
       error,
-      errorType,
+      errorType: error_type,
     };
   }
 
-  componentDidCatch(_error: Error, errorInfo: ErrorInfo) {
-    this.setState({ errorInfo });
+  componentDidCatch(_error: Error, error_info: ErrorInfo) {
+    this.setState({ errorInfo: error_info });
 
     // 에러 리포팅 (프로덕션 환경에서)
     if (process.env.NODE_ENV === 'production') {
@@ -81,13 +81,13 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
 
   handleCopyError = () => {
     const { error, errorInfo } = this.state;
-    const errorText = `
+    const error_text = `
 Error: ${error?.message || 'Unknown error'}
 Stack: ${error?.stack || 'No stack trace'}
 Component Stack: ${errorInfo?.componentStack || 'No component stack'}
     `.trim();
 
-    navigator.clipboard.writeText(errorText);
+    navigator.clipboard.writeText(error_text);
     this.setState({ copied: true });
     toast.success('에러 정보가 클립보드에 복사되었습니다');
 

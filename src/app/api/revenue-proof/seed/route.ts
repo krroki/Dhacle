@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // 시드 데이터
-const sampleData = [
+const sample_data = [
   {
     title: '2025년 5월 YouTube Shorts 수익 인증',
     content:
@@ -69,7 +69,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 
     // 시드 데이터 추가
     const results = [];
-    for (const [index, data] of sampleData.entries()) {
+    for (const [index, data] of sample_data.entries()) {
       const { data: result, error } = await supabase
         .from('revenue_proofs')
         .insert({
@@ -102,13 +102,13 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const successCount = results.filter((r) => r.success).length;
+    const success_count = results.filter((r) => r.success).length;
 
     return NextResponse.json({
-      message: `${successCount}개의 시드 데이터가 추가되었습니다`,
+      message: `${success_count}개의 시드 데이터가 추가되었습니다`,
       results,
-      total: sampleData.length,
-      success: successCount,
+      total: sample_data.length,
+      success: success_count,
     });
   } catch (_error) {
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
@@ -139,7 +139,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       totalRecords: count || 0,
-      sampleDataAvailable: sampleData.length,
+      sampleDataAvailable: sample_data.length,
       message:
         count === 0
           ? '데이터가 없습니다. POST 요청으로 시드 데이터를 추가하세요.'

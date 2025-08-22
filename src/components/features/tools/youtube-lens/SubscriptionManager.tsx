@@ -22,21 +22,21 @@ interface Subscription {
 }
 
 export function SubscriptionManager() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [channelInput, setChannelInput] = useState('');
-  const [subscribing, setSubscribing] = useState(false);
+  const [subscriptions, set_subscriptions] = useState<Subscription[]>([]);
+  const [loading, set_loading] = useState(false);
+  const [channel_input, set_channel_input] = useState('');
+  const [subscribing, set_subscribing] = useState(false);
 
   // Fetch subscriptions function
-  const fetchSubscriptions = useCallback(async () => {
+  const fetch_subscriptions = useCallback(async () => {
     try {
-      setLoading(true);
+      set_loading(true);
       const data = await apiGet<{ success: boolean; subscriptions: Subscription[] }>(
         '/api/youtube/subscribe'
       );
 
       if (data.success) {
-        setSubscriptions(data.subscriptions);
+        set_subscriptions(data.subscriptions);
       } else {
         toast.error('Failed to fetch subscriptions');
       }
@@ -47,28 +47,28 @@ export function SubscriptionManager() {
         toast.error('Error loading subscriptions');
       }
     } finally {
-      setLoading(false);
+      set_loading(false);
     }
   }, []);
 
   // Fetch subscriptions on mount
   useEffect(() => {
-    fetchSubscriptions();
-  }, [fetchSubscriptions]);
+    fetch_subscriptions();
+  }, [fetch_subscriptions]);
 
-  const handleSubscribe = async () => {
-    if (!channelInput.trim()) {
+  const handle_subscribe = async () => {
+    if (!channel_input.trim()) {
       toast.error('Please enter a channel ID or URL');
       return;
     }
 
     try {
-      setSubscribing(true);
+      set_subscribing(true);
 
       // Extract channel ID from URL if needed
-      let channel_id = channelInput.trim();
-      if (channelInput.includes('youtube.com')) {
-        const match = channelInput.match(/channel\/([^/?]+)/);
+      let channel_id = channel_input.trim();
+      if (channel_input.includes('youtube.com')) {
+        const match = channel_input.match(/channel\/([^/?]+)/);
         if (match?.[1]) {
           channel_id = match[1];
         }
@@ -81,8 +81,8 @@ export function SubscriptionManager() {
 
       if (data.success) {
         toast.success('Subscription request sent! Awaiting verification...');
-        setChannelInput('');
-        fetchSubscriptions(); // Refresh list
+        set_channel_input('');
+        fetch_subscriptions(); // Refresh list
       } else {
         toast.error(data.error || 'Failed to subscribe');
       }
@@ -97,11 +97,11 @@ export function SubscriptionManager() {
         toast.error('Error subscribing to channel');
       }
     } finally {
-      setSubscribing(false);
+      set_subscribing(false);
     }
   };
 
-  const handleUnsubscribe = async (channel_id: string) => {
+  const handle_unsubscribe = async (channel_id: string) => {
     try {
       const data = await apiDelete<{ success: boolean; error?: string }>(
         `/api/youtube/subscribe?channel_id=${channel_id}`
@@ -109,7 +109,7 @@ export function SubscriptionManager() {
 
       if (data.success) {
         toast.success('Unsubscribed successfully');
-        fetchSubscriptions(); // Refresh list
+        fetch_subscriptions(); // Refresh list
       } else {
         toast.error(data.error || 'Failed to unsubscribe');
       }
@@ -126,7 +126,7 @@ export function SubscriptionManager() {
     }
   };
 
-  const handleRenew = async (channel_id: string) => {
+  const handle_renew = async (channel_id: string) => {
     try {
       const data = await apiPatch<{ success: boolean; error?: string }>('/api/youtube/subscribe', {
         channel_id,
@@ -134,7 +134,7 @@ export function SubscriptionManager() {
 
       if (data.success) {
         toast.success('Renewal request sent');
-        fetchSubscriptions(); // Refresh list
+        fetch_subscriptions(); // Refresh list
       } else {
         toast.error(data.error || 'Failed to renew');
       }
@@ -151,8 +151,8 @@ export function SubscriptionManager() {
     }
   };
 
-  const getStatusBadge = (subscription: Subscription) => {
-    const statusConfig = {
+  const get_status_badge = (subscription: Subscription) => {
+    const status_config = {
       pending: { variant: 'secondary' as const, icon: Clock },
       verified: { variant: 'default' as const, icon: CheckCircle },
       active: { variant: 'default' as const, icon: CheckCircle },
@@ -160,7 +160,7 @@ export function SubscriptionManager() {
       failed: { variant: 'destructive' as const, icon: AlertCircle },
     };
 
-    const config = statusConfig[subscription.status];
+    const config = status_config[subscription.status];
     const Icon = config.icon;
 
     return (
@@ -187,13 +187,13 @@ export function SubscriptionManager() {
         <div className="flex gap-2">
           <Input
             placeholder="Enter YouTube channel ID or URL"
-            value={channelInput}
-            onChange={(e) => setChannelInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
+            value={channel_input}
+            onChange={(e) => set_channel_input(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handle_subscribe()}
             disabled={subscribing}
             className="flex-1"
           />
-          <Button onClick={handleSubscribe} disabled={subscribing}>
+          <Button onClick={handle_subscribe} disabled={subscribing}>
             {subscribing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -227,7 +227,7 @@ export function SubscriptionManager() {
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{sub.channel_title}</span>
-                    {getStatusBadge(sub)}
+                    {get_status_badge(sub)}
                   </div>
                   <div className="text-sm text-muted-foreground space-x-4">
                     <span>ID: {sub.channel_id.slice(0, 12)}...</span>
@@ -244,7 +244,8 @@ export function SubscriptionManager() {
                     )}
                     {sub.expires_at && (
                       <span>
-                        Expires: {formatDistanceToNow(new Date(sub.expires_at), { addSuffix: true })}
+                        Expires:{' '}
+                        {formatDistanceToNow(new Date(sub.expires_at), { addSuffix: true })}
                       </span>
                     )}
                   </div>
@@ -256,7 +257,7 @@ export function SubscriptionManager() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleRenew(sub.channel_id)}
+                        onClick={() => handle_renew(sub.channel_id)}
                         title="Renew subscription"
                       >
                         <RefreshCw className="h-4 w-4" />
@@ -265,7 +266,7 @@ export function SubscriptionManager() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleUnsubscribe(sub.channel_id)}
+                    onClick={() => handle_unsubscribe(sub.channel_id)}
                     title="Unsubscribe"
                   >
                     <BellOff className="h-4 w-4" />

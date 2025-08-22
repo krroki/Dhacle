@@ -104,9 +104,9 @@ export function logEnvDebugInfo(): void {
   }
 
   // Supabase URL 형식 체크
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (supabaseUrl) {
-    if (!supabaseUrl.includes('.supabase.co')) {
+  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (supabase_url) {
+    if (!supabase_url.includes('.supabase.co')) {
     }
   }
 

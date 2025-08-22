@@ -38,16 +38,16 @@ process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
 
 // Console 에러 억제 (필요시)
-const originalError = console.error;
+const original_error = console.error;
 beforeAll(() => {
   console.error = (...args: unknown[]) => {
     if (typeof args[0] === 'string' && args[0].includes('Warning: ReactDOM.render')) {
       return;
     }
-    originalError.call(console, ...args);
+    original_error.call(console, ...args);
   };
 });
 
 afterAll(() => {
-  console.error = originalError;
+  console.error = original_error;
 });

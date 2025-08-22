@@ -43,17 +43,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function CoursesPage(): Promise<React.JSX.Element> {
   // 서버에서 데이터 가져오기
-  const coursesData = await getCourses();
+  const courses_data = await getCourses();
   const instructors = await getUniqueInstructors();
 
   // 구조화된 데이터 - 강의 목록
-  const courseListSchema = {
+  const course_list_schema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'YouTube Shorts 제작 강의 목록',
     description: 'YouTube Shorts 크리에이터를 위한 전문 교육 과정',
-    numberOfItems: coursesData.courses.length,
-    itemListElement: coursesData.courses.map((course, index) => ({
+    numberOfItems: courses_data.courses.length,
+    itemListElement: courses_data.courses.map((course, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       item: {
@@ -85,7 +85,7 @@ export default async function CoursesPage(): Promise<React.JSX.Element> {
       <Script
         id="course-list-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseListSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(course_list_schema) }}
       />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -101,7 +101,7 @@ export default async function CoursesPage(): Promise<React.JSX.Element> {
         <InstructorFilter instructors={instructors} />
 
         {/* 강의 그리드 (Client Component) */}
-        <CourseGrid initialCourses={coursesData.courses} />
+        <CourseGrid initialCourses={courses_data.courses} />
       </div>
     </>
   );

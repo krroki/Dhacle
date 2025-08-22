@@ -7,7 +7,7 @@ import { RevenueCard } from './RevenueCard';
 
 export function RevenueGallery() {
   // Duplicate the array for seamless loop
-  const duplicatedProofs = [...dummyRevenueProofs, ...dummyRevenueProofs];
+  const duplicated_proofs = [...dummyRevenueProofs, ...dummyRevenueProofs];
 
   return (
     <section className="py-12 overflow-hidden bg-muted/30">
@@ -34,7 +34,7 @@ export function RevenueGallery() {
             },
           }}
         >
-          {duplicatedProofs.map((proof, index) => (
+          {duplicated_proofs.map((proof, index) => (
             <RevenueCard key={`${proof.id}-${index}`} proof={proof} />
           ))}
         </motion.div>

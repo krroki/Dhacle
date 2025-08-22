@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import type { Json } from '@/types';
 
-const tossSecretKey = process.env.TOSS_SECRET_KEY;
+const toss_secret_key = process.env.TOSS_SECRET_KEY;
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // 세션 검사
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
     }
 
-    if (!tossSecretKey) {
+    if (!toss_secret_key) {
       return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
     }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(`${tossSecretKey}:`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${toss_secret_key}:`).toString('base64')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -48,13 +48,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }),
     });
 
-    const paymentData = await response.json();
+    const payment_data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
         {
-          error: paymentData.message || '결제 승인에 실패했습니다.',
-          code: paymentData.code,
+          error: payment_data.message || '결제 승인에 실패했습니다.',
+          code: payment_data.code,
         },
         { status: response.status }
       );
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const supabase = await createClient();
 
     // 구매 상태 업데이트
-    const { data: purchase, error: updateError } = await supabase
+    const { data: purchase, error: update_error } = await supabase
       .from('purchases')
       .update({
         payment_status: 'succeeded',
@@ -76,12 +76,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .select()
       .single();
 
-    if (updateError) {
+    if (update_error) {
       // 토스페이먼츠 결제 취소 API 호출 (보상 트랜잭션)
       await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${Buffer.from(`${tossSecretKey}:`).toString('base64')}`,
+          Authorization: `Basic ${Buffer.from(`${toss_secret_key}:`).toString('base64')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -130,9 +130,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       success: true,
       purchase,
       payment: {
-        method: paymentData.method,
-        approvedAt: paymentData.approvedAt,
-        receipt: paymentData.receipt,
+        method: payment_data.method,
+        approvedAt: payment_data.approvedAt,
+        receipt: payment_data.receipt,
       },
     });
   } catch (_error) {

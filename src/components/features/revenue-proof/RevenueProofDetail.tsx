@@ -66,41 +66,41 @@ interface RevenueProofDetailProps {
 
 export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofDetailProps) {
   const router = useRouter();
-  const [proof, setProof] = useState(initialData);
-  const [isLiked, setIsLiked] = useState(initialData.isLiked);
-  const [commentContent, setCommentContent] = useState('');
-  const [comments, setComments] = useState<ProofComment[]>(initialData.comments || []);
-  const [showReportDialog, setShowReportDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [reportReason, setReportReason] = useState<string>('');
-  const [reportDetails, setReportDetails] = useState('');
-  const [reportAcknowledged, setReportAcknowledged] = useState(false);
-  const [editTitle, setEditTitle] = useState(proof.title);
-  const [editContent, setEditContent] = useState(proof.content);
-  const [copied, setCopied] = useState(false);
+  const [proof, set_proof] = useState(initialData);
+  const [is_liked, set_is_liked] = useState(initialData.isLiked);
+  const [comment_content, set_comment_content] = useState('');
+  const [comments, set_comments] = useState<ProofComment[]>(initialData.comments || []);
+  const [show_report_dialog, set_show_report_dialog] = useState(false);
+  const [show_delete_dialog, set_show_delete_dialog] = useState(false);
+  const [show_edit_dialog, set_show_edit_dialog] = useState(false);
+  const [report_reason, set_report_reason] = useState<string>('');
+  const [report_details, set_report_details] = useState('');
+  const [report_acknowledged, set_report_acknowledged] = useState(false);
+  const [edit_title, set_edit_title] = useState(proof.title);
+  const [edit_content, set_edit_content] = useState(proof.content);
+  const [copied, set_copied] = useState(false);
 
   // 플랫폼 아이콘 매핑
-  const platformIcons: Record<string, React.ReactElement> = {
+  const platform_icons: Record<string, React.ReactElement> = {
     youtube: <Youtube className="h-5 w-5" />,
     instagram: <Instagram className="h-5 w-5" />,
     tiktok: <DollarSign className="h-5 w-5" />, // TikTok 아이콘 대체
   };
 
-  const platformColors: Record<string, string> = {
+  const platform_colors: Record<string, string> = {
     youtube: 'bg-red-500',
     instagram: 'bg-gradient-to-tr from-purple-500 to-pink-500',
     tiktok: 'bg-black',
   };
 
   // 좋아요 토글
-  const likeMutation = useMutation({
+  const like_mutation = useMutation({
     mutationFn: () => toggleLike(proof.id),
     onSuccess: () => {
-      setIsLiked(!isLiked);
-      setProof((prev) => ({
+      set_is_liked(!is_liked);
+      set_proof((prev) => ({
         ...prev,
-        likes_count: isLiked ? (prev.likes_count ?? 0) - 1 : (prev.likes_count ?? 0) + 1,
+        likes_count: is_liked ? (prev.likes_count ?? 0) - 1 : (prev.likes_count ?? 0) + 1,
       }));
     },
     onError: () => {
@@ -109,12 +109,12 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   });
 
   // 댓글 작성
-  const commentMutation = useMutation({
+  const comment_mutation = useMutation({
     mutationFn: (content: string) => createComment(proof.id, content),
     onSuccess: (data) => {
-      setComments([data, ...comments]);
-      setCommentContent('');
-      setProof((prev) => ({
+      set_comments([data, ...comments]);
+      set_comment_content('');
+      set_proof((prev) => ({
         ...prev,
         comments_count: (prev.comments_count ?? 0) + 1,
       }));
@@ -126,19 +126,19 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   });
 
   // 신고하기
-  const reportMutation = useMutation({
+  const report_mutation = useMutation({
     mutationFn: () =>
       reportProof(proof.id, {
-        reason: reportReason,
-        details: reportDetails,
-        acknowledged: reportAcknowledged,
+        reason: report_reason,
+        details: report_details,
+        acknowledged: report_acknowledged,
       }),
     onSuccess: () => {
-      setShowReportDialog(false);
+      set_show_report_dialog(false);
       toast.success('신고가 접수되었습니다.');
-      setReportReason('');
-      setReportDetails('');
-      setReportAcknowledged(false);
+      set_report_reason('');
+      set_report_details('');
+      set_report_acknowledged(false);
     },
     onError: () => {
       toast.error('신고 처리 중 오류가 발생했습니다.');
@@ -146,7 +146,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   });
 
   // 삭제하기
-  const deleteMutation = useMutation({
+  const delete_mutation = useMutation({
     mutationFn: () => deleteRevenueProof(proof.id),
     onSuccess: () => {
       toast.success('수익 인증이 삭제되었습니다.');
@@ -158,19 +158,19 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   });
 
   // 수정하기
-  const editMutation = useMutation({
+  const edit_mutation = useMutation({
     mutationFn: () =>
       updateRevenueProof(proof.id, {
-        title: editTitle,
-        content: editContent,
+        title: edit_title,
+        content: edit_content,
       }),
     onSuccess: (_data) => {
-      setProof((prev) => ({
+      set_proof((prev) => ({
         ...prev,
-        title: editTitle,
-        content: editContent,
+        title: edit_title,
+        content: edit_content,
       }));
-      setShowEditDialog(false);
+      set_show_edit_dialog(false);
       toast.success('수익 인증이 수정되었습니다.');
     },
     onError: () => {
@@ -179,26 +179,26 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
   });
 
   // URL 복사
-  const handleShare = () => {
+  const handle_share = () => {
     navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
+    set_copied(true);
     toast.success('링크가 복사되었습니다.');
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => set_copied(false), 2000);
   };
 
   // 24시간 내 수정 가능 여부 체크
-  const canEdit = () => {
+  const can_edit = () => {
     if (!currentUserId || proof.user_id !== currentUserId) {
       return false;
     }
     const created_at = new Date(proof.created_at ?? new Date().toISOString());
     const now = new Date();
-    const hoursDiff = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
-    return hoursDiff <= 24;
+    const hours_diff = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
+    return hours_diff <= 24;
   };
 
   // 작성자 여부 확인
-  const isOwner = currentUserId === proof.user_id;
+  const is_owner = currentUserId === proof.user_id;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -223,18 +223,22 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       <span>
-                        {formatDistanceToNow(new Date(proof.created_at ?? new Date().toISOString()), {
-                          addSuffix: true,
-                          locale: ko,
-                        })}
+                        {formatDistanceToNow(
+                          new Date(proof.created_at ?? new Date().toISOString()),
+                          {
+                            addSuffix: true,
+                            locale: ko,
+                          }
+                        )}
                       </span>
                     </div>
                   </div>
                 </div>
-                <Badge className={`${platformColors[proof.platform] || 'bg-gray-500'} text-white`}>
+                <Badge className={`${platform_colors[proof.platform] || 'bg-gray-500'} text-white`}>
                   <span className="flex items-center gap-1">
-                    {platformIcons[proof.platform] || platformIcons.youtube}
-                    {(proof.platform ?? 'unknown').charAt(0).toUpperCase() + (proof.platform ?? 'unknown').slice(1)}
+                    {platform_icons[proof.platform] || platform_icons.youtube}
+                    {(proof.platform ?? 'unknown').charAt(0).toUpperCase() +
+                      (proof.platform ?? 'unknown').slice(1)}
                   </span>
                 </Badge>
               </div>
@@ -262,11 +266,11 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                 {/* 서명 오버레이 */}
                 {proof.signature_data && (
                   <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-black/90 p-2 rounded">
-                    <Image 
-                      src={proof.signature_data} 
-                      alt="서명" 
-                      width={60} 
-                      height={48} 
+                    <Image
+                      src={proof.signature_data}
+                      alt="서명"
+                      width={60}
+                      height={48}
                       className="h-12 w-auto object-contain"
                     />
                   </div>
@@ -289,12 +293,12 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               {/* 좋아요, 댓글 카운트 */}
               <div className="flex items-center gap-4">
                 <Button
-                  variant={isLiked ? 'default' : 'outline'}
+                  variant={is_liked ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => likeMutation.mutate()}
-                  disabled={!currentUserId || likeMutation.isPending}
+                  onClick={() => like_mutation.mutate()}
+                  disabled={!currentUserId || like_mutation.isPending}
                 >
-                  <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
+                  <Heart className={`h-4 w-4 mr-1 ${is_liked ? 'fill-current' : ''}`} />
                   {proof.likes_count}
                 </Button>
                 <div className="flex items-center gap-1 text-muted-foreground">
@@ -305,24 +309,24 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
 
               {/* 액션 버튼들 */}
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleShare}>
+                <Button variant="outline" size="sm" onClick={handle_share}>
                   {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
                 </Button>
 
-                {isOwner && canEdit() && (
-                  <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+                {is_owner && can_edit() && (
+                  <Button variant="outline" size="sm" onClick={() => set_show_edit_dialog(true)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                 )}
 
-                {isOwner && (
-                  <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}>
+                {is_owner && (
+                  <Button variant="outline" size="sm" onClick={() => set_show_delete_dialog(true)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
 
-                {!isOwner && currentUserId && (
-                  <Button variant="outline" size="sm" onClick={() => setShowReportDialog(true)}>
+                {!is_owner && currentUserId && (
+                  <Button variant="outline" size="sm" onClick={() => set_show_report_dialog(true)}>
                     <AlertTriangle className="h-4 w-4" />
                   </Button>
                 )}
@@ -341,19 +345,19 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                 <div className="space-y-2">
                   <Textarea
                     placeholder="댓글을 작성해주세요..."
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
+                    value={comment_content}
+                    onChange={(e) => set_comment_content(e.target.value)}
                     rows={3}
                     maxLength={500}
                   />
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-muted-foreground">
-                      {commentContent.length}/500
+                      {comment_content.length}/500
                     </span>
                     <Button
                       size="sm"
-                      onClick={() => commentMutation.mutate(commentContent)}
-                      disabled={!commentContent.trim() || commentMutation.isPending}
+                      onClick={() => comment_mutation.mutate(comment_content)}
+                      disabled={!comment_content.trim() || comment_mutation.isPending}
                     >
                       댓글 작성
                     </Button>
@@ -383,10 +387,13 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">{comment.user?.username}</span>
                             <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(comment.created_at ?? new Date().toISOString()), {
-                                addSuffix: true,
-                                locale: ko,
-                              })}
+                              {formatDistanceToNow(
+                                new Date(comment.created_at ?? new Date().toISOString()),
+                                {
+                                  addSuffix: true,
+                                  locale: ko,
+                                }
+                              )}
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground">{comment.content}</p>
@@ -451,7 +458,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
       </div>
 
       {/* 수정 다이얼로그 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      <Dialog open={show_edit_dialog} onOpenChange={set_show_edit_dialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>수익 인증 수정</DialogTitle>
@@ -463,8 +470,8 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               <input
                 id="edit-title"
                 type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
+                value={edit_title}
+                onChange={(e) => set_edit_title(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
                 maxLength={100}
               />
@@ -473,18 +480,18 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               <Label htmlFor="edit-content">내용</Label>
               <Textarea
                 id="edit-content"
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
+                value={edit_content}
+                onChange={(e) => set_edit_content(e.target.value)}
                 rows={10}
                 maxLength={10000}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+            <Button variant="outline" onClick={() => set_show_edit_dialog(false)}>
               취소
             </Button>
-            <Button onClick={() => editMutation.mutate()} disabled={editMutation.isPending}>
+            <Button onClick={() => edit_mutation.mutate()} disabled={edit_mutation.isPending}>
               수정하기
             </Button>
           </DialogFooter>
@@ -492,7 +499,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
       </Dialog>
 
       {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog open={show_delete_dialog} onOpenChange={set_show_delete_dialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
@@ -503,7 +510,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteMutation.mutate()}
+              onClick={() => delete_mutation.mutate()}
               className="bg-red-600 hover:bg-red-700"
             >
               삭제
@@ -513,7 +520,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
       </AlertDialog>
 
       {/* 신고 다이얼로그 */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+      <Dialog open={show_report_dialog} onOpenChange={set_show_report_dialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -533,7 +540,7 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
           <div className="space-y-4">
             <div>
               <Label>신고 사유</Label>
-              <RadioGroup value={reportReason} onValueChange={setReportReason}>
+              <RadioGroup value={report_reason} onValueChange={set_report_reason}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="fake" id="fake" />
                   <Label htmlFor="fake">허위/조작된 인증</Label>
@@ -562,8 +569,8 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
               <Textarea
                 id="details"
                 placeholder="신고 사유를 자세히 설명해주세요..."
-                value={reportDetails}
-                onChange={(e) => setReportDetails(e.target.value)}
+                value={report_details}
+                onChange={(e) => set_report_details(e.target.value)}
                 rows={3}
                 maxLength={500}
               />
@@ -572,8 +579,8 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="acknowledge"
-                checked={reportAcknowledged}
-                onCheckedChange={(checked) => setReportAcknowledged(checked as boolean)}
+                checked={report_acknowledged}
+                onCheckedChange={(checked) => set_report_acknowledged(checked as boolean)}
               />
               <Label htmlFor="acknowledge" className="text-sm">
                 허위 신고 시 제재 조치를 받을 수 있음을 확인했습니다.
@@ -582,12 +589,12 @@ export function RevenueProofDetail({ initialData, currentUserId }: RevenueProofD
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowReportDialog(false)}>
+            <Button variant="outline" onClick={() => set_show_report_dialog(false)}>
               취소
             </Button>
             <Button
-              onClick={() => reportMutation.mutate()}
-              disabled={!reportReason || !reportAcknowledged || reportMutation.isPending}
+              onClick={() => report_mutation.mutate()}
+              disabled={!report_reason || !report_acknowledged || report_mutation.isPending}
               className="bg-red-600 hover:bg-red-700"
             >
               신고하기

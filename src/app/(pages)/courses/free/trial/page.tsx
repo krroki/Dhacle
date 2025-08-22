@@ -18,8 +18,8 @@ export const dynamic = 'force-dynamic';
 export default async function TrialCoursesPage(): Promise<React.JSX.Element> {
   // 무료 체험이 가능한 강의 필터링 (유료 강의 중 미리보기 제공)
   const response = await getCourses();
-  const rawCourses = response.courses;
-  const courses = rawCourses
+  const raw_courses = response.courses;
+  const courses = raw_courses
     .map(mapCourse)
     .filter(
       (course) =>

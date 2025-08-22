@@ -12,20 +12,21 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 
 **⚠️ 경고: 아래 내용을 확인하지 않으면 작업 실패 가능성 높음**
 
-#### 📋 필수 확인 문서 (13개 체계)
+#### 📋 필수 확인 문서 (14개 체계) 🆕
 1. ☐ **이 문서** (`PROJECT.md`) - 현재 상태와 진행 상황
 2. ☐ **`/CLAUDE.md`** - AI 작업 지침서 + 3단계 검증 시스템
-3. ☐ **`/docs/CODEMAP.md`** - 프로젝트 구조 지도
-4. ☐ **`/docs/CHECKLIST.md`** - 작업 검증 체크리스트
-5. ☐ **`/docs/DOCUMENT_GUIDE.md`** - 문서 가이드라인
-6. ☐ **`/docs/INSTRUCTION_TEMPLATE.md`** - 지시서 생성 템플릿
-7. ☐ **`/docs/FLOWMAP.md`** - 사용자 플로우맵 (인증/경로)
-8. ☐ **`/docs/WIREFRAME.md`** - UI-API 연결 명세 (현재 상태)
-9. ☐ **`/docs/COMPONENT_INVENTORY.md`** - 컴포넌트 카탈로그
-10. ☐ **`/docs/ROUTE_SPEC.md`** - 라우트 구조 및 가드
-11. ☐ **`/docs/STATE_FLOW.md`** - 상태 관리 플로우
-12. ☐ **`/docs/DATA_MODEL.md`** - 데이터 모델 매핑
-13. ☐ **`/docs/ERROR_BOUNDARY.md`** - 에러 처리 전략
+3. ☐ **`/docs/CONTEXT_BRIDGE.md`** - 🆕 프로젝트 특화 규칙 (최우선 확인!)
+4. ☐ **`/docs/CODEMAP.md`** - 프로젝트 구조 지도
+5. ☐ **`/docs/CHECKLIST.md`** - 작업 검증 체크리스트
+6. ☐ **`/docs/DOCUMENT_GUIDE.md`** - 문서 가이드라인
+7. ☐ **`/docs/INSTRUCTION_TEMPLATE.md`** - 지시서 생성 템플릿
+8. ☐ **`/docs/FLOWMAP.md`** - 사용자 플로우맵 (인증/경로)
+9. ☐ **`/docs/WIREFRAME.md`** - UI-API 연결 명세 (현재 상태)
+10. ☐ **`/docs/COMPONENT_INVENTORY.md`** - 컴포넌트 카탈로그
+11. ☐ **`/docs/ROUTE_SPEC.md`** - 라우트 구조 및 가드
+12. ☐ **`/docs/STATE_FLOW.md`** - 상태 관리 플로우
+13. ☐ **`/docs/DATA_MODEL.md`** - 데이터 모델 매핑
+14. ☐ **`/docs/ERROR_BOUNDARY.md`** - 에러 처리 전략
 
 ### 🔒 인증/오리진 불변식 - 절대 준수
 - **로컬 개발**: 반드시 `http://localhost:<port>`만 사용 (127.0.0.1 사용 금지)
@@ -34,13 +35,13 @@ _최종 업데이트: 2025-01-31 (DOCUMENT_GUIDE 지침 반영)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
-2. **2025-08-22**: video_stats 테이블 필드 추가 - views_per_hour, engagement_rate, viral_score 추가 ✅
-3. **2025-08-22**: 모든 `as any` 제거 - 11개 타입 캐스팅 완전 제거, 타입 안전성 100% ✅
-4. **2025-08-22**: 미사용 변수 정리 - TS6133/TS6196 플레이스홀더 13개 완전 제거 ✅
-5. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
-6. **2025-08-22**: 타입 시스템 복구 - Phase 3 완전 달성, 224개→0개 (100% 해결) ✅
-7. **2025-02-21**: Pre-commit Hook v3.0 강화 - Any 타입 자동 차단, 5단계 검증 체계 구축 ✅
+1. **2025-08-22**: 🔧 **Vercel 빌드 오류 근본적 해결** - Supabase 클라이언트 패턴 통일 (auth-helpers → ssr) ✅
+2. **2025-08-22**: 🎉 **TypeScript 에러 완전 제거** - 0개 달성! DB 마이그레이션 및 코드 정리 완료 ✅
+3. **2025-08-22**: video_stats 테이블 필드 추가 - views_per_hour, engagement_rate, viral_score 추가 ✅
+4. **2025-08-22**: 모든 `as any` 제거 - 11개 타입 캐스팅 완전 제거, 타입 안전성 100% ✅
+5. **2025-08-22**: 미사용 변수 정리 - TS6133/TS6196 플레이스홀더 13개 완전 제거 ✅
+6. **2025-08-22**: 타입 파일 정리 완료 - 9개→2개로 축소 (database.generated.ts, index.ts만 유지) ✅
+7. **2025-08-22**: 타입 시스템 복구 - Phase 3 완전 달성, 224개→0개 (100% 해결) ✅
 
 ### 🔍 현재 주요 이슈 (반드시 확인)
 
@@ -218,7 +219,7 @@ TOSS_SECRET_KEY=test_sk_...
 
 ✅ **Phase 1-15 완료**: 프로젝트 초기화 ~ 보안 Wave 0-3 (RLS, Rate Limiting, XSS 방지)
 🔄 **Phase 16-17 예정**: 알림 시스템, 실시간 채팅, 이메일 인증
-🆕 **13개 문서 체계**: 3단계 검증 시스템 도입 (Pre-Flight, Implementation, Post-Flight)
+🆕 **14개 문서 체계**: 3단계 검증 시스템 도입 + CONTEXT_BRIDGE 추가 (2025-08-22)
 
 ---
 

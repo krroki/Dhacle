@@ -19,7 +19,7 @@ export function KakaoLoginButton({
 }: KakaoLoginButtonProps) {
   const supabase = createBrowserClient();
 
-  const handleKakaoLogin = async () => {
+  const handle_kakao_login = async () => {
     try {
       // Supabase의 signInWithOAuth 메서드 사용
       const { error } = await supabase.auth.signInWithOAuth({
@@ -39,7 +39,7 @@ export function KakaoLoginButton({
   };
 
   // 카카오 공식 디자인 가이드에 따른 스타일
-  const sizeClasses = {
+  const size_classes = {
     small: 'h-10 px-4 text-sm',
     default: 'h-12 px-6 text-base',
     large: 'h-14 px-8 text-lg',
@@ -47,9 +47,9 @@ export function KakaoLoginButton({
 
   return (
     <Button
-      onClick={handleKakaoLogin}
+      onClick={handle_kakao_login}
       className={`
-        ${sizeClasses[variant]}
+        ${size_classes[variant]}
         bg-[#FEE500] hover:bg-[#FDD835] text-[#000000]/85
         font-medium rounded-md transition-all duration-200
         flex items-center justify-center gap-2

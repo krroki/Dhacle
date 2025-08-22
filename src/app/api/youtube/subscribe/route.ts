@@ -21,10 +21,10 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -50,10 +50,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -67,18 +67,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Generate callback URL
     // In production, use your actual domain
-    const baseUrl =
+    const base_url =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : 'http://localhost:3000';
-    const callbackUrl = `${baseUrl}/api/youtube/webhook`;
+    const callback_url = `${base_url}/api/youtube/webhook`;
 
     // Subscribe to channel
     const result = await pubsubManager.subscribe({
       channel_id,
       channelTitle: channel_title || channel_id,
       user_id: user.id,
-      callbackUrl,
+      callbackUrl: callback_url,
     });
 
     if (result.success) {
@@ -110,16 +110,16 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Get channel ID from query params
-    const searchParams = request.nextUrl.searchParams;
-    const channel_id = searchParams.get('channel_id');
+    const search_params = request.nextUrl.searchParams;
+    const channel_id = search_params.get('channel_id');
 
     if (!channel_id) {
       return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
@@ -156,10 +156,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: authError,
+      error: auth_error,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (auth_error || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -172,30 +172,30 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     }
 
     // Get existing subscription
-    const { data: subscription, error: fetchError } = await supabase
+    const { data: subscription, error: fetch_error } = await supabase
       .from('channelSubscriptions')
       .select('*')
       .eq('channel_id', channel_id)
       .eq('user_id', user.id)
       .single();
 
-    if (fetchError || !subscription) {
+    if (fetch_error || !subscription) {
       return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
     }
 
     // Generate callback URL
-    const baseUrl =
+    const base_url =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : 'http://localhost:3000';
-    const callbackUrl = `${baseUrl}/api/youtube/webhook`;
+    const callback_url = `${base_url}/api/youtube/webhook`;
 
     // Renew subscription
     const result = await pubsubManager.subscribe({
       channel_id,
       channelTitle: subscription.channel_title,
       user_id: user.id,
-      callbackUrl,
+      callbackUrl: callback_url,
     });
 
     if (result.success) {

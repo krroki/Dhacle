@@ -57,7 +57,6 @@ interface VideoNotification {
  * PubSubHubbub Manager Class
  */
 export class PubSubHubbubManager {
-
   /**
    * Generate a secure secret for HMAC verification
    */
@@ -82,8 +81,8 @@ export class PubSubHubbubManager {
       const { channel_id, callbackUrl } = params;
 
       // Generate secret for this subscription
-      const hubSecret = this.generateSecret();
-      const topicUrl = this.getTopicUrl(channel_id);
+      const hub_secret = this.generateSecret();
+      const topic_url = this.getTopicUrl(channel_id);
 
       // TODO: Check if subscription already exists (channelSubscriptions table)
       // const { data: existing, error: checkError } = await this.supabase
@@ -99,11 +98,11 @@ export class PubSubHubbubManager {
       // }
       const existing = null; // Default: no existing subscription
 
-      let subscriptionId: string;
+      let subscription_id: string;
 
       if (existing) {
         // TODO: Update existing subscription (channelSubscriptions table)
-        subscriptionId = (existing as { id: string }).id;
+        subscription_id = (existing as { id: string }).id;
         // await this.supabase
         //   .from('channelSubscriptions')
         //   .update({
@@ -134,21 +133,21 @@ export class PubSubHubbubManager {
         //   throw insertError;
         // }
         // subscriptionId = newSub.id;
-        subscriptionId = crypto.randomUUID(); // Generate temporary ID
+        subscription_id = crypto.randomUUID(); // Generate temporary ID
       }
 
       // Send subscription request to hub
-      const subscribeSuccess = await this.sendHubRequest(
+      const subscribe_success = await this.sendHubRequest(
         SubscriptionMode.SUBSCRIBE,
-        topicUrl,
+        topic_url,
         callbackUrl,
-        hubSecret
+        hub_secret
       );
 
-      if (subscribeSuccess) {
+      if (subscribe_success) {
         // Log the subscription attempt
-        await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.PENDING);
-        return { success: true, subscriptionId };
+        await this.logSubscriptionAction(subscription_id, 'subscribe', SubscriptionStatus.PENDING);
+        return { success: true, subscriptionId: subscription_id };
       }
       // TODO: Update status to failed (channelSubscriptions table)
       // await this.supabase
@@ -156,9 +155,9 @@ export class PubSubHubbubManager {
       //   .update({ status: SubscriptionStatus.FAILED })
       //   .eq('id', subscriptionId);
 
-      await this.logSubscriptionAction(subscriptionId, 'subscribe', SubscriptionStatus.FAILED);
+      await this.logSubscriptionAction(subscription_id, 'subscribe', SubscriptionStatus.FAILED);
       return { success: false, error: 'Failed to subscribe to hub' };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -169,9 +168,7 @@ export class PubSubHubbubManager {
   /**
    * Unsubscribe from a YouTube channel's updates
    */
-  async unsubscribe(
-    channel_id: string
-  ): Promise<{ success: boolean; error?: string }> {
+  async unsubscribe(channel_id: string): Promise<{ success: boolean; error?: string }> {
     try {
       // TODO: Get subscription details (channelSubscriptions table)
       // const { data: subscription, error: fetchError } = await this.supabase
@@ -192,14 +189,14 @@ export class PubSubHubbubManager {
       }; // Default subscription object
 
       // Send unsubscribe request to hub
-      const unsubscribeSuccess = await this.sendHubRequest(
+      const unsubscribe_success = await this.sendHubRequest(
         SubscriptionMode.UNSUBSCRIBE,
         subscription.hubTopic,
         subscription.hubCallbackUrl,
         subscription.hubSecret
       );
 
-      if (unsubscribeSuccess) {
+      if (unsubscribe_success) {
         // TODO: Delete subscription record (channelSubscriptions table)
         // await this.supabase.from('channelSubscriptions').delete().eq('id', subscription.id);
 
@@ -211,7 +208,7 @@ export class PubSubHubbubManager {
         return { success: true };
       }
       return { success: false, error: 'Failed to unsubscribe from hub' };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -248,7 +245,7 @@ export class PubSubHubbubManager {
 
       // Hub returns 202 Accepted for async verification
       return response.status === 202 || response.status === 204;
-    } catch (_error) {
+    } catch (_error: unknown) {
       return false;
     }
   }
@@ -265,8 +262,8 @@ export class PubSubHubbubManager {
       const { mode, topic, challenge, leaseSeconds: _leaseSeconds } = params;
 
       // Extract channel ID from topic URL
-      const channelIdMatch = topic.match(/channel_id=([^&]+)/);
-      if (!channelIdMatch) {
+      const channel_id_match = topic.match(/channel_id=([^&]+)/);
+      if (!channel_id_match) {
         return { success: false, error: 'Invalid topic URL' };
       }
 
@@ -287,7 +284,6 @@ export class PubSubHubbubManager {
 
       // Update subscription status
       if (mode === 'subscribe') {
-
         // TODO: Update subscription status to active (channelSubscriptions table)
         // await this.supabase
         //   .from('channelSubscriptions')
@@ -314,7 +310,7 @@ export class PubSubHubbubManager {
       }
 
       return { success: true, challenge };
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -348,20 +344,20 @@ export class PubSubHubbubManager {
 
       // Verify HMAC signature if provided
       if (signature && subscription.hubSecret) {
-        const expectedSignature = crypto
+        const expected_signature = crypto
           .createHmac('sha1', subscription.hubSecret)
           .update(body)
           .digest('hex');
 
-        if (`sha1=${expectedSignature}` !== signature) {
+        if (`sha1=${expected_signature}` !== signature) {
           return { success: false, error: 'Invalid signature' };
         }
       }
 
       // Parse XML notification (simplified - you may want to use an XML parser)
-      const videoData = this.parseVideoNotification(body);
+      const video_data = this.parseVideoNotification(body);
 
-      if (!videoData) {
+      if (!video_data) {
         return { success: false, error: 'Failed to parse notification' };
       }
 
@@ -387,8 +383,8 @@ export class PubSubHubbubManager {
       //   })
       //   .eq('id', subscription.id);
 
-      return { success: true, video: videoData };
-    } catch (error) {
+      return { success: true, video: video_data };
+    } catch (error: unknown) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -402,13 +398,13 @@ export class PubSubHubbubManager {
   private parseVideoNotification(xml: string): VideoNotification | null {
     try {
       // Extract video ID
-      const videoIdMatch = xml.match(/<yt:video_id>([^<]+)<\/yt:video_id>/);
-      const channelIdMatch = xml.match(/<yt:channel_id>([^<]+)<\/yt:channel_id>/);
-      const titleMatch = xml.match(/<title>([^<]+)<\/title>/);
-      const publishedMatch = xml.match(/<published>([^<]+)<\/published>/);
-      const updatedMatch = xml.match(/<updated>([^<]+)<\/updated>/);
+      const video_id_match = xml.match(/<yt:video_id>([^<]+)<\/yt:video_id>/);
+      const channel_id_match = xml.match(/<yt:channel_id>([^<]+)<\/yt:channel_id>/);
+      const title_match = xml.match(/<title>([^<]+)<\/title>/);
+      const published_match = xml.match(/<published>([^<]+)<\/published>/);
+      const updated_match = xml.match(/<updated>([^<]+)<\/updated>/);
 
-      if (!videoIdMatch || !channelIdMatch) {
+      if (!video_id_match || !channel_id_match) {
         return null;
       }
 
@@ -416,14 +412,14 @@ export class PubSubHubbubManager {
       const is_deleted = xml.includes('<at:deleted-entry>');
 
       return {
-        video_id: videoIdMatch[1] ?? '',
-        channel_id: channelIdMatch[1] ?? '',
-        title: titleMatch?.[1] ?? '',
-        published_at: publishedMatch?.[1] ?? new Date().toISOString(),
-        updated_at: updatedMatch?.[1] ?? undefined,
+        video_id: video_id_match[1] ?? '',
+        channel_id: channel_id_match[1] ?? '',
+        title: title_match?.[1] ?? '',
+        published_at: published_match?.[1] ?? new Date().toISOString(),
+        updated_at: updated_match?.[1] ?? undefined,
         deleted: is_deleted,
       };
-    } catch (_error) {
+    } catch (_error: unknown) {
       return null;
     }
   }
@@ -459,7 +455,7 @@ export class PubSubHubbubManager {
 
         await this.logSubscriptionAction(sub.id, 'renew', SubscriptionStatus.PENDING);
       }
-    } catch (_error) {}
+    } catch (_error: unknown) {}
   }
 
   /**
@@ -469,7 +465,7 @@ export class PubSubHubbubManager {
     try {
       // TODO: Clean up expired subscriptions (cleanupExpiredSubscriptions RPC)
       // await this.supabase.rpc('cleanupExpiredSubscriptions');
-    } catch (_error) {}
+    } catch (_error: unknown) {}
   }
 
   /**
@@ -490,7 +486,7 @@ export class PubSubHubbubManager {
       //   response_data: response_data,
       //   error,
       // });
-    } catch (_error) {}
+    } catch (_error: unknown) {}
   }
 
   /**
@@ -511,7 +507,7 @@ export class PubSubHubbubManager {
       // }
       // return data || [];
       return []; // Default: no active subscriptions
-    } catch (_error) {
+    } catch (_error: unknown) {
       return [];
     }
   }
@@ -541,7 +537,7 @@ export class PubSubHubbubManager {
       // }
       // return data || [];
       return []; // Default: no recent events
-    } catch (_error) {
+    } catch (_error: unknown) {
       return [];
     }
   }

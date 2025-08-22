@@ -17,7 +17,7 @@ interface AnimatedSectionProps {
   delay?: number;
 }
 
-const animationVariants = {
+const animation_variants = {
   fadeInUp,
   fadeInLeft,
   fadeInRight,
@@ -32,7 +32,7 @@ export function AnimatedSection({
 }: AnimatedSectionProps) {
   const { ref, controls } = useScrollAnimation();
 
-  const variants = animationVariants[animation];
+  const variants = animation_variants[animation];
 
   return (
     <motion.div

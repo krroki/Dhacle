@@ -22,19 +22,19 @@ export async function getRevenueProofs(params?: {
     total: number;
   };
 }> {
-  const searchParams = new URLSearchParams();
+  const search_params = new URLSearchParams();
 
   if (params?.platform) {
-    searchParams.append('platform', params.platform);
+    search_params.append('platform', params.platform);
   }
   if (params?.filter) {
-    searchParams.append('filter', params.filter);
+    search_params.append('filter', params.filter);
   }
   if (params?.page) {
-    searchParams.append('page', params.page.toString());
+    search_params.append('page', params.page.toString());
   }
   if (params?.limit) {
-    searchParams.append('limit', params.limit.toString());
+    search_params.append('limit', params.limit.toString());
   }
   return await apiGet<{
     data: RevenueProof[];
@@ -43,7 +43,7 @@ export async function getRevenueProofs(params?: {
       totalPages: number;
       total: number;
     };
-  }>(`${API_BASE}?${searchParams.toString()}`);
+  }>(`${API_BASE}?${search_params.toString()}`);
 }
 
 // 인증 상세 조회
@@ -53,17 +53,17 @@ export async function getRevenueProof(id: string) {
 
 // 인증 생성
 export async function createRevenueProof(data: CreateProofInput) {
-  const formData = new FormData();
+  const form_data = new FormData();
 
-  formData.append('title', data.title);
-  formData.append('amount', data.amount.toString());
-  formData.append('platform', data.platform);
-  formData.append('content', data.content);
-  formData.append('signature', data.signature);
-  formData.append('screenshot', data.screenshot);
+  form_data.append('title', data.title);
+  form_data.append('amount', data.amount.toString());
+  form_data.append('platform', data.platform);
+  form_data.append('content', data.content);
+  form_data.append('signature', data.signature);
+  form_data.append('screenshot', data.screenshot);
 
   try {
-    const result = await apiUpload<RevenueProof>(API_BASE, formData);
+    const result = await apiUpload<RevenueProof>(API_BASE, form_data);
     return { error: null, data: result };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -90,8 +90,8 @@ export async function deleteRevenueProof(id: string) {
 }
 
 // 좋아요 토글
-export async function toggleLike(proofId: string) {
-  return await apiPost(`${API_BASE}/${proofId}/like`);
+export async function toggleLike(proof_id: string) {
+  return await apiPost(`${API_BASE}/${proof_id}/like`);
 }
 
 // 댓글 작성
@@ -174,16 +174,16 @@ export async function uploadImage(
   blurDataUrl: string;
   path: string;
 }> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('bucket', bucket);
+  const form_data = new FormData();
+  form_data.append('file', file);
+  form_data.append('bucket', bucket);
 
   const result = await apiUpload<{
     url: string;
     path: string;
     bucket: string;
-  }>('/api/upload', formData);
-  
+  }>('/api/upload', form_data);
+
   // 필수 필드 추가
   return {
     ...result,

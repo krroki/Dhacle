@@ -20,7 +20,7 @@ interface QuotaStatusProps {
 }
 
 // 색상 계산 함수
-function getQuotaColor(percentage: number): string {
+function get_quota_color(percentage: number): string {
   if (percentage >= 95) {
     return 'text-destructive';
   }
@@ -34,7 +34,7 @@ function getQuotaColor(percentage: number): string {
 }
 
 // 진행바 색상 계산
-function getProgressColor(percentage: number): string {
+function get_progress_color(percentage: number): string {
   if (percentage >= 95) {
     return 'bg-destructive';
   }
@@ -48,13 +48,13 @@ function getProgressColor(percentage: number): string {
 }
 
 // 남은 시간 계산
-function formatTimeRemaining(resetTime?: number): string {
-  if (!resetTime) {
+function format_time_remaining(reset_time?: number): string {
+  if (!reset_time) {
     return '알 수 없음';
   }
 
   const now = Date.now();
-  const diff = resetTime - now;
+  const diff = reset_time - now;
 
   if (diff <= 0) {
     return '곧 초기화';
@@ -76,8 +76,8 @@ export function QuotaStatus({
   compact = false,
   className,
 }: QuotaStatusProps) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [is_refreshing, set_is_refreshing] = useState(false);
+  const [time_remaining, set_time_remaining] = useState<string>('');
 
   // 남은 시간 업데이트
   useEffect(() => {
@@ -85,27 +85,27 @@ export function QuotaStatus({
       return;
     }
 
-    const updateTime = () => {
-      setTimeRemaining(formatTimeRemaining(quotaStatus.resetTime.getTime()));
+    const update_time = () => {
+      set_time_remaining(format_time_remaining(quotaStatus.resetTime.getTime()));
     };
 
-    updateTime();
-    const interval = setInterval(updateTime, 60000); // 1분마다 업데이트
+    update_time();
+    const interval = setInterval(update_time, 60000); // 1분마다 업데이트
 
     return () => clearInterval(interval);
   }, [quotaStatus?.resetTime]);
 
   // 새로고침 핸들러
-  const handleRefresh = async () => {
-    if (!onRefresh || isRefreshing) {
+  const handle_refresh = async () => {
+    if (!onRefresh || is_refreshing) {
       return;
     }
 
-    setIsRefreshing(true);
+    set_is_refreshing(true);
     try {
       await onRefresh();
     } finally {
-      setIsRefreshing(false);
+      set_is_refreshing(false);
     }
   };
 
@@ -134,7 +134,7 @@ export function QuotaStatus({
         <CardContent>
           <p className="text-sm text-muted-foreground">할당량 정보를 불러올 수 없습니다</p>
           {onRefresh && (
-            <Button variant="outline" size="sm" className="mt-2" onClick={handleRefresh}>
+            <Button variant="outline" size="sm" className="mt-2" onClick={handle_refresh}>
               <RefreshCw className="mr-2 h-4 w-4" />
               새로고침
             </Button>
@@ -166,7 +166,7 @@ export function QuotaStatus({
             // Progress 컴포넌트에 색상 적용
             style={
               {
-                '--progress-foreground': getProgressColor(quotaStatus.percentage),
+                '--progress-foreground': get_progress_color(quotaStatus.percentage),
               } as React.CSSProperties
             }
           />
@@ -176,10 +176,10 @@ export function QuotaStatus({
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
+            onClick={handle_refresh}
+            disabled={is_refreshing}
           >
-            <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
+            <RefreshCw className={cn('h-4 w-4', is_refreshing && 'animate-spin')} />
           </Button>
         )}
       </div>
@@ -196,8 +196,8 @@ export function QuotaStatus({
             <CardDescription>YouTube Data API v3 일일 할당량</CardDescription>
           </div>
           {onRefresh && (
-            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-              <RefreshCw className={cn('mr-2 h-4 w-4', isRefreshing && 'animate-spin')} />
+            <Button variant="outline" size="sm" onClick={handle_refresh} disabled={is_refreshing}>
+              <RefreshCw className={cn('mr-2 h-4 w-4', is_refreshing && 'animate-spin')} />
               새로고침
             </Button>
           )}
@@ -208,7 +208,7 @@ export function QuotaStatus({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className={cn('h-4 w-4', getQuotaColor(quotaStatus.percentage))} />
+              <Activity className={cn('h-4 w-4', get_quota_color(quotaStatus.percentage))} />
               <span className="text-sm font-medium">
                 사용량: {quotaStatus.percentage.toFixed(1)}%
               </span>
@@ -239,7 +239,7 @@ export function QuotaStatus({
             className="h-3"
             style={
               {
-                '--progress-foreground': getProgressColor(quotaStatus.percentage),
+                '--progress-foreground': get_progress_color(quotaStatus.percentage),
               } as React.CSSProperties
             }
           />
@@ -266,7 +266,7 @@ export function QuotaStatus({
               <Clock className="h-3 w-3" />
               <span>다음 초기화</span>
             </div>
-            <p className="text-sm font-medium">{timeRemaining}</p>
+            <p className="text-sm font-medium">{time_remaining}</p>
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -12,34 +12,34 @@ interface ProvidersProps {
 
 function DynamicPaddingProvider({ children }: { children: ReactNode }) {
   const { isBannerClosed } = useLayoutStore();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [is_scrolled, set_is_scrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+    const handle_scroll = () => {
+      set_is_scrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // 초기값 설정
+    window.addEventListener('scroll', handle_scroll);
+    handle_scroll(); // 초기값 설정
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handle_scroll);
   }, []);
 
   useEffect(() => {
-    const updatePadding = () => {
-      const bannerHeight = isBannerClosed ? 0 : 48;
-      const headerHeight = isScrolled ? 40 : 80;
-      const totalHeight = bannerHeight + headerHeight;
+    const update_padding = () => {
+      const banner_height = isBannerClosed ? 0 : 48;
+      const header_height = is_scrolled ? 40 : 80;
+      const total_height = banner_height + header_height;
 
       // Main content padding 동적 조정
-      const mainContent = document.querySelector('.flex.min-h-screen');
-      if (mainContent) {
-        (mainContent as HTMLElement).style.paddingTop = `${totalHeight}px`;
+      const main_content = document.querySelector('.flex.min-h-screen');
+      if (main_content) {
+        (main_content as HTMLElement).style.paddingTop = `${total_height}px`;
       }
     };
 
-    updatePadding();
-  }, [isBannerClosed, isScrolled]);
+    update_padding();
+  }, [isBannerClosed, is_scrolled]);
 
   return <>{children}</>;
 }

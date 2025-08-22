@@ -38,7 +38,7 @@ export async function POST_CreatePost(request: NextRequest) {
   }
 
   // 3. XSS 방지 - HTML 정화 (Wave 3)
-  const sanitizedData = {
+  const sanitized_data = {
     ...validation.data,
     title: sanitizeBasicHTML(validation.data.title),
     content: sanitizeRichHTML(validation.data.content),
@@ -49,7 +49,7 @@ export async function POST_CreatePost(request: NextRequest) {
   const { data, error } = await supabase
     .from('community_posts')
     .insert({
-      ...sanitizedData,
+      ...sanitized_data,
       user_id: user.id,
       created_at: new Date().toISOString(),
     })
@@ -87,12 +87,12 @@ export async function PUT_UpdateProfile(request: NextRequest) {
   }
 
   // 3. 전체 객체 sanitization
-  const sanitizedData = sanitizeObject(validation.data, sanitizeBasicHTML);
+  const sanitized_data = sanitizeObject(validation.data, sanitizeBasicHTML);
 
   // 4. 업데이트
   const { data, error } = await supabase
     .from('profiles')
-    .update(sanitizedData)
+    .update(sanitized_data)
     .eq('id', user.id)
     .select()
     .single();
@@ -121,11 +121,11 @@ export async function GET_Search(request: NextRequest) {
 
   // 검색어 sanitization
   const query = searchParams.get('q');
-  const sanitizedQuery = query ? sanitizeBasicHTML(query) : '';
+  const sanitized_query = query ? sanitizeBasicHTML(query) : '';
 
   // 검색 실행...
   return NextResponse.json({
-    query: sanitizedQuery,
+    query: sanitized_query,
     ...validation.data,
   });
 }

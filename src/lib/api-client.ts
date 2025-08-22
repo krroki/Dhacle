@@ -4,7 +4,7 @@
  * snake_case (API) ↔ camelCase (Frontend) 자동 변환
  */
 
-import { snakeToCamelCase, camelToSnakeCase } from '@/lib/utils/case-converter';
+import { camelToSnakeCase, snakeToCamelCase } from '@/lib/utils/case-converter';
 
 export interface ApiOptions extends RequestInit {
   skipAuth?: boolean;
@@ -78,8 +78,8 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
     }
 
     // API 응답을 camelCase로 변환 (skipCaseConversion이 false인 경우)
-    return skipCaseConversion ? (data as T) : snakeToCamelCase(data) as T;
-  } catch (error) {
+    return skipCaseConversion ? (data as T) : (snakeToCamelCase(data) as T);
+  } catch (error: unknown) {
     // fetch 자체 실패 (네트워크 에러 등)
     if (error instanceof ApiError) {
       throw error;
@@ -108,12 +108,12 @@ export async function apiPost<T = unknown>(
   options?: Omit<ApiOptions, 'method' | 'body'>
 ): Promise<T> {
   // 요청 데이터를 snake_case로 변환 (skipCaseConversion이 false인 경우)
-  const convertedBody = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
-  
+  const converted_body = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
+
   return api<T>(path, {
     ...options,
     method: 'POST',
-    body: convertedBody ? JSON.stringify(convertedBody) : undefined,
+    body: converted_body ? JSON.stringify(converted_body) : undefined,
   });
 }
 
@@ -126,12 +126,12 @@ export async function apiPut<T = unknown>(
   options?: Omit<ApiOptions, 'method' | 'body'>
 ): Promise<T> {
   // 요청 데이터를 snake_case로 변환 (skipCaseConversion이 false인 경우)
-  const convertedBody = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
-  
+  const converted_body = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
+
   return api<T>(path, {
     ...options,
     method: 'PUT',
-    body: convertedBody ? JSON.stringify(convertedBody) : undefined,
+    body: converted_body ? JSON.stringify(converted_body) : undefined,
   });
 }
 
@@ -154,12 +154,12 @@ export async function apiPatch<T = unknown>(
   options?: Omit<ApiOptions, 'method' | 'body'>
 ): Promise<T> {
   // 요청 데이터를 snake_case로 변환 (skipCaseConversion이 false인 경우)
-  const convertedBody = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
-  
+  const converted_body = body && !options?.skipCaseConversion ? camelToSnakeCase(body) : body;
+
   return api<T>(path, {
     ...options,
     method: 'PATCH',
-    body: convertedBody ? JSON.stringify(convertedBody) : undefined,
+    body: converted_body ? JSON.stringify(converted_body) : undefined,
   });
 }
 
@@ -170,7 +170,7 @@ export async function apiPatch<T = unknown>(
  */
 export async function apiUpload<T = unknown>(
   path: string,
-  formData: FormData,
+  form_data: FormData,
   options?: Omit<ApiOptions, 'method' | 'body'>
 ): Promise<T> {
   const { skipAuth = false, ...init } = options || {};
@@ -179,7 +179,7 @@ export async function apiUpload<T = unknown>(
     const response = await fetch(path, {
       method: 'POST',
       credentials: skipAuth ? 'omit' : 'same-origin',
-      body: formData,
+      body: form_data,
       ...init,
       headers: {
         ...init.headers,
@@ -221,7 +221,7 @@ export async function apiUpload<T = unknown>(
 
     // API 응답을 camelCase로 변환
     return snakeToCamelCase(data) as T;
-  } catch (error) {
+  } catch (error: unknown) {
     // fetch 자체 실패 (네트워크 에러 등)
     if (error instanceof ApiError) {
       throw error;

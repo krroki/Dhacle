@@ -32,7 +32,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const { date, limit = 10 } = validation.data;
   const today = date || new Date().toISOString().split('T')[0];
-  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const seven_days_ago = new Date(Date.now() - 7 * 86400000).toISOString();
 
   try {
     // 1. 카테고리별 통계
@@ -41,7 +41,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       .select('category, subcategory')
       .eq('approval_status', 'approved');
 
-    const categoryStats =
+    const category_stats =
       channels?.reduce(
         (
           acc: Array<{ category: string; channelCount: number; totalDelta: number; share: number }>,
@@ -60,13 +60,13 @@ export async function GET(request: Request): Promise<NextResponse> {
       ) || [];
 
     // 점유율 계산
-    const totalChannels = categoryStats.reduce((sum, s) => sum + s.channelCount, 0);
-    categoryStats.forEach((stat) => {
-      stat.share = totalChannels > 0 ? (stat.channelCount / totalChannels) * 100 : 0;
+    const total_channels = category_stats.reduce((sum, s) => sum + s.channelCount, 0);
+    category_stats.forEach((stat) => {
+      stat.share = total_channels > 0 ? (stat.channelCount / total_channels) * 100 : 0;
     });
 
     // 2. Top 델타 채널 (7필드 포함)
-    const { data: topDeltas } = await supabase
+    const { data: top_deltas } = await supabase
       .from('yl_channel_daily_delta')
       .select(`
         channel_id,
@@ -95,28 +95,28 @@ export async function GET(request: Request): Promise<NextResponse> {
         'channel_id, title, subscriber_count, view_count_total, category, subcategory, dominant_format'
       )
       .eq('approval_status', 'approved')
-      .gte('created_at', sevenDaysAgo)
+      .gte('created_at', seven_days_ago)
       .order('created_at', { ascending: false })
       .limit(5);
 
     // 4. 트렌딩 키워드 (Phase 2 예정)
-    const trendingKeywords: Array<{ keyword: string; count: number }> = [];
+    const trending_keywords: Array<{ keyword: string; count: number }> = [];
 
     // 5. Top 쇼츠 (Phase 2 예정)
-    const topShorts: Array<{ video_id: string; title: string; views: number }> = [];
+    const top_shorts: Array<{ video_id: string; title: string; views: number }> = [];
 
     // 6. 팔로우 채널 (Phase 2 예정)
-    const followedChannels: Array<{ channel_id: string; title: string }> = [];
+    const followed_channels: Array<{ channel_id: string; title: string }> = [];
 
     return NextResponse.json({
       success: true,
       data: {
-        categoryStats: categoryStats.sort((a, b) => b.channelCount - a.channelCount),
-        topDeltas: topDeltas || [],
+        categoryStats: category_stats.sort((a, b) => b.channelCount - a.channelCount),
+        topDeltas: top_deltas || [],
         newcomers: newcomers || [],
-        trendingKeywords,
-        topShorts,
-        followedChannels,
+        trendingKeywords: trending_keywords,
+        topShorts: top_shorts,
+        followedChannels: followed_channels,
       },
     });
   } catch (error) {

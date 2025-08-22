@@ -117,9 +117,9 @@ const animals = [
  * @returns 생성된 닉네임
  */
 export function generateRandomNickname(): string {
-  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
-  return `${randomAdjective}${randomAnimal}`;
+  const random_adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const random_animal = animals[Math.floor(Math.random() * animals.length)];
+  return `${random_adjective}${random_animal}`;
 }
 
 /**
@@ -149,8 +149,8 @@ export function isValidNickname(nickname: string): boolean {
   }
 
   // 특수문자 제외 (한글, 영문, 숫자만 허용)
-  const validPattern = /^[가-힣a-zA-Z0-9]+$/;
-  return validPattern.test(nickname);
+  const valid_pattern = /^[가-힣a-zA-Z0-9]+$/;
+  return valid_pattern.test(nickname);
 }
 
 /**
@@ -170,10 +170,10 @@ export const DINOHIGHCLASS_CAFE = {
 export function isValidNaverCafeUrl(url: string): boolean {
   // 디지털 노마드 하이클래스 카페 URL만 허용
   // https://cafe.naver.com/dinohighclass 또는 https://cafe.naver.com/dinohighclass/member/[멤버ID]
-  const cafeUrlPattern = new RegExp(
+  const cafe_url_pattern = new RegExp(
     `^https?:\\/\\/cafe\\.naver\\.com\\/${DINOHIGHCLASS_CAFE.id}(\\/member\\/[\\w-]+)?$`
   );
-  return cafeUrlPattern.test(url);
+  return cafe_url_pattern.test(url);
 }
 
 /**
@@ -191,16 +191,16 @@ export function isDinoHighClassCafeUrl(url: string): boolean {
  * @param maxLength 최대 길이
  * @returns 포맷된 닉네임
  */
-export function formatNickname(nickname: string, maxLength = 10): string {
+export function formatNickname(nickname: string, max_length = 10): string {
   if (!nickname) {
     return '익명';
   }
 
-  if (nickname.length <= maxLength) {
+  if (nickname.length <= max_length) {
     return nickname;
   }
 
-  return `${nickname.substring(0, maxLength - 2)}...`;
+  return `${nickname.substring(0, max_length - 2)}...`;
 }
 
 /**

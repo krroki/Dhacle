@@ -4,11 +4,11 @@ import type { Database } from '@/types';
 // Create a Supabase client for browser/client-side usage
 export function createBrowserClient() {
   // Get environment variables - Next.js will inline these at build time
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
   // Check if we're on production and environment variables are missing
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabase_url || !supabase_anon_key) {
     // Check if we're in a browser environment
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
@@ -43,7 +43,7 @@ export function createBrowserClient() {
   // Skip validation for now - Vercel build issue
   // TODO: Re-enable after Vercel environment variables are properly configured
 
-  return createSupabaseBrowserClientSSR<Database>(supabaseUrl, supabaseAnonKey);
+  return createSupabaseBrowserClientSSR<Database>(supabase_url, supabase_anon_key);
 }
 
 // Alias for backward compatibility

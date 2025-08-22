@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 
 // 암호화 키 검증 및 가져오기
-function getEncryptionKey(): Buffer {
+function get_encryption_key(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
 
   // 최소한의 디버깅 정보만 남김
@@ -37,7 +37,7 @@ function getEncryptionKey(): Buffer {
  */
 export function encryptApiKey(api_key: string): string {
   try {
-    const key = getEncryptionKey();
+    const key = get_encryption_key();
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
 
@@ -60,10 +60,10 @@ export function encryptApiKey(api_key: string): string {
  * @param encryptedKey - 암호화된 문자열 (iv:encrypted 형식)
  * @returns 복호화된 API Key
  */
-export function decryptApiKey(encryptedKey: string): string {
+export function decryptApiKey(encrypted_key: string): string {
   try {
-    const key = getEncryptionKey();
-    const parts = encryptedKey.split(':');
+    const key = get_encryption_key();
+    const parts = encrypted_key.split(':');
 
     if (parts.length !== 2) {
       throw new Error('Invalid encrypted key format');
@@ -93,14 +93,14 @@ export function maskApiKey(api_key: string): string {
     return '***';
   }
 
-  const visibleStart = 4;
-  const visibleEnd = 3;
+  const visible_start = 4;
+  const visible_end = 3;
 
-  if (api_key.length <= visibleStart + visibleEnd) {
-    return `${api_key.substring(0, visibleStart)}...`;
+  if (api_key.length <= visible_start + visible_end) {
+    return `${api_key.substring(0, visible_start)}...`;
   }
 
-  return `${api_key.substring(0, visibleStart)}...${api_key.substring(api_key.length - visibleEnd)}`;
+  return `${api_key.substring(0, visible_start)}...${api_key.substring(api_key.length - visible_end)}`;
 }
 
 /**

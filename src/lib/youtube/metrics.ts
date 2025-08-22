@@ -20,16 +20,16 @@ import type {
 export function calculateVPH(
   view_count: number,
   published_at: Date | string,
-  currentTime: Date = new Date()
+  current_time: Date = new Date()
 ): number {
   const published = typeof published_at === 'string' ? new Date(published_at) : published_at;
-  const hoursElapsed = (currentTime.getTime() - published.getTime()) / (1000 * 60 * 60);
+  const hours_elapsed = (current_time.getTime() - published.getTime()) / (1000 * 60 * 60);
 
-  if (hoursElapsed <= 0) {
+  if (hours_elapsed <= 0) {
     return 0;
   }
 
-  return view_count / hoursElapsed;
+  return view_count / hours_elapsed;
 }
 
 /**
@@ -69,39 +69,39 @@ export function calculateViralScore(params: {
 
   const now = new Date();
   const vph = calculateVPH(view_count, published_at, now);
-  const engagementRate = calculateEngagementRate(view_count, like_count, comment_count);
+  const engagement_rate = calculateEngagementRate(view_count, like_count, comment_count);
 
   // Calculate hours elapsed
   const published = typeof published_at === 'string' ? new Date(published_at) : published_at;
-  const hoursElapsed = (now.getTime() - published.getTime()) / (1000 * 60 * 60);
+  const hours_elapsed = (now.getTime() - published.getTime()) / (1000 * 60 * 60);
 
   // Scoring components
   let score = 0;
 
   // 1. Velocity Score (40% weight) - How fast it's growing
-  const velocityScore = calculateVelocityScore(vph, hoursElapsed);
-  score += velocityScore * 0.4;
+  const velocity_score = calculate_velocity_score(vph, hours_elapsed);
+  score += velocity_score * 0.4;
 
   // 2. Engagement Score (30% weight) - How engaged viewers are
-  const engagementScore = calculateEngagementScore(engagementRate);
-  score += engagementScore * 0.3;
+  const engagement_score = calculate_engagement_score(engagement_rate);
+  score += engagement_score * 0.3;
 
   // 3. Reach Score (20% weight) - Views relative to channel size
-  const reachScore = calculateReachScore(view_count, channelSubscriberCount);
-  score += reachScore * 0.2;
+  const reach_score = calculate_reach_score(view_count, channelSubscriberCount);
+  score += reach_score * 0.2;
 
   // 4. Momentum Score (10% weight) - Recent performance
-  const momentumScore = calculateMomentumScore(view_count, hoursElapsed);
-  score += momentumScore * 0.1;
+  const momentum_score = calculate_momentum_score(view_count, hours_elapsed);
+  score += momentum_score * 0.1;
 
   // Apply multipliers for exceptional performance
   if (vph > 100000) {
     score *= 1.5; // Extremely viral
   }
-  if (engagementRate > 15) {
+  if (engagement_rate > 15) {
     score *= 1.3; // Exceptional engagement
   }
-  if (hoursElapsed < 6 && view_count > 100000) {
+  if (hours_elapsed < 6 && view_count > 100000) {
     score *= 1.4; // Instant viral
   }
 
@@ -111,14 +111,14 @@ export function calculateViralScore(params: {
 /**
  * Calculate velocity score based on VPH and time
  */
-function calculateVelocityScore(vph: number, hoursElapsed: number): number {
+function calculate_velocity_score(vph: number, hours_elapsed: number): number {
   // Normalize VPH (assume 10K VPH is excellent)
   let score = Math.min(vph / 10000, 1) * 100;
 
   // Boost for early velocity
-  if (hoursElapsed < 24) {
+  if (hours_elapsed < 24) {
     score *= 1.2;
-  } else if (hoursElapsed < 72) {
+  } else if (hours_elapsed < 72) {
     score *= 1.1;
   }
 
@@ -128,15 +128,15 @@ function calculateVelocityScore(vph: number, hoursElapsed: number): number {
 /**
  * Calculate engagement score
  */
-function calculateEngagementScore(engagementRate: number): number {
+function calculate_engagement_score(engagement_rate: number): number {
   // Assume 10% engagement is excellent
-  return Math.min((engagementRate / 10) * 100, 100);
+  return Math.min((engagement_rate / 10) * 100, 100);
 }
 
 /**
  * Calculate reach score (views relative to channel size)
  */
-function calculateReachScore(view_count: number, subscriber_count: number): number {
+function calculate_reach_score(view_count: number, subscriber_count: number): number {
   if (subscriber_count === 0) {
     return 50; // Default for unknown
   }
@@ -154,34 +154,34 @@ function calculateReachScore(view_count: number, subscriber_count: number): numb
 /**
  * Calculate momentum score (recent performance)
  */
-function calculateMomentumScore(view_count: number, hoursElapsed: number): number {
-  if (hoursElapsed > 168) {
+function calculate_momentum_score(view_count: number, hours_elapsed: number): number {
+  if (hours_elapsed > 168) {
     return 0; // Older than a week
   }
 
   // Score based on recency and view count
-  const recencyFactor = (168 - hoursElapsed) / 168;
-  const viewFactor = Math.min(view_count / 100000, 1);
+  const recency_factor = (168 - hours_elapsed) / 168;
+  const view_factor = Math.min(view_count / 100000, 1);
 
-  return recencyFactor * viewFactor * 100;
+  return recency_factor * view_factor * 100;
 }
 
 /**
  * Calculate growth rate between two snapshots
  */
 export function calculateGrowthRate(
-  currentValue: number,
-  previousValue: number,
-  hoursElapsed: number
+  current_value: number,
+  previous_value: number,
+  hours_elapsed: number
 ): number {
-  if (previousValue === 0 || hoursElapsed === 0) {
+  if (previous_value === 0 || hours_elapsed === 0) {
     return 0;
   }
 
-  const growth = ((currentValue - previousValue) / previousValue) * 100;
-  const hourlyGrowth = growth / hoursElapsed;
+  const growth = ((current_value - previous_value) / previous_value) * 100;
+  const hourly_growth = growth / hours_elapsed;
 
-  return hourlyGrowth;
+  return hourly_growth;
 }
 
 /**
@@ -189,67 +189,67 @@ export function calculateGrowthRate(
  */
 export function calculateChannelMetrics(
   channel: Channel,
-  recentVideos: Video[] = []
+  recent_videos: Video[] = []
 ): ChannelMetrics {
   // Calculate average views from recent videos
-  const avgViews =
-    recentVideos.length > 0
-      ? recentVideos.reduce((sum, _v) => {
+  const avg_views =
+    recent_videos.length > 0
+      ? recent_videos.reduce((sum, _v) => {
           // This would need actual view data
           return sum;
-        }, 0) / recentVideos.length
+        }, 0) / recent_videos.length
       : 0;
 
   // Calculate upload frequency (videos per day)
-  let uploadFrequency = 0;
-  if (recentVideos.length > 1) {
-    const sortedVideos = [...recentVideos].sort(
+  let upload_frequency = 0;
+  if (recent_videos.length > 1) {
+    const sorted_videos = [...recent_videos].sort(
       (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
     );
 
-    const firstVideo = sortedVideos[sortedVideos.length - 1];
-    const lastVideo = sortedVideos[0];
-    
-    if (!firstVideo || !lastVideo) {
+    const first_video = sorted_videos[sorted_videos.length - 1];
+    const last_video = sorted_videos[0];
+
+    if (!first_video || !last_video) {
       return {
-        avgViews: avgViews,
+        avgViews: avg_views,
         avgEngagement: 0,
         uploadFrequency: 0,
         subscriberGrowth: 0,
         performanceScore: 0,
       };
     }
-    
-    const firstDate = new Date(firstVideo.published_at);
-    const lastDate = new Date(lastVideo.published_at);
-    const daysDiff = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
 
-    uploadFrequency = daysDiff > 0 ? recentVideos.length / daysDiff : 0;
+    const first_date = new Date(first_video.published_at);
+    const last_date = new Date(last_video.published_at);
+    const days_diff = (last_date.getTime() - first_date.getTime()) / (1000 * 60 * 60 * 24);
+
+    upload_frequency = days_diff > 0 ? recent_videos.length / days_diff : 0;
   }
 
   // Calculate performance score (0-100)
-  let performanceScore = 0;
+  let performance_score = 0;
 
   // Factor 1: Subscriber count (30%)
-  const subScore = Math.min(channel.subscriber_count / 1000000, 1) * 30;
+  const sub_score = Math.min(channel.subscriber_count / 1000000, 1) * 30;
 
   // Factor 2: View count (30%)
-  const viewScore = Math.min(channel.view_count / 100000000, 1) * 30;
+  const view_score = Math.min(channel.view_count / 100000000, 1) * 30;
 
   // Factor 3: Upload consistency (20%)
-  const consistencyScore = Math.min(uploadFrequency * 10, 1) * 20;
+  const consistency_score = Math.min(upload_frequency * 10, 1) * 20;
 
   // Factor 4: Video count (20%)
-  const videoScore = Math.min(channel.video_count / 1000, 1) * 20;
+  const video_score = Math.min(channel.video_count / 1000, 1) * 20;
 
-  performanceScore = subScore + viewScore + consistencyScore + videoScore;
+  performance_score = sub_score + view_score + consistency_score + video_score;
 
   return {
-    avgViews: avgViews,
+    avgViews: avg_views,
     avgEngagement: 0, // Would need video stats to calculate
-    uploadFrequency: uploadFrequency,
+    uploadFrequency: upload_frequency,
     subscriberGrowth: 0, // Would need historical data
-    performanceScore: Math.round(performanceScore),
+    performanceScore: Math.round(performance_score),
   };
 }
 
@@ -293,12 +293,12 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
   }
 
   const vph = calculateVPH(stats.view_count, video.published_at);
-  const engagementRate = calculateEngagementRate(
+  const engagement_rate = calculateEngagementRate(
     stats.view_count,
     stats.like_count,
     stats.comment_count
   );
-  const viralScore = calculateViralScore({
+  const viral_score = calculateViralScore({
     view_count: stats.view_count,
     like_count: stats.like_count,
     comment_count: stats.comment_count,
@@ -313,8 +313,8 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
 
   return {
     vph,
-    engagementRate: engagementRate,
-    viralScore: viralScore,
+    engagementRate: engagement_rate,
+    viralScore: viral_score,
     growthRate: velocity,
     velocity,
   };
@@ -324,12 +324,12 @@ export async function calculateVideoMetrics(video: Video | VideoWithStats): Prom
  * Batch calculate metrics for multiple videos
  */
 export async function batchCalculateMetrics(videos: Video[]): Promise<Map<string, VideoMetrics>> {
-  const metricsMap = new Map<string, VideoMetrics>();
+  const metrics_map = new Map<string, VideoMetrics>();
 
   // Process in batches to avoid overwhelming the database
-  const batchSize = 50;
-  for (let i = 0; i < videos.length; i += batchSize) {
-    const batch = videos.slice(i, i + batchSize);
+  const batch_size = 50;
+  for (let i = 0; i < videos.length; i += batch_size) {
+    const batch = videos.slice(i, i + batch_size);
     const promises = batch.map((video) =>
       calculateVideoMetrics(video).then((metrics) => ({
         video_id: video.video_id,
@@ -341,12 +341,12 @@ export async function batchCalculateMetrics(videos: Video[]): Promise<Map<string
 
     for (const result of results) {
       if (result.status === 'fulfilled') {
-        metricsMap.set(result.value.video_id, result.value.metrics);
+        metrics_map.set(result.value.video_id, result.value.metrics);
       }
     }
   }
 
-  return metricsMap;
+  return metrics_map;
 }
 
 /**
@@ -370,15 +370,15 @@ export function calculateStatsDelta(
     };
   }
 
-  const timeDelta =
+  const time_delta =
     new Date(current.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
-  const timeDeltaHours = timeDelta / (1000 * 60 * 60);
+  const time_delta_hours = time_delta / (1000 * 60 * 60);
 
   return {
     viewDelta: current.view_count - previous.view_count,
     likeDelta: current.like_count - previous.like_count,
     commentDelta: current.comment_count - previous.comment_count,
-    timeDeltaHours: timeDeltaHours,
+    timeDeltaHours: time_delta_hours,
   };
 }
 
@@ -391,14 +391,14 @@ export function normalizeMetrics(metrics: VideoMetrics): {
   normalizedViral: number;
 } {
   // Normalize to 0-1 scale
-  const normalizedVph = Math.min(metrics.vph / 100000, 1); // 100K VPH = max
-  const normalizedEngagement = Math.min(metrics.engagementRate / 20, 1); // 20% = max
-  const normalizedViral = metrics.viralScore / 100; // Already 0-100
+  const normalized_vph = Math.min(metrics.vph / 100000, 1); // 100K VPH = max
+  const normalized_engagement = Math.min(metrics.engagementRate / 20, 1); // 20% = max
+  const normalized_viral = metrics.viralScore / 100; // Already 0-100
 
   return {
-    normalizedVph: normalizedVph,
-    normalizedEngagement: normalizedEngagement,
-    normalizedViral: normalizedViral,
+    normalizedVph: normalized_vph,
+    normalizedEngagement: normalized_engagement,
+    normalizedViral: normalized_viral,
   };
 }
 
@@ -437,21 +437,21 @@ export function identifyOutliers(
       : (sorted[Math.floor(sorted.length / 2)] ?? 0);
 
   // Calculate standard deviation
-  const squaredDiffs = scores.map((score) => (score - mean) ** 2);
-  const variance = squaredDiffs.reduce((sum, diff) => sum + diff, 0) / scores.length;
-  const stdDev = Math.sqrt(variance);
+  const squared_diffs = scores.map((score) => (score - mean) ** 2);
+  const variance = squared_diffs.reduce((sum, diff) => sum + diff, 0) / scores.length;
+  const std_dev = Math.sqrt(variance);
 
   // Identify outliers (scores more than threshold std devs from mean)
   const outliers: number[] = [];
   scores.forEach((score, index) => {
-    if (Math.abs(score - mean) > threshold * stdDev) {
+    if (Math.abs(score - mean) > threshold * std_dev) {
       outliers.push(index);
     }
   });
 
   return {
     outliers,
-    stats: { mean, median, stdDev },
+    stats: { mean, median, stdDev: std_dev },
   };
 }
 
@@ -477,20 +477,20 @@ export function calculateMetrics(
     }
 
     const vph = calculateVPH(
-      parseInt(String(video.statistics.view_count || 0)), 
+      Number.parseInt(String(video.statistics.view_count || 0)),
       video.snippet.published_at || ''
     );
 
-    const engagementRate = calculateEngagementRate(
-      parseInt(String(video.statistics.view_count || 0)),
-      parseInt(String(video.statistics.like_count || 0)),
-      parseInt(String(video.statistics.comment_count || 0))
+    const engagement_rate = calculateEngagementRate(
+      Number.parseInt(String(video.statistics.view_count || 0)),
+      Number.parseInt(String(video.statistics.like_count || 0)),
+      Number.parseInt(String(video.statistics.comment_count || 0))
     );
 
-    const viralScore = calculateViralScore({
-      view_count: parseInt(String(video.statistics.view_count || 0)),
-      like_count: parseInt(String(video.statistics.like_count || 0)),
-      comment_count: parseInt(String(video.statistics.comment_count || 0)),
+    const viral_score = calculateViralScore({
+      view_count: Number.parseInt(String(video.statistics.view_count || 0)),
+      like_count: Number.parseInt(String(video.statistics.like_count || 0)),
+      comment_count: Number.parseInt(String(video.statistics.comment_count || 0)),
       published_at: video.snippet.published_at ?? '',
       channelSubscriberCount: options.subscriber_count ?? 0,
     });
@@ -499,8 +499,8 @@ export function calculateMetrics(
       ...video,
       metrics: {
         vph,
-        engagementRate: engagementRate,
-        viralScore: viralScore,
+        engagementRate: engagement_rate,
+        viralScore: viral_score,
         growthRate: 0, // Would need historical data
         velocity: 0, // Would need historical data
       },
@@ -511,54 +511,54 @@ export function calculateMetrics(
 /**
  * Calculate trend direction and strength
  */
-export function calculateTrend(dataPoints: { value: number; timestamp: Date }[]): {
+export function calculateTrend(data_points: { value: number; timestamp: Date }[]): {
   direction: 'up' | 'down' | 'stable';
   strength: number; // 0-100
   slope: number;
 } {
-  if (dataPoints.length < 2) {
+  if (data_points.length < 2) {
     return { direction: 'stable', strength: 0, slope: 0 };
   }
 
   // Sort by timestamp
-  const sorted = [...dataPoints].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  const sorted = [...data_points].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
   // Calculate linear regression
   const n = sorted.length;
-  let sumX = 0;
-  let sumY = 0;
-  let sumXY = 0;
-  let sumX2 = 0;
+  let sum_x = 0;
+  let sum_y = 0;
+  let sum_xy = 0;
+  let sum_x2 = 0;
 
   sorted.forEach((point, index) => {
     const x = index; // Use index as X for simplicity
     const y = point.value;
 
-    sumX += x;
-    sumY += y;
-    sumXY += x * y;
-    sumX2 += x * x;
+    sum_x += x;
+    sum_y += y;
+    sum_xy += x * y;
+    sum_x2 += x * x;
   });
 
   // Calculate slope
-  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x);
 
   // Determine direction
   const direction = slope > 0.01 ? 'up' : slope < -0.01 ? 'down' : 'stable';
 
   // Calculate R-squared for strength
-  const meanY = sumY / n;
-  let ssTotal = 0;
-  let ssResidual = 0;
+  const mean_y = sum_y / n;
+  let ss_total = 0;
+  let ss_residual = 0;
 
   sorted.forEach((point, index) => {
-    const predicted = slope * index + (meanY - slope * (sumX / n));
-    ssTotal += (point.value - meanY) ** 2;
-    ssResidual += (point.value - predicted) ** 2;
+    const predicted = slope * index + (mean_y - slope * (sum_x / n));
+    ss_total += (point.value - mean_y) ** 2;
+    ss_residual += (point.value - predicted) ** 2;
   });
 
-  const rSquared = 1 - ssResidual / ssTotal;
-  const strength = Math.max(0, Math.min(100, Math.abs(rSquared) * 100));
+  const r_squared = 1 - ss_residual / ss_total;
+  const strength = Math.max(0, Math.min(100, Math.abs(r_squared) * 100));
 
   return { direction, strength, slope };
 }

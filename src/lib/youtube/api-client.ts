@@ -1,9 +1,5 @@
 // OAuth removed - using API Key system
-import type {
-  FlattenedYouTubeVideo,
-  YouTubeChannel,
-  YouTubeSearchFilters,
-} from '@/types';
+import type { FlattenedYouTubeVideo, YouTubeChannel, YouTubeSearchFilters } from '@/types';
 import { CacheManager, cacheManager } from './cache';
 import { JobPriority, JobType, queueManager } from './queue-manager';
 
@@ -51,14 +47,14 @@ export class YouTubeAPIClient {
   private async makeRequest<T>(
     endpoint: string,
     params: Record<string, unknown>,
-    quotaCost: number
+    quota_cost: number
   ): Promise<T> {
     // 캐시 키 생성
-    const cacheKey = cacheManager.generateKey(endpoint, params);
+    const cache_key = cacheManager.generateKey(endpoint, params);
 
     // 캐시 확인 (캐싱 활성화된 경우)
     if (this.useCache) {
-      const cached = await cacheManager.get<T>(cacheKey);
+      const cached = await cacheManager.get<T>(cache_key);
       if (cached) {
         console.log(`Cache hit for ${endpoint}`);
         return cached;
@@ -68,29 +64,29 @@ export class YouTubeAPIClient {
     // 배치 큐 사용 (활성화된 경우)
     if (this.useBatchQueue) {
       // 작업 유형 매핑
-      const jobType = this.mapEndpointToJobType(endpoint);
+      const job_type = this.mapEndpointToJobType(endpoint);
 
-      if (jobType) {
+      if (job_type) {
         const job = await queueManager.addJob({
-          type: jobType,
+          type: job_type,
           params,
           user_id: this.userId,
           priority: JobPriority.HIGH,
         });
 
         // 작업 완료 대기
-        const result = await this.waitForJobCompletion<T>(job.id!, jobType);
+        const result = await this.waitForJobCompletion<T>(job.id!, job_type);
         return result;
       }
     }
 
     // 직접 API 호출
-    const result = await this.directAPICall<T>(endpoint, params, quotaCost);
+    const result = await this.directAPICall<T>(endpoint, params, quota_cost);
 
     // 결과 캐싱 (캐싱 활성화된 경우)
     if (this.useCache && CacheManager.isCacheable(result)) {
       const ttl = CacheManager.getTTL(endpoint);
-      await cacheManager.set(cacheKey, result, ttl);
+      await cacheManager.set(cache_key, result, ttl);
     }
 
     return result;
@@ -102,7 +98,7 @@ export class YouTubeAPIClient {
   private async directAPICall<T>(
     endpoint: string,
     params: Record<string, unknown>,
-    quotaCost: number
+    quota_cost: number
   ): Promise<T> {
     // OAuth 시스템이 제거되었습니다 - API Key만 사용
 
@@ -135,7 +131,7 @@ export class YouTubeAPIClient {
 
       // 할당량 업데이트
       if (this.onQuotaUpdate) {
-        await this.onQuotaUpdate(quotaCost);
+        await this.onQuotaUpdate(quota_cost);
       }
 
       return response.json();
@@ -161,13 +157,13 @@ export class YouTubeAPIClient {
   /**
    * 작업 완료 대기
    */
-  private async waitForJobCompletion<T>(jobId: string, jobType: JobType): Promise<T> {
+  private async waitForJobCompletion<T>(job_id: string, job_type: JobType): Promise<T> {
     // 간단한 폴링 구현 (실제로는 더 정교한 방법 필요)
-    const maxAttempts = 60;
-    const delayMs = 1000;
+    const max_attempts = 60;
+    const delay_ms = 1000;
 
-    for (let i = 0; i < maxAttempts; i++) {
-      const job = await queueManager.getJobStatus(jobId, jobType);
+    for (let i = 0; i < max_attempts; i++) {
+      const job = await queueManager.getJobStatus(job_id, job_type);
 
       if (job?.finishedOn) {
         if (job.failedReason) {
@@ -176,7 +172,7 @@ export class YouTubeAPIClient {
         return job.returnvalue as T;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => setTimeout(resolve, delay_ms));
     }
 
     throw new Error('Job timeout');
@@ -231,17 +227,17 @@ export class YouTubeAPIClient {
     }>('search', params, YouTubeAPIClient.QUOTA_COSTS.search);
 
     // 검색 결과를 YouTubeVideo 형식으로 변환
-    const videoIds = response.items.map((item) => item.id.video_id).join(',');
+    const video_ids = response.items.map((item) => item.id.video_id).join(',');
 
     // 비디오 상세 정보 가져오기 (통계, 재생시간 등)
-    if (videoIds) {
-      const videosResponse = await this.getVideos(videoIds);
+    if (video_ids) {
+      const videos_response = await this.getVideos(video_ids);
 
       // 검색 결과와 상세 정보 병합
-      const videosMap = new Map(videosResponse.items.map((video) => [video.id, video]));
+      const videos_map = new Map(videos_response.items.map((video) => [video.id, video]));
 
       const items = response.items
-        .map((item) => videosMap.get(item.id.video_id))
+        .map((item) => videos_map.get(item.id.video_id))
         .filter(Boolean) as FlattenedYouTubeVideo[];
 
       return {
@@ -261,7 +257,7 @@ export class YouTubeAPIClient {
   /**
    * 비디오 상세 정보 가져오기
    */
-  async getVideos(videoIds: string): Promise<{
+  async getVideos(video_ids: string): Promise<{
     items: FlattenedYouTubeVideo[];
   }> {
     const response = await this.makeRequest<{
@@ -270,24 +266,24 @@ export class YouTubeAPIClient {
       'videos',
       {
         part: 'snippet,statistics,contentDetails,status',
-        id: videoIds,
+        id: video_ids,
         maxResults: 50,
       },
-      YouTubeAPIClient.QUOTA_COSTS.videos * videoIds.split(',').length
+      YouTubeAPIClient.QUOTA_COSTS.videos * video_ids.split(',').length
     );
 
     const items: FlattenedYouTubeVideo[] = response.items.map((item: unknown) => {
       if (!item || typeof item !== 'object') {
         throw new Error('Invalid video item format');
       }
-      const videoItem = item as Record<string, unknown>;
-      const snippet = videoItem.snippet as Record<string, unknown> | undefined;
-      const statistics = videoItem.statistics as Record<string, unknown> | undefined;
-      const contentDetails = videoItem.contentDetails as Record<string, unknown> | undefined;
-      const status = videoItem.status as Record<string, unknown> | undefined;
+      const video_item = item as Record<string, unknown>;
+      const snippet = video_item.snippet as Record<string, unknown> | undefined;
+      const statistics = video_item.statistics as Record<string, unknown> | undefined;
+      const content_details = video_item.contentDetails as Record<string, unknown> | undefined;
+      const status = video_item.status as Record<string, unknown> | undefined;
 
       return {
-        id: String(videoItem.id || ''),
+        id: String(video_item.id || ''),
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
         thumbnail: String(
@@ -300,7 +296,7 @@ export class YouTubeAPIClient {
         channel_id: String(snippet?.channel_id || ''),
         channel_title: String(snippet?.channel_title || ''),
         published_at: String(snippet?.published_at || ''),
-        duration: this.parseDuration(String(contentDetails?.duration || '')),
+        duration: this.parseDuration(String(content_details?.duration || '')),
         view_count: Number.parseInt(String(statistics?.view_count || '0'), 10),
         like_count: Number.parseInt(String(statistics?.like_count || '0'), 10),
         comment_count: Number.parseInt(String(statistics?.comment_count || '0'), 10),
@@ -316,12 +312,12 @@ export class YouTubeAPIClient {
           comment_count: String(statistics?.comment_count || '0'),
         },
         contentDetails: {
-          duration: String(contentDetails?.duration || ''),
-          dimension: String(contentDetails?.dimension || ''),
-          definition: String(contentDetails?.definition || ''),
-          caption: String(contentDetails?.caption || ''),
-          licensedContent: Boolean(contentDetails?.licensedContent),
-          projection: String(contentDetails?.projection || ''),
+          duration: String(content_details?.duration || ''),
+          dimension: String(content_details?.dimension || ''),
+          definition: String(content_details?.definition || ''),
+          caption: String(content_details?.caption || ''),
+          licensedContent: Boolean(content_details?.licensedContent),
+          projection: String(content_details?.projection || ''),
         },
         status: {
           uploadStatus: String(status?.uploadStatus || ''),
@@ -401,7 +397,7 @@ export class YouTubeAPIClient {
    */
   async getPlaylistItems(
     playlist_id: string,
-    pageToken?: string
+    page_token?: string
   ): Promise<{
     items: FlattenedYouTubeVideo[];
     nextPageToken?: string;
@@ -417,31 +413,31 @@ export class YouTubeAPIClient {
         part: 'snippet',
         playlist_id,
         maxResults: 50,
-        pageToken,
+        pageToken: page_token,
       },
       YouTubeAPIClient.QUOTA_COSTS.playlistItems
     );
 
     // 비디오 ID 추출
-    const videoIds = response.items
+    const video_ids = response.items
       .map((item: unknown) => {
         if (!item || typeof item !== 'object') {
           return null;
         }
-        const playlistItem = item as Record<string, unknown>;
-        const snippet = playlistItem.snippet as Record<string, unknown> | undefined;
-        const resourceId = snippet?.resourceId as Record<string, unknown> | undefined;
-        return String(resourceId?.video_id || '');
+        const playlist_item = item as Record<string, unknown>;
+        const snippet = playlist_item.snippet as Record<string, unknown> | undefined;
+        const resource_id = snippet?.resourceId as Record<string, unknown> | undefined;
+        return String(resource_id?.video_id || '');
       })
       .filter(Boolean)
       .join(',');
 
     // 비디오 상세 정보 가져오기
-    if (videoIds) {
-      const videosResponse = await this.getVideos(videoIds);
+    if (video_ids) {
+      const videos_response = await this.getVideos(video_ids);
 
       return {
-        items: videosResponse.items,
+        items: videos_response.items,
         nextPageToken: response.nextPageToken,
         totalResults: response.pageInfo?.totalResults || 0,
       };

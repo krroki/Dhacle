@@ -9,10 +9,13 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // POST: 좋아요 토글
-export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
-    const { id: proofId } = await params;
+    const { id: proof_id } = await params;
 
     // 인증 확인
     const {
@@ -23,13 +26,13 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     }
 
     // 인증이 존재하는지 확인
-    const { data: proof, error: proofError } = await supabase
+    const { data: proof, error: proof_error } = await supabase
       .from('revenue_proofs')
       .select('id, is_hidden, likes_count')
-      .eq('id', proofId)
+      .eq('id', proof_id)
       .single();
 
-    if (proofError || !proof) {
+    if (proof_error || !proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
@@ -39,29 +42,29 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     }
 
     // 기존 좋아요 확인
-    const { data: existingLike } = await supabase
+    const { data: existing_like } = await supabase
       .from('proof_likes')
       .select('*')
-      .eq('proof_id', proofId)
+      .eq('proof_id', proof_id)
       .eq('user_id', user.id)
       .single();
 
-    let isLiked = false;
+    let is_liked = false;
     let message = '';
 
-    if (existingLike) {
+    if (existing_like) {
       // 좋아요 취소
-      const { error: deleteError } = await supabase
+      const { error: delete_error } = await supabase
         .from('proof_likes')
         .delete()
-        .eq('proof_id', proofId)
+        .eq('proof_id', proof_id)
         .eq('user_id', user.id);
 
-      if (deleteError) {
+      if (delete_error) {
         return NextResponse.json({ error: '좋아요 취소 중 오류가 발생했습니다' }, { status: 500 });
       }
 
-      isLiked = false;
+      is_liked = false;
       message = '좋아요를 취소했습니다';
 
       // 좋아요 수 감소 (트리거가 처리하지만 명시적으로도 처리)
@@ -70,19 +73,19 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
         .update({
           likes_count: proof.likes_count && proof.likes_count > 0 ? proof.likes_count - 1 : 0,
         })
-        .eq('id', proofId);
+        .eq('id', proof_id);
     } else {
       // 좋아요 추가
-      const { error: insertError } = await supabase.from('proof_likes').insert({
-        proof_id: proofId,
+      const { error: insert_error } = await supabase.from('proof_likes').insert({
+        proof_id: proof_id,
         user_id: user.id,
       });
 
-      if (insertError) {
+      if (insert_error) {
         return NextResponse.json({ error: '좋아요 중 오류가 발생했습니다' }, { status: 500 });
       }
 
-      isLiked = true;
+      is_liked = true;
       message = '좋아요를 눌렀습니다';
 
       // 좋아요 수 증가 (트리거가 처리하지만 명시적으로도 처리)
@@ -91,18 +94,18 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
         .update({
           likes_count: (proof.likes_count || 0) + 1,
         })
-        .eq('id', proofId);
+        .eq('id', proof_id);
     }
 
     // 최신 좋아요 수 조회
-    const { count: likesCount } = await supabase
+    const { count: likes_count } = await supabase
       .from('proof_likes')
       .select('*', { count: 'exact', head: true })
-      .eq('proof_id', proofId);
+      .eq('proof_id', proof_id);
 
     return NextResponse.json({
-      isLiked,
-      likes_count: likesCount || 0,
+      isLiked: is_liked,
+      likes_count: likes_count || 0,
       message,
     });
   } catch (_error) {

@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-const menuItems = [
+const menu_items = [
   {
     href: '/mypage',
     label: '대시보드',
@@ -66,7 +66,7 @@ export function MyPageSidebar({ profile }: MyPageSidebarProps) {
   return (
     <aside className="lg:col-span-1">
       <nav className="space-y-1">
-        {menuItems.map((item) => {
+        {menu_items.map((item) => {
           const Icon = item.icon;
           const is_active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
 

@@ -14,7 +14,7 @@ type ToasterToast = ToastProps & {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const actionTypes = {
+const action_types = {
   ADD_TOAST: 'ADD_TOAST',
   UPDATE_TOAST: 'UPDATE_TOAST',
   DISMISS_TOAST: 'DISMISS_TOAST',
@@ -23,12 +23,12 @@ const actionTypes = {
 
 let count = 0;
 
-function genId() {
+function gen_id() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER;
   return count.toString();
 }
 
-type ActionType = typeof actionTypes;
+type ActionType = typeof action_types;
 
 type Action =
   | {
@@ -52,22 +52,22 @@ interface State {
   toasts: ToasterToast[];
 }
 
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const toast_timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
+const add_to_remove_queue = (toast_id: string) => {
+  if (toast_timeouts.has(toast_id)) {
     return;
   }
 
   const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId);
+    toast_timeouts.delete(toast_id);
     dispatch({
       type: 'REMOVE_TOAST',
-      toastId: toastId,
+      toastId: toast_id,
     });
   }, TOAST_REMOVE_DELAY);
 
-  toastTimeouts.set(toastId, timeout);
+  toast_timeouts.set(toast_id, timeout);
 };
 
 export const reducer = (state: State, action: Action): State => {
@@ -90,10 +90,10 @@ export const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        addToRemoveQueue(toastId);
+        add_to_remove_queue(toastId);
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id);
+          add_to_remove_queue(toast.id);
         });
       }
 
@@ -125,19 +125,19 @@ export const reducer = (state: State, action: Action): State => {
 
 const listeners: Array<(state: State) => void> = [];
 
-let memoryState: State = { toasts: [] };
+let memory_state: State = { toasts: [] };
 
 function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action);
+  memory_state = reducer(memory_state, action);
   listeners.forEach((listener) => {
-    listener(memoryState);
+    listener(memory_state);
   });
 }
 
 type Toast = Omit<ToasterToast, 'id'>;
 
 function toast({ ...props }: Toast) {
-  const id = genId();
+  const id = gen_id();
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -166,12 +166,12 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState);
+  const [state, set_state] = React.useState<State>(memory_state);
 
   React.useEffect(() => {
-    listeners.push(setState);
+    listeners.push(set_state);
     return () => {
-      const index = listeners.indexOf(setState);
+      const index = listeners.indexOf(set_state);
       if (index > -1) {
         listeners.splice(index, 1);
       }
@@ -181,7 +181,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
+    dismiss: (toast_id?: string) => dispatch({ type: 'DISMISS_TOAST', toastId: toast_id }),
   };
 }
 

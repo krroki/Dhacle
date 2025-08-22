@@ -12,13 +12,16 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
 
 // GET: 수익인증 상세 조회
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     // 세션 검사
-    const authSupabase = createRouteHandlerClient({ cookies });
+    const auth_supabase = createRouteHandlerClient({ cookies });
     const {
       data: { user },
-    } = await authSupabase.auth.getUser();
+    } = await auth_supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -32,7 +35,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const { id } = await params;
 
     // 인증 정보 조회
-    const { data: proof, error: proofError } = await supabase
+    const { data: proof, error: proof_error } = await supabase
       .from('revenue_proofs')
       .select(`
         *,
@@ -46,18 +49,18 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       .eq('id', id)
       .single();
 
-    if (proofError || !proof) {
+    if (proof_error || !proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
     // 숨김 처리된 인증은 작성자만 볼 수 있음
     if (proof.is_hidden) {
       // 인증 확인용 클라이언트 생성
-      const authClient = createRouteHandlerClient({ cookies });
+      const auth_client = createRouteHandlerClient({ cookies });
       const {
-        data: { user: authUser2 },
-      } = await authClient.auth.getUser();
-      if (!authUser2 || authUser2.id !== proof.user_id) {
+        data: { user: auth_user2 },
+      } = await auth_client.auth.getUser();
+      if (!auth_user2 || auth_user2.id !== proof.user_id) {
         return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
       }
     }
@@ -70,7 +73,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     //   .from('proof_likes')
     //   .select('*', { count: 'exact', head: true })
     //   .eq('proof_id', id);
-    const likesCount = 0;
+    const likes_count = 0;
 
     // 댓글 조회 (임시로 빈 배열 반환)
     // const { data: comments } = await supabase
@@ -109,15 +112,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     //   isLiked = !!likeData;
     // }
-    const isLiked = false;
+    const is_liked = false;
 
     return NextResponse.json({
       data: {
         ...proof,
-        likes_count: likesCount || 0,
+        likes_count: likes_count || 0,
         comments_count: comments?.length || 0,
         comments: comments || [],
-        isLiked: isLiked,
+        isLiked: is_liked,
       },
     });
   } catch (_error) {
@@ -126,41 +129,44 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 // PUT: 수익인증 수정 (작성자만, 24시간 내)
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const supabase = await createRouteHandlerClient({ cookies });
     const { id } = await params;
 
     // 인증 확인
     const {
-      data: { user: authUser4 },
+      data: { user: auth_user4 },
     } = await supabase.auth.getUser();
-    if (!authUser4) {
+    if (!auth_user4) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 기존 인증 조회
-    const { data: existingProof, error: fetchError } = await supabase
+    const { data: existing_proof, error: fetch_error } = await supabase
       .from('revenue_proofs')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (fetchError || !existingProof) {
+    if (fetch_error || !existing_proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
     // 작성자 확인
-    if (existingProof.user_id !== authUser4.id) {
+    if (existing_proof.user_id !== auth_user4.id) {
       return NextResponse.json({ error: '수정 권한이 없습니다' }, { status: 403 });
     }
 
     // 24시간 제한 확인
-    const created_at = new Date(existingProof.created_at);
+    const created_at = new Date(existing_proof.created_at);
     const now = new Date();
-    const hoursSinceCreation = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
+    const hours_since_creation = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);
 
-    if (hoursSinceCreation > 24) {
+    if (hours_since_creation > 24) {
       return NextResponse.json(
         { error: '작성 후 24시간이 지나 수정할 수 없습니다' },
         { status: 403 }
@@ -171,21 +177,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
 
     // 입력값 검증
-    const validatedData = updateProofSchema.parse(body);
+    const validated_data = updateProofSchema.parse(body);
 
     // 업데이트
-    const { data, error: updateError } = await supabase
+    const { data, error: update_error } = await supabase
       .from('revenue_proofs')
       .update({
-        title: validatedData.title,
-        content: validatedData.content,
+        title: validated_data.title,
+        content: validated_data.content,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
       .single();
 
-    if (updateError) {
+    if (update_error) {
       return NextResponse.json({ error: '수정 중 오류가 발생했습니다' }, { status: 500 });
     }
 
@@ -220,32 +226,32 @@ export async function DELETE(
 
     // 인증 확인
     const {
-      data: { user: authUser5 },
+      data: { user: auth_user5 },
     } = await supabase.auth.getUser();
-    if (!authUser5) {
+    if (!auth_user5) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // 기존 인증 조회
-    const { data: existingProof, error: fetchError } = await supabase
+    const { data: existing_proof, error: fetch_error } = await supabase
       .from('revenue_proofs')
       .select('user_id')
       .eq('id', id)
       .single();
 
-    if (fetchError || !existingProof) {
+    if (fetch_error || !existing_proof) {
       return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
     }
 
     // 작성자 확인
-    if (existingProof.user_id !== authUser5.id) {
+    if (existing_proof.user_id !== auth_user5.id) {
       return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
     }
 
     // 삭제 실행
-    const { error: deleteError } = await supabase.from('revenue_proofs').delete().eq('id', id);
+    const { error: delete_error } = await supabase.from('revenue_proofs').delete().eq('id', id);
 
-    if (deleteError) {
+    if (delete_error) {
       return NextResponse.json({ error: '삭제 중 오류가 발생했습니다' }, { status: 500 });
     }
 

@@ -1089,7 +1089,7 @@ export interface AnalyticsConfig {
 }
 
 // YouTube Lens 타입들과 기존 타입들 호환을 위한 별칭
-export type Video = YouTubeLensVideo;  // 기존 코드 호환성
+export type Video = YouTubeLensVideo; // 기존 코드 호환성
 
 // ============= Enum 타입 =============
 

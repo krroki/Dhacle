@@ -15,19 +15,19 @@ import { getRevenueProofs } from '@/lib/api/revenue-proof';
 import type { RevenueProof } from '@/types';
 
 export default function RevenueProofGallery() {
-  const [windowWidth] = useWindowSize();
-  const [items, setItems] = useState<RevenueProof[]>([]);
-  const [filter, setFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all');
-  const [platform, setPlatform] = useState<'all' | 'youtube' | 'instagram' | 'tiktok'>('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [_hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [window_width] = useWindowSize();
+  const [items, set_items] = useState<RevenueProof[]>([]);
+  const [filter, set_filter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all');
+  const [platform, set_platform] = useState<'all' | 'youtube' | 'instagram' | 'tiktok'>('all');
+  const [is_loading, set_is_loading] = useState(false);
+  const [page, set_page] = useState(1);
+  const [_hasMore, set_has_more] = useState(true);
+  const [error, set_error] = useState<string | null>(null);
 
   // 데이터 로드 (실제 API만 사용)
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const load_data = useCallback(async () => {
+    set_is_loading(true);
+    set_error(null);
 
     try {
       // 실제 API 호출
@@ -40,46 +40,46 @@ export default function RevenueProofGallery() {
 
       if (result.data) {
         if (page === 1) {
-          setItems(result.data);
+          set_items(result.data);
         } else {
-          setItems((prev) => [...prev, ...result.data]);
+          set_items((prev) => [...prev, ...result.data]);
         }
-        setHasMore(result.pagination.page < result.pagination.totalPages);
+        set_has_more(result.pagination.page < result.pagination.totalPages);
       }
     } catch (_error) {
-      setError('수익 인증을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      set_error('수익 인증을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 
       // API 오류 시 빈 배열로 설정 (더미 데이터 사용하지 않음)
       if (page === 1) {
-        setItems([]);
+        set_items([]);
       }
     } finally {
-      setIsLoading(false);
+      set_is_loading(false);
     }
   }, [filter, platform, page]);
 
   // 필터 변경 시 데이터 재로드
   useEffect(() => {
-    setPage(1);
-    loadData();
-  }, [loadData]);
+    set_page(1);
+    load_data();
+  }, [load_data]);
 
   // 페이지 변경 시 추가 로드
   useEffect(() => {
     if (page > 1) {
-      loadData();
+      load_data();
     }
-  }, [page, loadData]);
+  }, [page, load_data]);
 
   // Masonry 컬럼 계산
-  const getColumnCount = () => {
-    if (!windowWidth) {
+  const get_column_count = () => {
+    if (!window_width) {
       return 3;
     }
-    if (windowWidth < 768) {
+    if (window_width < 768) {
       return 2;
     }
-    if (windowWidth < 1024) {
+    if (window_width < 1024) {
       return 3;
     }
     return 4;
@@ -105,7 +105,7 @@ export default function RevenueProofGallery() {
         {/* 필터 탭 */}
         <Tabs
           value={filter}
-          onValueChange={(v) => setFilter(v as 'all' | 'daily' | 'weekly' | 'monthly')}
+          onValueChange={(v) => set_filter(v as 'all' | 'daily' | 'weekly' | 'monthly')}
           className="mb-6"
         >
           <TabsList>
@@ -117,7 +117,7 @@ export default function RevenueProofGallery() {
         </Tabs>
 
         {/* 플랫폼 필터 */}
-        <FilterBar platform={platform} onPlatformChange={setPlatform} />
+        <FilterBar platform={platform} onPlatformChange={set_platform} />
 
         {/* 에러 메시지 표시 */}
         {error && (
@@ -129,7 +129,7 @@ export default function RevenueProofGallery() {
         <div className="flex gap-8">
           {/* Masonic 갤러리 */}
           <div className="flex-1">
-            {isLoading ? (
+            {is_loading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -144,7 +144,7 @@ export default function RevenueProofGallery() {
             ) : items.length > 0 ? (
               <Masonry
                 items={items}
-                columnCount={getColumnCount()}
+                columnCount={get_column_count()}
                 columnWidth={300}
                 columnGutter={16}
                 overscanBy={5}

@@ -56,11 +56,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       query = query.gte('created_at', today.toISOString());
     } else if (filter === 'weekly') {
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      query = query.gte('created_at', weekAgo.toISOString());
+      const week_ago = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      query = query.gte('created_at', week_ago.toISOString());
     } else if (filter === 'monthly') {
-      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      query = query.gte('created_at', monthAgo.toISOString());
+      const month_ago = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      query = query.gte('created_at', month_ago.toISOString());
     }
 
     const { data, error, count } = await query;
@@ -73,10 +73,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // 사용자 정보를 별도로 조회 (필요한 경우)
-    const proofsWithUser = await Promise.all(
+    const proofs_with_user = await Promise.all(
       (data || []).map(async (proof) => {
         // 사용자 정보 조회 (선택적)
-        const { data: profileData } = await supabase
+        const { data: profile_data } = await supabase
           .from('profiles')
           .select('id, username, avatar_url')
           .eq('id', proof.user_id)
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         return {
           ...proof,
-          user: profileData || {
+          user: profile_data || {
             id: proof.user_id,
             username: 'Anonymous',
             avatar_url: null,
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
 
     return NextResponse.json({
-      data: proofsWithUser,
+      data: proofs_with_user,
       pagination: {
         page,
         limit,
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         totalPages: Math.ceil((count || 0) / limit),
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     // 개발 환경에서는 상세한 에러 메시지 제공
     const error_message =
       process.env.NODE_ENV === 'development'
@@ -138,59 +138,59 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // FormData 파싱
-    const formData = await request.formData();
+    const form_data = await request.formData();
 
     // FormData를 객체로 변환
     const body = {
-      title: formData.get('title') as string,
-      amount: Number.parseInt(formData.get('amount') as string, 10),
-      platform: formData.get('platform') as string,
-      content: formData.get('content') as string,
-      signature: formData.get('signature') as string,
-      screenshot: formData.get('screenshot') as File,
+      title: form_data.get('title') as string,
+      amount: Number.parseInt(form_data.get('amount') as string, 10),
+      platform: form_data.get('platform') as string,
+      content: form_data.get('content') as string,
+      signature: form_data.get('signature') as string,
+      screenshot: form_data.get('screenshot') as File,
     };
 
     // 입력값 검증
-    const validatedData = createProofSchema.parse(body);
+    const validated_data = createProofSchema.parse(body);
 
     // 일일 제한 체크 (한국 시간 기준)
-    const kstNow = new Date();
-    kstNow.setHours(kstNow.getHours() + 9); // UTC to KST
-    const todayKST = new Date(kstNow.getFullYear(), kstNow.getMonth(), kstNow.getDate());
-    todayKST.setHours(todayKST.getHours() - 9); // KST to UTC
+    const kst_now = new Date();
+    kst_now.setHours(kst_now.getHours() + 9); // UTC to KST
+    const today_kst = new Date(kst_now.getFullYear(), kst_now.getMonth(), kst_now.getDate());
+    today_kst.setHours(today_kst.getHours() - 9); // KST to UTC
 
-    const { count: todayCount } = await supabase
+    const { count: today_count } = await supabase
       .from('revenue_proofs')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
-      .gte('created_at', todayKST.toISOString());
+      .gte('created_at', today_kst.toISOString());
 
-    if (todayCount && todayCount > 0) {
+    if (today_count && today_count > 0) {
       return NextResponse.json(
         {
           error: '오늘은 이미 인증하셨습니다. 내일 다시 시도해주세요!',
-          nextAvailable: new Date(todayKST.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+          nextAvailable: new Date(today_kst.getTime() + 24 * 60 * 60 * 1000).toISOString(),
         },
         { status: 429 }
       );
     }
 
     // Supabase Storage에 이미지 업로드
-    const file_name = `${user.id}/${Date.now()}_${validatedData.screenshot.name}`;
-    const arrayBuffer = await validatedData.screenshot.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const file_name = `${user.id}/${Date.now()}_${validated_data.screenshot.name}`;
+    const array_buffer = await validated_data.screenshot.arrayBuffer();
+    const buffer = Buffer.from(array_buffer);
 
     // Storage 버킷에 업로드
-    const { data: _uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: upload_error } = await supabase.storage
       .from('revenue-proofs')
       .upload(file_name, buffer, {
-        contentType: validatedData.screenshot.type,
+        contentType: validated_data.screenshot.type,
         upsert: false,
       });
 
-    if (uploadError) {
+    if (upload_error) {
       // Storage 버킷이 없는 경우 안내
-      if (uploadError.message.includes('bucket') || uploadError.message.includes('not found')) {
+      if (upload_error.message.includes('bucket') || upload_error.message.includes('not found')) {
         return NextResponse.json(
           {
             error: 'Storage 설정이 필요합니다.',
@@ -213,20 +213,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       data: { publicUrl },
     } = supabase.storage.from('revenue-proofs').getPublicUrl(file_name);
 
-    const screenshotUrl = publicUrl;
+    const screenshot_url = publicUrl;
 
     // DB에 저장
     const { data, error } = await supabase
       .from('revenue_proofs')
       .insert({
         user_id: user.id,
-        title: validatedData.title,
-        content: validatedData.content,
-        amount: validatedData.amount,
-        platform: validatedData.platform,
-        screenshot_url: screenshotUrl,
+        title: validated_data.title,
+        content: validated_data.content,
+        amount: validated_data.amount,
+        platform: validated_data.platform,
+        screenshot_url: screenshot_url,
         screenshot_blur: '', // TODO: blur placeholder 구현
-        signature_data: validatedData.signature,
+        signature_data: validated_data.signature,
         is_hidden: false,
         likes_count: 0,
         comments_count: 0,
@@ -261,7 +261,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     // Zod 검증 에러
     if (error instanceof z.ZodError) {
       return NextResponse.json(

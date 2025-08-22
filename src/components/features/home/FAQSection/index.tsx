@@ -14,12 +14,12 @@ import { SectionTitle } from '../shared/SectionTitle';
 
 export function FAQSection() {
   const categories = ['전체', '일반', '강의', '결제', '환불'];
-  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selected_category, set_selected_category] = useState('전체');
 
-  const filteredFAQs =
-    selectedCategory === '전체'
+  const filtered_fa_qs =
+    selected_category === '전체'
       ? dummyFAQs
-      : dummyFAQs.filter((faq) => faq.category === selectedCategory);
+      : dummyFAQs.filter((faq) => faq.category === selected_category);
 
   return (
     <section className="py-12">
@@ -35,7 +35,7 @@ export function FAQSection() {
             />
           </div>
 
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Tabs value={selected_category} onValueChange={set_selected_category}>
             <TabsList className="grid w-full grid-cols-5 mb-8">
               {categories.map((category) => (
                 <TabsTrigger key={category} value={category}>
@@ -44,9 +44,9 @@ export function FAQSection() {
               ))}
             </TabsList>
 
-            <TabsContent value={selectedCategory}>
+            <TabsContent value={selected_category}>
               <Accordion type="single" collapsible={true} className="w-full">
-                {filteredFAQs.map((faq) => (
+                {filtered_fa_qs.map((faq) => (
                   <AccordionItem key={faq.id} value={faq.id}>
                     <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
                     <AccordionContent>
@@ -58,7 +58,7 @@ export function FAQSection() {
             </TabsContent>
           </Tabs>
 
-          {filteredFAQs.length === 0 && (
+          {filtered_fa_qs.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               해당 카테고리에 등록된 질문이 없습니다.
             </div>
