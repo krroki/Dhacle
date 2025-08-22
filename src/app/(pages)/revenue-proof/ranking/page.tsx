@@ -1,8 +1,10 @@
 // 수익인증 랭킹 페이지
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import { RankingDashboard } from '@/components/features/revenue-proof/RankingDashboard';
+
+// 동적 페이지로 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: '수익 랭킹',
@@ -10,7 +12,7 @@ export const metadata = {
 };
 
 export default async function RankingPage(): Promise<React.JSX.Element> {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createSupabaseServerClient();
 
   // 현재 월 가져오기
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM

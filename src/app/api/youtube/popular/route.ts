@@ -256,6 +256,9 @@ async function saveToCollection(_userId: string, collection_id: string, videos: 
   const supabase = createRouteHandlerClient({ cookies });
 
   const collectionItems = videos.map((video) => {
+    if (!video || typeof video !== 'object' || !('id' in video)) {
+      throw new Error('Invalid video data');
+    }
     const videoData = video as { id: string };
     return {
       collection_id: collection_id,

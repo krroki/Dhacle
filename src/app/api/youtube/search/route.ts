@@ -12,7 +12,7 @@ import type { YouTubeSearchFilters } from '@/types';
  * YouTube 영상 검색 API
  * POST /api/youtube/search
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = createRouteHandlerClient({ cookies });
 

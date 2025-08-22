@@ -9,7 +9,7 @@ import { generateRandomUsername } from '@/lib/utils/username-generator';
 import type { Database } from '@/types';
 
 // POST: Generate unique username
-export async function POST(_request: NextRequest) {
+export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = (await createRouteHandlerClient({ cookies })) as SupabaseClient<Database>;
 

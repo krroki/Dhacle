@@ -1,11 +1,13 @@
 // 수익인증 상세 페이지
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 import { notFound } from 'next/navigation';
 import { RevenueProofDetail } from '@/components/features/revenue-proof/RevenueProofDetail';
 import type { Metadata } from 'next';
 import type { RevenueProof } from '@/types';
+
+// 동적 페이지로 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,7 +16,7 @@ interface PageProps {
 // 서버 컴포넌트로 초기 데이터 페치
 export default async function RevenueProofDetailPage({ params }: PageProps): Promise<React.JSX.Element> {
   const { id } = await params;
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createSupabaseServerClient();
 
   // 수익인증 상세 데이터 조회
   const { data: proof, error } = await supabase
@@ -80,7 +82,7 @@ export default async function RevenueProofDetailPage({ params }: PageProps): Pro
 // 메타데이터 생성
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createSupabaseServerClient();
 
   const { data: proof } = await supabase
     .from('revenue_proofs')
