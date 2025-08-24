@@ -209,7 +209,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       await supabase
         .from('revenue_proofs')
         .update({
-          comments_count: proof.comments_count > 0 ? proof.comments_count - 1 : 0,
+          comments_count: (proof.comments_count ?? 0) > 0 ? (proof.comments_count ?? 0) - 1 : 0,
         })
         .eq('id', comment.proof_id);
     }

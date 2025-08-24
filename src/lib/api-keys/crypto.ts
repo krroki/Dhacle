@@ -1,8 +1,9 @@
 import crypto from 'node:crypto';
+import { env } from '@/env';
 
 // 암호화 키 검증 및 가져오기
 function get_encryption_key(): Buffer {
-  const key = process.env.ENCRYPTION_KEY;
+  const key = env.ENCRYPTION_KEY;
 
   // 최소한의 디버깅 정보만 남김
   if (!key) {
@@ -143,7 +144,7 @@ export function validateApiKeyFormat(api_key: string, service = 'youtube'): bool
  * @returns 암호화 키 설정 여부
  */
 export function hasEncryptionKey(): boolean {
-  return !!process.env.ENCRYPTION_KEY && process.env.ENCRYPTION_KEY.length === 64;
+  return !!env.ENCRYPTION_KEY && env.ENCRYPTION_KEY.length === 64;
 }
 
 /**

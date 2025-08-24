@@ -182,12 +182,12 @@ async function get_video_metrics(
 
   // Fetch video stats from database
   const { data: stats, error } = await supabase
-    .from('videoStats')
+    .from('video_stats')
     .select('*')
     .eq('video_id', video_id)
-    .gte('snapshotAt', start_date.toISOString())
-    .lte('snapshotAt', end_date.toISOString())
-    .order('snapshotAt', { ascending: true });
+    .gte('snapshot_at', start_date.toISOString())
+    .lte('snapshot_at', end_date.toISOString())
+    .order('snapshot_at', { ascending: true });
 
   if (error) {
     throw error;
@@ -213,14 +213,14 @@ async function get_video_metrics(
   const first_stat = stats[0];
 
   // Calculate growth rate
-  const view_growth = latest_stat.view_count - first_stat.view_count;
+  const view_growth = (latest_stat?.view_count || 0) - (first_stat?.view_count || 0);
   const time_diff =
-    new Date(latest_stat.snapshotAt).getTime() - new Date(first_stat.snapshotAt).getTime();
+    new Date(latest_stat?.date || latest_stat?.created_at || 0).getTime() - new Date(first_stat?.date || first_stat?.created_at || 0).getTime();
   const hours_diff = time_diff / (1000 * 60 * 60);
   const growth_rate = hours_diff > 0 ? view_growth / hours_diff : 0;
 
   // Calculate average and peak views
-  const all_views = stats.map((s) => s.view_count);
+  const all_views = stats.map((s: any) => s.view_count || 0);
   const average_views = all_views.reduce((a, b) => a + b, 0) / all_views.length;
   const peak_views = Math.max(...all_views);
 
@@ -229,15 +229,15 @@ async function get_video_metrics(
 
   // Calculate engagement rate
   const engagement_rate =
-    latest_stat.view_count > 0
-      ? ((latest_stat.like_count + latest_stat.comment_count) / latest_stat.view_count) * 100
+    (latest_stat?.view_count || 0) > 0
+      ? (((latest_stat?.like_count || 0) + (latest_stat?.comment_count || 0)) / (latest_stat?.view_count || 1)) * 100
       : 0;
 
   // Calculate viral score (custom formula)
   const viral_score = calculate_viral_score({
-    views: latest_stat.view_count,
-    likes: latest_stat.like_count,
-    comments: latest_stat.comment_count,
+    views: latest_stat?.view_count || 0,
+    likes: latest_stat?.like_count || 0,
+    comments: latest_stat?.comment_count || 0,
     vph,
     engagementRate: engagement_rate,
   });
@@ -249,9 +249,9 @@ async function get_video_metrics(
     growthRate: growth_rate,
     averageViews: average_views,
     peakViews: peak_views,
-    totalViews: latest_stat.view_count,
-    totalLikes: latest_stat.like_count,
-    totalComments: latest_stat.comment_count,
+    totalViews: latest_stat?.view_count || 0,
+    totalLikes: latest_stat?.like_count || 0,
+    totalComments: latest_stat?.comment_count || 0,
     dataPoints: stats.length,
   };
 }
@@ -279,7 +279,7 @@ async function get_channel_metrics(
     .from('videos')
     .select(`
       *,
-      videoStats (
+      video_stats (
         view_count,
         like_count,
         comment_count
@@ -316,7 +316,7 @@ async function get_channel_metrics(
   // Calculate basic metrics
   const total_videos = videos.length;
   const total_views = videos.reduce((sum, v) => {
-    const stats = Array.isArray(v.videoStats) ? v.videoStats[0] : v.videoStats;
+    const stats = Array.isArray(v.video_stats) ? v.video_stats[0] : v.video_stats;
     return sum + (stats?.view_count || 0);
   }, 0);
   const average_views = total_videos > 0 ? total_views / total_videos : 0;
@@ -325,8 +325,8 @@ async function get_channel_metrics(
     totalVideos: total_videos,
     totalViews: total_views,
     avgViews: average_views,
-    totalLikes: 0, // Would need videoStats to calculate
-    avgEngagement: 0, // Would need videoStats to calculate
+    totalLikes: 0, // Would need video_stats to calculate
+    avgEngagement: 0, // Would need video_stats to calculate
     uploadFrequency: 0, // Would need to calculate from video dates
     subscriberGrowth: 0, // Would need historical data
     performanceScore: 0, // Would need to calculate from metrics
@@ -450,16 +450,15 @@ async function save_metrics_snapshot(
 
     const snapshots = videos.map((video) => ({
       video_id: video.id,
-      view_count: video.statistics?.view_count || 0,
-      like_count: video.statistics?.like_count || 0,
-      comment_count: video.statistics?.comment_count || 0,
-      vph: video.metrics?.vph || 0,
-      engagementRate: video.metrics?.engagementRate || 0,
-      viralScore: video.metrics?.viralScore || 0,
-      snapshotAt: new Date().toISOString(),
+      view_count: Number(video.statistics?.view_count) || 0,
+      like_count: Number(video.statistics?.like_count) || 0,
+      comment_count: Number(video.statistics?.comment_count) || 0,
+      engagement_rate: Number(video.metrics?.engagementRate) || 0,
+      viral_score: Number(video.metrics?.viralScore) || 0,
+      date: new Date().toISOString(),
     }));
 
-    await supabase.from('videoStats').insert(snapshots);
+    await supabase.from('video_stats').insert(snapshots);
   } catch (_error) {
     // Non-critical error, don't throw
   }

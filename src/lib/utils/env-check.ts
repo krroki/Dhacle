@@ -3,6 +3,8 @@
  * 필수 환경 변수가 설정되었는지 확인하고 디버깅 정보를 제공합니다.
  */
 
+import { env } from '@/env';
+
 interface EnvCheckResult {
   isValid: boolean;
   missing: string[];
@@ -13,34 +15,30 @@ interface EnvCheckResult {
  * 필수 환경 변수 검증
  */
 export function checkRequiredEnvVars(): EnvCheckResult {
-  const required = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'];
-
-  const optional = [
-    'SUPABASE_SERVICE_ROLE_KEY', // Optional - only needed for admin operations
-    'ENCRYPTION_KEY', // Optional - only needed for API key encryption
-  ];
-
+  // Removed unused variables - checking environment variables directly below
   const missing: string[] = [];
   const warnings: string[] = [];
 
   // 필수 환경 변수 체크
-  for (const key of required) {
-    if (!process.env[key]) {
-      missing.push(key);
-    }
+  if (!env.NEXT_PUBLIC_SUPABASE_URL) {
+    missing.push('NEXT_PUBLIC_SUPABASE_URL');
+  }
+  if (!env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
 
   // 선택적 환경 변수 체크
-  for (const key of optional) {
-    if (!process.env[key]) {
-      warnings.push(`${key} is not set. Some features may not work.`);
-    }
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+    warnings.push('SUPABASE_SERVICE_ROLE_KEY is not set. Some features may not work.');
+  }
+  if (!env.ENCRYPTION_KEY) {
+    warnings.push('ENCRYPTION_KEY is not set. Some features may not work.');
   }
 
   // ENCRYPTION_KEY 길이 체크
-  if (process.env.ENCRYPTION_KEY && process.env.ENCRYPTION_KEY.length !== 64) {
+  if (env.ENCRYPTION_KEY && env.ENCRYPTION_KEY.length !== 64) {
     warnings.push(
-      `ENCRYPTION_KEY must be exactly 64 characters (current: ${process.env.ENCRYPTION_KEY.length})`
+      `ENCRYPTION_KEY must be exactly 64 characters (current: ${env.ENCRYPTION_KEY.length})`
     );
   }
 
@@ -88,7 +86,7 @@ export async function testSupabaseConnection(): Promise<{
  * 환경 변수 디버깅 정보 출력 (개발 환경 전용)
  */
 export function logEnvDebugInfo(): void {
-  if (process.env.NODE_ENV !== 'development') {
+  if (env.NODE_ENV !== 'development') {
     return;
   }
 
@@ -104,7 +102,7 @@ export function logEnvDebugInfo(): void {
   }
 
   // Supabase URL 형식 체크
-  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
   if (supabase_url) {
     if (!supabase_url.includes('.supabase.co')) {
     }

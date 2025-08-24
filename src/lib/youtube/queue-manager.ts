@@ -5,11 +5,12 @@
 
 import { type Job, Queue, QueueEvents, type Worker } from 'bullmq';
 import Redis from 'ioredis';
+import { env } from '@/env';
 
 // Redis 연결 설정
 const connection = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
+  host: env.REDIS_HOST || 'localhost',
+  port: Number.parseInt(env.REDIS_PORT || '6379', 10),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });

@@ -1,10 +1,17 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+// import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(_req: NextRequest): Promise<NextResponse> {
+  // TODO: coupons 테이블이 없어서 임시로 비활성화
+  return NextResponse.json(
+    { error: '쿠폰 기능은 현재 준비 중입니다.' },
+    { status: 503 }
+  );
+  
+  /* 원본 코드 - coupons 테이블 생성 후 활성화 필요
   try {
     const supabase = await createSupabaseRouteHandlerClient();
     const {
@@ -115,4 +122,5 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch (_error) {
     return NextResponse.json({ error: '쿠폰 검증 중 오류가 발생했습니다.' }, { status: 500 });
   }
+  */
 }

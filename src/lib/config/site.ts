@@ -1,3 +1,5 @@
+import { env } from '@/env';
+
 // 사이트 설정 및 메타데이터
 export const siteConfig = {
   // 기본 정보
@@ -7,7 +9,7 @@ export const siteConfig = {
   descriptionEn: 'Education and Community Platform for YouTube Shorts Creators',
 
   // URL 설정 - 환경변수 우선, 없으면 dhacle.com 사용
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://dhacle.com',
+  url: env.NEXT_PUBLIC_SITE_URL || 'https://dhacle.com',
   domain: 'dhacle.com',
 
   // SEO 키워드

@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { env } from '@/env';
 
 export async function GET(request: NextRequest) {
   const request_url = new URL(request.url);
@@ -18,8 +19,8 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     // Get environment variables - these must be set properly
-    const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     // Validate environment variables
     if (!supabase_url || !supabase_anon_key) {

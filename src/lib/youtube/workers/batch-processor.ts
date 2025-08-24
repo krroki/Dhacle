@@ -8,11 +8,12 @@ import { google, type youtube_v3 } from 'googleapis';
 import Redis from 'ioredis';
 import { cacheManager } from '../cache';
 import { JobType, quotaManager, type YouTubeJobData } from '../queue-manager';
+import { env } from '@/env';
 
 // Redis 연결
 const connection = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
+  host: env.REDIS_HOST || 'localhost',
+  port: Number.parseInt(env.REDIS_PORT || '6379', 10),
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 });
@@ -245,7 +246,7 @@ export class YouTubeBatchProcessor {
 
     // Supabase에서 암호화된 API 키 가져오기
     // TODO: 실제 구현 필요
-    return process.env.YOUTUBE_API_KEY || null;
+    return env.YOUTUBE_API_KEY || null;
   }
 
   // 배열 청크 분할

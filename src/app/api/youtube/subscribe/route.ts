@@ -9,6 +9,7 @@ export const runtime = 'nodejs';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
+import { env } from '@/env';
 
 /**
  * GET - Get user's active subscriptions
@@ -67,8 +68,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Generate callback URL
     // In production, use your actual domain
     const base_url =
-      process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
+      env.NEXT_PUBLIC_APP_URL || env.VERCEL_URL
+        ? `https://${env.VERCEL_URL}`
         : 'http://localhost:3000';
     const callback_url = `${base_url}/api/youtube/webhook`;
 
@@ -172,7 +173,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     // Get existing subscription
     const { data: subscription, error: fetch_error } = await supabase
-      .from('channelSubscriptions')
+      .from('channel_subscriptions')
       .select('*')
       .eq('channel_id', channel_id)
       .eq('user_id', user.id)
@@ -184,15 +185,15 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     // Generate callback URL
     const base_url =
-      process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
+      env.NEXT_PUBLIC_APP_URL || env.VERCEL_URL
+        ? `https://${env.VERCEL_URL}`
         : 'http://localhost:3000';
     const callback_url = `${base_url}/api/youtube/webhook`;
 
     // Renew subscription
     const result = await pubsubManager.subscribe({
       channel_id,
-      channelTitle: subscription.channel_title,
+      channelTitle: subscription.channel_name || '',
       user_id: user.id,
       callbackUrl: callback_url,
     });

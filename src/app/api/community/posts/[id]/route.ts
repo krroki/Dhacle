@@ -4,16 +4,16 @@ export const runtime = 'nodejs';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
-interface CommentWithProfile {
+interface CommentFromDB {
   id: string;
   content: string;
-  created_at: string;
+  created_at: string | null;
   parent_id: string | null;
-  users: {
+  profiles: {
     id: string;
-    username: string;
-    avatar_url?: string;
-  };
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 /**
@@ -65,16 +65,17 @@ export async function GET(
     }
 
     // 조회수 증가 (별도 RPC 호출)
-    await supabase.rpc('incrementViewCount', { post_id: post_id });
+    await supabase.rpc('increment_view_count', { post_id: post_id });
 
     // 데이터 가공
     const formatted_post = {
       ...post,
       author: post.users,
       comments:
-        post.community_comments?.map((comment: CommentWithProfile) => ({
+        post.community_comments?.map((comment: CommentFromDB) => ({
           ...comment,
-          author: comment.users,
+          author: comment.profiles || { id: '', username: 'Unknown', avatar_url: null },
+          users: comment.profiles || { id: '', username: 'Unknown', avatar_url: null }, // Map profiles to users for compatibility
         })) || [],
       like_count: post.community_likes?.length || 0,
       comment_count: post.community_comments?.length || 0,

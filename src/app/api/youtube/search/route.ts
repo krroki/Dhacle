@@ -63,15 +63,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // 할당량 체크
-    const today = new Date().toISOString().split('T')[0];
-    const { data: usage, error: _usageError } = await supabase
-      .from('apiUsage')
-      .select('*')
+    const { data: api_key_data, error: _usageError } = await supabase
+      .from('user_api_keys')
+      .select('usage_today, usage_count')
       .eq('user_id', user.id)
-      .eq('date', today)
+      .eq('service_name', 'youtube')
       .single();
 
-    const current_usage = usage?.unitsUsed || 0;
+    const current_usage = api_key_data?.usage_today || 0;
     const quota_cost = YouTubeAPIClient.calculateQuotaCost('search', 1);
 
     // 할당량 초과 체크
@@ -101,38 +100,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const search_result = await api_client.search(filters);
 
     // 할당량 업데이트
-    if (usage) {
-      await supabase
-        .from('apiUsage')
-        .update({
-          unitsUsed: current_usage + quota_cost,
-          searchCount: (usage.searchCount || 0) + 1,
-          video_count: (usage.video_count || 0) + search_result.items.length,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id)
-        .eq('date', today);
-    } else {
-      // 새 레코드 생성
-      await supabase.from('apiUsage').insert({
-        user_id: user.id,
-        date: today,
-        unitsUsed: quota_cost,
-        searchCount: 1,
-        video_count: search_result.items.length,
-        created_at: new Date().toISOString(),
+    await supabase
+      .from('user_api_keys')
+      .update({
+        usage_today: current_usage + quota_cost,
+        usage_count: api_key_data?.usage_count ? api_key_data.usage_count + 1 : 1,
+        usage_date: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      });
-    }
+      })
+      .eq('user_id', user.id)
+      .eq('service_name', 'youtube');
 
-    // 검색 기록 저장
-    await supabase.from('youtube_search_history').insert({
-      user_id: user.id,
-      query: filters.query,
-      filters: filters,
-      resultCount: search_result.items.length,
-      created_at: new Date().toISOString(),
-    });
+    // 검색 기록 저장 - TODO: youtube_search_history 테이블 생성 후 활성화
+    // await supabase.from('youtube_search_history').insert({
+    //   user_id: user.id,
+    //   query: filters.query,
+    //   filters: filters,
+    //   resultCount: search_result.items.length,
+    //   created_at: new Date().toISOString(),
+    // });
 
     // 응답 반환
     return NextResponse.json({

@@ -1,9 +1,10 @@
 import crypto from 'node:crypto';
 import { createServerClient } from '@/lib/supabase/server-client';
 import type { Json, UserApiKey } from '@/types';
+import { env } from '@/env';
 
 const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
+  env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
 
 export async function getDecryptedApiKey(
   user_id: string,
@@ -114,7 +115,7 @@ export async function validateYouTubeApiKey(
     const api_url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${test_video_id}&key=${api_key}`;
 
     console.log('[validateYouTubeApiKey] Calling YouTube API...');
-    const response = await fetch(api_url, {
+    const response = await fetch(api_url, { // External API: YouTube
       method: 'GET',
       headers: {
         Accept: 'application/json',

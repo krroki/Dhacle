@@ -5,13 +5,14 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
+import { env } from '@/env';
 export async function GET(): Promise<NextResponse> {
   console.log('Health check API called');
 
   try {
     // Test 1: Environment variables
-    const has_url = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const has_key = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const has_url = !!env.NEXT_PUBLIC_SUPABASE_URL;
+    const has_key = !!env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     console.log('Environment check:', { hasUrl: has_url, hasKey: has_key });
 
@@ -51,7 +52,7 @@ export async function GET(): Promise<NextResponse> {
         environment: {
           hasUrl: has_url,
           hasKey: has_key,
-          nodeEnv: process.env.NODE_ENV,
+          nodeEnv: env.NODE_ENV,
         },
         supabase: {
           clientCreated: client_created,
@@ -73,7 +74,7 @@ export async function GET(): Promise<NextResponse> {
         environment: {
           hasUrl: has_url,
           hasKey: has_key,
-          nodeEnv: process.env.NODE_ENV,
+          nodeEnv: env.NODE_ENV,
         },
         supabase: {
           clientCreated: client_created,

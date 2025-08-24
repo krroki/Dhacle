@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 import type { Collection, CollectionItem, Video } from '@/types';
+// import { snakeToCamelCase } from '@/types';
 
 /**
  * CollectionManager - YouTube Lens 컬렉션 관리 클래스
@@ -38,8 +39,8 @@ export class CollectionManager {
           description: data.description || null,
           is_public: data.is_public || false,
           tags: data.tags || null,
-          coverImage: data.coverImage || null,
-          itemCount: 0,
+          cover_image_url: data.coverImage || null,
+          item_count: 0,
         })
         .select()
         .single();
@@ -48,7 +49,22 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      // Convert snake_case to camelCase
+      const convertedCollection: Collection = {
+        id: collection.id,
+        user_id: collection.user_id,
+        name: collection.name,
+        description: collection.description,
+        is_public: collection.is_public ?? false,
+        tags: collection.tags,
+        coverImage: collection.cover_image_url,
+        itemCount: collection.item_count ?? 0,
+        created_at: collection.created_at || new Date().toISOString(),
+        updated_at: collection.updated_at || new Date().toISOString(),
+        deleted_at: null
+      };
+
+      return { data: convertedCollection, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -77,7 +93,22 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      return { data: collections, error: null };
+      // Convert snake_case to camelCase
+      const convertedCollections = (collections || []).map(col => ({
+        id: col.id,
+        user_id: col.user_id,
+        name: col.name,
+        description: col.description,
+        is_public: col.is_public ?? false,
+        tags: col.tags,
+        coverImage: col.cover_image_url,
+        itemCount: col.item_count ?? 0,
+        created_at: col.created_at || new Date().toISOString(),
+        updated_at: col.updated_at || new Date().toISOString(),
+        deleted_at: null
+      } as Collection));
+
+      return { data: convertedCollections, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -109,7 +140,22 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      // Convert snake_case to camelCase
+      const convertedCollection: Collection = {
+        id: collection.id,
+        user_id: collection.user_id,
+        name: collection.name,
+        description: collection.description,
+        is_public: collection.is_public ?? false,
+        tags: collection.tags,
+        coverImage: collection.cover_image_url,
+        itemCount: collection.item_count ?? 0,
+        created_at: collection.created_at || new Date().toISOString(),
+        updated_at: collection.updated_at || new Date().toISOString(),
+        deleted_at: null
+      };
+
+      return { data: convertedCollection, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -122,7 +168,7 @@ export class CollectionManager {
     collection_id: string,
     video_id: string,
     notes?: string,
-    tags?: string[]
+    _tags?: string[]
   ): Promise<{ data: CollectionItem | null; error: Error | null }> {
     try {
       const {
@@ -152,25 +198,26 @@ export class CollectionManager {
 
       // 최대 position 값 조회
       const { data: max_position_item } = await this.supabase
-        .from('collectionItems')
+        .from('collection_items')
         .select('position')
         .eq('collection_id', collection_id)
         .order('position', { ascending: false })
         .limit(1)
         .single();
 
-      const next_position = max_position_item ? max_position_item.position + 1 : 0;
+      const next_position = max_position_item?.position !== null && max_position_item?.position !== undefined
+        ? max_position_item.position + 1
+        : 0;
 
       // 컬렉션 아이템 추가
       const { data: item, error } = await this.supabase
-        .from('collectionItems')
+        .from('collection_items')
         .insert({
           collection_id: collection_id,
           video_id: video_id,
           notes: notes || null,
-          tags: tags || null,
           position: next_position,
-          addedBy: user.id,
+          added_by: user.id,
         })
         .select()
         .single();
@@ -183,12 +230,24 @@ export class CollectionManager {
       await this.supabase
         .from('collections')
         .update({
-          itemCount: collection.itemCount + 1,
+          item_count: collection.itemCount + 1,
           updated_at: new Date().toISOString(),
         })
         .eq('id', collection_id);
 
-      return { data: item, error: null };
+      // Convert response to CollectionItem type
+      const convertedItem: CollectionItem = {
+        id: item.id,
+        collection_id: item.collection_id,
+        video_id: item.video_id,
+        notes: item.notes,
+        tags: [],
+        position: item.position ?? 0,
+        addedBy: item.added_by,
+        addedAt: item.created_at || new Date().toISOString()
+      };
+
+      return { data: convertedItem, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -217,7 +276,7 @@ export class CollectionManager {
 
       // 아이템 삭제
       const { error } = await this.supabase
-        .from('collectionItems')
+        .from('collection_items')
         .delete()
         .eq('collection_id', collection_id)
         .eq('video_id', video_id);
@@ -263,10 +322,10 @@ export class CollectionManager {
 
       // 컬렉션 아이템과 비디오 정보 조인
       const { data: items, error } = await this.supabase
-        .from('collectionItems')
+        .from('collection_items')
         .select(`
           *,
-          video:videos(*)
+          videos!collection_items_video_id_fkey(*)
         `)
         .eq('collection_id', collection_id)
         .order('position', { ascending: true });
@@ -275,7 +334,20 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      return { data: items, error: null };
+      // Transform the data to match the expected type
+      const transformedItems = items?.map(item => ({
+        id: item.id,
+        collection_id: item.collection_id,
+        video_id: item.video_id,
+        notes: item.notes,
+        tags: [],
+        position: item.position ?? 0,
+        addedBy: item.added_by,
+        addedAt: item.created_at || new Date().toISOString(),
+        video: item.videos
+      })) || [];
+
+      return { data: transformedItems as any, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -323,7 +395,22 @@ export class CollectionManager {
         return { data: null, error };
       }
 
-      return { data: collection, error: null };
+      // Transform to match Collection type (has mixed naming)
+      const transformedCollection: Collection = {
+        id: collection.id,
+        name: collection.name,
+        description: collection.description,
+        user_id: collection.user_id,
+        coverImage: collection.cover_image_url, // camelCase in type
+        is_public: collection.is_public ?? false,
+        itemCount: collection.item_count ?? 0, // camelCase in type
+        tags: collection.tags || [],
+        deleted_at: null,
+        created_at: collection.created_at || new Date().toISOString(),
+        updated_at: collection.updated_at || new Date().toISOString()
+      };
+
+      return { data: transformedCollection, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -393,7 +480,7 @@ export class CollectionManager {
       // 각 아이템의 position 업데이트
       const update_promises = items.map((item) =>
         this.supabase
-          .from('collectionItems')
+          .from('collection_items')
           .update({ position: item.position })
           .eq('collection_id', collection_id)
           .eq('video_id', item.video_id)

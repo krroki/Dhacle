@@ -3,6 +3,7 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { env } from '@/env';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -16,21 +17,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
-    // 관리자 권한 확인
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile?.is_admin) {
+    // TODO: 관리자 권한 확인 - is_admin 필드가 profiles 테이블에 없음
+    // 임시로 특정 사용자 ID로 관리자 확인 (실제 구현 필요)
+    const ADMIN_USER_IDS = env.ADMIN_USER_IDS?.split(',') || [];
+    
+    if (!ADMIN_USER_IDS.includes(user.id)) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
     }
 
     // 환경 변수 확인
-    const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-    const STREAM_TOKEN = process.env.CLOUDFLARE_STREAM_TOKEN;
-    const CUSTOMER_SUBDOMAIN = process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN;
+    const ACCOUNT_ID = env.CLOUDFLARE_ACCOUNT_ID;
+    const STREAM_TOKEN = env.CLOUDFLARE_STREAM_TOKEN;
+    const CUSTOMER_SUBDOMAIN = env.CLOUDFLARE_CUSTOMER_SUBDOMAIN;
 
     if (!ACCOUNT_ID || !STREAM_TOKEN) {
       return NextResponse.json(
@@ -93,7 +91,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Cloudflare Stream API 호출
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream`,
+      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream`, // External API: Cloudflare
       {
         method: 'POST',
         headers: {
@@ -171,8 +169,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '비디오 ID가 필요합니다.' }, { status: 400 });
     }
 
-    const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-    const STREAM_TOKEN = process.env.CLOUDFLARE_STREAM_TOKEN;
+    const ACCOUNT_ID = env.CLOUDFLARE_ACCOUNT_ID;
+    const STREAM_TOKEN = env.CLOUDFLARE_STREAM_TOKEN;
 
     if (!ACCOUNT_ID || !STREAM_TOKEN) {
       return NextResponse.json(
@@ -183,7 +181,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     // Cloudflare Stream에서 비디오 상태 확인
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream/${video_id}`,
+      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/stream/${video_id}`, // External API: Cloudflare
       {
         headers: {
           Authorization: `Bearer ${STREAM_TOKEN}`,

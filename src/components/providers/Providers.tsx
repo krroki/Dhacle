@@ -2,6 +2,8 @@
 
 import { ThemeProvider } from 'next-themes';
 import { type ReactNode, useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { LayoutProvider } from '@/lib/layout/LayoutContext';
 import { useLayoutStore } from '@/store/layout';
@@ -45,18 +47,48 @@ function DynamicPaddingProvider({ children }: { children: ReactNode }) {
 }
 
 export function Providers({ children }: ProvidersProps) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Data stays fresh for 1 minute
+            staleTime: 60 * 1000,
+            // Garbage collection after 5 minutes
+            gcTime: 5 * 60 * 1000,
+            // Retry failed requests 3 times with exponential backoff
+            retry: 3,
+            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+            // Don't refetch on window focus by default
+            refetchOnWindowFocus: false,
+            // Refetch on reconnect
+            refetchOnReconnect: 'always',
+          },
+          mutations: {
+            // Retry mutations once on failure
+            retry: 1,
+          },
+        },
+      })
+  );
+
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem={false}
-      disableTransitionOnChange={true}
-    >
-      <AuthProvider>
-        <LayoutProvider>
-          <DynamicPaddingProvider>{children}</DynamicPaddingProvider>
-        </LayoutProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange={true}
+      >
+        <AuthProvider>
+          <LayoutProvider>
+            <DynamicPaddingProvider>{children}</DynamicPaddingProvider>
+          </LayoutProvider>
+        </AuthProvider>
+      </ThemeProvider>
+      {process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+    </QueryClientProvider>
   );
 }

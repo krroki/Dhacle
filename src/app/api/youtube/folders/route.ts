@@ -9,6 +9,8 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { snakeToCamelCase } from '@/types';
+// import { z } from 'zod';
 
 /**
  * GET /api/youtube/folders
@@ -28,10 +30,10 @@ export async function GET(): Promise<NextResponse> {
 
     // Fetch folders with channel count
     const { data: folders, error } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .select(`
         *,
-        folderChannels (
+        folder_channels (
           id,
           channel_id
         )
@@ -43,12 +45,15 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
     }
 
-    // Calculate channel count for each folder
-    const folders_with_count = (folders || []).map((folder) => ({
-      ...folder,
-      channelCount: folder.folderChannels?.length || 0,
-      folderChannels: undefined, // Remove raw relation data
-    }));
+    // Calculate channel count and convert to camelCase
+    const folders_with_count = (folders || []).map((folder: any) => {
+      const folderData = snakeToCamelCase(folder);
+      return {
+        ...folderData,
+        channelCount: folder.folder_channels?.length || folder.channel_count || 0,
+        folderChannels: folder.folder_channels?.map((fc: any) => snakeToCamelCase(fc)) || [],
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -86,10 +91,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Check for duplicate folder name
     const { data: existing_folder } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .select('id')
       .eq('user_id', user.id)
-      .eq('folderName', name.trim())
+      .eq('name', name.trim())
       .single();
 
     if (existing_folder) {
@@ -101,13 +106,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Create new folder
     const { data: new_folder, error } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .insert({
         user_id: user.id,
-        folderName: name.trim(),
+        name: name.trim(),
         description: description?.trim() || null,
         color: color || '#3B82F6', // Default blue color
         icon: icon || '📁',
+        is_active: true,
+        channel_count: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -121,7 +128,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: true,
-        folder: new_folder,
+        folder: snakeToCamelCase(new_folder),
       },
       { status: 201 }
     );
@@ -157,7 +164,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     // Check if folder exists and belongs to user
     const { data: existing_folder } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .select('id')
       .eq('id', id)
       .eq('user_id', user.id)
@@ -175,10 +182,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     if (name !== undefined && name.trim() !== '') {
       // Check for duplicate name if changing
       const { data: duplicate_folder } = await supabase
-        .from('sourceFolders')
+        .from('source_folders')
         .select('id')
         .eq('user_id', user.id)
-        .eq('folderName', name.trim())
+        .eq('name', name.trim())
         .neq('id', id)
         .single();
 
@@ -188,7 +195,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
           { status: 400 }
         );
       }
-      update_data.folderName = name.trim();
+      update_data.name = name.trim();
     }
 
     if (description !== undefined) {
@@ -205,7 +212,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     // Update folder
     const { data: updated_folder, error } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .update(update_data)
       .eq('id', id)
       .eq('user_id', user.id)
@@ -218,7 +225,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       success: true,
-      folder: updated_folder,
+      folder: snakeToCamelCase(updated_folder),
     });
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -252,7 +259,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     // Check if folder exists and belongs to user
     const { data: existing_folder } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .select('id')
       .eq('id', folder_id)
       .eq('user_id', user.id)
@@ -264,7 +271,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     // Delete channel associations first (due to foreign key constraint)
     const { error: channel_error } = await supabase
-      .from('folderChannels')
+      .from('folder_channels')
       .delete()
       .eq('folder_id', folder_id);
 
@@ -274,7 +281,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     // Delete the folder
     const { error } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .delete()
       .eq('id', folder_id)
       .eq('user_id', user.id);

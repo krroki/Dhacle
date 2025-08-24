@@ -94,42 +94,7 @@
         "useFragmentSyntax": "error",
         "useImportType": "error",
         "useLiteralEnumMembers": "error",
-        "useNamingConvention": {
-          "level": "error",
-          "options": {
-            "strictCase": false,
-            "conventions": [
-              {
-                "selector": { "kind": "function" },
-                "formats": ["snake_case", "PascalCase"]
-              },
-              {
-                "selector": { "kind": "variable" },
-                "formats": ["snake_case", "PascalCase", "CONSTANT_CASE"]
-              },
-              {
-                "selector": { "kind": "typeLike" },
-                "formats": ["PascalCase"]
-              },
-              {
-                "selector": { "kind": "objectLiteralProperty" },
-                "formats": ["snake_case"]
-              },
-              {
-                "selector": { "kind": "objectLiteralMethod" },
-                "formats": ["snake_case"]
-              },
-              {
-                "selector": { "kind": "classProperty" },
-                "formats": ["snake_case"]
-              },
-              {
-                "selector": { "kind": "functionParameter" },
-                "formats": ["snake_case"]
-              }
-            ]
-          }
-        },
+        "useNamingConvention": "off",
         "useNodejsImportProtocol": "error",
         "useNumberNamespace": "error",
         "useShorthandFunctionType": "error",

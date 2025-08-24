@@ -29,11 +29,26 @@ export async function GET(request: Request): Promise<NextResponse> {
     return createValidationErrorResponse(validation.error);
   }
 
-  const { date, limit = 10 } = validation.data;
-  const today = date || new Date().toISOString().split('T')[0];
-  const seven_days_ago = new Date(Date.now() - 7 * 86400000).toISOString();
+  // 미사용 변수 - yl_channels와 yl_channel_daily_delta 테이블 생성 후 사용 예정
+  // const { date, limit = 10 } = validation.data;
+  // const today = date || new Date().toISOString().split('T')[0];
+  // const seven_days_ago = new Date(Date.now() - 7 * 86400000).toISOString();
 
   try {
+    // TODO: yl_channels와 yl_channel_daily_delta 테이블이 존재하지 않음
+    // 임시로 빈 데이터 반환
+    return NextResponse.json({
+      categoryStats: [],
+      topDeltas: [],
+      summary: {
+        totalChannels: 0,
+        totalDelta: 0,
+        avgDelta: 0,
+        topCategories: [],
+      },
+    });
+    
+    /* 원본 코드 - yl_channels와 yl_channel_daily_delta 테이블 생성 후 활성화
     // 1. 카테고리별 통계
     const { data: channels } = await supabase
       .from('yl_channels')
@@ -118,6 +133,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         followedChannels: followed_channels,
       },
     });
+    */
   } catch (error) {
     console.error('Dashboard summary error:', error);
     return NextResponse.json({ error: 'Failed to fetch summary' }, { status: 500 });

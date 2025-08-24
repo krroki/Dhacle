@@ -509,6 +509,17 @@ export interface YouTubeFavorite {
   updated_at: string;
 }
 
+// YouTube 폴더
+export interface YouTubeFolder {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  video_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // 검색 히스토리
 export interface YouTubeSearchHistory {
   id: string;

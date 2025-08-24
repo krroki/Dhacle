@@ -1,7 +1,8 @@
 import { loadTossPayments, type TossPaymentsInstance } from '@tosspayments/payment-sdk';
+import { env } from '@/env';
 
 // 토스페이먼츠 클라이언트 키
-const toss_client_key = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+const toss_client_key = env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
 if (!toss_client_key) {
 }
@@ -116,8 +117,8 @@ export const requestPayment = async (method: PaymentMethod, options: TossPayment
   }
 
   try {
-    // 결제창 호출
-    await toss_payments.requestPayment(method, {
+    // 결제창 호출 (타입 캐스팅 필요 - TossPayments SDK 타입 제한)
+    await toss_payments.requestPayment(method as any, {
       amount: options.amount,
       orderId: options.orderId,
       orderName: options.orderName,
@@ -147,22 +148,24 @@ export const requestPayment = async (method: PaymentMethod, options: TossPayment
 };
 
 // 결제 위젯 헬퍼 함수 (더 간단한 UI를 원할 경우)
-export const createPaymentWidget = async (_elementId: string) => {
-  const toss_payments = await getTossPayments();
-
-  if (!toss_payments) {
-    throw new Error('토스페이먼츠 초기화에 실패했습니다.');
-  }
-
-  // 결제 위젯 렌더링
-  const widget = toss_payments.widgets({
-    customerKey: 'ANONYMOUS', // 비회원 결제의 경우
-  });
-
-  await widget.setAmount({
-    currency: 'KRW',
-    value: 0, // 초기값, 나중에 업데이트
-  });
-
-  return widget;
-};
+// NOTE: TossPayments SDK v2에서는 widgets 메서드가 제거되었습니다.
+// 필요 시 Payment Widget SDK를 별도로 사용해야 합니다.
+// export const createPaymentWidget = async (_elementId: string) => {
+//   const toss_payments = await getTossPayments();
+//
+//   if (!toss_payments) {
+//     throw new Error('토스페이먼츠 초기화에 실패했습니다.');
+//   }
+//
+//   // 결제 위젯 렌더링
+//   const widget = toss_payments.widgets({
+//     customerKey: 'ANONYMOUS', // 비회원 결제의 경우
+//   });
+//
+//   await widget.setAmount({
+//     currency: 'KRW',
+//     value: 0, // 초기값, 나중에 업데이트
+//   });
+//
+//   return widget;
+// };

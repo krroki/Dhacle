@@ -42,11 +42,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
     }
 
-    let final_price = course.price;
-    let applied_coupon = null;
+    const final_price = course.price;
+    // @ts-expect-error - 쿠폰 기능 구현 대기 중
+    const _applied_coupon: { id: string; code: string; discountType: string; discountValue: number } | null = null;
 
+    // TODO: coupons 테이블이 없어서 임시로 비활성화
     // 쿠폰 적용
     if (couponCode) {
+      // 쿠폰 기능 임시 비활성화
+      return NextResponse.json(
+        { error: '쿠폰 기능은 현재 준비 중입니다.' },
+        { status: 503 }
+      );
+      
+      /* 원본 코드 - coupons 테이블 생성 후 활성화 필요
       const { data: coupon, error: coupon_error } = await supabase
         .from('coupons')
         .select('*')
@@ -77,6 +86,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             .eq('id', coupon.id);
         }
       }
+      */
     }
 
     // 주문 ID 생성 (고유해야 함)
@@ -89,11 +99,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         user_id: user.id,
         course_id: course_id,
         amount: course.price,
-        finalAmount: final_price,
+        final_amount: final_price,  // snake_case로 변경
         payment_method: 'tosspayments',
-        paymentIntentId: order_id, // 주문 ID 저장
+        payment_intent_id: order_id, // snake_case로 변경
         status: 'pending',
-        couponId: applied_coupon?.id,
+        coupon_id: null,  // 쿠폰 기능 비활성화 중
       })
       .select()
       .single();
@@ -105,7 +115,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 사용자 프로필 정보 가져오기
     const { data: profile } = await supabase
       .from('profiles')
-      .select('username, email')
+      .select('username')  // email 필드 제거 (profiles 테이블에 없음)
       .eq('id', user.id)
       .single();
 
@@ -116,8 +126,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       amount: final_price,
       orderName: course.title,
       customerName: profile?.username || '고객',
-      customerEmail: profile?.email || user.email,
+      customerEmail: user.email,  // user.email 직접 사용
       purchaseId: purchase.id,
+      // 쿠폰 기능이 비활성화되어 있으므로 항상 null
+      appliedCoupon: null,
+      /* 쿠폰 기능 활성화 시 사용
       appliedCoupon: applied_coupon
         ? {
             code: applied_coupon.code,
@@ -125,6 +138,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             discountValue: applied_coupon.discountValue,
           }
         : null,
+      */
     });
   } catch (_error) {
     return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });

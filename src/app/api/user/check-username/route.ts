@@ -3,7 +3,6 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
-import type { Database } from '@/types';
 
 // POST: Check username availability
 export async function POST(request: Request): Promise<NextResponse> {

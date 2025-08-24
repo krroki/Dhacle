@@ -73,16 +73,7 @@ export default function ApiKeysPage() {
 
     set_validating(true);
     try {
-      const response = await fetch('/api/youtube/validate-key', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ api_key }),
-      });
-
-      const data = await response.json();
+      const data = await apiPost<{ success: boolean; error?: string }>('/api/youtube/validate-key', { api_key });
       console.log('[Client] Validation response:', data);
 
       if (data.success) {

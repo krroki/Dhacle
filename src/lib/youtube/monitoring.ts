@@ -11,6 +11,7 @@
 
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types';
+import { snakeToCamelCase } from '@/types';
 import { calculateMetrics } from './metrics';
 
 const supabase = createBrowserClient();
@@ -25,12 +26,39 @@ export class ChannelFolderManager {
   async createFolder(
     folder: Omit<SourceFolder, 'id' | 'created_at' | 'updated_at'>
   ): Promise<SourceFolder> {
-    const { data, error } = await supabase.from('sourceFolders').insert(folder).select().single();
+    // Convert camelCase to snake_case for DB
+    const dbFolder = {
+      user_id: folder.user_id,
+      name: folder.name,
+      description: folder.description,
+      color: folder.color,
+      icon: folder.icon,
+      is_active: true,
+      channel_count: 0
+    };
+    
+    const { data, error } = await supabase
+      .from('source_folders')
+      .insert(dbFolder)
+      .select()
+      .single();
 
     if (error) {
       throw error;
     }
-    return data;
+    
+    // Convert snake_case to camelCase and add missing fields
+    return {
+      ...snakeToCamelCase(data),
+      autoMonitor: false,
+      monitorFrequencyHours: 24,
+      channelCount: data.channel_count ?? 0,
+      isMonitoringEnabled: data.is_active ?? false,
+      checkIntervalHours: 24,
+      lastCheckedAt: null,
+      folderChannels: [],
+      deleted_at: null
+    } as unknown as SourceFolder;
   }
 
   /**
@@ -42,7 +70,7 @@ export class ChannelFolderManager {
       channel_id: channel_id,
     }));
 
-    const { error } = await supabase.from('folderChannels').insert(folder_channels);
+    const { error } = await supabase.from('folder_channels').insert(folder_channels);
 
     if (error) {
       throw error;
@@ -54,10 +82,10 @@ export class ChannelFolderManager {
    */
   async getUserFolders(user_id: string): Promise<SourceFolder[]> {
     const { data, error } = await supabase
-      .from('sourceFolders')
+      .from('source_folders')
       .select(`
         *,
-        folderChannels(
+        folder_channels(
           channel_id,
           channels(*)
         )
@@ -68,16 +96,38 @@ export class ChannelFolderManager {
     if (error) {
       throw error;
     }
-    return data || [];
+    
+    // Convert each folder from snake_case to camelCase and add missing fields
+    return (data || []).map(folder => ({
+      ...snakeToCamelCase(folder),
+      autoMonitor: false,
+      monitorFrequencyHours: 24,
+      channelCount: folder.channel_count ?? 0,
+      isMonitoringEnabled: folder.is_active ?? false,
+      checkIntervalHours: 24,
+      lastCheckedAt: null,
+      folderChannels: folder.folder_channels?.map((fc: any) => snakeToCamelCase(fc)) || [],
+      deleted_at: null
+    } as unknown as SourceFolder));
   }
 
   /**
    * Update folder settings
    */
   async updateFolder(folder_id: string, updates: Partial<SourceFolder>): Promise<SourceFolder> {
+    // Convert updates to snake_case for DB
+    const dbUpdates = {
+      ...(updates.name && { name: updates.name }),
+      ...(updates.description !== undefined && { description: updates.description }),
+      ...(updates.color !== undefined && { color: updates.color }),
+      ...(updates.icon !== undefined && { icon: updates.icon }),
+      ...(updates.isMonitoringEnabled !== undefined && { is_active: updates.isMonitoringEnabled }),
+      ...(updates.channelCount !== undefined && { channel_count: updates.channelCount })
+    };
+    
     const { data, error } = await supabase
-      .from('sourceFolders')
-      .update(updates)
+      .from('source_folders')
+      .update(dbUpdates)
       .eq('id', folder_id)
       .select()
       .single();
@@ -85,14 +135,26 @@ export class ChannelFolderManager {
     if (error) {
       throw error;
     }
-    return data;
+    
+    // Convert response back to camelCase and add missing fields
+    return {
+      ...snakeToCamelCase(data),
+      autoMonitor: false,
+      monitorFrequencyHours: 24,
+      channelCount: data.channel_count ?? 0,
+      isMonitoringEnabled: data.is_active ?? false,
+      checkIntervalHours: 24,
+      lastCheckedAt: null,
+      folderChannels: [],
+      deleted_at: null
+    } as unknown as SourceFolder;
   }
 
   /**
    * Delete a folder
    */
   async deleteFolder(folder_id: string): Promise<void> {
-    const { error } = await supabase.from('sourceFolders').delete().eq('id', folder_id);
+    const { error } = await supabase.from('source_folders').delete().eq('id', folder_id);
 
     if (error) {
       throw error;
@@ -108,12 +170,51 @@ export class AlertRuleEngine {
    * Create a new alert rule
    */
   async createRule(rule: Omit<AlertRule, 'id' | 'created_at' | 'updated_at'>): Promise<AlertRule> {
-    const { data, error } = await supabase.from('alertRules').insert(rule).select().single();
+    // Convert AlertRule to DB schema
+    const dbRule = {
+      user_id: rule.user_id,
+      name: rule.name,
+      description: rule.description,
+      rule_type: rule.ruleType,
+      metric: rule.metric,
+      condition: rule.condition,
+      threshold_value: rule.thresholdValue,
+      target_type: rule.scope,
+      target_id: rule.scopeId,
+      is_active: rule.is_active,
+      cooldown_minutes: rule.cooldownHours * 60
+    };
+    
+    const { data, error } = await supabase
+      .from('alert_rules')
+      .insert(dbRule)
+      .select()
+      .single();
 
     if (error) {
       throw error;
     }
-    return data;
+    
+    // Convert DB response to AlertRule type
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      name: data.name,
+      description: data.description,
+      ruleType: data.rule_type as any,
+      metric: data.metric as any,
+      metricType: data.metric as any,
+      condition: data.condition as any,
+      comparisonOperator: '>',
+      thresholdValue: data.threshold_value ?? 0,
+      scope: data.target_type as any,
+      scopeId: data.target_id,
+      is_active: data.is_active ?? false,
+      cooldownHours: Math.floor((data.cooldown_minutes ?? 0) / 60),
+      lastTriggeredAt: data.last_triggered_at,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString()
+    } as unknown as AlertRule;
   }
 
   /**
@@ -121,7 +222,7 @@ export class AlertRuleEngine {
    */
   async getUserRules(user_id: string): Promise<AlertRule[]> {
     const { data, error } = await supabase
-      .from('alertRules')
+      .from('alert_rules')
       .select('*')
       .eq('user_id', user_id)
       .eq('is_active', true)
@@ -130,7 +231,27 @@ export class AlertRuleEngine {
     if (error) {
       throw error;
     }
-    return data || [];
+    
+    // Convert DB response to AlertRule type
+    return (data || []).map(rule => ({
+      id: rule.id,
+      user_id: rule.user_id,
+      name: rule.name,
+      description: rule.description,
+      ruleType: rule.rule_type as any,
+      metric: rule.metric as any,
+      metricType: rule.metric as any,
+      condition: rule.condition as any,
+      comparisonOperator: '>',
+      thresholdValue: rule.threshold_value ?? 0,
+      scope: rule.target_type as any,
+      scopeId: rule.target_id,
+      is_active: rule.is_active ?? false,
+      cooldownHours: Math.floor((rule.cooldown_minutes ?? 0) / 60),
+      lastTriggeredAt: rule.last_triggered_at,
+      created_at: rule.created_at || new Date().toISOString(),
+      updated_at: rule.updated_at || new Date().toISOString()
+    } as unknown as AlertRule));
   }
 
   /**
@@ -258,10 +379,10 @@ export class AlertRuleEngine {
    */
   private async calculateGrowthRate(video_id: string): Promise<number | null> {
     const { data, error } = await supabase
-      .from('videoStats')
-      .select('view_count, snapshotAt')
+      .from('video_stats')
+      .select('view_count, created_at')
       .eq('video_id', video_id)
-      .order('snapshotAt', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(2);
 
     if (error || !data || data.length < 2) {
@@ -270,13 +391,13 @@ export class AlertRuleEngine {
 
     const [recent, previous] = data;
 
-    if (!recent || !previous) {
+    if (!recent || !previous || !recent.view_count || !previous.view_count || !recent.created_at || !previous.created_at) {
       return null;
     }
 
     const view_diff = recent.view_count - previous.view_count;
     const time_diff =
-      new Date(recent.snapshotAt).getTime() - new Date(previous.snapshotAt).getTime();
+      new Date(recent.created_at).getTime() - new Date(previous.created_at).getTime();
     const hours_diff = time_diff / (1000 * 60 * 60);
 
     if (hours_diff === 0 || previous.view_count === 0) {
@@ -293,7 +414,8 @@ export class AlertRuleEngine {
       return;
     }
 
-    const { error } = await supabase.from('alerts').insert(alerts);
+    // TODO: Fix Alert type mapping
+    const { error } = await supabase.from('alerts').insert(alerts as any);
 
     if (error) {
       throw error;
@@ -362,8 +484,8 @@ export class MonitoringScheduler {
       const channel_ids = new Set<string>();
       for (const folder of folders) {
         if (folder.isMonitoringEnabled && folder.folderChannels) {
-          folder.folderChannels.forEach((fc) => {
-            channel_ids.add(fc.channel_id);
+          folder.folderChannels.forEach((fc: any) => {
+            channel_ids.add(fc.channel_id || fc.channelId);
           });
         }
       }
@@ -411,7 +533,7 @@ export class MonitoringScheduler {
     const { error } = await supabase
       .from('users')
       .update({
-        lastMonitoringCheck: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .eq('id', user_id);
 

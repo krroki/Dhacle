@@ -189,7 +189,7 @@ export async function validateYouTubeApiKey(api_key: string): Promise<ApiKeyVali
     // YouTube Data API v3의 search 엔드포인트를 사용하여 검증
     // search.list는 필터 없이도 작동하므로 API Key 검증에 적합
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&key=${api_key}`,
+      `https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=1&key=${api_key}`, // External API: YouTube
       { method: 'GET' }
     );
 

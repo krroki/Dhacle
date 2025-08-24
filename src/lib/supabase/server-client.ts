@@ -2,6 +2,7 @@ import { type CookieOptions, createServerClient as createSupabaseSSRClient } fro
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types';
+import { env } from '@/env';
 
 /**
  * Create a Supabase client for server-side usage
@@ -11,9 +12,9 @@ import type { Database } from '@/types';
 export async function createSupabaseServerClient() {
   const cookie_store = await cookies();
 
-  // Validate environment variables
-  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  // Validate environment variables with type-safe access
+  const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabase_url || !supabase_anon_key) {
     throw new Error(
@@ -61,8 +62,8 @@ export const createClient = createSupabaseServerClient;
  * Never expose Service Role Key to the client
  */
 export async function createSupabaseServiceRoleClient() {
-  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const service_role_key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const service_role_key = env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabase_url || !service_role_key) {
     throw new Error(
@@ -88,9 +89,9 @@ export async function createSupabaseServiceRoleClient() {
 export async function createSupabaseRouteHandlerClient() {
   const cookie_store = await cookies();
 
-  // Validate environment variables
-  const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  // Validate environment variables with type-safe access
+  const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabase_url || !supabase_anon_key) {
     throw new Error(

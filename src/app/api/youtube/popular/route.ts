@@ -8,6 +8,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { mapVideoStats } from '@/lib/utils/type-mappers';
 import { getPopularShortsWithoutKeyword } from '@/lib/youtube/popular-shorts';
+import { env } from '@/env';
 
 export const runtime = 'nodejs';
 
@@ -58,13 +59,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (!api_key_data) {
       // Check if environment variable exists as fallback
-      const has_env_key = Boolean(process.env.YOUTUBE_API_KEY);
+      const has_env_key = Boolean(env.YOUTUBE_API_KEY);
 
       console.log('[Popular Shorts API] API key check:', {
         userId: user.id,
         hasUserKey: false,
         hasEnvKey: has_env_key,
-        envKeys: Object.keys(process.env).filter((key) => key.includes('YOUTUBE')),
       });
 
       if (!has_env_key) {
@@ -269,13 +269,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * Helper: Save videos to collection
  */
 async function save_to_collection(
-  _userId: string,
+  userId: string,
   collection_id: string,
   videos: Array<{ id: string }>
 ): Promise<void> {
   const supabase = await createSupabaseRouteHandlerClient();
 
-  const collection_items = videos.map((video) => {
+  const collection_items = videos.map((video, index) => {
     if (!video || typeof video !== 'object' || !('id' in video)) {
       throw new Error('Invalid video data');
     }
@@ -283,10 +283,11 @@ async function save_to_collection(
     return {
       collection_id: collection_id,
       video_id: video_data.id,
-      addedAt: new Date().toISOString(),
-      itemData: video,
+      added_by: userId,
+      position: index,
+      notes: null,
     };
   });
 
-  await supabase.from('collectionItems').insert(collection_items);
+  await supabase.from('collection_items').insert(collection_items);
 }

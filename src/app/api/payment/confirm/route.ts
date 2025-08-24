@@ -5,8 +5,9 @@ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import type { Json } from '@/types';
+import { env } from '@/env';
 
-const toss_secret_key = process.env.TOSS_SECRET_KEY;
+const toss_secret_key = env.TOSS_SECRET_KEY;
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // 세션 검사
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // 토스페이먼츠 결제 승인 API 호출
-    const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+    const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', { // External API: TossPayments
       method: 'POST',
       headers: {
         Authorization: `Basic ${Buffer.from(`${toss_secret_key}:`).toString('base64')}`,
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (update_error) {
       // 토스페이먼츠 결제 취소 API 호출 (보상 트랜잭션)
-      await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+      await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, { // External API: TossPayments
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(`${toss_secret_key}:`).toString('base64')}`,

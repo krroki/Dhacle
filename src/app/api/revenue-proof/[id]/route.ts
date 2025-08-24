@@ -161,6 +161,9 @@ export async function PUT(
     }
 
     // 24시간 제한 확인
+    if (!existing_proof.created_at) {
+      return NextResponse.json({ error: '생성 시간 정보가 없습니다' }, { status: 400 });
+    }
     const created_at = new Date(existing_proof.created_at);
     const now = new Date();
     const hours_since_creation = (now.getTime() - created_at.getTime()) / (1000 * 60 * 60);

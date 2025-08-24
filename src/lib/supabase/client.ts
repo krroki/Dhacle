@@ -1,9 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types';
+import { env } from '@/env';
 
-// Get environment variables with fallback for build time
-const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Get environment variables with type-safe access
+const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Lazy initialization to avoid build-time errors
 let supabase_client: ReturnType<typeof createSupabaseClient<Database>> | null = null;

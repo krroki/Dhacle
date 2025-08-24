@@ -8,6 +8,7 @@ import {
   getClientIp,
 } from '@/lib/security/rate-limiter';
 import type { Database } from '@/types';
+import { env } from '@/env';
 
 /**
  * 🔐 보안 미들웨어
@@ -51,8 +52,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // Wave 1: Supabase 세션 자동 새로고침 - 모든 경로에 적용
   try {
-    const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabase_anon_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabase_url = env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (supabase_url && supabase_anon_key) {
       const supabase = createServerClient<Database>(supabase_url, supabase_anon_key, {
@@ -80,7 +81,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       // 세션 자동 새로고침
       await supabase.auth.getSession();
 
-      if (process.env.NODE_ENV === 'development') {
+      if (env.NODE_ENV === 'development') {
         const {
           data: { user },
         } = await supabase.auth.getUser();
@@ -92,7 +93,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   } catch (_error) {}
 
   // 개발 환경에서 미들웨어 작동 확인
-  if (process.env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     console.log('[Middleware] Processing:', pathname);
   }
 
@@ -150,7 +151,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 3. CORS 설정 (필요한 경우)
   const origin = request.headers.get('origin');
   const allowed_origins = [
-    process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     'https://dhacle.com',
     'https://www.dhacle.com',
   ];

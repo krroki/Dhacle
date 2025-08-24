@@ -3,7 +3,7 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { NextResponse } from 'next/server';
-import type { Database } from '@/types';
+import { snakeToCamelCase } from '@/types';
 
 // GET: Get user profile
 export async function GET(): Promise<NextResponse> {
@@ -13,25 +13,25 @@ export async function GET(): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: auth_error,
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (auth_error || !user) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Get user profile
-    const { data: profile, error: profile_error } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('users')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (profile_error) {
+    if (profileError) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ profile });
+    return NextResponse.json(snakeToCamelCase({ profile }));
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -45,22 +45,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: auth_error,
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (auth_error || !user) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse request body
     const body = await request.json();
+    // Convert from camelCase (frontend) to snake_case (DB)
     const {
       username,
-      work_type: _work_type,
-      job_category,
-      current_income,
-      target_income,
-      experience_level,
+      // workType, // TODO: Use when work_type field is properly implemented
+      jobCategory,
+      currentIncome,
+      targetIncome,
+      experienceLevel,
     } = body;
 
     // Validate username format
@@ -69,7 +70,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     // Check if profile exists (users 테이블 사용)
-    const { data: existing_profile } = await supabase
+    const { data: existingProfile } = await supabase
       .from('users')
       .select('id')
       .eq('id', user.id)
@@ -77,17 +78,17 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     let result;
 
-    if (existing_profile) {
+    if (existingProfile) {
       // Update existing profile
       result = await supabase
         .from('users')
         .update({
           username,
-          // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
-          job_category,
-          current_income,
-          target_income,
-          experience_level,
+          // work_type: workType, // TODO: Use work_type when field is properly implemented
+          job_category: jobCategory,
+          current_income: currentIncome,
+          target_income: targetIncome,
+          experience_level: experienceLevel,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
@@ -100,11 +101,11 @@ export async function POST(request: Request): Promise<NextResponse> {
         .insert({
           id: user.id,
           username,
-          // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
-          job_category: job_category, // Fixed: use snake_case
-          current_income: current_income, // Fixed: use snake_case
-          target_income: target_income, // Fixed: use snake_case
-          experience_level: experience_level, // Fixed: use snake_case
+          // work_type: workType, // TODO: Use work_type when field is properly implemented
+          job_category: jobCategory,
+          current_income: currentIncome,
+          target_income: targetIncome,
+          experience_level: experienceLevel,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -121,7 +122,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
     }
 
-    return NextResponse.json({ profile: result.data });
+    return NextResponse.json(snakeToCamelCase({ profile: result.data }));
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -135,25 +136,26 @@ export async function PUT(request: Request): Promise<NextResponse> {
     // Get authenticated user
     const {
       data: { user },
-      error: auth_error,
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (auth_error || !user) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
     // Parse request body
     const body = await request.json();
+    // Convert from camelCase (frontend) to snake_case (DB)
     const {
       username,
-      full_name,
-      channel_name,
-      channel_url,
-      work_type: _work_type,
-      job_category,
-      current_income,
-      target_income,
-      experience_level,
+      fullName,
+      channelName,
+      channelUrl,
+      // workType, // TODO: Use when work_type field is properly implemented
+      jobCategory,
+      currentIncome,
+      targetIncome,
+      experienceLevel,
     } = body;
 
     // Validate username format
@@ -162,34 +164,34 @@ export async function PUT(request: Request): Promise<NextResponse> {
     }
 
     // Update user profile
-    const { data: updated_profile, error: update_error } = await supabase
+    const { data: updatedProfile, error: updateError } = await supabase
       .from('users')
       .update({
         username,
-        full_name,
-        channel_name,
-        channel_url,
-        // work_type, // TODO: Use work_type (snake_case) when field is properly implemented
-        job_category,
-        current_income,
-        target_income,
-        experience_level,
+        full_name: fullName,
+        channel_name: channelName,
+        channel_url: channelUrl,
+        // work_type: workType, // TODO: Use work_type when field is properly implemented
+        job_category: jobCategory,
+        current_income: currentIncome,
+        target_income: targetIncome,
+        experience_level: experienceLevel,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
       .select()
       .single();
 
-    if (update_error) {
+    if (updateError) {
       // Check for unique constraint violation
-      if (update_error.code === '23505' && update_error.message.includes('username')) {
+      if (updateError.code === '23505' && updateError.message.includes('username')) {
         return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
       }
 
       return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
     }
 
-    return NextResponse.json({ profile: updated_profile });
+    return NextResponse.json(snakeToCamelCase({ profile: updatedProfile }));
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

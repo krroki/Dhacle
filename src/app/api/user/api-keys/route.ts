@@ -11,6 +11,7 @@ import {
   saveUserApiKey,
   validateYouTubeApiKey,
 } from '@/lib/api-keys';
+import { env } from '@/env';
 
 /**
  * GET /api/user/api-keys
@@ -86,11 +87,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // 환경 변수 디버깅
   console.log('[API Route] Environment check:', {
-    hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    hasEncryptionKey: !!process.env.ENCRYPTION_KEY,
-    encryptionKeyLength: process.env.ENCRYPTION_KEY?.length,
-    nodeEnv: process.env.NODE_ENV,
-    runtime: process.env.NEXT_RUNTIME,
+    hasServiceRoleKey: !!env.SUPABASE_SERVICE_ROLE_KEY,
+    hasEncryptionKey: !!env.ENCRYPTION_KEY,
+    encryptionKeyLength: env.ENCRYPTION_KEY?.length,
+    nodeEnv: env.NODE_ENV,
+    runtime: env.NEXT_RUNTIME,
   });
 
   try {

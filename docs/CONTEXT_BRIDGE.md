@@ -1,5 +1,9 @@
 # 🌉 CONTEXT_BRIDGE - AI 필수 참조 문서 (예방 + 대응 통합)
 
+> **최종 업데이트**: 2025-02-01
+> **버전**: v2.0 (개발 도구 최적화 반영)
+> **중요 변경**: 환경변수 패턴, React Query 패턴 추가
+
 **목적**: AI가 디하클 프로젝트 작업 시 반복 실수를 예방하고 에러에 대응하는 통합 가이드
 
 **우선순위**: 🔴 **최우선 - 이 문서 미확인 시 치명적 오류 발생 가능성 90%**
@@ -8,9 +12,60 @@
 
 ---
 
-## 🔥 반복되는 10가지 치명적 실수 (작업 전 반드시 확인!)
+## 🎯 능동적 해결 원칙 (Proactive Resolution) - 2025-08-23 추가
 
-### 1. React Hook 명명 규칙 위반 🆕 
+### 🛑 문제 회피 = 프로젝트 파괴
+**임시방편으로 넘어가는 것은 기술 부채가 아니라 프로젝트 파괴입니다.**
+
+### ✅ 능동적 해결 프로세스
+| 상황 | ❌ 수동적 회피 (금지) | ✅ 능동적 해결 (필수) |
+|------|---------------------|-------------------|
+| **테이블 누락** | 주석 처리하고 "해결 완료" | 1. SQL 작성<br>2. 실행<br>3. 타입 생성<br>4. 구현 완료 |
+| **타입 오류** | any 타입으로 회피 | 1. 정확한 타입 정의<br>2. src/types/index.ts 추가<br>3. import 수정 |
+| **API 실패** | null/빈 배열 반환 | 1. 실제 로직 구현<br>2. 에러 처리 추가<br>3. 테스트 확인 |
+| **기능 미구현** | TODO 남기고 넘어감 | 1. 즉시 구현<br>2. 테스트<br>3. 검증 |
+
+### 🚨 즉시 중단 신호 (STOP Signals)
+다음 상황 발견 시 **즉시 작업 중단**하고 해결:
+```typescript
+// 🛑 STOP 1: 주석 처리된 DB 호출
+// await supabase.from('table').insert() // 테이블 없음
+
+// 🛑 STOP 2: 임시 반환값
+const data: any[] = [] // 임시로...
+
+// 🛑 STOP 3: TODO 회피
+// TODO: 나중에 구현
+
+// 🛑 STOP 4: Silent 실패
+catch (error) { /* 무시 */ }
+```
+
+### 📋 기능 완성도 검증 (Definition of Done)
+작업 완료 선언 전 **필수 체크**:
+- [ ] 실제 DB 테이블 존재 및 CRUD 동작
+- [ ] API 엔드포인트 실제 호출 성공
+- [ ] 프론트엔드에서 데이터 정상 표시
+- [ ] 에러 케이스 처리 구현
+- [ ] 타입 안정성 100% (any 타입 0개)
+
+---
+
+## 🔥 반복되는 11가지 치명적 실수 (2025-08-24 업데이트)
+
+### 1. @supabase/auth-helpers-nextjs 패키지 사용 🔴
+**❌ 실제 사례**: 44개 파일에서 deprecated 패키지 사용
+```typescript
+// ❌ 절대 금지 (PKCE 오류 발생)
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+// ✅ 올바른 코드 (프로젝트 표준)
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+```
+**🛡️ 예방책**: 반드시 프로젝트 래퍼 함수 사용
+**📍 해결**: 2025-08-22 44개 파일 통일, 패키지 제거 예정
+
+### 2. React Hook 명명 규칙 위반 
 **❌ 실제 사례**: snake_case 마이그레이션 시 React Hook까지 변환
 ```typescript
 // ❌ 잘못된 코드 (2025-08-22 빌드 실패 원인)
@@ -24,7 +79,7 @@ function useCarousel() {
 **🛡️ 예방책**: React Hook은 반드시 `use`로 시작하는 camelCase 유지
 **📍 해결**: carousel.tsx의 모든 use_carousel 호출을 useCarousel로 수정 완료
 
-### 2. TypeScript 컴파일 에러
+### 3. TypeScript 컴파일 에러
 **❌ 실제 사례**: `categoryBenchmarks` vs `category_benchmarks` 혼용
 ```typescript
 // ❌ 잘못된 코드 (방금 수정한 실제 사례)
@@ -35,7 +90,7 @@ benchmarks: typeof category_benchmarks.percentiles
 ```
 **🛡️ 예방책**: 변수명 작성 전 주변 코드 확인, snake_case 일관성 유지
 
-### 3. 런타임 환경 변수 에러
+### 4. 런타임 환경 변수 에러
 **❌ 실제 사례**: Vercel 빌드 시 환경변수 없음
 ```typescript
 // ❌ 문제 코드
@@ -48,7 +103,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: Server Component에 `force-dynamic` 추가
 
-### 4. ESLint 에러 (any 타입)
+### 5. ESLint 에러 (any 타입)
 **❌ 실제 사례**: 타입 모르면 any 사용
 ```typescript
 // ❌ 금지
@@ -60,20 +115,30 @@ const data = await apiGet<User>('/api/user');
 ```
 **🛡️ 예방책**: @/types에서 타입 import, 없으면 unknown + 타입가드
 
-### 5. snake_case/camelCase 혼용
-**❌ 실제 사례**: DB 필드명 그대로 사용
+### 6. snake_case/camelCase 혼용 (2025-08-22 대규모 발견)
+**❌ 실제 사례**: 시스템 전반 90% API가 변환 미사용
 ```typescript
-// ❌ 문제: DB는 snake_case, 프론트는 camelCase
-user.created_at // DB 필드명
-user.createdAt // 프론트엔드 필드명
+// ❌ 문제 1: API Route가 DB 데이터 그대로 반환 (47개 중 42개)
+// /api/user/profile/route.ts
+return NextResponse.json({ profile }); // snake_case 그대로
+
+// ❌ 문제 2: Components가 snake_case 필드 직접 사용
+// NotificationDropdown.tsx
+notification.created_at // DB 필드명 직접 사용
+
+// ❌ 문제 3: 변수명 규칙 위반
+const is_scrolled = useState(false); // snake_case 변수
 
 // ✅ 해결: 변환 함수 사용
 import { snakeToCamelCase } from '@/types';
-const userData = snakeToCamelCase(dbData);
+return NextResponse.json(snakeToCamelCase({ profile }));
 ```
-**🛡️ 예방책**: API 경계에서 항상 변환
+**🛡️ 예방책**: 
+- API 경계에서 항상 변환 (5개만 사용 중 → 47개 모두 필요)
+- Components는 camelCase만 사용
+- 변수명은 JavaScript/TypeScript 컨벤션 준수
 
-### 6. API 연동 미흡
+### 7. API 연동 미흡 (Direct fetch 14개 발견)
 **❌ 실제 사례**: 직접 fetch 사용
 ```typescript
 // ❌ 금지
@@ -85,7 +150,7 @@ const data = await apiGet('/api/data');
 ```
 **🛡️ 예방책**: api-client.ts 함수만 사용
 
-### 7. DB 값 무시하고 임의 생성
+### 8. DB 값 무시하고 임의 생성
 **❌ 실제 사례**: 더미 데이터 사용
 ```typescript
 // ❌ 금지
@@ -96,7 +161,7 @@ const { data } = await supabase.from('table').select();
 ```
 **🛡️ 예방책**: 실제 DB 데이터만 사용
 
-### 8. any 타입 남발
+### 9. any 타입 남발
 **❌ 실제 사례**: 에러 처리 시 any
 ```typescript
 // ❌ 금지
@@ -109,7 +174,7 @@ catch (error) {
 ```
 **🛡️ 예방책**: unknown 사용 후 타입 체크
 
-### 9. 파일 컨텍스트 무시
+### 10. 파일 컨텍스트 무시
 **❌ 실제 사례**: Read 없이 수정
 ```typescript
 // ❌ 금지: 추측으로 코드 수정
@@ -122,7 +187,7 @@ catch (error) {
 ```
 **🛡️ 예방책**: 수정 전 반드시 Read 실행
 
-### 10. Supabase 패턴 혼용
+### 11. Supabase 패턴 혼용
 **❌ 실제 사례**: 구식/신식 혼용
 ```typescript
 // ❌ 구식 (2025-08-22 이전)
@@ -133,7 +198,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: 프로젝트 표준 패턴만 사용
 
-### 11. OAuth PKCE 라이브러리 불일치 🆕
+### 12. OAuth PKCE 라이브러리 불일치 (삭제 예정)
 **❌ 실제 사례**: Kakao 로그인 PKCE 에러 (2025-08-22)
 ```typescript
 // ❌ 문제 원인: auth-helpers-nextjs와 @supabase/ssr 혼용
@@ -207,35 +272,199 @@ return NextResponse.json(data);
 
 ---
 
+## 환경변수 패턴 (2025-02-01 추가)
+
+### ❌ 반복되는 실수
+```typescript
+// 1. process.env 직접 접근
+const key = process.env.NEXT_PUBLIC_API_KEY; // 타입 없음, 자동완성 없음
+
+// 2. 타입 체크 없는 사용
+if (process.env.NODE_ENV === 'production') { // 오타 위험
+
+// 3. 런타임에 환경변수 누락 발견
+const apiUrl = process.env.API_URL || 'fallback'; // 빌드 후 발견
+```
+
+### ✅ 올바른 패턴
+```typescript
+import { env } from '@/env';
+
+// 1. 타입 안전 + 자동 완성
+const key = env.NEXT_PUBLIC_API_KEY; // string 타입 보장
+
+// 2. 빌드 타임 검증
+const apiUrl = env.API_URL; // 누락 시 빌드 실패
+
+// 3. Zod 스키마 기반 검증
+// src/env.ts
+export const env = createEnv({
+  server: {
+    API_URL: z.string().url(), // URL 형식 검증
+  }
+});
+```
+
+### 📌 핵심 규칙
+1. **절대 process.env 직접 사용 금지**
+2. **모든 환경변수는 src/env.ts에 정의**
+3. **import { env } from '@/env'로만 접근**
+
+---
+
+## React Query 패턴 (2025-02-01 추가)
+
+### ❌ 반복되는 실수
+```typescript
+// 1. useEffect + fetch 패턴
+useEffect(() => {
+  fetch('/api/data')
+    .then(res => res.json())
+    .then(setData)
+    .catch(setError);
+}, []);
+
+// 2. 수동 로딩/에러 상태 관리
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+const [data, setData] = useState(null);
+
+// 3. API 중복 호출
+// 여러 컴포넌트에서 같은 API를 각각 호출
+```
+
+### ✅ 올바른 패턴
+```typescript
+// 1. React Query Hook 사용
+import { useYouTubeSearch } from '@/hooks/queries/useYouTubeSearch';
+
+function Component() {
+  const { data, isLoading, error } = useYouTubeSearch({ 
+    query: 'shorts' 
+  });
+  
+  // 자동으로 캐싱, 재시도, 중복 제거 처리됨
+}
+
+// 2. Custom Hook 작성 패턴
+// src/hooks/queries/useCustomData.ts
+export function useCustomData(params) {
+  return useQuery({
+    queryKey: ['customData', params],
+    queryFn: () => apiGet('/api/custom', { params }),
+    staleTime: 5 * 60 * 1000, // 5분
+    gcTime: 5 * 60 * 1000,
+    retry: 3,
+  });
+}
+```
+
+### 📌 핵심 규칙
+1. **API 호출은 React Query Hook으로**
+2. **useEffect + fetch 패턴 금지**
+3. **src/hooks/queries/에 Hook 작성**
+4. **적절한 캐싱 전략 설정**
+
+---
+
+## React Query v5 타입 시스템 (2025-08-24 추가)
+
+### ❌ 반복되는 실수 - useInfiniteQuery 타입 추론 실패
+```typescript
+// 빌드 에러: 'pageParam' is of type 'unknown'
+return useInfiniteQuery({
+  queryKey: ['posts'],
+  queryFn: ({ pageParam = 0 }) => { // ❌ 타입 에러!
+    return apiGet(`/api/posts?page=${pageParam}`);
+  }
+});
+```
+
+### ✅ 올바른 패턴 - 5개 제네릭 타입 명시
+```typescript
+import { useInfiniteQuery, type InfiniteData } from '@tanstack/react-query';
+
+interface PaginatedResponse<T> {
+  data: T[];
+  total?: number;
+  page?: number;
+}
+
+return useInfiniteQuery<
+  PaginatedResponse<Post>,           // TQueryFnData
+  Error,                              // TError
+  InfiniteData<PaginatedResponse<Post>>, // TData (InfiniteData로 감싸기)
+  readonly ['posts', any?],           // TQueryKey (readonly 튜플)
+  number                              // TPageParam
+>({
+  queryKey: ['posts'] as const,
+  queryFn: ({ pageParam }) => {      // ✅ 기본값 제거!
+    return apiGet(`/api/posts?page=${pageParam}`);
+  },
+  initialPageParam: 0,                // ✅ v5 필수 속성
+  getNextPageParam: (lastPage, pages) => {
+    if (lastPage?.data?.length < 20) return undefined;
+    return pages.length;
+  }
+});
+```
+
+### 📌 React Query v5 마이그레이션 체크리스트
+```bash
+□ InfiniteData 타입 import 추가
+□ 5개 제네릭 타입 파라미터 명시
+□ pageParam 기본값 제거 (= 0 삭제)
+□ initialPageParam 속성 추가
+□ queryKey를 readonly 튜플로 타입 명시
+□ cacheTime → gcTime 속성명 변경
+```
+
+### 🚨 주의사항 - 필요한 타입 삭제 금지!
+```typescript
+// ❌ 절대 금지 - 기능 제거로 문제 "해결"
+// YouTubeFavorite, YouTubeFolder 타입 삭제 X
+
+// ✅ 올바른 해결 - 타입 정의 추가
+// src/types/index.ts에 누락된 타입 추가
+export interface YouTubeFolder {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+---
+
 ## 🔥 최신 변경사항 (반드시 반영)
 
-### 2025-08-22 업데이트 (최신)
-- **Kakao 로그인 PKCE 오류 해결** (44개 파일 수정 완료):
-  - 원인: `@supabase/auth-helpers-nextjs`와 `@supabase/ssr` 라이브러리 혼용
-  - 증상: "code challenge does not match previously saved code verifier" 에러
-  - 해결: 전체 프로젝트 Supabase 클라이언트 패턴 통일
-    - API Routes: `createSupabaseRouteHandlerClient()` 사용
-    - Client Components: `createBrowserClient()` 사용
-    - 44개 파일 모두 `@supabase/auth-helpers-nextjs` 제거 완료
-  - 교훈: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용 필수
+### 2025-08-24 재구축 완료
+- **재구축 Phase 1-4 완료** (달성률 89.25%):
+  - Phase 1: Biome 경고 제거, 자동 스크립트 0개
+  - Phase 2: TypeScript 에러 88→1개 (98.9% 해결)
+  - Phase 3: DB 22개 테이블, 패턴 85% 통일
+  - Phase 4: 검증 시스템 12개 + 보안 도구 5개
+  
+- **미해결 이슈 (즉시 처리 필요)**:
+  - @supabase/auth-helpers-nextjs 패키지 제거 필요
+  - Direct fetch 14개 → api-client.ts 사용 통일
+  - Deprecated Supabase 패턴 2개 교체
 
-- **Vercel 빌드 실패 완전 해결** (커밋 0216489):
-  - React Hook 명명 규칙 위반 수정: `use_carousel` → `useCarousel`
-  - TypeScript 타입 가드 추가: unknown 타입 접근 시 명시적 체크
-  - typed-client.ts: result 객체 검증 로직 강화
-  - youtube/api-client.ts: API 응답 배열 타입 가드 추가
+### 2025-08-23 개발 도구 최적화
+- **Phase 4-6 완료** (달성률 93%):
+  - 환경변수: @t3-oss/env-nextjs 타입 안전성 100%
+  - React Query: 9개 커스텀 훅 구현
+  - Zustand: 4개 스토어 with persist
+  - Web Vitals: Vercel Analytics 통합
 
-- **YouTube Lens Popular Shorts 개선**:
-  - Silent 에러 처리 제거 → 모든 catch 블록에 console.error 추가
-  - YouTube API mostPopular 차트 전략 추가 (키워드 없는 검색 해결)
-  - Shorts 필터링 60초 → 90초로 완화 (더 많은 콘텐츠 포착)
-  - API 키 환경변수 fallback 로직 추가
-- **React Hook 명명 규칙 위반 수정**: use_carousel → useCarousel (빌드 실패 해결)
-- **API Route 내부 함수 반환 타입 추가**: Promise 타입 명시로 TypeScript 에러 해결
-- **Unknown 타입 가드 추가**: typed-client.ts에 null/undefined 체크 로직 추가
-- Supabase 클라이언트: auth-helpers → ssr 패턴 변경
-- TypeScript 에러: 224개 → 0개 완전 해결
-- 타입 파일: 9개 → 2개로 통합 (database.generated.ts, index.ts만 유지)
+### 2025-08-22 대규모 수정
+- **Supabase 클라이언트 통일** (44개 파일):
+  - auth-helpers-nextjs → @supabase/ssr
+  - PKCE 오류 해결
+- **React Hook 명명 규칙**: useCarousel 수정 완료
+- **snake_case/camelCase**: API 경계 자동 변환 시스템
 - `as any` 완전 제거, 타입 안전성 100%
 
 ### 2025-01-31 업데이트  

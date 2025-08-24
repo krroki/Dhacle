@@ -48,6 +48,7 @@
     "**/*.spec.tsx",
     "vitest.config.ts",
     "playwright.config.ts",
-    "supabase/functions/**/*"
+    "supabase/functions/**/*",
+    "backup/**/*"
   ]
 }

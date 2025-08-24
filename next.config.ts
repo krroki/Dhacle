@@ -75,6 +75,18 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    
+    // 이미지 포맷 설정 (최신 포맷 지원)
+    formats: ['image/avif', 'image/webp'],
+    
+    // 디바이스 크기 설정 (반응형 이미지)
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    
+    // 이미지 최소화 설정
+    minimumCacheTTL: 60,
+    
+    // YouTube 썸네일 추가 도메인
     remotePatterns: [
       {
         protocol: 'https',
@@ -91,6 +103,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yt3.ggpht.com', // YouTube 채널 이미지
       },
       {
         protocol: 'https',

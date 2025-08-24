@@ -235,7 +235,7 @@ export class PubSubHubbubManager {
         'hub.leaseSeconds': '432000', // 5 days
       });
 
-      const response = await fetch(HUB_URL, {
+      const response = await fetch(HUB_URL, { // External API: Google PubSubHubbub
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

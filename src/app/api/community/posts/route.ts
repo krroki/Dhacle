@@ -3,6 +3,7 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { snakeToCamelCase } from '@/types';
 
 /**
  * GET /api/community/posts
@@ -11,9 +12,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createSupabaseRouteHandlerClient();
-    const search_params = req.nextUrl.searchParams;
-    const category = search_params.get('category') || 'board';
-    const page = Number.parseInt(search_params.get('page') || '1', 10);
+    const searchParams = req.nextUrl.searchParams;
+    const category = searchParams.get('category') || 'board';
+    const page = Number.parseInt(searchParams.get('page') || '1', 10);
     const limit = 20;
     const offset = (page - 1) * limit;
 
@@ -46,18 +47,18 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const posts =
       data?.map((post) => ({
         ...post,
-        comment_count: post.community_comments?.[0]?.count || 0,
-        like_count: post.communityLikes?.[0]?.count || 0,
+        commentCount: typeof post.community_comments === 'number' ? post.community_comments : 0,
+        likeCount: typeof post.communityLikes === 'number' ? post.communityLikes : 0,
         author: post.users,
       })) || [];
 
-    return NextResponse.json({
+    return NextResponse.json(snakeToCamelCase({
       success: true,
       posts,
       totalCount: count || 0,
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit),
-    });
+    }));
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -74,10 +75,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 인증 확인
     const {
       data: { user },
-      error: auth_error,
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (auth_error || !user) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
 
@@ -131,15 +132,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({
+    return NextResponse.json(snakeToCamelCase({
       success: true,
       post: {
         ...data,
         author: data.profiles,
-        comment_count: 0,
-        like_count: 0,
+        commentCount: 0,
+        likeCount: 0,
       },
-    });
+    }));
   } catch (_error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

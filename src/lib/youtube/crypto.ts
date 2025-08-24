@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js';
+import { env } from '@/env';
 
 /**
  * 암호화 유틸리티 클래스
@@ -6,7 +7,7 @@ import CryptoJS from 'crypto-js';
  */
 export class CryptoUtil {
   private static getEncryptionKey(): string {
-    const key = process.env.ENCRYPTION_KEY;
+    const key = env.ENCRYPTION_KEY;
     if (!key) {
       throw new Error(
         '암호화 키가 설정되지 않았습니다. ' +

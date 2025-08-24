@@ -54,7 +54,13 @@
       "Bash(else)",
       "Bash(for file in check-alert-rules-detail.js check-db-tables.js check-new-tables.js test-youtube-lens-delta.js verify-youtube-lens-phases.js)",
       "mcp__desktop-commander__read_file",
-      "Bash(npm run verify:all:*)"
+      "Bash(npm run verify:all:*)",
+      "Bash(find:*)",
+      "Bash(cp:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(for var in YOUTUBE_API_KEY NEXT_PUBLIC_APP_URL VERCEL_URL YT_ADMIN_KEY REDIS_HOST REDIS_PORT)",
+      "Bash(do echo \"- $var\")",
+      "Read(/C:\\Users\\jeongyeongrok\\Desktop\\My_Claude_Project\\9.Dhacle\\docs/**)"
     ],
     "deny": [],
     "ask": [],

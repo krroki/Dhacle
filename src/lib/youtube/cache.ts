@@ -6,16 +6,17 @@
 import crypto from 'node:crypto';
 import Redis from 'ioredis';
 import { LRUCache } from 'lru-cache';
+import { env } from '@/env';
 
 // Redis 클라이언트 (조건부 생성)
 let redis: Redis | null = null;
 
 // Redis 연결 시도 (개발 환경에서는 선택적)
-if (process.env.REDIS_HOST || process.env.NODE_ENV === 'production') {
+if (env.REDIS_HOST || env.NODE_ENV === 'production') {
   try {
     redis = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
+      host: env.REDIS_HOST || 'localhost',
+      port: Number.parseInt(env.REDIS_PORT || '6379', 10),
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       lazyConnect: true,

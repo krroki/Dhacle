@@ -7,9 +7,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ channel_id: string }> }
+  _context: { params: Promise<{ channel_id: string }> }
 ) {
-  const { channel_id } = await params;
+  // channel_id는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
+  // const { channel_id } = await params;
   const supabase = await createSupabaseRouteHandlerClient();
 
   // 인증 체크
@@ -27,6 +28,9 @@ export async function GET(
   }
 
   try {
+    // TODO: yl_approval_logs 테이블이 존재하지 않음 - 테이블 생성 필요
+    // 승인 로그 조회 임시 비활성화
+    /*
     const { data, error } = await supabase
       .from('yl_approval_logs')
       .select(`
@@ -55,8 +59,10 @@ export async function GET(
       notes: log.notes,
       created_at: log.created_at,
     }));
+    */
 
-    return NextResponse.json({ data: camel_case_data || [] });
+    // 임시로 빈 데이터 반환
+    return NextResponse.json({ data: [] });
   } catch (error) {
     console.error('Approval logs GET error:', error);
     return NextResponse.json(

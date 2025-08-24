@@ -11,6 +11,10 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBanner } from '@/components/layout/TopBanner';
 import { Providers } from '@/components/providers/Providers';
 import { Toaster } from '@/components/ui/sonner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { WebVitals } from '@/components/WebVitals';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -98,43 +102,50 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko" suppressHydrationWarning={true} className={inter.variable}>
       <body className={`${inter.className} min-h-screen`}>
         <Providers>
-          {/* Progress Bar */}
-          <Suspense fallback={null}>
-            <ProgressBar />
-          </Suspense>
+          <ErrorBoundary>
+            {/* Progress Bar */}
+            <Suspense fallback={null}>
+              <ProgressBar />
+            </Suspense>
 
-          {/* Fixed TopBanner at the very top */}
-          <div className="fixed top-0 left-0 right-0 z-[1300]">
-            <TopBanner />
-          </div>
+            {/* Fixed TopBanner at the very top */}
+            <div className="fixed top-0 left-0 right-0 z-[1300]">
+              <TopBanner />
+            </div>
 
-          {/* Fixed Header below TopBanner */}
-          <div className="fixed left-0 right-0 z-[1200] top-[var(--top-banner-height)]">
-            <Header />
-          </div>
+            {/* Fixed Header below TopBanner */}
+            <div className="fixed left-0 right-0 z-[1200] top-[var(--top-banner-height)]">
+              <Header />
+            </div>
 
-          {/* Main Layout with proper padding */}
-          <div className="flex min-h-screen transition-all duration-300 pt-[calc(var(--top-banner-height)+var(--header-height))]">
-            {/* Sidebar */}
-            <Sidebar />
+            {/* Main Layout with proper padding */}
+            <div className="flex min-h-screen transition-all duration-300 pt-[calc(var(--top-banner-height)+var(--header-height))]">
+              {/* Sidebar */}
+              <Sidebar />
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col max-w-full overflow-x-hidden">
-              <div className="flex-1">{children}</div>
+              {/* Main Content */}
+              <main className="flex-1 flex flex-col max-w-full overflow-x-hidden">
+                <div className="flex-1">{children}</div>
 
-              {/* Footer */}
-              <Footer />
-            </main>
-          </div>
+                {/* Footer */}
+                <Footer />
+              </main>
+            </div>
 
-          {/* Mobile Navigation */}
-          <MobileNav />
+            {/* Mobile Navigation */}
+            <MobileNav />
 
-          {/* Scroll to Top */}
-          <ScrollToTop />
+            {/* Scroll to Top */}
+            <ScrollToTop />
 
-          {/* Toast Notifications */}
-          <Toaster position="top-right" />
+            {/* Toast Notifications */}
+            <Toaster position="top-right" />
+            
+            {/* Performance Monitoring */}
+            <WebVitals />
+            <Analytics />
+            <SpeedInsights />
+          </ErrorBoundary>
         </Providers>
       </body>
     </html>

@@ -88,10 +88,10 @@ export async function PUT_UpdateProfile(request: NextRequest) {
   // 3. 전체 객체 sanitization
   const sanitized_data = sanitizeObject(validation.data, sanitizeBasicHTML);
 
-  // 4. 업데이트
+  // 4. 업데이트 (예제용 - 실제 profiles 테이블 스키마에 맞게 수정 필요)
   const { data, error } = await supabase
     .from('profiles')
-    .update(sanitized_data)
+    .update(sanitized_data as any) // 예제용 타입 캐스팅
     .eq('id', user.id)
     .select()
     .single();

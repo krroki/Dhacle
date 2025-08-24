@@ -6,6 +6,7 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { env } from '@/env';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // 인증 체크 추가
@@ -27,30 +28,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const env_check = {
     timestamp: new Date().toISOString(),
     runtime: {
-      nodeEnv: process.env.NODE_ENV,
-      nextRuntime: process.env.NEXT_RUNTIME,
-      vercel: !!process.env.VERCEL,
-      vercelEnv: process.env.VERCEL_ENV,
-      vercelRegion: process.env.VERCEL_REGION,
+      nodeEnv: env.NODE_ENV,
+      nextRuntime: env.NEXT_RUNTIME,
+      vercel: !!env.VERCEL,
+      vercelEnv: env.VERCEL_ENV,
+      vercelRegion: env.VERCEL_REGION,
     },
     supabase: {
-      hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      urlLength: process.env.NEXT_PUBLIC_SUPABASE_URL?.length,
-      hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      anonKeyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-      hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      serviceRoleKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length,
-      serviceRoleKeyFirst4: process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 4),
+      hasUrl: !!env.NEXT_PUBLIC_SUPABASE_URL,
+      urlLength: env.NEXT_PUBLIC_SUPABASE_URL?.length,
+      hasAnonKey: !!env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      anonKeyLength: env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
+      hasServiceRoleKey: !!env.SUPABASE_SERVICE_ROLE_KEY,
+      serviceRoleKeyLength: env.SUPABASE_SERVICE_ROLE_KEY?.length,
+      serviceRoleKeyFirst4: env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 4),
     },
     encryption: {
-      hasEncryptionKey: !!process.env.ENCRYPTION_KEY,
-      encryptionKeyLength: process.env.ENCRYPTION_KEY?.length,
-      isValid64Chars: process.env.ENCRYPTION_KEY?.length === 64,
-      first4Chars: process.env.ENCRYPTION_KEY?.substring(0, 4),
+      hasEncryptionKey: !!env.ENCRYPTION_KEY,
+      encryptionKeyLength: env.ENCRYPTION_KEY?.length,
+      isValid64Chars: env.ENCRYPTION_KEY?.length === 64,
+      first4Chars: env.ENCRYPTION_KEY?.substring(0, 4),
     },
     payment: {
-      hasTossClientKey: !!process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY,
-      hasTossSecretKey: !!process.env.TOSS_SECRET_KEY,
+      hasTossClientKey: !!env.NEXT_PUBLIC_TOSS_CLIENT_KEY,
+      hasTossSecretKey: !!env.TOSS_SECRET_KEY,
     },
     processInfo: {
       platform: process.platform,

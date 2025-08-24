@@ -7,6 +7,7 @@
 import { google, type youtube_v3 } from 'googleapis';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { createServerClient } from '@/lib/supabase/server-client';
+import { env } from '@/env';
 
 /**
  * Get or create YouTube API client
@@ -28,7 +29,7 @@ export async function getYouTubeClient(user_id?: string): Promise<youtube_v3.You
 
   // Fallback to environment variable if no user key
   if (!api_key) {
-    const env_key = process.env.YOUTUBE_API_KEY;
+    const env_key = env.YOUTUBE_API_KEY;
     if (env_key) {
       api_key = env_key;
       key_source = 'env';
@@ -36,8 +37,7 @@ export async function getYouTubeClient(user_id?: string): Promise<youtube_v3.You
     } else {
       console.error('[YouTube Client] No API key found:', {
         hasUserId: Boolean(user_id),
-        hasEnvKey: Boolean(process.env.YOUTUBE_API_KEY),
-        envKeys: Object.keys(process.env).filter((key) => key.includes('YOUTUBE')),
+        hasEnvKey: Boolean(env.YOUTUBE_API_KEY),
       });
     }
   }
