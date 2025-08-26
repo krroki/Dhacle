@@ -201,7 +201,10 @@ export class YouTubeQueueManager {
       try {
         const job = await this.addJob(job_data);
         results.push(job);
-      } catch (_error) {}
+      } catch (error) {
+        console.error(`Failed to add job of type ${job_data.type}:`, error);
+        // Continue processing other jobs
+      }
     }
 
     return results;

@@ -1,24 +1,26 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
+import { type NextRequest, NextResponse } from 'next/server';
 import {
   createValidationErrorResponse,
   trendingSummaryQuerySchema,
   validateQueryParams,
 } from '@/lib/security/validation-schemas';
 
-export async function GET(request: Request): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-
-  // 인증 체크
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(request);
   if (!user) {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    logger.warn('Unauthorized access attempt to YouTube Lens Trending Summary API');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
   }
+
 
   // 쿼리 파라미터 검증
   const url = new URL(request.url);

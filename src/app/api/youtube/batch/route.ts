@@ -6,7 +6,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { cacheManager } from '@/lib/youtube/cache';
 import {
@@ -19,16 +20,13 @@ import {
 // GET: 큐 및 쿼터 상태 조회
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Batch API');
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
       );
     }
 
@@ -84,7 +82,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -92,13 +91,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 // POST: 작업 추가
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Batch API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
@@ -167,13 +167,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 // PUT: 큐 제어 (일시정지, 재개, 재시도)
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Batch API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
@@ -203,7 +204,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -211,13 +213,14 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 // DELETE: 캐시 초기화
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Batch API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -242,7 +245,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

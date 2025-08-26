@@ -24,7 +24,10 @@ function PaymentFailContent() {
         code,
         message,
       });
-    } catch (_error) {}
+    } catch (error) {
+      // Log error but don't show toast as we're already on fail page
+      console.error('Failed to update payment failure status:', error);
+    }
   }, [order_id, code, message]);
 
   useEffect(() => {

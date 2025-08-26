@@ -7,6 +7,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
@@ -16,17 +18,19 @@ import { snakeToCamelCase } from '@/types';
  * GET /api/youtube/folders
  * Fetch user's YouTube channel folders
  */
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authentication check - using getUser() for consistency
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Folders API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Fetch folders with channel count
     const { data: folders, error } = await supabase
@@ -46,12 +50,17 @@ export async function GET(): Promise<NextResponse> {
     }
 
     // Calculate channel count and convert to camelCase
-    const folders_with_count = (folders || []).map((folder: any) => {
+    interface FolderWithChannels extends Record<string, unknown> {
+      folder_channels?: Array<Record<string, unknown>>;
+      channel_count?: number | null;
+    }
+    
+    const folders_with_count = (folders || []).map((folder: FolderWithChannels) => {
       const folderData = snakeToCamelCase(folder);
       return {
         ...folderData,
-        channelCount: folder.folder_channels?.length || folder.channel_count || 0,
-        folderChannels: folder.folder_channels?.map((fc: any) => snakeToCamelCase(fc)) || [],
+        channelCount: folder.folder_channels?.length ?? folder.channel_count ?? 0,
+        folderChannels: folder.folder_channels?.map((fc: Record<string, unknown>) => snakeToCamelCase(fc)) || [],
       };
     });
 
@@ -59,7 +68,8 @@ export async function GET(): Promise<NextResponse> {
       success: true,
       folders: folders_with_count,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -70,15 +80,17 @@ export async function GET(): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authentication check
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Folders API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -132,7 +144,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       { status: 201 }
     );
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -143,15 +156,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authentication check
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Folders API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -227,7 +242,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       success: true,
       folder: snakeToCamelCase(updated_folder),
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -238,15 +254,17 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    // Authentication check
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Folders API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse query parameters
     const search_params = request.nextUrl.searchParams;
@@ -294,7 +312,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       success: true,
       message: 'Folder deleted successfully',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

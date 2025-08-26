@@ -7,24 +7,24 @@ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { createProofSchema } from '@/lib/validations/revenue-proof';
+import { env } from '@/env';
 import { snakeToCamelCase } from '@/types';
 
 // GET: 수익인증 목록 조회
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // 세션 검사
-  const supabase = await createSupabaseRouteHandlerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     // Route Handler Client를 사용하여 공개 데이터를 가져옴
     // revenue_proofs 테이블은 공개 읽기 가능하므로 Service Role Key 불필요
     const supabase = await createSupabaseRouteHandlerClient();
@@ -108,14 +108,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error: unknown) {
     // 개발 환경에서는 상세한 에러 메시지 제공
     const errorMessage =
-      process.env.NODE_ENV === 'development'
+      env.NODE_ENV === 'development'
         ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
         : '서버 오류가 발생했습니다';
 
     return NextResponse.json(
       {
         error: errorMessage,
-        ...(process.env.NODE_ENV === 'development' && {
+        ...(env.NODE_ENV === 'development' && {
           details: error instanceof Error ? error.stack : String(error),
         }),
       },
@@ -127,15 +127,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 // POST: 수익인증 생성 (일일 1회 제한)
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof POST API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // FormData 파싱
     const formData = await request.formData();
@@ -275,14 +277,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 개발 환경에서는 상세한 에러 메시지 제공
     const errorMessage =
-      process.env.NODE_ENV === 'development'
+      env.NODE_ENV === 'development'
         ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
         : '서버 오류가 발생했습니다';
 
     return NextResponse.json(
       {
         error: errorMessage,
-        ...(process.env.NODE_ENV === 'development' && {
+        ...(env.NODE_ENV === 'development' && {
           details: error instanceof Error ? error.stack : String(error),
         }),
       },

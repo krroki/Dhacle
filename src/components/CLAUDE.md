@@ -4,6 +4,51 @@
 
 ---
 
+## 🛑 컴포넌트 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **Props에 any 타입 → 중단**
+- **이벤트 핸들러 any → 중단**
+- **children: any → 중단**
+- **타입 없는 state → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// Props 타입 정의 필수
+interface Props {
+  data: UserData;  // any 금지
+  onChange: (value: string) => void;  // 명확한 타입
+  children: React.ReactNode;  // any 대신
+}
+
+// State 타입 명시 필수
+const [data, setData] = useState<UserData | null>(null);
+
+// Event 타입 명시 필수
+const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {}
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npx biome check src/components/**/*.tsx
+npm run dev  # 실제 렌더링 확인
+```
+
+## 🚫 컴포넌트 any 타입 금지
+
+### ❌ 발견된 문제: SearchBar.tsx
+```typescript
+// ❌ 절대 금지 - 'any' 문자열 값
+<option value="any">모든 정의</option>
+
+// ✅ 즉시 수정 - 다른 값 사용
+<option value="all">모든 정의</option>
+```
+
+---
+
 ## 🚨 컴포넌트 작성 원칙
 
 ### 📁 파일 구조

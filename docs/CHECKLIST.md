@@ -2,7 +2,7 @@
 
 _목적: 세션별/작업별 품질 검증 가이드_
 _핵심 질문: "지금 무엇을 확인해야 하나?"_
-_업데이트: 2025-08-24 - 재구축 완료 후 검증 체계 반영_
+_업데이트: 2025-08-25 - 검증 시스템 통합 Phase 5 완료 반영_
 
 > **체크리스트 사용 원칙**:
 > - ✅ 실행 가능한 명령어 중심
@@ -38,10 +38,17 @@ npm ls --depth=0 2>&1 | grep "UNMET" | wc -l # → 0이어야 함
 
 # 4. 반복 실수 예방 체크 (CONTEXT_BRIDGE.md 기반)
 grep -r "createServerComponentClient" src/ | wc -l # → 0이어야 함 (구식 패턴)
-grep -r ": any" src/ --include="*.ts" --include="*.tsx" | wc -l # → 0이어야 함
+grep -r ": any" src/ --include="*.ts" --include="*.tsx" | wc -l # → 0이어야 함 🔴
 grep -r "from '@/types/database'" src/ | wc -l # → 0이어야 함 (직접 import)
+grep -r "// TODO" src/ --include="*.ts" --include="*.tsx" | wc -l # → 최소화 (Hook이 차단)
+grep -r "@ts-ignore" src/ --include="*.ts" --include="*.tsx" | wc -l # → 0이어야 함 🆕
 
-# 5. snake_case/camelCase 일관성 체크 (2025-08-22 추가)
+# 5. Claude Code Hook System 체크 (2025-08-26) 🆕
+node .claude/hooks/test-hooks.js # → 4/4 테스트 통과
+test -f .claude/settings.json && echo "✅ Hook 설정 존재" || echo "❌ Hook 미설정"
+test -f .claude/hooks/config.json && echo "✅ Hook 활성화" || echo "❌ Hook 비활성화"
+
+# 6. snake_case/camelCase 일관성 체크 (2025-08-22 추가)
 grep -r "use_[a-z]" src/ --include="*.tsx" | wc -l # → 0이어야 함 (React Hook 위반)
 node scripts/verify-case-consistency.js # → Pass: 일관성 확인
 ```
@@ -52,6 +59,7 @@ node scripts/verify-case-consistency.js # → Pass: 일관성 확인
 - [ ] 환경 변수 파일 존재
 - [ ] 의존성 정상 설치됨
 - [ ] **CONTEXT_BRIDGE.md 반복 실수 체크 통과** 🆕
+- [ ] **Claude Code Hook System 정상 작동** 🆕
 
 ### 🔨 작업 중 (During Work)
 
@@ -71,11 +79,22 @@ node scripts/verify-case-consistency.js # → 0 violations
 
 #### 최종 검증 명령어
 ```bash
-# 종합 검증 (2025-08-24 검증 시스템)
-npm run verify:parallel        # → 병렬 검증 (60% 빠름) 🔥
+# 통합 검증 시스템 (2025-08-25 Phase 5 완료)
+npm run verify:parallel        # → 병렬 검증 (56.3% 빠름) 🔥
 npm run verify:critical        # → 핵심 검증 통과
+npm run verify:report          # → 상세 리포트 생성 🆕
+
+# any 타입 검증 (2025-08-25 추가) 🔴
+npx biome check src/ --apply  # → any 타입 자동 감지
+grep -r ": any" src/ --include="*.ts" --include="*.tsx" | wc -l # → 0이어야 함
+
 npm run build                  # → 빌드 성공
 git diff --stat               # → 변경 파일 확인
+
+# 통합 검증 시스템 성과:
+# - 29개 레거시 스크립트 → 6개 모듈 통합
+# - 실행 시간: 920ms → 400ms (56.3% 개선)
+# - 코드 라인: 4,334줄 → 2,225줄 (48.7% 감소)
 ```
 
 ---
@@ -94,11 +113,13 @@ ls src/components/features/    # → 재사용 가능 컴포넌트 확인
 #### 구현 중 체크
 - [ ] `src/lib/api-client.ts` 함수 사용 (직접 fetch 금지)
 - [ ] shadcn/ui 컴포넌트 우선 사용
-- [ ] TypeScript strict mode 준수 (any 타입 금지)
+- [ ] **TypeScript strict mode 준수 (any 타입 절대 금지)** 🔴
+- [ ] **임시방편 코드 금지 (TODO, 주석 처리, @ts-ignore)** 🔴
 - [ ] Tailwind CSS만 사용 (인라인 스타일 금지)
 - [ ] API Route에서 `snakeToCamelCase` 사용 (DB→Frontend 변환)
 - [ ] Components는 camelCase 필드만 사용
 - [ ] 변수명은 camelCase 사용 (snake_case 금지)
+- [ ] **실제 작동 확인 (빈 배열, null 반환 금지)** 🆕
 
 #### 완료 후 체크
 ```bash
@@ -192,7 +213,7 @@ node scripts/type-suggester.js <파일> # → 타입 개선 제안
 - [x] 중복 타입 파일 0개 (9개→2개 완료) ✅
 - [x] Import 경로 `@/types`에서만 ✅
 - [x] TypeScript 중요 오류 0개 (플레이스홀더 13개만 남음) ✅
-- [x] Any 타입 최소화 (필요한 곳만 사용) ✅
+- [x] **Any 타입 완전 제거 (0개 목표)** 🔴 2025-08-25 강화
 
 ### 🔒 API 일관성 및 보안
 
@@ -371,6 +392,28 @@ npm run e2e         # → Playwright 실행
 - [ ] 테스트 커버리지 80% 이상
 - [ ] API 모킹 (MSW) 설정됨
 - [ ] 주요 사용자 플로우 E2E 테스트 존재
+
+---
+
+## 🛡️ Claude Code Hook System 검증 (2025-08-26 추가)
+
+### Hook 시스템 상태 확인
+```bash
+# Hook 정상 작동 테스트
+node .claude/hooks/test-hooks.js
+
+# 개별 Hook 상태
+grep "enabled.*true" .claude/hooks/config.json | wc -l  # → 3 이상 (활성화된 Hook)
+
+# Emergency disable 준비 상태
+test -f .claude/hooks/emergency-disable.js && echo "✅ Emergency 준비됨" || echo "❌"
+```
+
+### Hook 검증 항목
+- [ ] 3개 핵심 Hook 모두 활성화 (any, TODO, empty catch)
+- [ ] 테스트 4/4 통과
+- [ ] Emergency disable 스크립트 준비
+- [ ] 환경변수 비활성화 방법 숙지
 
 ---
 

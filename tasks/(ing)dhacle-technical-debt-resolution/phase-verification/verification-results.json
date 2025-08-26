@@ -1,0 +1,171 @@
+{
+  "timestamp": "2025-08-25T06:04:56.205Z",
+  "phases": {
+    "phase0": {
+      "passed": 2,
+      "failed": 1,
+      "checks": [
+        {
+          "name": "프로젝트 특화 규칙 문서",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "CLAUDE.md 메인 문서",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "Git 저장소 상태",
+          "status": "failed",
+          "message": "Count: 105 (max: 100)",
+          "details": "105"
+        }
+      ]
+    },
+    "phase1": {
+      "passed": 2,
+      "failed": 1,
+      "checks": [
+        {
+          "name": "환경변수 타입 정의 파일",
+          "status": "error",
+          "message": "Command failed: test -f src/lib/env.ts && echo \"exists\""
+        },
+        {
+          "name": "Zod 스키마 사용",
+          "status": "passed",
+          "message": "Count: 0",
+          "details": "\"0\""
+        },
+        {
+          "name": "환경변수 검증",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        }
+      ]
+    },
+    "phase2": {
+      "passed": 2,
+      "failed": 3,
+      "checks": [
+        {
+          "name": "직접 fetch 사용",
+          "status": "error",
+          "message": "Command failed: grep -r \"fetch(\" src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | grep -v \"api-c"
+        },
+        {
+          "name": "console.log 사용",
+          "status": "error",
+          "message": "Command failed: grep -r \"console\\.log\" src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | wc -l\n��"
+        },
+        {
+          "name": "any 타입 사용",
+          "status": "error",
+          "message": "Command failed: grep -r \": any\" src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | wc -l\n������ ��"
+        },
+        {
+          "name": "API 클라이언트",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "로거 시스템",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        }
+      ]
+    },
+    "phase3": {
+      "passed": 3,
+      "failed": 2,
+      "checks": [
+        {
+          "name": "React Query v5",
+          "status": "error",
+          "message": "Command failed: cat package.json | grep \"@tanstack/react-query\" | grep -c \"\\\"5\\.\" || echo \"0\"\ngrep: "
+        },
+        {
+          "name": "컴포넌트 구조화",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "공통 컴포넌트",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "UI 컴포넌트",
+          "status": "passed",
+          "message": "File/Directory exists",
+          "details": "\"exists\""
+        },
+        {
+          "name": "훅 구현",
+          "status": "error",
+          "message": "Command failed: ls src/hooks/use*.ts 2>/dev/null | wc -l\n������ ��θ� ã�� �� �����ϴ�.\r\n"
+        }
+      ]
+    },
+    "phase4": {
+      "passed": 2,
+      "failed": 2,
+      "checks": [
+        {
+          "name": "Storybook 제거",
+          "status": "error",
+          "message": "Command failed: ! test -d .storybook && echo \"removed\"\n'!'��(��) ���� �Ǵ� �ܺ� ����, ������ �� �ִ� ��"
+        },
+        {
+          "name": "Docker 파일 제거",
+          "status": "error",
+          "message": "Command failed: ! test -f Dockerfile && echo \"removed\"\n'!'��(��) ���� �Ǵ� �ܺ� ����, ������ �� �ִ� ��"
+        },
+        {
+          "name": "Storybook 패키지",
+          "status": "passed",
+          "message": "Count: 0 (max: 0)",
+          "details": "0\n\"0\""
+        },
+        {
+          "name": "번들 분석기 제거",
+          "status": "passed",
+          "message": "Count: 0 (max: 0)",
+          "details": "0\n\"0\""
+        }
+      ]
+    },
+    "phase5": {
+      "passed": 1,
+      "failed": 1,
+      "checks": [
+        {
+          "name": "TypeScript 컴파일",
+          "status": "failed",
+          "message": "Count: 62 (max: 0)",
+          "details": "62"
+        },
+        {
+          "name": "ESLint 검사",
+          "status": "passed",
+          "message": "Count: 0 (max: 10)",
+          "details": "0\n\"0\""
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total": 22,
+    "passed": 12,
+    "failed": 10,
+    "warnings": 0
+  }
+}

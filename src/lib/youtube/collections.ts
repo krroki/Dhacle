@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import type { Collection, CollectionItem, Video } from '@/types';
+import type { Collection, CollectionItem, Video, YouTubeLensVideo } from '@/types';
 // import { snakeToCamelCase } from '@/types';
 
 /**
@@ -323,10 +323,7 @@ export class CollectionManager {
       // 컬렉션 아이템과 비디오 정보 조인
       const { data: items, error } = await this.supabase
         .from('collection_items')
-        .select(`
-          *,
-          videos!collection_items_video_id_fkey(*)
-        `)
+        .select('*, videos(*)')
         .eq('collection_id', collection_id)
         .order('position', { ascending: true });
 
@@ -335,7 +332,18 @@ export class CollectionManager {
       }
 
       // Transform the data to match the expected type
-      const transformedItems = items?.map(item => ({
+      interface ItemWithVideo {
+        id: string;
+        collection_id: string;
+        video_id: string;
+        notes: string | null;
+        position: number | null;
+        added_by: string;
+        created_at: string;
+        videos: unknown;
+      }
+      
+      const transformedItems = (items as ItemWithVideo[])?.map(item => ({
         id: item.id,
         collection_id: item.collection_id,
         video_id: item.video_id,
@@ -344,10 +352,10 @@ export class CollectionManager {
         position: item.position ?? 0,
         addedBy: item.added_by,
         addedAt: item.created_at || new Date().toISOString(),
-        video: item.videos
+        video: item.videos as YouTubeLensVideo
       })) || [];
 
-      return { data: transformedItems as any, error: null };
+      return { data: transformedItems, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }

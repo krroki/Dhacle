@@ -118,7 +118,8 @@ export const requestPayment = async (method: PaymentMethod, options: TossPayment
 
   try {
     // 결제창 호출 (타입 캐스팅 필요 - TossPayments SDK 타입 제한)
-    await toss_payments.requestPayment(method as any, {
+    // SDK가 특정 타입만 허용하므로 any 캐스팅 필요
+    await toss_payments.requestPayment(method as Parameters<typeof toss_payments.requestPayment>[0], {
       amount: options.amount,
       orderId: options.orderId,
       orderName: options.orderName,

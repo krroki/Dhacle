@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { env } from '@/env';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   const request_url = new URL(request.url);
@@ -10,11 +11,13 @@ export async function GET(request: NextRequest) {
   let is_new_user = false; // Flag to track if this is a new user
 
   // 디버깅용 로그
-  console.log('[Auth Callback] Started processing', {
-    url: request_url.toString(),
-    hasCode: !!code,
-    next,
-    timestamp: new Date().toISOString(),
+  logger.debug('[Auth Callback] Started processing', {
+    metadata: {
+      url: request_url.toString(),
+      hasCode: !!code,
+      next,
+      timestamp: new Date().toISOString(),
+    }
   });
 
   if (code) {
@@ -53,10 +56,12 @@ export async function GET(request: NextRequest) {
     const supabase = await createSupabaseRouteHandlerClient();
 
     try {
-      console.log('[Auth Callback] Attempting to exchange code for session', {
-        supabaseUrl: `${supabase_url.substring(0, 30)}...`,
-        hasAnonKey: !!supabase_anon_key,
-        code: `${code.substring(0, 10)}...`,
+      logger.debug('[Auth Callback] Attempting to exchange code for session', {
+        metadata: {
+          supabaseUrl: `${supabase_url.substring(0, 30)}...`,
+          hasAnonKey: !!supabase_anon_key,
+          code: `${code.substring(0, 10)}...`,
+        }
       });
 
       // Exchange code for session
@@ -72,17 +77,19 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(error_url.toString());
       }
 
-      console.log('[Auth Callback] Session exchange successful');
+      logger.info('[Auth Callback] Session exchange successful');
 
       // Get the current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      console.log('[Auth Callback] User data retrieved', {
-        hasUser: !!user,
-        user_id: user?.id,
-        email: user?.email,
+      logger.debug('[Auth Callback] User data retrieved', {
+        metadata: {
+          hasUser: !!user,
+          user_id: user?.id,
+          email: user?.email,
+        }
       });
 
       if (user) {
@@ -95,21 +102,47 @@ export async function GET(request: NextRequest) {
 
         // If profile doesn't exist, create it with random nickname
         if (profile_error?.code === 'PGRST116' || !user_profile) {
-          console.log('[Auth Callback] Creating new profile for user', user.id);
+          logger.info('[Auth Callback] Creating new profile for user', { userId: user.id });
           is_new_user = true; // Mark as new user for onboarding
 
-          // Call init-profile API to create profile with random nickname
-          const init_response = await fetch(`${request_url.origin}/api/user/init-profile`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Cookie: request.headers.get('cookie') || '',
-            },
-          });
+          // Create profile directly instead of calling API
+          try {
+            // Create profile with basic information
+            const { data: new_profile, error: create_error } = await supabase
+              .from('profiles')
+              .insert({
+                id: user.id,
+                email: user.email,
+                username: user.email?.split('@')[0] || 'user',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .select()
+              .single();
 
-          if (!init_response.ok) {
-          } else {
-            console.log('[Auth Callback] Profile initialized successfully');
+            if (create_error) {
+              logger.error('[Auth Callback] Failed to initialize profile', create_error, {
+                metadata: {
+                  code: create_error.code,
+                  message: create_error.message,
+                  details: create_error.details
+                }
+              });
+              // Don't throw - allow user to continue with basic profile
+            } else {
+              logger.info('[Auth Callback] Profile initialized successfully', {
+                metadata: {
+                  profileId: new_profile?.id
+                }
+              });
+            }
+          } catch (initError) {
+            logger.error('[Auth Callback] Failed to initialize profile', initError, {
+              metadata: {
+                error: initError instanceof Error ? initError.message : 'Unknown error'
+              }
+            });
+            // Don't throw - allow user to continue with basic profile
           }
           // TODO: Uncomment when randomNickname field is implemented
           // } else if (userProfile && !userProfile.randomNickname) {

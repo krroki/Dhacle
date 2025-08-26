@@ -35,7 +35,8 @@ export class CryptoUtil {
         padding: CryptoJS.pad.Pkcs7,
       });
       return encrypted.toString();
-    } catch (_error) {
+    } catch (error) {
+    console.error('Library error:', error);
       throw new Error('Failed to encrypt data');
     }
   }
@@ -57,7 +58,8 @@ export class CryptoUtil {
       }
 
       return decrypted_text;
-    } catch (_error) {
+    } catch (error) {
+    console.error('Library error:', error);
       throw new Error('Failed to decrypt data');
     }
   }
@@ -140,7 +142,8 @@ export class CryptoUtil {
       }
 
       return payload.data;
-    } catch (_error) {
+    } catch (error) {
+    console.error('Library error:', error);
       return null;
     }
   }

@@ -6,21 +6,23 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomUsername } from '@/lib/utils/username-generator';
 import type { Database } from '@/types';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // POST: Generate unique username
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/generate-username');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 이미 username이 있는지 확인
     const { data: profile, error: profile_error } = await supabase
@@ -74,7 +76,8 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       username: username,
       message: 'Username generated successfully',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

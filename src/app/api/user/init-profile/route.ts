@@ -6,6 +6,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomNickname as _generateRandomNickname } from '@/lib/utils/nickname-generator';
 import type { Database } from '@/types';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 /**
  * 신규 회원가입 시 프로필 초기화
@@ -13,54 +15,53 @@ import type { Database } from '@/types';
  */
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/init-profile POST');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 프로필이 이미 있는지 확인
     const { data: existing_profile, error: profile_error } = await supabase
       .from('profiles')
-      .select('id') // TODO: Add randomNickname when field is implemented
+      .select('id, randomnickname')
       .eq('id', user.id)
       .single();
 
     // 프로필이 없으면 생성
     if (profile_error?.code === 'PGRST116' || !existing_profile) {
-      // TODO: Implement randomNickname field when ready
       // 중복되지 않는 랜덤 닉네임 생성
-      // let randomNickname = '';
-      // let attempts = 0;
-      // const maxAttempts = 10;
+      let randomNickname = '';
+      let attempts = 0;
+      const maxAttempts = 10;
 
-      // while (attempts < maxAttempts) {
-      //   randomNickname = generateRandomNickname();
+      while (attempts < maxAttempts) {
+        randomNickname = _generateRandomNickname();
 
-      //   // 중복 체크
-      //   const { data: duplicateCheck } = await supabase
-      //     .from('profiles')
-      //     .select('id')
-      //     .eq('randomNickname', randomNickname)
-      //     .single();
+        // 중복 체크
+        const { data: duplicateCheck } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('randomNickname', randomNickname)
+          .single();
 
-      //   if (!duplicateCheck) {
-      //     break;
-      //   }
+        if (!duplicateCheck) {
+          break;
+        }
 
-      //   attempts++;
-      // }
+        attempts++;
+      }
 
-      // if (!randomNickname) {
-      //   // 랜덤 닉네임 생성 실패 시 기본값 사용
-      //   randomNickname = `user_${user.id.substring(0, 8)}`;
-      // }
+      if (!randomNickname) {
+        // 랜덤 닉네임 생성 실패 시 기본값 사용
+        randomNickname = `user_${user.id.substring(0, 8)}`;
+      }
 
       // 프로필 생성
       const { data: new_profile, error: create_error } = await supabase
@@ -69,7 +70,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
           id: user.id,
           email: user.email,
           username: user.email?.split('@')[0] || 'user',
-          // randomNickname: randomNickname, // TODO: Uncomment when field is implemented
+          randomNickname: randomNickname,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -87,55 +88,54 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // TODO: Implement randomNickname field logic when ready
-    // if (existingProfile && !existingProfile.randomNickname) {
-    //   // 프로필은 있지만 랜덤 닉네임이 없는 경우
-    //   let randomNickname = '';
-    //   let attempts = 0;
-    //   const maxAttempts = 10;
+    if (existing_profile && !existing_profile.randomnickname) {
+      // 프로필은 있지만 랜덤 닉네임이 없는 경우
+      let randomNickname = '';
+      let attempts = 0;
+      const maxAttempts = 10;
 
-    //   while (attempts < maxAttempts) {
-    //     randomNickname = generateRandomNickname();
+      while (attempts < maxAttempts) {
+        randomNickname = _generateRandomNickname();
 
-    //     // 중복 체크
-    //     const { data: duplicateCheck } = await supabase
-    //       .from('profiles')
-    //       .select('id')
-    //       .eq('randomNickname', randomNickname)
-    //       .single();
+        // 중복 체크
+        const { data: duplicateCheck } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('randomnickname', randomNickname)
+          .single();
 
-    //     if (!duplicateCheck) {
-    //       break;
-    //     }
+        if (!duplicateCheck) {
+          break;
+        }
 
-    //     attempts++;
-    //   }
+        attempts++;
+      }
 
-    //   if (!randomNickname) {
-    //     randomNickname = `user_${user.id.substring(0, 8)}`;
-    //   }
+      if (!randomNickname) {
+        randomNickname = `user_${user.id.substring(0, 8)}`;
+      }
 
-    //   // 랜덤 닉네임 업데이트
-    //   const { data: updatedProfile, error: updateError } = await supabase
-    //     .from('profiles')
-    //     .update({
-    //       randomNickname: randomNickname,
-    //       updated_at: new Date().toISOString(),
-    //     })
-    //     .eq('id', user.id)
-    //     .select()
-    //     .single();
+      // 랜덤 닉네임 업데이트
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          randomnickname: randomNickname,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
 
-    //   if (updateError) {
-    //     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
-    //   }
+      if (updateError) {
+        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+      }
 
-    //   return NextResponse.json({
-    //     message: 'Random nickname added successfully',
-    //     profile: updatedProfile,
-    //     isNew: false,
-    //   });
-    // }
+      return NextResponse.json({
+        message: 'Random nickname added successfully',
+        profile: updatedProfile,
+        isNew: false,
+      });
+    }
 
     // 이미 완전한 프로필이 있는 경우
     return NextResponse.json({
@@ -143,7 +143,8 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       profile: existing_profile,
       isNew: false,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -151,17 +152,17 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 // 프로필 상태 확인
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/init-profile GET');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
 
     // 프로필 가져오기
     const { data: profile, error: profile_error } = await supabase
@@ -190,7 +191,8 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
         // displayNickname: profile.displayNickname,
       },
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

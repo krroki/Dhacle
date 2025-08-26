@@ -23,7 +23,8 @@ export default function SettingsPage() {
       }
 
       router.push('/');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       set_message('로그아웃 중 오류가 발생했습니다');
     } finally {
       set_loading(false);
@@ -43,7 +44,8 @@ export default function SettingsPage() {
     try {
       // TODO: 계정 삭제 API 구현
       set_message('계정 삭제 기능은 준비 중입니다. 고객센터로 문의해주세요.');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       set_message('계정 삭제 중 오류가 발생했습니다');
     } finally {
       set_loading(false);

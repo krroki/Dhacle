@@ -10,6 +10,8 @@ export const runtime = 'nodejs';
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { mapOutlierDetectionResult } from '@/lib/utils/type-mappers';
 import { analyzeTrends, extractEntities, generateNLPReport } from '@/lib/youtube/analysis/nlp';
 import { detectOutliers, generateOutlierReport } from '@/lib/youtube/analysis/outlier';
@@ -51,16 +53,17 @@ type DatabaseVideoStats = {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube analysis API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const body = await request.json();
     const { type, videoIds = [], timeWindowDays = 7, config = {} } = body;
@@ -251,16 +254,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: `Invalid analysis type: ${type}` }, { status: 400 });
     }
 
-    // Log analytics usage - analyticsLogs table not available yet
-    // TODO: Create analyticsLogs table or use alternative logging
-    // await supabase.from('analyticsLogs').insert({
-    //   user_id: user.id,
-    //   analysisType: type,
-    //   video_count: videos.length,
-    //   processingTimeMs: Date.now() - start_time,
-    //   config: config,
-    //   created_at: new Date().toISOString(),
-    // });
+    // Log analytics usage
+    await supabase.from('analytics_logs').insert({
+      user_id: user.id,
+      analysis_type: type,
+      details: {
+        video_count: videos.length,
+        processing_time_ms: Date.now() - start_time,
+        config: config,
+      },
+      created_at: new Date().toISOString(),
+    });
 
     return NextResponse.json({
       success: true,
@@ -268,7 +272,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       processingTimeMs: Date.now() - start_time,
       timestamp: new Date().toISOString(),
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -283,16 +288,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube analysis GET API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'summary';
@@ -305,23 +311,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       case 'summary': {
         // Get analysis summary - analyticsLogs table not available yet
         // TODO: Create analyticsLogs table or use alternative
-        const recent_analytics: any[] = [];
-        // const { data: recent_analytics } = await supabase
-        //   .from('analyticsLogs')
-        //   .select('*')
-        //   .eq('user_id', user.id)
-        //   .order('created_at', { ascending: false })
-        //   .limit(limit);
+        const { data: recent_analytics } = await supabase
+          .from('analytics_logs')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(limit);
 
         result = {
           type: 'summary',
           recentAnalyses: recent_analytics,
           usageStats: {
             totalAnalyses: recent_analytics?.length || 0,
-            analysisTypes: recent_analytics?.reduce((acc: Record<string, number>, log: any) => {
-              acc[log.analysisType] = (acc[log.analysisType] || 0) + 1;
+            analysisTypes: recent_analytics?.reduce((acc: Record<string, number>, log) => {
+              acc[log.analysis_type] = (acc[log.analysis_type] || 0) + 1;
               return acc;
-            }, {}),
+            }, {} as Record<string, number>),
           },
         };
         break;
@@ -405,7 +410,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ...result,
       timestamp: new Date().toISOString(),
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

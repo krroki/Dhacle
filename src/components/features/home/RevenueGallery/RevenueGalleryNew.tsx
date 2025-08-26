@@ -28,7 +28,8 @@ export function RevenueGalleryNew() {
           // 데이터가 없을 때도 로딩 상태를 false로 설정
           set_items([]);
         }
-      } catch (_error) {
+      } catch (error) {
+      console.error('Component error:', error);
         // 오류 발생 시 빈 배열로 설정
         set_items([]);
       } finally {

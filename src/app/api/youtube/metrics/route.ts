@@ -6,8 +6,11 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { calculateMetrics } from '@/lib/youtube/metrics';
 import type { YouTubeVideo } from '@/types';
+import { env } from '@/env';
 
 export const runtime = 'nodejs';
 
@@ -17,15 +20,14 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Check authentication - using getUser() for consistency
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube metrics API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Parse query parameters
@@ -74,7 +76,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
         error: error instanceof Error ? error.message : 'Failed to fetch metrics',
         message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+        details: env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
     );
@@ -87,15 +89,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Check authentication - using getUser() for consistency
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube metrics batch API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Parse request body
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         error: error instanceof Error ? error.message : 'Failed to calculate batch metrics',
         message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+        details: env.NODE_ENV === 'development' ? String(error) : undefined,
       },
       { status: 500 }
     );
@@ -220,7 +221,11 @@ async function get_video_metrics(
   const growth_rate = hours_diff > 0 ? view_growth / hours_diff : 0;
 
   // Calculate average and peak views
-  const all_views = stats.map((s: any) => s.view_count || 0);
+  interface VideoStat {
+    view_count?: number | null;
+    [key: string]: unknown;
+  }
+  const all_views = stats.map((s: VideoStat) => s.view_count ?? 0);
   const average_views = all_views.reduce((a, b) => a + b, 0) / all_views.length;
   const peak_views = Math.max(...all_views);
 
@@ -459,7 +464,8 @@ async function save_metrics_snapshot(
     }));
 
     await supabase.from('video_stats').insert(snapshots);
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     // Non-critical error, don't throw
   }
 }

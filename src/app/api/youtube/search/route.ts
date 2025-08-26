@@ -3,9 +3,11 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { getDecryptedApiKey } from '@/lib/api-keys';
 import { YouTubeAPIClient } from '@/lib/youtube/api-client';
-import type { YouTubeSearchFilters } from '@/types';
+import type { YouTubeSearchFilters, Database, Json } from '@/types';
 
 /**
  * YouTube 영상 검색 API
@@ -13,17 +15,17 @@ import type { YouTubeSearchFilters } from '@/types';
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 현재 사용자 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube search API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 요청 바디 파싱
     const body = await request.json();
@@ -111,14 +113,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .eq('user_id', user.id)
       .eq('service_name', 'youtube');
 
-    // 검색 기록 저장 - TODO: youtube_search_history 테이블 생성 후 활성화
-    // await supabase.from('youtube_search_history').insert({
-    //   user_id: user.id,
-    //   query: filters.query,
-    //   filters: filters,
-    //   resultCount: search_result.items.length,
-    //   created_at: new Date().toISOString(),
-    // });
+    // 검색 기록 저장
+    type SearchHistoryInsert = Database['public']['Tables']['youtube_search_history']['Insert'];
+    const searchHistory: SearchHistoryInsert = {
+      user_id: user.id,
+      query: filters.query,
+      filters: filters as unknown as Json,
+      result_count: search_result.items.length,
+      created_at: new Date().toISOString(),
+    };
+    await supabase.from('youtube_search_history').insert(searchHistory);
 
     // 응답 반환
     return NextResponse.json({

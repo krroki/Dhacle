@@ -79,7 +79,8 @@ export function decryptApiKey(encrypted_key: string): string {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
     return decrypted.toString('utf8');
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     throw new Error('Failed to decrypt API key');
   }
 }

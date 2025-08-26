@@ -4,6 +4,55 @@
 
 ---
 
+## 🛑 React Query 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **QueryKey에 any? 사용 → 중단**
+- **Record<string, any> 사용 → 중단**
+- **타입 없는 data 반환 → 중단**
+- **에러 처리 없음 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// QueryKey 타입 안전성 필수
+queryKey: ['revenue-proof', userId, month] as const  // any? 제거
+
+// 반환 타입 명시 필수
+const useUserQueries = (): UseQueryResult<UserProfile, Error> => {
+  // ...
+}
+
+// Record 타입 구체화 필수
+type NotificationData = Record<string, string | number | boolean>;
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npx biome check src/hooks/**/*.ts
+# React Query DevTools로 실제 캐싱 확인
+```
+
+## 🚫 React Query any 타입 금지
+
+### ❌ 발견된 문제들
+```typescript
+// ❌ useRevenueProofQueries.ts - QueryKey에 any?
+queryKey: ['revenue-proof', 'monthly', userId, month, any?]
+
+// ✅ 즉시 수정 - 실제 파라미터 사용
+queryKey: ['revenue-proof', 'monthly', userId, month, year] as const
+
+// ❌ useUserQueries.ts - Record<string, any>
+Record<string, any>
+
+// ✅ 즉시 수정 - 구체적 타입
+Record<string, string | number | boolean | null>
+```
+
+---
+
 ## 🚨 React Query v5 패턴 (2025-02-01 구현)
 
 ### ✅ 기본 사용 패턴

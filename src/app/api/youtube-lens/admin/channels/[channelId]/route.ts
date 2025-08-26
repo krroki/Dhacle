@@ -1,7 +1,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
 
@@ -10,17 +11,18 @@ export async function PUT(
   request: NextRequest,
   _context: { params: Promise<{ channelId: string }> }
 ) {
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(request);
+  if (!user) {
+    logger.warn('Unauthorized access attempt to YouTube Lens Admin Channel API');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
+
   // channelId는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
   // const { channelId } = await params;
-  const supabase = await createSupabaseRouteHandlerClient();
-
-  // 인증 체크
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-  }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
@@ -90,20 +92,21 @@ export async function PUT(
 
 // DELETE: 채널 삭제 (관리자 전용)
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   _context: { params: Promise<{ channelId: string }> }
 ) {
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(request);
+  if (!user) {
+    logger.warn('Unauthorized access attempt to YouTube Lens Admin Channel API');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
+
   // channelId는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
   // const { channelId } = await params;
-  const supabase = await createSupabaseRouteHandlerClient();
-
-  // 인증 체크
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-  }
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];

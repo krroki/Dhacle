@@ -1,25 +1,27 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   _context: { params: Promise<{ channel_id: string }> }
 ) {
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(request);
+  if (!user) {
+    logger.warn('Unauthorized access attempt to YouTube Lens Admin API');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
+
   // channel_id는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
   // const { channel_id } = await params;
-  const supabase = await createSupabaseRouteHandlerClient();
-
-  // 인증 체크
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-  }
 
   // 관리자 권한 체크
   const admin_emails = ['glemfkcl@naver.com'];

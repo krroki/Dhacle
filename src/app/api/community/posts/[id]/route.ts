@@ -3,6 +3,8 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 interface CommentFromDB {
   id: string;
@@ -85,7 +87,8 @@ export async function GET(
       success: true,
       post: formatted_post,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -99,18 +102,18 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to community posts [PUT]');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: post_id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 요청 본문 파싱
     const body = await req.json();
@@ -145,7 +148,8 @@ export async function PUT(
       success: true,
       post: data,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -159,18 +163,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_req);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to community posts [DELETE]');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: post_id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 게시글 삭제 (RLS 정책이 작성자 확인)
     const { error } = await supabase
@@ -190,7 +194,8 @@ export async function DELETE(
       success: true,
       message: '게시글이 삭제되었습니다',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

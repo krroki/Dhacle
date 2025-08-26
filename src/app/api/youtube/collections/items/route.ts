@@ -1,7 +1,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
@@ -10,19 +11,16 @@ import { ServerCollectionManager } from '@/lib/youtube/collections-server';
  * 특정 컬렉션의 비디오 목록 조회
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // 세션 검사
-  const supabase = await createSupabaseRouteHandlerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Collections Items API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const collection_id = searchParams.get('collection_id');
 
@@ -38,7 +36,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ items: data });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -49,14 +48,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Collections Items API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
     const body = await request.json();
     const { collection_id, video_id, notes, tags } = body;
@@ -81,7 +80,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ item: data }, { status: 201 });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -92,14 +92,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Collections Items API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
     const { searchParams } = new URL(request.url);
     const collection_id = searchParams.get('collection_id');
@@ -123,7 +123,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ success });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -134,14 +135,14 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
  */
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Collections Items API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
     const body = await request.json();
     const { collection_id, items } = body;
@@ -164,7 +165,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ success });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

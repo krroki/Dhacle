@@ -4,24 +4,29 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '@/env';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // 인증 체크 추가
-  const supabase = await createSupabaseRouteHandlerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(request);
+  if (!user) {
+    logger.warn('Unauthorized access attempt to debug env-check');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
 
   // 보안을 위해 특정 쿼리 파라미터가 있을 때만 동작
   const search_params = request.nextUrl.searchParams;
   const debug_key = search_params.get('key');
 
   // 이중 보안: 로그인 + 디버그 키
-  if (!user || debug_key !== 'debug-dhacle-2025') {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+  if (debug_key !== 'debug-dhacle-2025') {
+    return NextResponse.json({ error: 'Invalid debug key' }, { status: 401 });
   }
 
   // 환경 변수 존재 여부 체크 (값은 노출하지 않음)

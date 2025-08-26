@@ -51,7 +51,8 @@ export default function ApiKeysPage() {
       if (data.success && data.data) {
         set_current_key(data.data);
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
     } finally {
       set_fetching_key(false);
     }
@@ -137,7 +138,8 @@ export default function ApiKeysPage() {
       } else {
         toast.error(data.error || '저장 실패');
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       toast.error('저장 중 오류가 발생했습니다');
     } finally {
       set_loading(false);
@@ -161,7 +163,8 @@ export default function ApiKeysPage() {
       } else {
         toast.error(data.error || '삭제 실패');
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       toast.error('삭제 중 오류가 발생했습니다');
     }
   };

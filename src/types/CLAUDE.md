@@ -4,6 +4,51 @@
 
 ---
 
+## 🛑 타입 정의 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **'any' 문자열 값 사용 → 중단**
+- **database.generated.ts 직접 import → 중단**
+- **타입 없이 as any 캐스팅 → 중단**
+- **중복 타입 정의 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 모든 타입은 @/types에서만
+import { User, Course } from '@/types';
+
+// 'any' 문자열 제거
+videoDefinition: 'standard' | 'high'  // 'any' 제거
+
+// Union 타입 명확하게
+type Status = 'pending' | 'active' | 'completed';  // 구체적 값만
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npm run types:generate  # DB 타입 재생성
+npx biome check src/types/*.ts
+```
+
+## 🚫 타입 정의 any 금지
+
+### ❌ 발견된 문제: types/index.ts
+```typescript
+// ❌ 절대 금지 - 'any' 문자열 값
+videoDefinition: 'any' | 'standard' | 'high'
+videoType: 'any' | 'video'
+videoEmbeddable: 'any' | 'true'
+
+// ✅ 즉시 수정 - 'any' 제거 또는 다른 이름
+videoDefinition: 'all' | 'standard' | 'high'  // YouTube API가 'any' 지원 시
+videoType: 'all' | 'video'
+videoEmbeddable: 'all' | 'true'
+```
+
+---
+
 ## 🚨 Single Source of Truth 원칙
 
 ### 📊 타입 플로우

@@ -116,7 +116,8 @@ export default function CollectionBoard() {
       set_collections([mapCollection(data.collection), ...collections]);
       set_is_create_dialog_open(false);
       reset_form();
-    } catch (_error) {
+    } catch (error) {
+      console.error('Component error:', error);
       toast.error('컬렉션 생성에 실패했습니다');
     }
   };
@@ -145,7 +146,8 @@ export default function CollectionBoard() {
       );
       set_editing_collection(null);
       reset_form();
-    } catch (_error) {
+    } catch (error) {
+      console.error('Component error:', error);
       toast.error('컬렉션 업데이트에 실패했습니다');
     }
   };
@@ -161,7 +163,8 @@ export default function CollectionBoard() {
 
       toast.success('컬렉션이 삭제되었습니다');
       set_collections(collections.filter((c) => c.id !== collection_id));
-    } catch (_error) {
+    } catch (error) {
+      console.error('Component error:', error);
       toast.error('컬렉션 삭제에 실패했습니다');
     }
   };

@@ -198,7 +198,8 @@ export async function validateRequestBody<T>(
       success: true,
       data: result.data,
     };
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return {
       success: false,
       error: '유효하지 않은 JSON 형식입니다.',

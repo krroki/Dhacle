@@ -51,7 +51,8 @@ export default function CommunityBoardPage() {
       );
       set_posts(data.posts || []);
       set_total_pages(data.totalPages || 1);
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       set_error('게시글을 불러오는데 실패했습니다');
     } finally {
       set_loading(false);

@@ -367,7 +367,8 @@ export function mapVideoToYouTubeVideo(
   if (typeof thumbnails === 'string') {
     try {
       parsedThumbnails = JSON.parse(thumbnails);
-    } catch {
+    } catch (error) {
+      console.error('Type mapping error:', error);
       parsedThumbnails = {};
     }
   }

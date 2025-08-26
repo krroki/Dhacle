@@ -8,6 +8,8 @@ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { reportSchema } from '@/lib/validations/revenue-proof';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // POST: 신고 처리
 export async function POST(
@@ -15,16 +17,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/report POST');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: proof_id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 인증이 존재하는지 확인
     const { data: proof, error: proof_error } = await supabase
@@ -47,20 +51,17 @@ export async function POST(
       return NextResponse.json({ error: '이미 처리된 인증입니다' }, { status: 400 });
     }
 
-    // TODO: proof_reports 테이블이 존재하지 않음 - 테이블 생성 필요
-    // 중복 신고 확인 임시 비활성화
-    /*
+    // 중복 신고 확인
     const { data: existing_report } = await supabase
       .from('proof_reports')
       .select('id')
       .eq('proof_id', proof_id)
-      .eq('reporterId', user.id)
+      .eq('reporter_id', user.id)
       .single();
 
     if (existing_report) {
       return NextResponse.json({ error: '이미 신고한 인증입니다' }, { status: 400 });
     }
-    */
 
     // 요청 본문 파싱
     const body = await request.json();
@@ -76,20 +77,18 @@ export async function POST(
       );
     }
 
-    // TODO: proof_reports 테이블이 존재하지 않음 - 테이블 생성 필요
-    // 신고 등록 임시 비활성화
-    /*
+    // 신고 등록
     const { error: insert_error } = await supabase.from('proof_reports').insert({
       proof_id: proof_id,
-      reporterId: user.id,
+      reporter_id: user.id,
       reason: validated_data.reason,
-      details: validated_data.details || null,
+      description: validated_data.details || null,
     });
 
     if (insert_error) {
+      logger.error('Failed to insert proof report:', insert_error);
       return NextResponse.json({ error: '신고 처리 중 오류가 발생했습니다' }, { status: 500 });
     }
-    */
 
     // 신고 수 증가 (nullable 처리)
     const new_reports_count = (proof.reports_count ?? 0) + 1;
@@ -106,26 +105,27 @@ export async function POST(
     if (update_error) {
     }
 
-    // 3회 신고 도달 시 관리자 알림 (추후 구현)
+    // 3회 신고 도달 시 관리자 알림
     if (new_reports_count === 3) {
-      // TODO: 관리자 알림 시스템 구현
-      console.log(`Alert: Revenue proof ${proof_id} has been auto-hidden after 3 reports`);
+      logger.info(`Auto-hidden revenue proof ${proof_id} after 3 reports`);
 
-      // TODO: adminNotifications 테이블이 존재하지 않음 - 테이블 생성 필요
-      // 관리자 알림 로그 기록 임시 비활성화
-      /*
-      const { error: notification_error } = await supabase.from('adminNotifications').insert({
+      // 관리자 알림 로그 기록
+      const { error: notification_error } = await supabase.from('adminnotifications').insert({
         type: 'autoHiddenProof',
+        title: '인증 자동 숨김 처리',
+        message: `인증 ${proof_id}이(가) 3회 신고로 인해 자동으로 숨김 처리되었습니다.`,
         data: {
           proof_id: proof_id,
           reports_count: new_reports_count,
           hiddenAt: new Date().toISOString(),
         },
+        priority: 'high',
       });
 
       if (notification_error) {
+        logger.error('Failed to create admin notification:', notification_error);
+        // 알림 생성 실패해도 신고 처리는 계속 진행
       }
-      */
     }
 
     return NextResponse.json({
@@ -152,30 +152,28 @@ export async function POST(
 // GET: 신고 사유 목록 조회 (관리자용)
 export async function GET(
   _request: NextRequest,
-  _context: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/report GET');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
-    // proof_id는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
-    // const { id: proof_id } = await params;
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { id: proof_id } = await params;
 
-    // TODO: proof_reports 테이블이 존재하지 않음 - 테이블 생성 필요
-    // 신고 목록 조회 임시 비활성화
-    /*
+    // 신고 목록 조회 (관리자 전용)
     const { data: reports, error } = await supabase
       .from('proof_reports')
       .select(`
         *,
-        reporter:profiles!proofReportsReporterIdFkey(
+        reporter:users!proof_reports_reporter_id_fkey(
           id,
           username
         )
@@ -184,6 +182,7 @@ export async function GET(
       .order('created_at', { ascending: false });
 
     if (error) {
+      logger.error('Failed to fetch proof reports:', error);
       return NextResponse.json(
         { error: '신고 목록을 불러오는 중 오류가 발생했습니다' },
         { status: 500 }
@@ -197,16 +196,15 @@ export async function GET(
         return acc;
       },
       {} as Record<string, number>
-    );
-    */
+    ) || {};
 
-    // 임시로 빈 데이터 반환
     return NextResponse.json({
-      data: [],
-      count: 0,
-      reasonCounts: {},
+      data: reports || [],
+      count: reports?.length || 0,
+      reasonCounts: reason_counts,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

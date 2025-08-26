@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { createServerClient } from '@/lib/supabase/server-client';
 import type { Json, UserApiKey } from '@/types';
 import { env } from '@/env';
+import { logger } from '@/lib/logger';
 
 const ENCRYPTION_KEY =
   env.ENCRYPTION_KEY || 'fc28f35efe5b90d34e54dfd342e6c3807c2d71d9054adb8dbba1b90a67ca7660';
@@ -45,7 +46,8 @@ export async function getDecryptedApiKey(
     decrypted += decipher.final('utf8');
 
     return decrypted;
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return null;
   }
 }
@@ -99,11 +101,11 @@ export async function validateYouTubeApiKey(
   api_key: string
 ): Promise<{ isValid: boolean; error?: string; quotaInfo?: Record<string, unknown> }> {
   try {
-    console.log('[validateYouTubeApiKey] Starting validation...');
+    logger.debug('Starting YouTube API key validation');
 
     // API Key 형식 검증
     if (!api_key.startsWith('AIza') || api_key.length !== 39) {
-      console.log('[validateYouTubeApiKey] Invalid format');
+      logger.debug('YouTube API key has invalid format');
       return {
         isValid: false,
         error: 'Invalid API key format',
@@ -114,7 +116,7 @@ export async function validateYouTubeApiKey(
     const test_video_id = 'jNQXAC9IVRw'; // 유명한 테스트 비디오
     const api_url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${test_video_id}&key=${api_key}`;
 
-    console.log('[validateYouTubeApiKey] Calling YouTube API...');
+    logger.debug('Calling YouTube API for validation');
     const response = await fetch(api_url, { // External API: YouTube
       method: 'GET',
       headers: {
@@ -125,19 +127,27 @@ export async function validateYouTubeApiKey(
     });
 
     const response_text = await response.text();
-    console.log('[validateYouTubeApiKey] Response status:', response.status);
+    logger.debug('YouTube API response received', {
+      metadata: { status: response.status }
+    });
 
     if (!response.ok) {
       // 에러 응답 파싱
       let error_data;
       try {
         error_data = JSON.parse(response_text);
-      } catch {
+      } catch (error) {
+        logger.warn('Failed to parse API key error response', {
+          operation: 'validateYouTubeApiKey',
+          metadata: { error }
+        });
         error_data = { error: { message: response_text } };
       }
 
       const error_message = error_data?.error?.message || 'Invalid API key';
-      console.log('[validateYouTubeApiKey] API Error:', error_message);
+      logger.warn('YouTube API validation failed', {
+        metadata: { error: error_message, status: response.status }
+      });
 
       // 구체적인 에러 메시지 제공
       if (error_message.includes('API key not valid')) {
@@ -167,7 +177,7 @@ export async function validateYouTubeApiKey(
     }
 
     // 성공적으로 검증됨
-    console.log('[validateYouTubeApiKey] Validation successful');
+    logger.info('YouTube API key validation successful');
 
     return {
       isValid: true,

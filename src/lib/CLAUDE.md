@@ -4,6 +4,66 @@
 
 ---
 
+## 🛑 라이브러리 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **process.env 직접 접근 → 중단**
+- **함수 파라미터 any[] → 중단**
+- **as any 캐스팅 → 중단**
+- **에러 unknown으로 대충 처리 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 환경변수는 env.ts만 사용
+import { env } from '@/env';
+const apiKey = env.NEXT_PUBLIC_API_KEY;
+
+// 함수 파라미터 제네릭 활용
+<TFunc extends (...args: unknown[]) => unknown>
+(...args: Parameters<TFunc>)
+
+// 에러 타입 가드 사용
+if (isAppError(error)) { ... }
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npx biome check src/lib/**/*.ts
+npm run build  # 환경변수 검증
+```
+
+## 🚫 라이브러리 any 타입 금지
+
+### ❌ 발견된 문제: lib/error-handler.ts
+```typescript
+// ❌ 절대 금지 - line 204
+(...args: any[])
+
+// ✅ 즉시 수정 - 제네릭 활용
+export function withErrorHandling<TFunc extends (...args: unknown[]) => unknown>(
+  fn: TFunc,
+  context?: string
+): TFunc {
+  return ((...args: Parameters<TFunc>) => {
+    // ...
+  }) as TFunc;
+}
+```
+
+### ❌ 발견된 문제: lib/security/example-usage.ts
+```typescript
+// ❌ 절대 금지 - line 96
+.update(sanitized_data as any)
+
+// ✅ 즉시 수정 - 타입 정의
+type UserUpdate = Database['public']['Tables']['users']['Update'];
+.update(sanitized_data as UserUpdate)
+```
+
+---
+
 ## 🔐 환경변수 타입 안전성 (2025-02-01 구현)
 
 ### ✅ 타입 안전 사용법

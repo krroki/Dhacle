@@ -31,7 +31,8 @@ export async function createSupabaseServerClient() {
       set(name: string, value: string, options: CookieOptions) {
         try {
           cookie_store.set({ name, value, ...options });
-        } catch {
+        } catch (error) {
+          console.error('Supabase client error:', error);
           // The `set` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
           // user sessions.
@@ -41,7 +42,8 @@ export async function createSupabaseServerClient() {
         try {
           // Properly delete the cookie instead of just clearing its value
           cookie_store.delete(name);
-        } catch {
+        } catch (error) {
+          console.error('Cookie removal error:', error);
           // The `remove` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
           // user sessions.

@@ -99,7 +99,8 @@ export function validateOAuthRedirectUri(): boolean {
     const url = new URL(site_url);
     // localhost나 https를 사용하는지 체크
     return url.hostname === 'localhost' || url.protocol === 'https:';
-  } catch {
+  } catch (error) {
+    console.error('Environment check failed:', error);
     return false;
   }
 }

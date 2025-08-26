@@ -4,6 +4,49 @@
 
 ---
 
+## 🛑 보안 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **세션 체크 없는 API → 중단**
+- **getSession() 사용 → 중단**
+- **입력 검증 없음 → 중단**
+- **보안 헤더 없음 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 모든 API 세션 검사 필수
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) return 401;
+
+// Zod 입력 검증 필수
+const validation = await validateRequestBody(request, schema);
+if (!validation.success) return 400;
+
+// XSS 방지 필수
+const sanitized = sanitizeRichHTML(userInput);
+
+// Rate Limiting 필수
+const limited = await rateLimiter.check(request, 'api');
+if (limited) return 429;
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 보안 테스트
+npm run security:test
+# RLS 정책 확인
+node scripts/verify-with-service-role.js
+# 실제 API 테스트
+curl -X POST http://localhost:3000/api/endpoint
+```
+
+## 🚫 보안 any 타입 금지
+- Zod 스키마 정확한 타입
+- 에러 응답 타입 정의
+- 사용자 입력 unknown → 검증 후 타입
+
+---
+
 ## 🚨 보안 Wave 현황
 
 | Wave | 상태 | 구현 내용 |

@@ -12,17 +12,19 @@ interface PaginatedResponse<T> {
 /**
  * 강의 목록 쿼리 훅 (무한 스크롤)
  */
-export function useCourses(filters?: {
+type CourseFilters = {
   category?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
   sortBy?: 'latest' | 'popular' | 'price';
   search?: string;
-}) {
+};
+
+export function useCourses(filters?: CourseFilters) {
   return useInfiniteQuery<
     PaginatedResponse<Course>,
     Error,
     InfiniteData<PaginatedResponse<Course>>,
-    readonly ['courses', 'list', any?],
+    readonly ['courses', 'list', CourseFilters?],
     number
   >({
     queryKey: queryKeys.courses.list(filters),

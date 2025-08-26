@@ -98,7 +98,8 @@ export default function ProfilePage() {
       // if (data.naver_cafe_member_url) {
       //   setCafeMemberUrl(data.naver_cafe_member_url);
       // }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
     } finally {
       set_loading(false);
     }
@@ -182,7 +183,8 @@ export default function ProfilePage() {
 
       set_verification_status('success');
       await fetch_profile();
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       set_error_message('네이버 카페 연동 중 오류가 발생했습니다');
       set_verification_status('error');
     } finally {
@@ -218,7 +220,8 @@ export default function ProfilePage() {
 
       set_verification_status('idle');
       await fetch_profile();
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       set_error_message('네이버 카페 연동 해제 중 오류가 발생했습니다');
     } finally {
       set_saving(false);

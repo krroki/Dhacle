@@ -1,5 +1,6 @@
 'use client';
 
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import {
   BookOpen,
   Calculator,
@@ -261,20 +262,19 @@ export function Header() {
   useEffect(() => {
     const fetch_user_role = async () => {
       if (user) {
-        // TODO: Add 'role' field to profiles table in DB
-        // For now, default to 'user' role
-        set_user_role('user');
+        const supabase = createBrowserClient();
+        const { data, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single();
 
-        // const supabase = createBrowserClient();
-        // const { data, error } = await supabase
-        //   .from('profiles')
-        //   .select('role')
-        //   .eq('id', user.id)
-        //   .single();
-
-        // if (data && !error) {
-        //   setUserRole(data.role as 'user' | 'instructor' | 'admin');
-        // }
+        if (data && !error) {
+          set_user_role(data.role as 'user' | 'instructor' | 'admin');
+        } else {
+          // Default to 'user' role if profile not found
+          set_user_role('user');
+        }
       } else {
         set_user_role(null);
       }

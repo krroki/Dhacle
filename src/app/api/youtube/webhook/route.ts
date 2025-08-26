@@ -49,7 +49,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
     return NextResponse.json({ error: result.error || 'Verification failed' }, { status: 404 });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Webhook GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const channel_id = channel_id_match[1];
 
     // Process the notification
-    const result = await pubsubManager.processNotification(body, signature || '');
+    const result = await pubsubManager.processNotification(body, signature || '', channel_id || '');
 
     if (result.success) {
       console.log('Notification processed:', {
@@ -97,9 +98,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ success: true }, { status: 200 });
     }
     return NextResponse.json({ error: result.error || 'Processing failed' }, { status: 400 });
-  } catch (_error) {
+  } catch (error) {
     // Return 200 to prevent hub from retrying
-    // Log the error for debugging
+    console.error('Webhook POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 200 });
   }
 }
@@ -109,43 +110,50 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 async function handle_video_update(video: unknown): Promise<void> {
   try {
-    // Import monitoring system dynamically to avoid circular dependencies
-    // const { MonitoringScheduler } = await import('@/lib/youtube/monitoring');
-    // const scheduler = new MonitoringScheduler();
-
-    // Check if this video triggers any alerts
-    // Note: Alert checking would be done through AlertRuleEngine
-    // const alertEngine = new AlertRuleEngine(supabase);
-    // await alertEngine.checkVideoAgainstRules(video, rules);
-
     // Type guard to check if video has expected properties
-    const is_video_object = (v: unknown): v is { video_id?: string; deleted?: boolean } => {
+    const is_video_object = (v: unknown): v is { 
+      video_id?: string; 
+      channel_id?: string;
+      title?: string;
+      published_at?: string;
+      deleted?: boolean 
+    } => {
       return typeof v === 'object' && v !== null;
     };
 
     // Update video statistics if needed
     if (is_video_object(video) && video.video_id && !video.deleted) {
-      // Fetch latest statistics from YouTube API
-      // This would need to be implemented with proper YouTube API integration
-      // const apiClient = new YouTubeAPIClient();
-      // const videoData = await apiClient.getVideoDetails(video.video_id);
+      // Import Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
 
-      // For now, we'll just log the update
-      console.log(`Video update received for ${video.video_id}`);
+      // Store video data
+      await supabase.from('videos').upsert({
+        video_id: video.video_id,
+        channel_id: video.channel_id,
+        title: video.title,
+        published_at: video.published_at,
+        updated_at: new Date().toISOString()
+      });
 
-      // TODO: Implement proper video data fetching and storage
-      // This would require:
-      // 1. Fetching video details from YouTube API
-      // 2. Storing the data in Supabase
-      // For now, we just acknowledge the update
+      // Initialize video stats
+      await supabase.from('videoStats').insert({
+        video_id: video.video_id,
+        views: 0,
+        likes: 0,
+        comments: 0,
+        created_at: new Date().toISOString()
+      });
 
-      // const { createClient } = await import('@/lib/supabase/client');
-      // const supabase = createClient();
-      // await supabase.from('videos').upsert({...})
-      // await supabase.from('videoStats').insert({...})
+      console.log(`Video data stored for ${video.video_id}`);
     }
-  } catch (_error) {
+  } catch (error) {
     // Don't throw - we don't want to fail the webhook response
+    console.error('Failed to handle video update:', error);
   }
 }
 

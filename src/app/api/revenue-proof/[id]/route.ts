@@ -9,6 +9,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
 import { updateProofSchema } from '@/lib/validations/revenue-proof';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // GET: 수익인증 상세 조회
 export async function GET(
@@ -16,16 +18,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const auth_supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await auth_supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
     if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id] GET');
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
       );
     }
 
@@ -64,54 +63,38 @@ export async function GET(
       }
     }
 
-    // TODO: 좋아요/댓글 기능 구현 예정
-    // proof_likes, proof_comments 테이블 생성 후 주석 해제
+    // 좋아요 수 조회
+    const { count: likes_count } = await supabase
+      .from('proof_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('proof_id', id);
 
-    // 좋아요 수 조회 (임시로 0 반환)
-    // const { count: likesCount } = await supabase
-    //   .from('proof_likes')
-    //   .select('*', { count: 'exact', head: true })
-    //   .eq('proof_id', id);
-    const likes_count = 0;
+    // 댓글 조회
+    const { data: comments } = await supabase
+      .from('proof_comments')
+      .select(`
+        *,
+        user:profiles!proofCommentsUserIdFkey(
+          id,
+          username,
+          avatar_url
+        )
+      `)
+      .eq('proof_id', id)
+      .order('created_at', { ascending: false });
 
-    // 댓글 조회 (임시로 빈 배열 반환)
-    // const { data: comments } = await supabase
-    //   .from('proof_comments')
-    //   .select(`
-    //     *,
-    //     user:profiles!proofCommentsUserIdFkey(
-    //       id,
-    //       username,
-    //       avatar_url
-    //     )
-    //   `)
-    //   .eq('proof_id', id)
-    //   .order('created_at', { ascending: false });
-    interface CommentData {
-      id: string;
-      content: string;
-      user_id: string;
-      created_at: string;
+    // 현재 사용자의 좋아요 여부 확인
+    let is_liked = false;
+    if (user) {
+      const { data: likeData } = await supabase
+        .from('proof_likes')
+        .select('*')
+        .eq('proof_id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      is_liked = !!likeData;
     }
-    const comments: CommentData[] = [];
-
-    // 현재 사용자의 좋아요 여부 확인 (임시로 false 반환)
-    // const {
-    //   data: { user: authUser3 },
-    // } = await supabase.auth.getUser();
-    // let isLiked = false;
-
-    // if (authUser3) {
-    //   const { data: likeData } = await supabase
-    //     .from('proof_likes')
-    //     .select('*')
-    //     .eq('proof_id', id)
-    //     .eq('user_id', authUser3.id)
-    //     .single();
-
-    //   isLiked = !!likeData;
-    // }
-    const is_liked = false;
 
     return NextResponse.json({
       data: {
@@ -122,7 +105,8 @@ export async function GET(
         isLiked: is_liked,
       },
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -133,16 +117,18 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const auth_user4 = await requireAuth(request);
+    if (!auth_user4) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id] PUT');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user: auth_user4 },
-    } = await supabase.auth.getUser();
-    if (!auth_user4) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 기존 인증 조회
     const { data: existing_proof, error: fetch_error } = await supabase
@@ -223,16 +209,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const auth_user5 = await requireAuth(_request);
+    if (!auth_user5) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id] DELETE');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user: auth_user5 },
-    } = await supabase.auth.getUser();
-    if (!auth_user5) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 기존 인증 조회
     const { data: existing_proof, error: fetch_error } = await supabase
@@ -260,7 +248,8 @@ export async function DELETE(
     return NextResponse.json({
       message: '수익 인증이 삭제되었습니다',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

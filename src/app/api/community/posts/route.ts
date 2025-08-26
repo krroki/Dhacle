@@ -4,6 +4,8 @@ export const runtime = 'nodejs';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/community/posts
@@ -11,6 +13,16 @@ import { snakeToCamelCase } from '@/types';
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to community/posts API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const searchParams = req.nextUrl.searchParams;
     const category = searchParams.get('category') || 'board';
@@ -59,7 +71,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit),
     }));
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Failed to fetch community posts:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -70,17 +83,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to community/posts POST API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 요청 본문 파싱
     const body = await req.json();
@@ -141,7 +154,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         likeCount: 0,
       },
     }));
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Failed to create community post:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -10,7 +10,16 @@
  */
 
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import type { Alert, AlertRule, SourceFolder, YouTubeVideo } from '@/types';
+import type { 
+  Alert, 
+  AlertRule, 
+  AlertRuleType,
+  AlertMetric,
+  AlertCondition,
+  AlertScope,
+  SourceFolder, 
+  YouTubeVideo 
+} from '@/types';
 import { snakeToCamelCase } from '@/types';
 import { calculateMetrics } from './metrics';
 
@@ -106,7 +115,7 @@ export class ChannelFolderManager {
       isMonitoringEnabled: folder.is_active ?? false,
       checkIntervalHours: 24,
       lastCheckedAt: null,
-      folderChannels: folder.folder_channels?.map((fc: any) => snakeToCamelCase(fc)) || [],
+      folderChannels: folder.folder_channels?.map((fc: Record<string, unknown>) => snakeToCamelCase(fc)) || [],
       deleted_at: null
     } as unknown as SourceFolder));
   }
@@ -201,13 +210,13 @@ export class AlertRuleEngine {
       user_id: data.user_id,
       name: data.name,
       description: data.description,
-      ruleType: data.rule_type as any,
-      metric: data.metric as any,
-      metricType: data.metric as any,
-      condition: data.condition as any,
+      ruleType: data.rule_type as AlertRuleType,
+      metric: data.metric as AlertMetric,
+      metricType: data.metric as AlertMetric,
+      condition: data.condition as AlertCondition,
       comparisonOperator: '>',
       thresholdValue: data.threshold_value ?? 0,
-      scope: data.target_type as any,
+      scope: data.target_type as AlertScope,
       scopeId: data.target_id,
       is_active: data.is_active ?? false,
       cooldownHours: Math.floor((data.cooldown_minutes ?? 0) / 60),
@@ -238,13 +247,13 @@ export class AlertRuleEngine {
       user_id: rule.user_id,
       name: rule.name,
       description: rule.description,
-      ruleType: rule.rule_type as any,
-      metric: rule.metric as any,
-      metricType: rule.metric as any,
-      condition: rule.condition as any,
+      ruleType: rule.rule_type as AlertRuleType,
+      metric: rule.metric as AlertMetric,
+      metricType: rule.metric as AlertMetric,
+      condition: rule.condition as AlertCondition,
       comparisonOperator: '>',
       thresholdValue: rule.threshold_value ?? 0,
-      scope: rule.target_type as any,
+      scope: rule.target_type as AlertScope,
       scopeId: rule.target_id,
       is_active: rule.is_active ?? false,
       cooldownHours: Math.floor((rule.cooldown_minutes ?? 0) / 60),
@@ -414,8 +423,25 @@ export class AlertRuleEngine {
       return;
     }
 
-    // TODO: Fix Alert type mapping
-    const { error } = await supabase.from('alerts').insert(alerts as any);
+    // Map Alert type to database schema
+    const alertsForDb = alerts.map(alert => ({
+      rule_id: alert.rule_id,
+      user_id: alert.user_id,
+      entity_id: alert.video_id || alert.channel_id || null,
+      entity_name: null,
+      entity_type: alert.video_id ? 'video' : alert.channel_id ? 'channel' : null,
+      alert_type: alert.alertType,
+      title: alert.title,
+      message: alert.message,
+      severity: alert.severity,
+      metric_data: alert.contextData as unknown as undefined,
+      triggered_value: alert.metricValue || null,
+      threshold_value: null,
+      is_read: alert.is_read || false,
+      created_at: alert.created_at || new Date().toISOString()
+    }));
+
+    const { error } = await supabase.from('alerts').insert(alertsForDb);
 
     if (error) {
       throw error;
@@ -484,8 +510,12 @@ export class MonitoringScheduler {
       const channel_ids = new Set<string>();
       for (const folder of folders) {
         if (folder.isMonitoringEnabled && folder.folderChannels) {
-          folder.folderChannels.forEach((fc: any) => {
-            channel_ids.add(fc.channel_id || fc.channelId);
+          folder.folderChannels.forEach((fc) => {
+            const fcData = fc as unknown as { channel_id?: string; [key: string]: unknown };
+            const channelId = fcData.channel_id;
+            if (channelId) {
+              channel_ids.add(channelId);
+            }
           });
         }
       }
@@ -513,7 +543,10 @@ export class MonitoringScheduler {
 
       // Update last check timestamp
       await this.updateLastCheckTime(user_id);
-    } catch (_error) {}
+    } catch (error) {
+      console.error('Failed to monitor channels:', error);
+      throw error; // Re-throw for caller to handle
+    }
   }
 
   /**

@@ -33,7 +33,8 @@ export function KakaoLoginButton({
       if (error) {
         alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Component error:', error);
       alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };

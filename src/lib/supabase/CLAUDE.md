@@ -4,6 +4,47 @@
 
 ---
 
+## 🛑 Supabase 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **getSession() 사용 → 중단** (getUser()만 허용)
+- **RLS 없는 테이블 생성 → 중단**
+- **user_id 직접 전달 → 중단** (세션에서만)
+- **에러 처리 없음 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 인증은 getUser()만 사용
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) {
+  return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+}
+
+// RLS 정책 필수
+ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
+
+// 타입 안전성 필수
+const { data, error } = await supabase
+  .from('users')
+  .select('*')
+  .single() as { data: User | null, error: PostgrestError | null };
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# RLS 정책 확인
+node scripts/verify-with-service-role.js
+# 실제 DB 연결 테스트
+npm run dev → 실제 데이터 확인
+```
+
+## 🚫 Supabase any 타입 금지
+- Query 결과 타입 명시
+- Error 타입 정의
+- Response 타입 안전성
+
+---
+
 ## 🚨 필수 패턴 (2025-08-22 표준)
 
 ### ✅ Server Component 패턴

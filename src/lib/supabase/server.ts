@@ -13,7 +13,7 @@ export async function createServerClient() {
   // Provide fallback for build time, but throw at runtime if missing
   if (!supabase_url || !supabase_anon_key) {
     // During build, use dummy values that won't be called
-    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    if (env.NODE_ENV === 'production' && typeof window === 'undefined') {
       return createSupabaseServerClient<Database>('https://dummy.supabase.co', 'dummy-key', {
         cookies: {
           get(name: string) {

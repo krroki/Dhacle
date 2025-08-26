@@ -4,6 +4,8 @@
  * Phase 3: Core Features Implementation
  */
 
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { mapVideoStats } from '@/lib/utils/type-mappers';
@@ -18,16 +20,17 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Check authentication - using getUser() for consistency
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Popular API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse query parameters
     const search_params = request.nextUrl.searchParams;
@@ -157,15 +160,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Check authentication - using getUser() for consistency
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Popular API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Parse request body

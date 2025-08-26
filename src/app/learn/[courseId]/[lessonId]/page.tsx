@@ -5,6 +5,7 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
   FileText,
   Lock,
   MessageSquare,
@@ -19,23 +20,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { createClient } from '@/lib/supabase/browser-client';
 import { mapCourse, mapLesson } from '@/lib/utils/type-mappers';
-import type { Course, CourseProgress, Lesson } from '@/types';
+import type { Course, Lesson, Database } from '@/types';
 import { VideoPlayer } from './components/VideoPlayer';
+
+type CourseProgressExtended = Database['public']['Tables']['course_progress_extended']['Row'];
+import { 
+  useCourseCertificate, 
+  useCreateCertificate, 
+  useGenerateCertificatePDF 
+} from '@/hooks/queries/useCertificates';
 
 export default function LearnPage() {
   const params = useParams();
   const router = useRouter();
-  const course_id = params.course_id as string;
-  const lesson_id = params.lesson_id as string;
+  const course_id = params.courseId as string;
+  const lesson_id = params.lessonId as string;
 
   const [course, set_course] = useState<Course | null>(null);
   const [lessons, set_lessons] = useState<Lesson[]>([]);
   const [current_lesson, set_current_lesson] = useState<Lesson | null>(null);
-  const [progress, set_progress] = useState<CourseProgress[]>([]);
+  const [progress, set_progress] = useState<CourseProgressExtended[]>([]);
   const [notes, set_notes] = useState('');
   const [loading, set_loading] = useState(true);
   const [is_sidebar_open, set_is_sidebar_open] = useState(true);
   const [user_id, set_user_id] = useState<string>('');
+  
+  // Certificate hooks
+  const { data: certificate } = useCourseCertificate(course_id);
+  const createCertificate = useCreateCertificate();
+  const generatePDF = useGenerateCertificatePDF(certificate || null);
 
   const load_course_data = useCallback(async () => {
     set_loading(true);
@@ -74,16 +87,15 @@ export default function LearnPage() {
       if (user) {
         set_user_id(user.id); // 사용자 ID 설정
 
-        // TODO: courseProgressExtended 뷰/테이블 생성 후 주석 해제
-        // const { data: progressData } = await supabase
-        //   .from('courseProgressExtended')
-        //   .select('*')
-        //   .eq('user_id', user.id)
-        //   .eq('course_id', course_id);
-        const progress_data: CourseProgress[] = []; // 임시로 빈 배열 반환
+        // 진도 정보 조회
+        const { data: progress_data } = await supabase
+          .from('course_progress_extended')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('course_id', course_id);
 
-        if (progress_data.length > 0) {
-          set_progress(progress_data);
+        if (progress_data && progress_data.length > 0) {
+          set_progress(progress_data as CourseProgressExtended[]);
 
           // 현재 레슨의 메모 가져오기
           const current_progress = progress_data.find((p) => p.lesson_id === lesson_id);
@@ -92,7 +104,8 @@ export default function LearnPage() {
           }
         }
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
     } finally {
       set_loading(false);
     }
@@ -113,26 +126,27 @@ export default function LearnPage() {
         return;
       }
 
-      // TODO: courseProgressExtended 뷰/테이블 생성 후 주석 해제
-      // 진도 업데이트 (임시로 스킵)
-      // const { error } = await supabase.from('courseProgressExtended').upsert(
-      //   {
-      //     user_id: user.id,
-      //     course_id: course_id,
-      //     lesson_id: lessonId,
-      //     progress: Math.floor(time),
-      //     completed: time >= currentLesson.duration * 0.9, // 90% 이상 시청 시 완료
-      //     last_watched_at: new Date().toISOString(),
-      //   },
-      //   {
-      //     onConflict: 'user_id,lesson_id',
-      //   }
-      // );
+      // 진도 업데이트
+      const { error } = await supabase.from('course_progress_extended').upsert(
+        {
+          user_id: user.id,
+          course_id: course_id,
+          lesson_id: lesson_id,
+          last_position: Math.floor(_time),
+          completed_lessons: _time >= current_lesson.duration * 0.9 ? 1 : 0, // 90% 이상 시청 시 완료
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id,lesson_id',
+        }
+      );
 
-      // if (error) {
-      //   console.error('Progress update error:', error);
-      // }
-    } catch (_error) {}
+      if (error) {
+        console.error('Progress update error:', error);
+      }
+    } catch (error) {
+      console.error('Failed to update lesson progress:', error);
+    }
   };
 
   const handle_note_save = async () => {
@@ -160,8 +174,11 @@ export default function LearnPage() {
       );
 
       if (error) {
+        console.error('Failed to save notes:', error);
       }
-    } catch (_error) {}
+    } catch (error) {
+      console.error('Failed to save course notes:', error);
+    }
   };
 
   const navigate_to_lesson = (lesson: Lesson) => {
@@ -176,12 +193,12 @@ export default function LearnPage() {
       return 0;
     }
 
-    return Math.min(100, Math.round((lesson_progress.progress / lesson.duration) * 100));
+    return Math.min(100, Math.round(((lesson_progress.last_position || 0) / lesson.duration) * 100));
   };
 
   const is_lesson_completed = (lessonId: string): boolean => {
     const lesson_progress = progress.find((p) => p.lesson_id === lessonId);
-    return lesson_progress?.completed || false;
+    return (lesson_progress?.completed_lessons || 0) > 0;
   };
 
   const get_course_completion_rate = (): number => {
@@ -192,6 +209,33 @@ export default function LearnPage() {
     const completed_count = lessons.filter((l) => is_lesson_completed(l.id)).length;
 
     return Math.round((completed_count / lessons.length) * 100);
+  };
+
+  // 수료증 생성 함수
+  const handleCreateCertificate = async () => {
+    if (!course || get_course_completion_rate() !== 100) return;
+    
+    try {
+      await createCertificate.mutateAsync({
+        course_id: course_id,
+        completion_date: new Date().toISOString(),
+        grade: 'A', // 실제로는 점수 계산 로직 필요
+        score: 100, // 실제로는 점수 계산 로직 필요
+      });
+    } catch (error) {
+      console.error('Failed to create certificate:', error);
+    }
+  };
+
+  // 수료증 다운로드 함수
+  const handleDownloadCertificate = async () => {
+    if (!certificate) {
+      // 수료증이 없으면 먼저 생성
+      await handleCreateCertificate();
+    } else {
+      // 수료증이 있으면 다운로드
+      generatePDF.mutate();
+    }
   };
 
   if (loading) {
@@ -350,7 +394,7 @@ export default function LearnPage() {
               user_id={user_id}
               title={current_lesson.title}
               onProgress={handle_progress_update}
-              initialProgress={progress.find((p) => p.lesson_id === lesson_id)?.progress || 0}
+              initialProgress={progress.find((p) => p.lesson_id === lesson_id)?.last_position || 0}
             />
 
             {/* 레슨 정보 탭 */}
@@ -408,14 +452,30 @@ export default function LearnPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
                     <Award className="w-12 h-12 text-green-600" />
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold text-lg">축하합니다! 🎉</h3>
                       <p className="text-muted-foreground">
-                        모든 레슨을 완료하셨습니다. 수료증이 발급되었습니다.
+                        모든 레슨을 완료하셨습니다. 
+                        {certificate ? '수료증이 발급되었습니다.' : '수료증을 발급받으실 수 있습니다.'}
                       </p>
-                      <Button className="mt-3" variant="outline">
-                        수료증 다운로드
-                      </Button>
+                      <div className="flex gap-2 mt-3">
+                        <Button 
+                          variant="outline"
+                          onClick={handleDownloadCertificate}
+                          disabled={createCertificate.isPending || generatePDF.isPending}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          {certificate ? '수료증 다운로드' : '수료증 발급받기'}
+                        </Button>
+                        {certificate && (
+                          <Button
+                            variant="ghost"
+                            onClick={() => router.push(`/certificates/${certificate.id}`)}
+                          >
+                            수료증 보기
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>

@@ -1,11 +1,29 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
 import { queryKeys } from '@/lib/query-keys';
+import type { FilterParams } from '@/types';
 
 interface PaginatedResponse<T> {
   data: T[];
   total?: number;
   page?: number;
+}
+
+// 시스템 설정 타입 정의
+interface SystemSettings {
+  siteName?: string;
+  siteDescription?: string;
+  maintenanceMode?: boolean;
+  allowRegistration?: boolean;
+  requireEmailVerification?: boolean;
+  maxUploadSize?: number;
+  allowedFileTypes?: string[];
+  rateLimitPerMinute?: number;
+  defaultLanguage?: string;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  analyticsEnabled?: boolean;
+  loggingLevel?: 'error' | 'warn' | 'info' | 'debug';
 }
 
 /**
@@ -23,19 +41,21 @@ export function useAdminStats() {
 /**
  * 사용자 목록 쿼리 훅 (관리자용)
  */
-export function useAdminUsers(filters?: {
+interface AdminUserFilters extends FilterParams {
   role?: string;
   status?: 'active' | 'suspended' | 'deleted';
   search?: string;
-}) {
+}
+
+export function useAdminUsers(filters?: AdminUserFilters) {
   return useInfiniteQuery<
     PaginatedResponse<unknown>,
     Error,
     InfiniteData<PaginatedResponse<unknown>>,
-    readonly ['admin', 'users', any?],
+    readonly ['admin', 'users', FilterParams | undefined],
     number
   >({
-    queryKey: queryKeys.admin.users(filters),
+    queryKey: queryKeys.admin.users(filters as FilterParams),
     queryFn: ({ pageParam }) => {
       const params = new URLSearchParams({
         page: String(pageParam),
@@ -168,20 +188,22 @@ export function useAdminApprovalLogs(channelId: string) {
 /**
  * 시스템 로그 쿼리 훅 (관리자용)
  */
-export function useAdminLogs(filters?: {
+interface AdminLogFilters extends FilterParams {
   level?: 'info' | 'warning' | 'error';
   module?: string;
   startDate?: string;
   endDate?: string;
-}) {
+}
+
+export function useAdminLogs(filters?: AdminLogFilters) {
   return useInfiniteQuery<
     PaginatedResponse<unknown>,
     Error,
     InfiniteData<PaginatedResponse<unknown>>,
-    readonly ['admin', 'logs', any?],
+    readonly ['admin', 'logs', FilterParams | undefined],
     number
   >({
-    queryKey: queryKeys.admin.logs(filters),
+    queryKey: queryKeys.admin.logs(filters as FilterParams),
     queryFn: ({ pageParam }) => {
       const params = new URLSearchParams({
         page: String(pageParam),
@@ -242,7 +264,7 @@ export function useUpdateSystemSettings() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (settings: Record<string, any>) => 
+    mutationFn: (settings: SystemSettings) => 
       apiPut('/api/admin/settings', settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ 

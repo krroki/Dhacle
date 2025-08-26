@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { env } from '@/env';
 
 /**
  * MSW Provider Component
@@ -11,7 +12,7 @@ export function MSWProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const enable_mocking = async () => {
-      if (process.env.NODE_ENV !== 'development') {
+      if (env.NODE_ENV !== 'development') {
         return;
       }
 
@@ -34,7 +35,7 @@ export function MSWProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // 개발 환경이 아니거나 모킹이 아직 준비되지 않은 경우
-  if (process.env.NODE_ENV !== 'development' || !mocking_enabled) {
+  if (env.NODE_ENV !== 'development' || !mocking_enabled) {
     return <>{children}</>;
   }
 

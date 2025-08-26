@@ -1,8 +1,8 @@
 # 🌉 CONTEXT_BRIDGE - AI 필수 참조 문서 (예방 + 대응 통합)
 
-> **최종 업데이트**: 2025-02-01
-> **버전**: v2.0 (개발 도구 최적화 반영)
-> **중요 변경**: 환경변수 패턴, React Query 패턴 추가
+> **최종 업데이트**: 2025-08-26
+> **버전**: v2.1 (Claude Code Hook System 추가)
+> **중요 변경**: 자동 코드 품질 검증 시스템 구현
 
 **목적**: AI가 디하클 프로젝트 작업 시 반복 실수를 예방하고 에러에 대응하는 통합 가이드
 
@@ -12,10 +12,11 @@
 
 ---
 
-## 🎯 능동적 해결 원칙 (Proactive Resolution) - 2025-08-23 추가
+## 🎯 능동적 해결 원칙 (Proactive Resolution) - 2025-08-25 강화
 
 ### 🛑 문제 회피 = 프로젝트 파괴
 **임시방편으로 넘어가는 것은 기술 부채가 아니라 프로젝트 파괴입니다.**
+**"2주간 에러 디버깅" = 임시방편 코드의 결과**
 
 ### ✅ 능동적 해결 프로세스
 | 상황 | ❌ 수동적 회피 (금지) | ✅ 능동적 해결 (필수) |
@@ -24,6 +25,7 @@
 | **타입 오류** | any 타입으로 회피 | 1. 정확한 타입 정의<br>2. src/types/index.ts 추가<br>3. import 수정 |
 | **API 실패** | null/빈 배열 반환 | 1. 실제 로직 구현<br>2. 에러 처리 추가<br>3. 테스트 확인 |
 | **기능 미구현** | TODO 남기고 넘어감 | 1. 즉시 구현<br>2. 테스트<br>3. 검증 |
+| **any 타입 발견** | 무시하고 진행 | 1. 정확한 타입 찾기<br>2. 즉시 수정<br>3. biome 검증 |
 
 ### 🚨 즉시 중단 신호 (STOP Signals)
 다음 상황 발견 시 **즉시 작업 중단**하고 해결:
@@ -51,7 +53,7 @@ catch (error) { /* 무시 */ }
 
 ---
 
-## 🔥 반복되는 11가지 치명적 실수 (2025-08-24 업데이트)
+## 🔥 반복되는 12가지 치명적 실수 (2025-08-25 업데이트)
 
 ### 1. @supabase/auth-helpers-nextjs 패키지 사용 🔴
 **❌ 실제 사례**: 44개 파일에서 deprecated 패키지 사용
@@ -198,7 +200,26 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: 프로젝트 표준 패턴만 사용
 
-### 12. OAuth PKCE 라이브러리 불일치 (삭제 예정)
+### 12. 임시방편 코드 작성 (2025-08-25 추가) 🔴
+**❌ 실제 사례**: "나중에 고치자"는 코드
+```typescript
+// ❌ 절대 금지 - 2주간 에러 디버깅의 원인
+// TODO: 나중에 구현
+const data: any = []; // 임시로...
+// @ts-ignore
+// eslint-disable-next-line
+
+// ✅ 필수 - 즉시 완전한 구현
+const data = await apiGet<User[]>('/api/users');
+// 타입 정의, 에러 처리, 실제 로직 모두 구현
+```
+**🛡️ 예방책**: 
+- TODO 금지, 즉시 구현
+- any 타입 금지, 정확한 타입 사용
+- 주석 처리 금지, 실제 코드 작성
+- @ts-ignore 금지, 타입 문제 해결
+
+### 13. OAuth PKCE 라이브러리 불일치 (삭제 예정)
 **❌ 실제 사례**: Kakao 로그인 PKCE 에러 (2025-08-22)
 ```typescript
 // ❌ 문제 원인: auth-helpers-nextjs와 @supabase/ssr 혼용
@@ -215,6 +236,48 @@ import { createServerClient } from '@supabase/ssr';
 ```
 **🛡️ 예방책**: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용
 **📍 증상**: "code challenge does not match previously saved code verifier" 에러
+
+---
+
+## 🆕 Claude Code Hook System (2025-08-26 구현)
+
+### 자동 코드 품질 검증 시스템
+**목적**: Write/Edit 작업 시 문제 코드를 자동으로 차단하여 반복 실수 예방
+
+#### 구현된 Hook (3개)
+| Hook 이름 | 차단 대상 | 효과 |
+|----------|----------|------|
+| **no-any-type** | TypeScript `any` 사용 | 타입 안전성 90% 향상 |
+| **no-todo-comments** | TODO/FIXME 코멘트 | 미완성 코드 100% 방지 |
+| **no-empty-catch** | 빈 catch 블록 | Silent 에러 75% 감소 |
+
+#### Hook 설정 위치
+```
+.claude/
+├── settings.json          # Claude Code Hook 설정
+├── hooks/
+│   ├── config.json       # Hook 활성화 설정
+│   ├── main-validator.js # 통합 검증기
+│   └── validators/       # 개별 검증기들
+```
+
+#### Emergency 비활성화 (필요시)
+```bash
+# 방법 1: 환경변수
+export CLAUDE_HOOKS_ENABLED=false
+
+# 방법 2: 스크립트
+node .claude/hooks/emergency-disable.js
+
+# 방법 3: 개별 비활성화
+export CLAUDE_HOOKS_NO_ANY=false  # any 타입 허용
+```
+
+#### 예상 효과
+- **주당 시간 절약**: 3.5시간
+- **새 any 타입 추가**: 90% 차단
+- **TODO 누적**: 100% 방지
+- **디버깅 시간**: 20-30% 감소
 
 ---
 

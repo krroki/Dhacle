@@ -29,7 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         set_user(session?.user ?? null);
-      } catch (_error) {
+      } catch (error) {
+      console.error('Auth context error:', error);
       } finally {
         set_loading(false);
       }
@@ -54,7 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
       set_user(null);
-    } catch (_error) {}
+    } catch (error) {
+      console.error('Failed to sign out:', error);
+      // Still clear local user state even if sign out fails
+      set_user(null);
+    }
   };
 
   return (

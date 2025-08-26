@@ -25,11 +25,12 @@ if (env.REDIS_HOST || env.NODE_ENV === 'production') {
 
     // 에러 핸들러 등록
     redis.on('error', (err) => {
-      console.log('Redis connection failed, using memory cache only:', err.message);
+      console.error('[Cache] Redis connection failed, using memory cache only:', err.message);
       redis = null;
     });
-  } catch (_error) {
-    console.log('Redis initialization skipped, using memory cache only');
+  } catch (error) {
+    console.error('[Cache] Redis initialization failed:', error instanceof Error ? error.message : 'Unknown error');
+    console.log('[Cache] Using memory cache only');
     redis = null;
   }
 } else {
@@ -108,9 +109,10 @@ export class CacheManager {
     try {
       await redis.connect();
       this.redisConnected = true;
-      console.log('Redis connected for caching');
-    } catch (_error) {
-      console.log('Redis connection failed, using memory cache only');
+      console.log('[Cache] Redis connected for caching');
+    } catch (error) {
+      console.error('[Cache] Redis connection failed:', error instanceof Error ? error.message : 'Unknown error');
+      console.log('[Cache] Falling back to memory cache only');
       this.redisConnected = false;
       redis = null; // Redis 비활성화
     }
@@ -182,7 +184,9 @@ export class CacheManager {
           // 만료된 항목 삭제
           await redis.del(key);
         }
-      } catch (_error) {}
+      } catch (error) {
+        console.warn('[Cache] Redis get/del failed, using memory cache only:', error instanceof Error ? error.message : 'Unknown error');
+      }
     }
 
     this.stats.misses++;
@@ -206,7 +210,9 @@ export class CacheManager {
     if (this.redisConnected && redis) {
       try {
         await redis.setex(key, Math.floor(ttl / 1000), JSON.stringify(item));
-      } catch (_error) {}
+      } catch (error) {
+        console.warn('[Cache] Redis set failed, data saved to memory cache only:', error instanceof Error ? error.message : 'Unknown error');
+      }
     }
 
     this.stats.sets++;
@@ -222,7 +228,9 @@ export class CacheManager {
     if (this.redisConnected && redis) {
       try {
         await redis.del(key);
-      } catch (_error) {}
+      } catch (error) {
+        console.warn('[Cache] Redis delete failed, deleted from memory cache only:', error instanceof Error ? error.message : 'Unknown error');
+      }
     }
 
     this.stats.deletes++;
@@ -247,7 +255,9 @@ export class CacheManager {
           await redis.del(...keys);
           this.stats.deletes += keys.length;
         }
-      } catch (_error) {}
+      } catch (error) {
+        console.warn('[Cache] Redis pattern delete failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
     }
 
     console.log(`Cache pattern deleted: ${pattern}`);
@@ -265,7 +275,9 @@ export class CacheManager {
         if (keys.length > 0) {
           await redis.del(...keys);
         }
-      } catch (_error) {}
+      } catch (error) {
+        console.warn('[Cache] Redis clear failed:', error instanceof Error ? error.message : 'Unknown error');
+      }
     }
 
     // 통계 초기화

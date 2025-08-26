@@ -4,24 +4,37 @@ export const runtime = 'nodejs';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '@/env';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    // 인증 확인
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to admin/video/upload API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
-    // TODO: 관리자 권한 확인 - is_admin 필드가 profiles 테이블에 없음
-    // 임시로 특정 사용자 ID로 관리자 확인 (실제 구현 필요)
+    const supabase = await createSupabaseRouteHandlerClient();
+
+    // 관리자 권한 확인
     const ADMIN_USER_IDS = env.ADMIN_USER_IDS?.split(',') || [];
     
-    if (!ADMIN_USER_IDS.includes(user.id)) {
+    // Check if user is in admin list or has admin role in users table
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    
+    const isAdmin = ADMIN_USER_IDS.includes(user.id) || userData?.role === 'admin';
+    
+    if (!isAdmin) {
+      logger.warn(`Non-admin user ${user.id} attempted to access admin video upload`);
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
     }
 
@@ -154,7 +167,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: video_info.status,
       message: '비디오 업로드가 완료되었습니다.',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Video upload failed:', error);
     return NextResponse.json({ error: '비디오 업로드 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
@@ -162,6 +176,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 // 업로드 상태 확인 API
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to admin/video/upload GET API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const video_id = searchParams.get('video_id');
 
@@ -214,7 +238,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         thumbnail: `https://videodelivery.net/${data.result.uid}/thumbnails/thumbnail.jpg`,
       },
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Video status check failed:', error);
     return NextResponse.json(
       { error: '비디오 상태 확인 중 오류가 발생했습니다.' },
       { status: 500 }

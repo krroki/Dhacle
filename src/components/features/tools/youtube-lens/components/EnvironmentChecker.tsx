@@ -118,7 +118,8 @@ export function EnvironmentChecker({ onComplete, autoCheck = true }: Environment
       if (data.hasAllRequired && onComplete) {
         onComplete();
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Component error:', error);
       set_check_result({
         configured: false,
         missingVars: variables.map((v) => v.name),

@@ -1,26 +1,24 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-// import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
-export async function POST(_req: NextRequest): Promise<NextResponse> {
-  // TODO: coupons 테이블이 없어서 임시로 비활성화
-  return NextResponse.json(
-    { error: '쿠폰 기능은 현재 준비 중입니다.' },
-    { status: 503 }
-  );
-  
-  /* 원본 코드 - coupons 테이블 생성 후 활성화 필요
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  // Step 1: Authentication check (required!)
+  const user = await requireAuth(req);
+  if (!user) {
+    logger.warn('Unauthorized access attempt to coupons validate');
+    return NextResponse.json(
+      { error: 'User not authenticated' },
+      { status: 401 }
+    );
+  }
+
   try {
     const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     const body = await req.json();
     const { couponCode, course_id } = body;
@@ -43,8 +41,8 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
 
     // 유효 기간 체크
     const now = new Date();
-    const valid_from = new Date(coupon.validFrom);
-    const valid_until = new Date(coupon.validUntil);
+    const valid_from = new Date(coupon.valid_from);
+    const valid_until = new Date(coupon.valid_until);
 
     if (now < valid_from) {
       return NextResponse.json({ error: '아직 사용할 수 없는 쿠폰입니다.' }, { status: 400 });
@@ -55,7 +53,7 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
     }
 
     // 최대 사용 횟수 체크
-    if (coupon.maxUsage && coupon.usageCount >= coupon.maxUsage) {
+    if (coupon.max_usage && (coupon.usage_count || 0) >= coupon.max_usage) {
       return NextResponse.json({ error: '사용 한도를 초과한 쿠폰입니다.' }, { status: 400 });
     }
 
@@ -72,7 +70,7 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
       .from('purchases')
       .select('id')
       .eq('user_id', user.id)
-      .eq('couponId', coupon.id)
+      .eq('coupon_id', coupon.id)
       .eq('status', 'completed');
 
     if (!usage_error && user_usage && user_usage.length > 0) {
@@ -94,12 +92,12 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
     let discount_amount = 0;
     let final_price = course.price;
 
-    if (coupon.discountType === 'percentage') {
-      discount_amount = Math.round(course.price * (coupon.discountValue / 100));
+    if (coupon.discount_type === 'percentage') {
+      discount_amount = Math.round(course.price * (coupon.discount_value / 100));
       final_price = course.price - discount_amount;
     } else {
-      discount_amount = Math.min(coupon.discountValue, course.price);
-      final_price = Math.max(0, course.price - coupon.discountValue);
+      discount_amount = Math.min(coupon.discount_value, course.price);
+      final_price = Math.max(0, course.price - coupon.discount_value);
     }
 
     return NextResponse.json({
@@ -108,9 +106,9 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
         id: coupon.id,
         code: coupon.code,
         description: coupon.description,
-        discountType: coupon.discountType,
-        discountValue: coupon.discountValue,
-        validUntil: coupon.validUntil,
+        discountType: coupon.discount_type,
+        discountValue: coupon.discount_value,
+        validUntil: coupon.valid_until,
       },
       discount: {
         originalPrice: course.price,
@@ -119,8 +117,8 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
         discountPercentage: Math.round((discount_amount / course.price) * 100),
       },
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '쿠폰 검증 중 오류가 발생했습니다.' }, { status: 500 });
   }
-  */
 }

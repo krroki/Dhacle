@@ -46,7 +46,8 @@ export default function RevenueProofGallery() {
         }
         set_has_more(result.pagination.page < result.pagination.totalPages);
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error('Failed to load revenue proofs:', error);
       set_error('수익 인증을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 
       // API 오류 시 빈 배열로 설정 (더미 데이터 사용하지 않음)

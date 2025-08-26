@@ -8,6 +8,8 @@ import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { commentSchema } from '@/lib/validations/revenue-proof';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // GET: 댓글 목록 조회
 export async function GET(
@@ -15,16 +17,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const auth_supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await auth_supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
     if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/comment GET');
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
       );
     }
 
@@ -56,7 +55,8 @@ export async function GET(
       data: comments || [],
       count: comments?.length || 0,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -67,16 +67,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/comment POST');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: proof_id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 인증이 존재하는지 확인
     const { data: proof, error: proof_error } = await supabase
@@ -156,15 +158,17 @@ export async function POST(
 // DELETE: 댓글 삭제 (작성자만)
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/comment DELETE');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
     const { searchParams } = new URL(request.url);
     const comment_id = searchParams.get('comment_id');
 
@@ -217,7 +221,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       message: '댓글이 삭제되었습니다',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

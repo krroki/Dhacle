@@ -6,6 +6,8 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // POST: 좋아요 토글
 export async function POST(
@@ -13,16 +15,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/[id]/like');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: proof_id } = await params;
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
 
     // 인증이 존재하는지 확인
     const { data: proof, error: proof_error } = await supabase
@@ -107,7 +111,8 @@ export async function POST(
       likes_count: likes_count || 0,
       message,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

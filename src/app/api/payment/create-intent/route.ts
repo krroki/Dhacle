@@ -3,17 +3,22 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to payment create-intent');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const body = await req.json();
     const { course_id, couponCode } = body;
@@ -140,7 +145,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         : null,
       */
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Payment intent creation failed:', error);
     return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

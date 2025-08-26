@@ -4,23 +4,22 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+// import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // GET: 랭킹 조회
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const auth_supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await auth_supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
+      logger.warn('Unauthorized access attempt to revenue-proof/ranking');
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
       );
     }
 
@@ -120,16 +119,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 사용자 정보 조회 및 정렬
     const user_ids = Object.keys(user_revenues);
 
-    // TODO: avatar_url 필드 추가 후 주석 해제
-    // const { data: profiles } = await supabase
-    //   .from('profiles')
-    //   .select('id, username, avatar_url')
-    //   .in('id', userIds);
-
-    // 임시로 avatar_url 없이 조회
+    // avatar_url 포함해서 조회
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, username')
+      .select('id, username, avatar_url')
       .in('id', user_ids);
 
     interface ProfileData {
@@ -207,7 +200,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       myRank: my_rank,
       cached: false,
     });
-  } catch (_error: unknown) {
+  } catch (error: unknown) {
+    console.error('Revenue proof ranking error:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

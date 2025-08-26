@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
+import type { FilterParams } from '@/types';
 
 export interface RevenueProof {
   id: string;
@@ -39,7 +40,7 @@ export interface RevenueProofComment {
 export const revenueProofKeys = {
   all: ['revenue-proof'] as const,
   lists: () => [...revenueProofKeys.all, 'list'] as const,
-  list: (filters?: any) => [...revenueProofKeys.lists(), filters] as const,
+  list: (filters?: FilterParams) => [...revenueProofKeys.lists(), filters] as const,
   details: () => [...revenueProofKeys.all, 'detail'] as const,
   detail: (id: string) => [...revenueProofKeys.details(), id] as const,
   comments: (id: string) => [...revenueProofKeys.all, 'comments', id] as const,

@@ -60,7 +60,12 @@
       "Bash(npm run type-check:*)",
       "Bash(for var in YOUTUBE_API_KEY NEXT_PUBLIC_APP_URL VERCEL_URL YT_ADMIN_KEY REDIS_HOST REDIS_PORT)",
       "Bash(do echo \"- $var\")",
-      "Read(/C:\\Users\\jeongyeongrok\\Desktop\\My_Claude_Project\\9.Dhacle\\docs/**)"
+      "Read(/C:\\Users\\jeongyeongrok\\Desktop\\My_Claude_Project\\9.Dhacle\\docs/**)",
+      "Bash(npm run verify:parallel:*)",
+      "Bash(mkdir:*)",
+      "Bash(for file in monitoring.ts pubsub.ts queue-manager.ts api-client.ts)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(npm run verify:security:*)"
     ],
     "deny": [],
     "ask": [],

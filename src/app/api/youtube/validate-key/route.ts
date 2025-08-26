@@ -4,8 +4,10 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { validateYouTubeApiKey } from '@/lib/api-keys';
+import { env } from '@/env';
 
 /**
  * POST /api/youtube/validate-key
@@ -15,15 +17,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   console.log('[validate-key] Request received');
 
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube validate-key API');
       console.log('[validate-key] Authentication failed');
       return NextResponse.json(
         {
@@ -97,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         success: false,
         error: 'API key 검증 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
         details:
-          process.env.NODE_ENV === 'development'
+          env.NODE_ENV === 'development'
             ? error instanceof Error
               ? error.message
               : String(error)

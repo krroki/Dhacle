@@ -3,6 +3,9 @@
  * Ensures consistent key structure across the application
  */
 
+import type { FilterParams } from '@/types';
+import type { QueryClient } from '@tanstack/react-query';
+
 export const queryKeys = {
   // Root keys
   all: ['all'] as const,
@@ -33,7 +36,7 @@ export const queryKeys = {
   // Community module
   community: {
     all: ['community'] as const,
-    posts: (filters?: any) => ['community', 'posts', filters] as const,
+    posts: (filters?: FilterParams) => ['community', 'posts', filters] as const,
     post: (id: string) => ['community', 'post', id] as const,
     comments: (postId: string) => ['community', 'comments', postId] as const,
     categories: () => ['community', 'categories'] as const,
@@ -43,7 +46,7 @@ export const queryKeys = {
   revenueProof: {
     all: ['revenue-proof'] as const,
     lists: () => ['revenue-proof', 'list'] as const,
-    list: (filters?: any) => ['revenue-proof', 'list', filters] as const,
+    list: (filters?: FilterParams) => ['revenue-proof', 'list', filters] as const,
     details: () => ['revenue-proof', 'detail'] as const,
     detail: (id: string) => ['revenue-proof', 'detail', id] as const,
     comments: (id: string) => ['revenue-proof', 'comments', id] as const,
@@ -60,19 +63,28 @@ export const queryKeys = {
   // Course module
   courses: {
     all: ['courses'] as const,
-    list: (filters?: any) => ['courses', 'list', filters] as const,
+    list: (filters?: FilterParams) => ['courses', 'list', filters] as const,
     detail: (id: string) => ['courses', 'detail', id] as const,
     progress: (courseId: string) => ['courses', 'progress', courseId] as const,
     enrolled: () => ['courses', 'enrolled'] as const,
   },
   
+  // Certificates module
+  certificates: {
+    all: ['certificates'] as const,
+    list: () => ['certificates', 'list'] as const,
+    detail: (id: string) => ['certificates', 'detail', id] as const,
+    byCourse: (courseId: string) => ['certificates', 'by-course', courseId] as const,
+    public: (id: string) => ['certificates', 'public', id] as const,
+  },
+  
   // Admin module
   admin: {
     all: ['admin'] as const,
-    users: (filters?: any) => ['admin', 'users', filters] as const,
+    users: (filters?: FilterParams) => ['admin', 'users', filters] as const,
     user: (id: string) => ['admin', 'user', id] as const,
     stats: () => ['admin', 'stats'] as const,
-    logs: (filters?: any) => ['admin', 'logs', filters] as const,
+    logs: (filters?: FilterParams) => ['admin', 'logs', filters] as const,
     channels: (status?: string) => ['admin', 'channels', status] as const,
     approvalLogs: (channelId: string) => ['admin', 'approval-logs', channelId] as const,
   },
@@ -83,7 +95,7 @@ export const queryKeys = {
  * Usage: invalidateModule(queryClient, 'youtube')
  */
 export function invalidateModule(
-  queryClient: any,
+  queryClient: QueryClient,
   module: keyof typeof queryKeys
 ) {
   const moduleKeys = queryKeys[module];
@@ -97,7 +109,7 @@ export function invalidateModule(
  * Usage: removeModule(queryClient, 'youtube')
  */
 export function removeModule(
-  queryClient: any,
+  queryClient: QueryClient,
   module: keyof typeof queryKeys
 ) {
   const moduleKeys = queryKeys[module];
@@ -113,11 +125,11 @@ export function removeModule(
  *   { key: queryKeys.user.profile(), fn: fetchProfile }
  * ])
  */
-export async function prefetchQueries(
-  queryClient: any,
+export async function prefetchQueries<T = unknown>(
+  queryClient: QueryClient,
   queries: Array<{
     key: readonly unknown[];
-    fn: () => Promise<any>;
+    fn: () => Promise<T>;
     staleTime?: number;
   }>
 ) {
@@ -136,8 +148,12 @@ export async function prefetchQueries(
  * Helper to invalidate related queries after a mutation
  * Usage: invalidateRelated(queryClient, 'youtube', ['search', 'popular'])
  */
+type ModuleKeysType = {
+  [key: string]: (...args: unknown[]) => readonly unknown[];
+};
+
 export function invalidateRelated(
-  queryClient: any,
+  queryClient: QueryClient,
   module: keyof typeof queryKeys,
   subKeys: string[]
 ) {
@@ -145,7 +161,7 @@ export function invalidateRelated(
   if (typeof moduleKeys === 'object') {
     subKeys.forEach((subKey) => {
       if (subKey in moduleKeys) {
-        const keyFunction = (moduleKeys as any)[subKey];
+        const keyFunction = (moduleKeys as unknown as ModuleKeysType)[subKey];
         if (typeof keyFunction === 'function') {
           queryClient.invalidateQueries({ queryKey: keyFunction() });
         }

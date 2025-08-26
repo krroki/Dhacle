@@ -12,16 +12,18 @@ interface PaginatedResponse<T> {
   page?: number;
 }
 
-export function useCommunityPosts(filters?: {
+type CommunityFilters = {
   category?: string;
   tag?: string;
   search?: string;
-}) {
+};
+
+export function useCommunityPosts(filters?: CommunityFilters) {
   return useInfiniteQuery<
     PaginatedResponse<CommunityPost>,
     Error,
     InfiniteData<PaginatedResponse<CommunityPost>>,
-    readonly ['community', 'posts', any?],
+    readonly ['community', 'posts', CommunityFilters?],
     number
   >({
     queryKey: queryKeys.community.posts(filters),

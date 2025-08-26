@@ -6,6 +6,7 @@
  */
 
 import DOMPurify from 'isomorphic-dompurify';
+import { logger } from '@/lib/logger';
 
 // ============================================
 // Sanitization 설정
@@ -155,7 +156,11 @@ export function sanitizeURL(url: string): string {
     }
 
     return parsed.toString();
-  } catch {
+  } catch (error) {
+    logger.warn('Sanitization failed', {
+      operation: 'sanitizeURL',
+      metadata: { error }
+    });
     // 상대 경로인 경우
     if (url.startsWith('/') && !url.startsWith('//')) {
       return encodeURI(url);

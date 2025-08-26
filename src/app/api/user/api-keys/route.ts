@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Edge Runtime 대신 Node.js Runtime 사용
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+// import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import {
   deleteUserApiKey,
   getUserApiKey,
@@ -12,6 +12,8 @@ import {
   validateYouTubeApiKey,
 } from '@/lib/api-keys';
 import { env } from '@/env';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/user/api-keys
@@ -19,16 +21,14 @@ import { env } from '@/env';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/api-keys GET');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // 서비스 파라미터 (기본값: youtube)
@@ -69,7 +69,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       success: true,
       data: safe_api_key,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -95,16 +96,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
 
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/api-keys POST');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // 요청 본문 파싱
@@ -194,16 +193,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to user/api-keys DELETE');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // 서비스 파라미터 (기본값: youtube)
@@ -227,7 +224,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       success: true,
       message: 'API key deleted successfully',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error:', error);
     return NextResponse.json(
       {
         success: false,

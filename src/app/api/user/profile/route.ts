@@ -1,24 +1,26 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
 
 // GET: Get user profile
-export async function GET(): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to User Profile API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Get user profile
     const { data: profile, error: profileError } = await supabase
@@ -32,25 +34,26 @@ export async function GET(): Promise<NextResponse> {
     }
 
     return NextResponse.json(snakeToCamelCase({ profile }));
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Failed to get user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // POST: Create or update user profile (for onboarding)
-export async function POST(request: Request): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to User Profile API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -123,25 +126,26 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     return NextResponse.json(snakeToCamelCase({ profile: result.data }));
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Failed to create/update user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // PUT: Update user profile
-export async function PUT(request: Request): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-
+export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to User Profile API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -192,7 +196,8 @@ export async function PUT(request: Request): Promise<NextResponse> {
     }
 
     return NextResponse.json(snakeToCamelCase({ profile: updatedProfile }));
-  } catch (_error) {
+  } catch (error) {
+    logger.error('Failed to update user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

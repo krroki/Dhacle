@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { onCLS, onFCP, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
 import { apiPost } from '@/lib/api-client';
+import { env } from '@/env';
+import { logger } from '@/lib/logger';
 
 /**
  * Core Web Vitals 측정 컴포넌트
@@ -17,7 +19,7 @@ export function WebVitals() {
     const sendToAnalytics = (metric: Metric) => {
       // Google Analytics로 전송 (gtag이 있는 경우)
       if (typeof window !== 'undefined' && 'gtag' in window) {
-        const gtag = window.gtag as any;
+        const gtag = (window as { gtag: Function }).gtag;
         gtag('event', metric.name, {
           value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
           event_label: metric.id,
@@ -26,7 +28,7 @@ export function WebVitals() {
       }
       
       // 커스텀 엔드포인트로 전송
-      if (process.env.NODE_ENV === 'production') {
+      if (env.NODE_ENV === 'production') {
         apiPost('/api/analytics/vitals', {
           metric: metric.name,
           value: metric.value,
@@ -37,19 +39,21 @@ export function WebVitals() {
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
         }).catch((error) => {
-          console.error('Failed to send vitals to analytics:', error);
+          logger.error('Failed to send vitals to analytics', error);
         });
       }
       
       // 개발 환경에서 콘솔 출력
-      if (process.env.NODE_ENV === 'development') {
-        const color = metric.rating === 'good' ? '#0CCE6B' : metric.rating === 'needs-improvement' ? '#FFA400' : '#FF4E42';
-        console.log(
-          `%c ${metric.name} %c ${metric.value.toFixed(2)} %c ${metric.rating}`,
-          'background: #222; color: #bada55; padding: 2px 8px;',
-          `background: ${color}; color: white; padding: 2px 8px;`,
-          'background: #222; color: white; padding: 2px 8px;'
-        );
+      if (env.NODE_ENV === 'development') {
+        logger.debug(`Web Vitals: ${metric.name}`, {
+          operation: 'web-vitals',
+          metadata: {
+            metric: metric.name,
+            value: metric.value.toFixed(2),
+            rating: metric.rating,
+            id: metric.id
+          }
+        });
       }
     };
     

@@ -1,7 +1,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { ServerCollectionManager } from '@/lib/youtube/collections-server';
 
@@ -9,20 +10,17 @@ import { ServerCollectionManager } from '@/lib/youtube/collections-server';
  * GET /api/youtube/collections
  * 사용자의 컬렉션 목록 조회
  */
-export async function GET(): Promise<NextResponse> {
-  // 세션 검사
-  const supabase = await createSupabaseRouteHandlerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Collections API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const collection_manager = new ServerCollectionManager();
     const { data, error } = await collection_manager.getCollections();
 
@@ -31,7 +29,8 @@ export async function GET(): Promise<NextResponse> {
     }
 
     return NextResponse.json({ collections: data });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -42,14 +41,14 @@ export async function GET(): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Collections API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
     const body = await request.json();
     const { name, description, is_public, tags, coverImage } = body;
@@ -72,7 +71,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ collection: data }, { status: 201 });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -83,14 +83,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to YouTube Collections API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
     const body = await request.json();
     const { id, ...updates } = body;
@@ -107,7 +107,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ collection: data });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -117,19 +118,16 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
  * 컬렉션 삭제
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  // 세션 검사
-  const supabase = await createSupabaseRouteHandlerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: 'User not authenticated' },
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
   try {
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Collections API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -145,7 +143,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ success });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

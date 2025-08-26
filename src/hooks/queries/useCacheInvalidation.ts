@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys, invalidateModule, invalidateRelated } from '@/lib/query-keys';
+import type { FilterParams } from '@/types';
 
 /**
  * Hook for managing cache invalidation strategies
@@ -58,7 +59,7 @@ export function useCacheInvalidation() {
     },
     
     // Community module invalidations
-    invalidateCommunityPosts: (filters?: any) => {
+    invalidateCommunityPosts: (filters?: FilterParams) => {
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.community.posts(filters) 
       });
@@ -79,7 +80,7 @@ export function useCacheInvalidation() {
     },
     
     // Revenue Proof module invalidations
-    invalidateRevenueProofs: (filters?: any) => {
+    invalidateRevenueProofs: (filters?: FilterParams) => {
       if (filters) {
         queryClient.invalidateQueries({ 
           queryKey: queryKeys.revenueProof.list(filters) 
@@ -112,7 +113,7 @@ export function useCacheInvalidation() {
     },
     
     // Course module invalidations
-    invalidateCourses: (filters?: any) => {
+    invalidateCourses: (filters?: FilterParams) => {
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.courses.list(filters) 
       });
@@ -251,7 +252,7 @@ export function useCacheUpdater() {
     optimisticUpdate: (
       updates: Array<{
         queryKey: readonly unknown[];
-        updater: (old: any) => any;
+        updater: <T>(old: T) => T;
       }>
     ) => {
       const previousData = updates.map(({ queryKey }) => ({

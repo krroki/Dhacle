@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
 import { queryKeys } from '@/lib/query-keys';
-import type { RevenueProof } from '@/types';
+import type { RevenueProof, FilterParams } from '@/types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -12,20 +12,29 @@ interface PaginatedResponse<T> {
 /**
  * 수익 인증 목록 쿼리 훅 (무한 스크롤)
  */
-export function useRevenueProofs(filters?: {
+interface RevenueProofFilters {
   category?: string;
   minAmount?: number;
   maxAmount?: number;
   sortBy?: 'latest' | 'popular' | 'amount';
-}) {
+}
+
+export function useRevenueProofs(filters?: RevenueProofFilters) {
+  // Convert number fields to string for FilterParams compatibility
+  const filterParams: FilterParams | undefined = filters ? {
+    ...filters,
+    minAmount: filters.minAmount?.toString(),
+    maxAmount: filters.maxAmount?.toString(),
+  } : undefined;
+  
   return useInfiniteQuery<
     PaginatedResponse<RevenueProof>,
     Error,
     InfiniteData<PaginatedResponse<RevenueProof>>,
-    readonly ['revenue-proof', 'list', any?],
+    readonly ['revenue-proof', 'list', FilterParams | undefined],
     number
   >({
-    queryKey: queryKeys.revenueProof.list(filters),
+    queryKey: queryKeys.revenueProof.list(filterParams),
     queryFn: ({ pageParam }) => {
       const params = new URLSearchParams({
         page: String(pageParam),

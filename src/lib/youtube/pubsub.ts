@@ -4,6 +4,8 @@
  */
 
 import crypto from 'node:crypto';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '@/types';
 
 // PubSubHubbub Hub URL
 const HUB_URL = 'https://pubsubhubbub.appspot.com/';
@@ -78,62 +80,72 @@ export class PubSubHubbubManager {
     params: SubscriptionParams
   ): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
     try {
-      const { channel_id, callbackUrl } = params;
+      const { channel_id, channelTitle, user_id, callbackUrl } = params;
+
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
 
       // Generate secret for this subscription
       const hub_secret = this.generateSecret();
       const topic_url = this.getTopicUrl(channel_id);
 
-      // TODO: Check if subscription already exists (channelSubscriptions table)
-      // const { data: existing, error: checkError } = await this.supabase
-      //   .from('channelSubscriptions')
-      //   .select('*')
-      //   .eq('channel_id', channel_id)
-      //   .eq('user_id', user_id)
-      //   .single();
-      //
-      // if (checkError && checkError.code !== 'PGRST116') {
-      //   // PGRST116 = no rows returned
-      //   throw checkError;
-      // }
-      const existing = null; // Default: no existing subscription
+      // Check if subscription already exists (channelSubscriptions table)
+      const { data: existing, error: checkError } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('channel_id', channel_id)
+        .eq('user_id', user_id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 = no rows returned
+        throw checkError;
+      }
 
       let subscription_id: string;
 
       if (existing) {
-        // TODO: Update existing subscription (channelSubscriptions table)
-        subscription_id = (existing as { id: string }).id;
-        // await this.supabase
-        //   .from('channelSubscriptions')
-        //   .update({
-        //     hubCallbackUrl: callbackUrl,
-        //     hubSecret: hubSecret,
-        //     hubTopic: topicUrl,
-        //     status: SubscriptionStatus.PENDING,
-        //     updated_at: new Date().toISOString(),
-        //   })
-        //   .eq('id', subscriptionId);
+        // Update existing subscription (channelSubscriptions table)
+        subscription_id = existing.id;
+        const { error: updateError } = await supabase
+          .from('channelSubscriptions')
+          .update({
+            hub_callback_url: callbackUrl,
+            hub_secret: hub_secret,
+            hub_topic: topic_url,
+            status: SubscriptionStatus.PENDING,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', subscription_id);
+        
+        if (updateError) {
+          throw updateError;
+        }
       } else {
-        // TODO: Create new subscription record (channelSubscriptions table)
-        // const { data: newSub, error: insertError } = await this.supabase
-        //   .from('channelSubscriptions')
-        //   .insert({
-        //     channel_id: channel_id,
-        //     channel_title: channelTitle,
-        //     hubCallbackUrl: callbackUrl,
-        //     hubSecret: hubSecret,
-        //     hubTopic: topicUrl,
-        //     status: SubscriptionStatus.PENDING,
-        //     user_id: user_id,
-        //   })
-        //   .select()
-        //   .single();
-        //
-        // if (insertError) {
-        //   throw insertError;
-        // }
-        // subscriptionId = newSub.id;
-        subscription_id = crypto.randomUUID(); // Generate temporary ID
+        // Create new subscription record (channelSubscriptions table)
+        const { data: newSub, error: insertError } = await supabase
+          .from('channelSubscriptions')
+          .insert({
+            channel_id: channel_id,
+            channel_title: channelTitle,
+            hub_callback_url: callbackUrl,
+            hub_secret: hub_secret,
+            hub_topic: topic_url,
+            status: SubscriptionStatus.PENDING,
+            user_id: user_id,
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          throw insertError;
+        }
+        subscription_id = newSub.id;
       }
 
       // Send subscription request to hub
@@ -146,16 +158,16 @@ export class PubSubHubbubManager {
 
       if (subscribe_success) {
         // Log the subscription attempt
-        await this.logSubscriptionAction(subscription_id, 'subscribe', SubscriptionStatus.PENDING);
+        await this.logSubscriptionAction(supabase, subscription_id, 'subscribe', SubscriptionStatus.PENDING, channel_id, user_id);
         return { success: true, subscriptionId: subscription_id };
       }
-      // TODO: Update status to failed (channelSubscriptions table)
-      // await this.supabase
-      //   .from('channelSubscriptions')
-      //   .update({ status: SubscriptionStatus.FAILED })
-      //   .eq('id', subscriptionId);
+      // Update status to failed (channelSubscriptions table)
+      await supabase
+        .from('channelSubscriptions')
+        .update({ status: SubscriptionStatus.FAILED })
+        .eq('id', subscription_id);
 
-      await this.logSubscriptionAction(subscription_id, 'subscribe', SubscriptionStatus.FAILED);
+      await this.logSubscriptionAction(supabase, subscription_id, 'subscribe', SubscriptionStatus.FAILED, channel_id, user_id);
       return { success: false, error: 'Failed to subscribe to hub' };
     } catch (error: unknown) {
       return {
@@ -168,42 +180,47 @@ export class PubSubHubbubManager {
   /**
    * Unsubscribe from a YouTube channel's updates
    */
-  async unsubscribe(channel_id: string): Promise<{ success: boolean; error?: string }> {
+  async unsubscribe(channel_id: string, user_id: string): Promise<{ success: boolean; error?: string }> {
     try {
-      // TODO: Get subscription details (channelSubscriptions table)
-      // const { data: subscription, error: fetchError } = await this.supabase
-      //   .from('channelSubscriptions')
-      //   .select('*')
-      //   .eq('channel_id', channel_id)
-      //   .eq('user_id', user_id)
-      //   .single();
-      //
-      // if (fetchError) {
-      //   return { success: false, error: 'Subscription not found' };
-      // }
-      const subscription = {
-        id: crypto.randomUUID(),
-        hubTopic: this.getTopicUrl(channel_id),
-        hubCallbackUrl: '',
-        hubSecret: '',
-      }; // Default subscription object
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Get subscription details (channelSubscriptions table)
+      const { data: subscription, error: fetchError } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('channel_id', channel_id)
+        .eq('user_id', user_id)
+        .single();
+
+      if (fetchError) {
+        return { success: false, error: 'Subscription not found' };
+      }
 
       // Send unsubscribe request to hub
       const unsubscribe_success = await this.sendHubRequest(
         SubscriptionMode.UNSUBSCRIBE,
-        subscription.hubTopic,
-        subscription.hubCallbackUrl,
-        subscription.hubSecret
+        subscription.hub_topic,
+        subscription.hub_callback_url,
+        subscription.hub_secret
       );
 
       if (unsubscribe_success) {
-        // TODO: Delete subscription record (channelSubscriptions table)
-        // await this.supabase.from('channelSubscriptions').delete().eq('id', subscription.id);
+        // Delete subscription record (channelSubscriptions table)
+        await supabase.from('channelSubscriptions').delete().eq('id', subscription.id);
 
         await this.logSubscriptionAction(
+          supabase,
           subscription.id,
           'unsubscribe',
-          SubscriptionStatus.EXPIRED
+          SubscriptionStatus.EXPIRED,
+          subscription.channel_id,
+          subscription.user_id
         );
         return { success: true };
       }
@@ -245,7 +262,8 @@ export class PubSubHubbubManager {
 
       // Hub returns 202 Accepted for async verification
       return response.status === 202 || response.status === 204;
-    } catch (_error: unknown) {
+    } catch (error: unknown) {
+      console.error('PubSub operation error:', error);
       return false;
     }
   }
@@ -259,54 +277,62 @@ export class PubSubHubbubManager {
     error?: string;
   }> {
     try {
-      const { mode, topic, challenge, leaseSeconds: _leaseSeconds } = params;
+      const { mode, topic, challenge, leaseSeconds } = params;
 
       // Extract channel ID from topic URL
       const channel_id_match = topic.match(/channel_id=([^&]+)/);
       if (!channel_id_match) {
         return { success: false, error: 'Invalid topic URL' };
       }
+      const channel_id = channel_id_match[1];
 
-      // TODO: Find subscription (channelSubscriptions table)
-      // const { data: subscription, error: fetchError } = await this.supabase
-      //   .from('channelSubscriptions')
-      //   .select('*')
-      //   .eq('channel_id', channel_id)
-      //   .single();
-      //
-      // if (fetchError) {
-      //   return { success: false, error: 'Subscription not found' };
-      // }
-      const subscription = {
-        id: crypto.randomUUID(),
-        hubSecret: null,
-      }; // Default subscription object
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Find subscription (channelSubscriptions table)
+      const { data: subscription, error: fetchError } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('channel_id', channel_id)
+        .single();
+
+      if (fetchError) {
+        return { success: false, error: 'Subscription not found' };
+      }
 
       // Update subscription status
       if (mode === 'subscribe') {
-        // TODO: Update subscription status to active (channelSubscriptions table)
-        // await this.supabase
-        //   .from('channelSubscriptions')
-        //   .update({
-        //     status: SubscriptionStatus.ACTIVE,
-        //     leaseSeconds: leaseSeconds ? Number.parseInt(leaseSeconds, 10) : 432000,
-        //     expires_at: expires_at,
-        //     updated_at: new Date().toISOString(),
-        //   })
-        //   .eq('id', subscription.id);
+        const lease_seconds = leaseSeconds ? Number.parseInt(leaseSeconds, 10) : 432000;
+        const expires_at = new Date(Date.now() + lease_seconds * 1000).toISOString();
+        
+        // Update subscription status to active (channelSubscriptions table)
+        await supabase
+          .from('channelSubscriptions')
+          .update({
+            status: SubscriptionStatus.ACTIVE,
+            lease_seconds: lease_seconds,
+            expires_at: expires_at,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', subscription.id);
 
-        await this.logSubscriptionAction(subscription.id, 'verify', SubscriptionStatus.ACTIVE);
+        await this.logSubscriptionAction(supabase, subscription.id, 'verify', SubscriptionStatus.ACTIVE, subscription.channel_id, subscription.user_id);
       } else if (mode === 'unsubscribe') {
-        // TODO: Update subscription status to expired (channelSubscriptions table)
-        // await this.supabase
-        //   .from('channelSubscriptions')
-        //   .update({
-        //     status: SubscriptionStatus.EXPIRED,
-        //     updated_at: new Date().toISOString(),
-        //   })
-        //   .eq('id', subscription.id);
+        // Update subscription status to expired (channelSubscriptions table)
+        await supabase
+          .from('channelSubscriptions')
+          .update({
+            status: SubscriptionStatus.EXPIRED,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', subscription.id);
 
-        await this.logSubscriptionAction(subscription.id, 'verify', SubscriptionStatus.EXPIRED);
+        await this.logSubscriptionAction(supabase, subscription.id, 'verify', SubscriptionStatus.EXPIRED, subscription.channel_id, subscription.user_id);
       }
 
       return { success: true, challenge };
@@ -323,29 +349,33 @@ export class PubSubHubbubManager {
    */
   async processNotification(
     body: string,
-    signature: string | null
+    signature: string | null,
+    channel_id: string
   ): Promise<{ success: boolean; video?: VideoNotification; error?: string }> {
     try {
-      // TODO: Get subscription (channelSubscriptions table)
-      // const { data: subscription, error: fetchError } = await this.supabase
-      //   .from('channelSubscriptions')
-      //   .select('*')
-      //   .eq('channel_id', channel_id)
-      //   .single();
-      //
-      // if (fetchError) {
-      //   return { success: false, error: 'Subscription not found' };
-      // }
-      const subscription = {
-        id: crypto.randomUUID(),
-        hubSecret: null,
-        notificationCount: 0,
-      }; // Default subscription object
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Get subscription (channelSubscriptions table)
+      const { data: subscription, error: fetchError } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('channel_id', channel_id)
+        .single();
+
+      if (fetchError) {
+        return { success: false, error: 'Subscription not found' };
+      }
 
       // Verify HMAC signature if provided
-      if (signature && subscription.hubSecret) {
+      if (signature && subscription.hub_secret) {
         const expected_signature = crypto
-          .createHmac('sha1', subscription.hubSecret)
+          .createHmac('sha1', subscription.hub_secret)
           .update(body)
           .digest('hex');
 
@@ -361,27 +391,27 @@ export class PubSubHubbubManager {
         return { success: false, error: 'Failed to parse notification' };
       }
 
-      // TODO: Store webhook event (webhookEvents table)
-      // await this.supabase.from('webhookEvents').insert({
-      //   subscriptionId: subscription.id,
-      //   eventType: videoData.deleted
-      //     ? WebhookEventType.VIDEO_DELETED
-      //     : WebhookEventType.VIDEO_PUBLISHED,
-      //   video_id: videoData.video_id,
-      //   video_title: videoData.title,
-      //   published_at: videoData.published_at,
-      //   rawData: { xml: body },
-      //   processed: false,
-      // });
+      // Store webhook event (webhookEvents table)
+      await supabase.from('webhookEvents').insert({
+        subscription_id: subscription.id,
+        event_type: video_data.deleted
+          ? WebhookEventType.VIDEO_DELETED
+          : WebhookEventType.VIDEO_PUBLISHED,
+        video_id: video_data.video_id,
+        video_title: video_data.title,
+        published_at: video_data.published_at,
+        raw_data: { xml: body },
+        processed: false,
+      });
 
-      // TODO: Update subscription last notification (channelSubscriptions table)
-      // await this.supabase
-      //   .from('channelSubscriptions')
-      //   .update({
-      //     lastNotificationAt: new Date().toISOString(),
-      //     notificationCount: subscription.notificationCount + 1,
-      //   })
-      //   .eq('id', subscription.id);
+      // Update subscription last notification (channelSubscriptions table)
+      await supabase
+        .from('channelSubscriptions')
+        .update({
+          last_notification_at: new Date().toISOString(),
+          notification_count: (subscription.notification_count || 0) + 1,
+        })
+        .eq('id', subscription.id);
 
       return { success: true, video: video_data };
     } catch (error: unknown) {
@@ -429,33 +459,40 @@ export class PubSubHubbubManager {
    */
   async renewExpiringSubscriptions(): Promise<void> {
     try {
-      // TODO: Get subscriptions expiring within 6 hours (getSubscriptionsNeedingRenewal RPC)
-      // const { data: subscriptions, error } = await this.supabase.rpc(
-      //   'getSubscriptionsNeedingRenewal'
-      // );
-      //
-      // if (error) {
-      //   throw error;
-      // }
-      interface SubscriptionData {
-        id: string;
-        hubTopic: string;
-        hubCallbackUrl: string;
-        hubSecret: string;
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Get subscriptions expiring within 6 hours
+      const expirationThreshold = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+      const { data: subscriptions, error } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('status', SubscriptionStatus.ACTIVE)
+        .lte('expires_at', expirationThreshold);
+
+      if (error) {
+        throw error;
       }
-      const subscriptions: SubscriptionData[] = []; // Default: no subscriptions need renewal
 
       for (const sub of subscriptions || []) {
         await this.sendHubRequest(
           SubscriptionMode.SUBSCRIBE,
-          sub.hubTopic,
-          sub.hubCallbackUrl,
-          sub.hubSecret
+          sub.hub_topic,
+          sub.hub_callback_url,
+          sub.hub_secret
         );
 
-        await this.logSubscriptionAction(sub.id, 'renew', SubscriptionStatus.PENDING);
+        await this.logSubscriptionAction(supabase, sub.id, 'renew', SubscriptionStatus.PENDING, sub.channel_id, sub.user_id);
       }
-    } catch (_error: unknown) {}
+    } catch (error: unknown) {
+      console.error('Failed to renew subscriptions:', error);
+      // Continue processing other subscriptions
+    }
   }
 
   /**
@@ -463,51 +500,104 @@ export class PubSubHubbubManager {
    */
   async cleanupExpiredSubscriptions(): Promise<void> {
     try {
-      // TODO: Clean up expired subscriptions (cleanupExpiredSubscriptions RPC)
-      // await this.supabase.rpc('cleanupExpiredSubscriptions');
-    } catch (_error: unknown) {}
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Clean up expired subscriptions
+      const now = new Date().toISOString();
+      await supabase
+        .from('channelSubscriptions')
+        .update({ status: SubscriptionStatus.EXPIRED })
+        .lt('expires_at', now)
+        .eq('status', SubscriptionStatus.ACTIVE);
+    } catch (error: unknown) {
+      console.error('Failed to cleanup expired subscriptions:', error);
+    }
   }
 
   /**
    * Log subscription action
    */
   private async logSubscriptionAction(
-    _subscriptionId: string,
-    _action: string,
-    _status: SubscriptionStatus
+    supabase: SupabaseClient<Database>,
+    subscriptionId: string,
+    action: string,
+    status: SubscriptionStatus,
+    channelId?: string,
+    userId?: string
   ): Promise<void> {
     try {
-      // TODO: Log subscription action (subscriptionLogs table)
-      // await this.supabase.from('subscriptionLogs').insert({
-      //   subscriptionId: subscriptionId,
-      //   action,
-      //   status,
-      //   requestData: requestData,
-      //   response_data: response_data,
-      //   error,
-      // });
-    } catch (_error: unknown) {}
+      // We need channel_id and user_id for the logs table
+      // If not provided, try to fetch from the subscription
+      let channel_id = channelId;
+      let user_id = userId;
+      
+      if (!channel_id || !user_id) {
+        const { data: subscription } = await supabase
+          .from('channel_subscriptions')
+          .select('channel_id, user_id')
+          .eq('id', subscriptionId)
+          .single();
+          
+        interface SubscriptionData {
+          channel_id: string;
+          user_id: string;
+        }
+        
+        if (subscription) {
+          const subData = subscription as unknown as SubscriptionData;
+          channel_id = subData.channel_id;
+          user_id = subData.user_id;
+        }
+      }
+      
+      // Only log if we have both required fields
+      if (channel_id && user_id) {
+        await supabase.from('subscription_logs').insert({
+          channel_id,
+          user_id,
+          action: `${action} (${status})`,
+          created_at: new Date().toISOString(),
+        });
+      }
+    } catch (error: unknown) {
+      // Non-critical logging failure - don't throw
+      console.warn('Failed to log subscription action:', error);
+    }
   }
 
   /**
    * Get user's active subscriptions
    */
-  async getUserSubscriptions(): Promise<unknown[]> {
+  async getUserSubscriptions(user_id: string): Promise<unknown[]> {
     try {
-      // TODO: Get user's active subscriptions (channelSubscriptions table)
-      // const { data, error } = await this.supabase
-      //   .from('channelSubscriptions')
-      //   .select('*')
-      //   .eq('user_id', user_id)
-      //   .in('status', [SubscriptionStatus.ACTIVE, SubscriptionStatus.VERIFIED])
-      //   .order('created_at', { ascending: false });
-      //
-      // if (error) {
-      //   throw error;
-      // }
-      // return data || [];
-      return []; // Default: no active subscriptions
-    } catch (_error: unknown) {
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Get user's active subscriptions (channelSubscriptions table)
+      const { data, error } = await supabase
+        .from('channelSubscriptions')
+        .select('*')
+        .eq('user_id', user_id)
+        .in('status', [SubscriptionStatus.ACTIVE, SubscriptionStatus.VERIFIED])
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+      return data || [];
+    } catch (error: unknown) {
+      console.error('Failed to retrieve data:', error);
       return [];
     }
   }
@@ -515,29 +605,37 @@ export class PubSubHubbubManager {
   /**
    * Get recent webhook events for a user
    */
-  async getRecentEvents(): Promise<unknown[]> {
+  async getRecentEvents(user_id: string, limit: number = 20): Promise<unknown[]> {
     try {
-      // TODO: Get recent webhook events for a user (webhookEvents table)
-      // const { data, error } = await this.supabase
-      //   .from('webhookEvents')
-      //   .select(`
-      //     *,
-      //     channelSubscriptions!inner(
-      //       channel_id,
-      //       channelTitle,
-      //       user_id
-      //     )
-      //   `)
-      //   .eq('channelSubscriptions.user_id', user_id)
-      //   .order('created_at', { ascending: false })
-      //   .limit(limit);
-      //
-      // if (error) {
-      //   throw error;
-      // }
-      // return data || [];
-      return []; // Default: no recent events
-    } catch (_error: unknown) {
+      // Create Supabase client
+      const { createClient } = await import('@supabase/supabase-js');
+      const { env } = await import('@/env');
+      const supabase = createClient(
+        env.NEXT_PUBLIC_SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Get recent webhook events for a user (webhookEvents table)
+      const { data, error } = await supabase
+        .from('webhookEvents')
+        .select(`
+          *,
+          channelSubscriptions!inner(
+            channel_id,
+            channel_title,
+            user_id
+          )
+        `)
+        .eq('channelSubscriptions.user_id', user_id)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        throw error;
+      }
+      return data || [];
+    } catch (error: unknown) {
+      console.error('Failed to retrieve data:', error);
       return [];
     }
   }

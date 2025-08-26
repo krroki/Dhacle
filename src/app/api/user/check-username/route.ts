@@ -2,17 +2,24 @@
 export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // POST: Check username availability
-export async function POST(request: Request): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 선택적 인증 체크 - 로그인 사용자와 비로그인 사용자 모두 사용 가능
-    const {
-      data: { user: _user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const _user = await requireAuth(request);
+    if (!_user) {
+      logger.warn('Unauthorized access attempt to user/check-username');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -50,7 +57,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       available: !existing_user,
       username,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

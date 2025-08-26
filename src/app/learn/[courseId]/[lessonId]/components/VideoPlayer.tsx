@@ -148,7 +148,10 @@ export function VideoPlayer({
           progress: Math.floor(time),
         });
         onProgress?.(time);
-      } catch (_error) {}
+      } catch (error) {
+        // Silently fail for progress saving - non-critical operation
+        console.warn('Failed to save lesson progress:', error);
+      }
     }, 10000);
 
     const handle_time_update = () => {

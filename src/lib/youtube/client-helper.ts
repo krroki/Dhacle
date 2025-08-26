@@ -74,7 +74,7 @@ export function clearYouTubeClient(): void {
 /**
  * Track API quota usage
  */
-export async function trackQuotaUsage(_operation: string, _units: number): Promise<void> {
+export async function trackQuotaUsage(operation: string, units: number): Promise<void> {
   try {
     const supabase = await createServerClient();
     const {
@@ -82,43 +82,47 @@ export async function trackQuotaUsage(_operation: string, _units: number): Promi
     } = await supabase.auth.getUser();
 
     if (user) {
-      // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
-      // API 사용량 추적 기능은 추후 구현 필요
-      /*
+      // Get today's date in ISO format (for timestamp comparison)
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      
+      // API 사용량 추적
       const { data: existing } = await supabase
         .from('api_usage')
         .select('*')
         .eq('user_id', user.id)
-        .eq('date', today)
+        .eq('endpoint', operation)
+        .gte('created_at', todayStart.toISOString())
+        .lt('created_at', todayEnd.toISOString())
         .single();
 
-      if (existing) {
+      if (existing && existing.id) {
         // Update existing record
+        const currentQuota = existing.quota_used ?? 0;
         await supabase
           .from('api_usage')
           .update({
-            unitsUsed: existing.unitsUsed + units,
-            [`${operation}_count`]: (existing[`${operation}_count`] || 0) + 1,
+            quota_used: currentQuota + units,
           })
           .eq('id', existing.id);
       } else {
-      */
-      if (false) {
-        // 임시 비활성화
         // Create new record
-        /*
         await supabase.from('api_usage').insert({
           user_id: user.id,
-          operation,
-          units,
-          date: today,
-          unitsUsed: units,
-          [`${operation}_count`]: 1,
+          endpoint: operation,
+          quota_used: units,
+          status_code: 200,
+          created_at: new Date().toISOString(),
+          method: 'GET', // Add required method field
         });
-        */
       }
     }
-  } catch (_error) {}
+  } catch (error) {
+    // Non-critical operation - log but don't throw
+    console.warn('Failed to update search history:', error);
+  }
 }
 
 /**
@@ -140,36 +144,34 @@ export async function getRemainingQuota(): Promise<{
     }
 
     // Get user's subscription limits
-    // TODO: subscriptions 테이블이 없으므로 임시로 주석 처리
-    /*
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('apiQuotaDaily')
+      .select('*')
       .eq('user_id', user.id)
+      .eq('is_active', true)
       .single();
-    */
 
-    const limit = 1000; // subscription?.apiQuotaDaily || 1000;
+    const limit = subscription ? 10000 : 1000; // Premium vs free tier
 
     // Get today's usage
-    // TODO: api_usage 테이블이 없으므로 임시로 주석 처리
-    /*
-    const { data: usage } = await supabase
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const { data: usageData } = await supabase
       .from('api_usage')
-      .select('unitsUsed')
+      .select('quota_used')
       .eq('user_id', user.id)
-      .eq('date', today)
-      .single();
-    */
+      .gte('created_at', startOfDay.toISOString());
 
-    const used = 0; // usage?.unitsUsed || 0;
+    const used = usageData?.reduce((sum, item) => sum + (item.quota_used || 0), 0) || 0;
 
     return {
       used,
       limit,
       remaining: Math.max(0, limit - used),
     };
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to get remaining quota:', error);
     return { used: 0, limit: 1000, remaining: 1000 };
   }
 }

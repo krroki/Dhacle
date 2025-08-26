@@ -4,6 +4,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -16,15 +18,17 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // POST: 이미지 업로드
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to Upload API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // FormData 파싱
     const form_data = await request.formData();
@@ -101,7 +105,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       type: file.type,
       name: file.name,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -109,15 +114,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 // DELETE: 이미지 삭제
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to Upload API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const { searchParams } = new URL(request.url);
     const path = searchParams.get('path');
@@ -142,7 +149,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       message: '이미지가 삭제되었습니다',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { sanitizeBasicHTML, sanitizeObject, sanitizeRichHTML } from './sanitizer';
+import type { Database } from '@/types';
 // Wave 3 보안 모듈 임포트
 import {
   createPostSchema,
@@ -88,10 +89,11 @@ export async function PUT_UpdateProfile(request: NextRequest) {
   // 3. 전체 객체 sanitization
   const sanitized_data = sanitizeObject(validation.data, sanitizeBasicHTML);
 
-  // 4. 업데이트 (예제용 - 실제 profiles 테이블 스키마에 맞게 수정 필요)
+  // 4. 업데이트 - users 테이블 사용
+  type UserUpdate = Database['public']['Tables']['users']['Update'];
   const { data, error } = await supabase
-    .from('profiles')
-    .update(sanitized_data as any) // 예제용 타입 캐스팅
+    .from('users')
+    .update(sanitized_data as UserUpdate)
     .eq('id', user.id)
     .select()
     .single();
@@ -152,7 +154,8 @@ export function secureRouteHandler(
       }
 
       return response;
-    } catch (_error) {
+    } catch (error) {
+    console.error('Library error:', error);
       return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
     }
   };

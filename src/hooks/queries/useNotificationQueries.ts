@@ -10,7 +10,7 @@ interface Notification {
   content: string;
   isRead: boolean;
   createdAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**

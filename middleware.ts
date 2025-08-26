@@ -1,10 +1,11 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { env } from '@/env'
 
 export async function middleware(request: NextRequest) {
   // Validate environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
@@ -84,7 +85,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Log session state for debugging (development only)
-    if (process.env.NODE_ENV === 'development') {
+    if (env.NODE_ENV === 'development') {
       console.log('Middleware - Path:', request.nextUrl.pathname)
       console.log('Middleware - Session:', session ? 'Active' : 'None')
       console.log('Middleware - User:', session?.user?.email || 'Not authenticated')

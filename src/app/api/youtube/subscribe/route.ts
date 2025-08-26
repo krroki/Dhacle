@@ -6,6 +6,8 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { pubsubManager } from '@/lib/youtube/pubsub';
@@ -14,28 +16,27 @@ import { env } from '@/env';
 /**
  * GET - Get user's active subscriptions
  */
-export async function GET(_request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Subscribe API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Get user's subscriptions
-    const subscriptions = await pubsubManager.getUserSubscriptions();
+    const subscriptions = await pubsubManager.getUserSubscriptions(user.id);
 
     return NextResponse.json({
       success: true,
       subscriptions,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
   }
 }
@@ -45,16 +46,14 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Subscribe API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Parse request body
@@ -95,7 +94,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       { status: 400 }
     );
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Failed to subscribe to channel' }, { status: 500 });
   }
 }
@@ -105,16 +105,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Subscribe API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Get channel ID from query params
@@ -126,7 +124,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     // Unsubscribe from channel
-    const result = await pubsubManager.unsubscribe(channel_id);
+    const result = await pubsubManager.unsubscribe(channel_id, user.id);
 
     if (result.success) {
       return NextResponse.json({
@@ -141,7 +139,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       },
       { status: 400 }
     );
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Failed to unsubscribe from channel' }, { status: 500 });
   }
 }
@@ -151,17 +150,17 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
  */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: auth_error,
-    } = await supabase.auth.getUser();
-
-    if (auth_error || !user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
+    if (!user) {
+      logger.warn('Unauthorized access attempt to YouTube Subscribe API');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // Parse request body
     const body = await request.json();
@@ -211,7 +210,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       },
       { status: 400 }
     );
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: 'Failed to renew subscription' }, { status: 500 });
   }
 }

@@ -4,6 +4,48 @@
 
 ---
 
+## 🛑 API Route 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **세션 체크 없는 API 발견 → 중단**
+- **any 타입 사용 → 중단**  
+- **빈 배열/null 임시 반환 → 중단**
+- **try-catch로 에러 숨기기 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 모든 API Route 필수
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) {
+  return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+}
+
+// Response 타입 정의 필수
+type ApiResponse = { data: UserData[] } | { error: string };
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npx biome check src/app/api/**/*.ts
+curl -X GET http://localhost:3000/api/[endpoint] # 실제 동작 확인
+```
+
+## 🚫 API Route any 타입 금지
+
+### ❌ 발견된 문제: app/api/youtube/search/route.ts
+```typescript
+// ❌ 절대 금지
+const results = response.data.items as any
+
+// ✅ 즉시 수정 - YouTube API 타입 확인 후
+import type { YouTubeSearchItem } from '@/types/youtube'
+const results = response.data.items as YouTubeSearchItem[]
+```
+
+---
+
 ## 🚨 API Route 필수 패턴 (Next.js 15 App Router)
 
 ### ✅ 올바른 패턴 (2025-08-22 표준)

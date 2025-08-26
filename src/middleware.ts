@@ -90,7 +90,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         }
       }
     }
-  } catch (_error) {}
+  } catch (error) {
+    // 세션 새로고침 실패 - 요청은 계속 진행
+    if (env.NODE_ENV === 'development') {
+      console.warn('[Middleware] Session refresh failed:', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
 
   // 개발 환경에서 미들웨어 작동 확인
   if (env.NODE_ENV === 'development') {

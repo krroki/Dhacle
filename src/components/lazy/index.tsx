@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import type { ComponentType } from 'react';
 
 /**
  * Lazy-loaded components for code splitting
@@ -8,7 +7,7 @@ import type { ComponentType } from 'react';
 
 // Heavy components that should be lazy-loaded
 export const RichTextEditor = dynamic(
-  () => import('@tiptap/react').then((mod) => mod.EditorProvider as ComponentType<any>),
+  () => import('@tiptap/react').then((mod) => mod.EditorProvider),
   { 
     ssr: false,
     loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
@@ -25,7 +24,7 @@ export const RichTextEditor = dynamic(
 
 // Image Crop Component
 export const ImageCropModal = dynamic(
-  () => import('react-image-crop').then((mod) => mod.default as ComponentType<any>),
+  () => import('react-image-crop').then((mod) => mod.default),
   { 
     ssr: false,
     loading: () => <div className="h-96 bg-muted animate-pulse rounded-lg" />
@@ -59,7 +58,7 @@ export const ConfettiEffect = dynamic(
 
 // Heavy UI Components
 export const VirtualizedList = dynamic(
-  () => import('react-window').then((mod) => mod.FixedSizeList as ComponentType<any>),
+  () => import('react-window').then((mod) => mod.FixedSizeList),
   {
     ssr: false,
     loading: () => <div className="h-96 bg-muted animate-pulse rounded-lg" />
@@ -67,7 +66,7 @@ export const VirtualizedList = dynamic(
 );
 
 export const InfiniteLoader = dynamic(
-  () => import('react-window-infinite-loader').then((mod) => mod.default as ComponentType<any>),
+  () => import('react-window-infinite-loader').then((mod) => mod.default),
   {
     ssr: false,
     loading: () => <div className="h-96 bg-muted animate-pulse rounded-lg" />
@@ -76,7 +75,7 @@ export const InfiniteLoader = dynamic(
 
 // Masonry Layout
 export const MasonryLayout = dynamic(
-  () => import('masonic').then((mod) => mod.Masonry as ComponentType<any>),
+  () => import('masonic').then((mod) => mod.Masonry),
   {
     ssr: false,
     loading: () => <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />

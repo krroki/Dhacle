@@ -4,6 +4,7 @@ import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { env } from '@/env';
 
 interface ErrorFallbackProps {
   error: Error;
@@ -26,7 +27,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
         </p>
         
         {/* 개발 환경에서만 에러 상세 표시 */}
-        {process.env.NODE_ENV === 'development' && (
+        {env.NODE_ENV === 'development' && (
           <details className="text-left bg-gray-100 p-4 rounded-lg">
             <summary className="cursor-pointer font-medium">에러 상세</summary>
             <pre className="mt-2 text-xs overflow-auto">
@@ -55,7 +56,7 @@ export function ErrorBoundary({ children }: { children: React.ReactNode }) {
       FallbackComponent={ErrorFallback}
       onError={(error, errorInfo) => {
         // 프로덕션에서는 에러 모니터링 서비스로 전송
-        if (process.env.NODE_ENV === 'production') {
+        if (env.NODE_ENV === 'production') {
           // TODO: Sentry.captureException(error, { extra: errorInfo });
           console.error('Production error:', error, errorInfo);
         }

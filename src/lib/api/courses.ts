@@ -82,7 +82,8 @@ export async function getCourses(filters?: CourseFilters): Promise<CourseListRes
       page: 1,
       pageSize: 20,
     };
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return { courses: [], total: 0, page: 1, pageSize: 20 };
   }
 }
@@ -238,7 +239,8 @@ export async function getCourseDetail(course_id: string): Promise<CourseDetailRe
       is_purchased,
       progress: (progress || []) as CourseProgress[],
     };
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return null;
   }
 }
@@ -328,7 +330,8 @@ export async function getFreeCourses(): Promise<Course[]> {
       created_at: course.created_at || new Date().toISOString(),
       updated_at: course.updated_at || new Date().toISOString(),
     }));
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return [];
   }
 }
@@ -373,7 +376,8 @@ export async function getPopularCourses(): Promise<Course[]> {
       created_at: course.created_at || new Date().toISOString(),
       updated_at: course.updated_at || new Date().toISOString(),
     }));
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return [];
   }
 }
@@ -418,7 +422,8 @@ export async function getNewCourses(): Promise<Course[]> {
       created_at: course.created_at || new Date().toISOString(),
       updated_at: course.updated_at || new Date().toISOString(),
     }));
-  } catch (_error) {
+  } catch (error) {
+    console.error('Library error:', error);
     return [];
   }
 }

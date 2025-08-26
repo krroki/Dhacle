@@ -4,6 +4,57 @@
 
 ---
 
+## 🛑 페이지 3단계 필수 규칙
+
+### 1️⃣ STOP - 즉시 중단 신호
+- **Server Component에 'use client' 추가 → 중단**
+- **페이지 Props any 타입 → 중단**
+- **params/searchParams 타입 없음 → 중단**
+- **loading/error 처리 없음 → 중단**
+
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 페이지 타입 정의 필수
+interface PageProps {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+// Server Component 기본
+export default async function Page({ params, searchParams }: PageProps) {
+  // ...
+}
+
+// Metadata 타입 필수
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  // ...
+}
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# 수정 후 즉시 실행
+npm run types:check
+npm run build  # 정적 생성 확인
+npm run dev  # 실제 라우팅 테스트
+```
+
+## 🚫 페이지 any 타입 금지
+
+### ❌ 잘못된 예시
+```typescript
+// ❌ 타입 없는 params
+export default async function Page({ params }: any) { }
+
+// ✅ 올바른 타입
+interface PageProps {
+  params: { slug: string };
+}
+export default async function Page({ params }: PageProps) { }
+```
+
+---
+
 ## 🚨 Server Component 우선 원칙
 
 ### ✅ 기본 패턴 (Server Component)

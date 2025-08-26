@@ -55,7 +55,8 @@ export default function NewCoursePage() {
 
       // 성공 시 강의 관리 페이지로 이동
       router.push('/admin/courses');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Admin page error:', error);
       alert('강의 생성 중 오류가 발생했습니다.');
     } finally {
       set_is_saving(false);

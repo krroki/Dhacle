@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { env } from '@/env';
 
 interface Props {
   children: ReactNode;
@@ -55,7 +56,7 @@ export class YouTubeLensErrorBoundary extends Component<Props, State> {
     this.setState({ errorInfo: error_info });
 
     // 에러 리포팅 (프로덕션 환경에서)
-    if (process.env.NODE_ENV === 'production') {
+    if (env.NODE_ENV === 'production') {
       // TODO: 에러 리포팅 서비스로 전송
       console.log('Error reported to monitoring service');
     }
@@ -227,7 +228,7 @@ Component Stack: ${errorInfo?.componentStack || 'No component stack'}
               </div>
 
               {/* 개발 모드 상세 정보 */}
-              {process.env.NODE_ENV === 'development' && (
+              {env.NODE_ENV === 'development' && (
                 <details className="mt-4">
                   <summary className="text-sm font-medium cursor-pointer">
                     개발자 정보 (클릭하여 펼치기)

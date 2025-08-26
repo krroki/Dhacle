@@ -109,7 +109,8 @@ export default function OnboardingPage() {
       }
 
       throw new Error('Failed to generate username');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       // 폴백: 클라이언트에서 생성
       const fallback_username = `creator_${Math.random().toString(36).substring(2, 10)}`;
       set_generated_username(fallback_username);
@@ -169,7 +170,8 @@ export default function OnboardingPage() {
 
       // 메인 페이지로 이동
       router.push('/');
-    } catch (_error) {
+    } catch (error) {
+      console.error('Page error:', error);
       alert('프로필 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       set_loading(false);

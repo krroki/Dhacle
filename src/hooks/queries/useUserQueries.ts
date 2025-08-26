@@ -14,6 +14,20 @@ interface ApiKey {
   scopes?: string[];
 }
 
+// 사용자 설정 타입 정의
+interface UserSettings {
+  avatar_url?: string | null;
+  full_name?: string | null;
+  username?: string | null;
+  channel_name?: string | null;
+  channel_url?: string | null;
+  job_category?: string | null;
+  experience_level?: string | null;
+  work_type?: string | null;
+  current_income?: string | null;
+  target_income?: string | null;
+}
+
 /**
  * 사용자 프로필 쿼리 훅
  */
@@ -64,7 +78,7 @@ export function useUpdateUserSettings() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (settings: Record<string, any>) => 
+    mutationFn: (settings: UserSettings) => 
       apiPut('/api/user/settings', settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ 

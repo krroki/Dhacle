@@ -1,23 +1,21 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server-client';
 import type { Json } from '@/types';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const auth_supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await auth_supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(req);
     if (!user) {
+      logger.warn('Unauthorized access attempt to payment fail');
       return NextResponse.json(
         { error: 'User not authenticated' },
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401 }
       );
     }
 
@@ -72,7 +70,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       message: '결제가 실패했습니다.',
       purchase,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error:', error);
     return NextResponse.json({ error: '결제 실패 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

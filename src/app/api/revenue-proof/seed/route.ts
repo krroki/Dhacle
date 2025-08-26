@@ -5,6 +5,8 @@ export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // 시드 데이터
 const sample_data = [
@@ -56,15 +58,17 @@ const sample_data = [
 // POST: 시드 데이터 추가
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/seed POST');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 시드 데이터 추가
     const results = [];
@@ -109,7 +113,8 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       total: sample_data.length,
       success: success_count,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -117,15 +122,17 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 // GET: 시드 데이터 상태 확인
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
-    // 세션 검사
-    const supabase = await createSupabaseRouteHandlerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(_request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/seed GET');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 데이터 개수 확인
     const { count, error } = await supabase
@@ -144,7 +151,8 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
           ? '데이터가 없습니다. POST 요청으로 시드 데이터를 추가하세요.'
           : `현재 ${count}개의 수익 인증 데이터가 있습니다.`,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

@@ -7,6 +7,8 @@ export const runtime = 'nodejs';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import type { RevenueProof } from '@/types';
+import { requireAuth } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // 타입 정의
 interface RevenueProofWithDetails extends RevenueProof {
@@ -18,15 +20,17 @@ interface RevenueProofWithDetails extends RevenueProof {
 // GET: 내 인증 목록 조회
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/my GET');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     const { searchParams } = new URL(request.url);
     const page = Number.parseInt(searchParams.get('page') || '1', 10);
@@ -139,7 +143,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       canCreateToday: can_create_today,
       nextAvailable: next_available,
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }
@@ -147,15 +152,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 // DELETE: 내 모든 인증 삭제 (위험한 작업)
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Step 1: Authentication check (required!)
+    const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      logger.warn('Unauthorized access attempt to revenue-proof/my DELETE');
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 확인 토큰 검증 (안전장치)
     const { searchParams } = new URL(request.url);
@@ -175,7 +182,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       message: '모든 인증이 삭제되었습니다',
     });
-  } catch (_error) {
+  } catch (error) {
+    logger.error('API error in route:', error);
     return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

@@ -192,12 +192,16 @@ export interface UserCertificate {
   id: string;
   user_id: string;
   course_id: string;
-  certificateNumber: string;
-  issuedAt: string;
-  certificateUrl?: string;
-  completion_rate: number;
-  totalWatchTime: number;
+  certificate_number: string;
+  issued_at: string;
+  completion_date: string;
+  grade?: string;
+  score?: number;
+  is_public: boolean;
+  certificate_url?: string;
   metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CourseReview {
@@ -618,6 +622,9 @@ export interface VideoStats extends Tables<'video_stats'> {
   viewsPerHour?: number;
 }
 
+// Single video stat type alias (for compatibility)
+export type VideoStat = VideoStats;
+
 // RevenueProof 타입 확장 - 옵셔널 필드 추가
 export interface ExtendedRevenueProof extends Tables<'revenue_proofs'> {
   // 옵셔널 필드로 변경
@@ -950,6 +957,11 @@ export interface ChannelWithVideos extends Channel {
 
 export interface FolderWithChannels extends SourceFolder {
   channels?: Channel[];
+  channel_count?: number | null;
+  folder_channels?: Array<{
+    channel_id: string;
+    [key: string]: unknown;
+  }>;
 }
 
 export interface CollectionWithItems extends Collection {
@@ -1149,6 +1161,38 @@ export type ApiResponse<T> = {
   error?: string;
   success: boolean;
 };
+
+// API 에러 타입
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: unknown;
+}
+
+// 필터 파라미터 타입
+export interface FilterParams {
+  search?: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  [key: string]: string | undefined;
+}
+
+// 폼 상태 타입
+export interface FormState<T = unknown> {
+  data: T;
+  errors: Record<string, string>;
+  isSubmitting: boolean;
+  isValid: boolean;
+}
+
+// 페이지네이션 파라미터
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
 
 // 페이지네이션 타입
 export type PaginatedResponse<T> = {
