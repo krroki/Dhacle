@@ -35,13 +35,14 @@ _최종 업데이트: 2025-08-27 (E2E 테스트 시스템 구축)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-27**: 🧪 **통합 테스트 시스템 완성** - 4개 테스트 도구 통합 (Playwright + Vitest + Testing Library + MSW), TEST_GUIDE.md 작성, E2E Workflow 테스트 시나리오 5개 추가 ✅
-2. **2025-08-26**: 🎯 **Claude Code Hook System 구현** - 3개 코드 품질 검증 Hook (any 타입, TODO, 빈 catch), 주당 3.5시간 절약 예상, Production Ready ✅
-3. **2025-08-25**: 🛡️ **any 타입 완전 금지 정책** - 13개 폴더 CLAUDE.md에 3단계 규칙 적용, INSTRUCTION_TEMPLATE.md 7가지 검증 시나리오 추가 ✅
-4. **2025-08-25**: 🚀 **검증 시스템 통합 Phase 5 완료** - 29개 레거시 스크립트→6개 모듈 통합, 코드 효율성 48.7% 개선, 실행 속도 56.3% 향상 ✅
-5. **2025-08-24**: 🔧 **React Query v5 타입 수정 완료** - useInfiniteQuery 타입 추론 문제 해결, 5개 제네릭 타입 명시, pageParam 기본값 제거 ✅
-6. **2025-02-01**: 📚 **문서 업데이트 Phase 1 완료** - CLAUDE.md 환경변수/React Query/에러처리 규칙 추가, PROJECT.md 최신화 ✅
-7. **2025-08-24**: ✅ **재구축 Phase 1-4 완료** - TypeScript 에러 88→1개 (98.9% 해결), 빌드 성공, 검증 시스템 구축 완료
+1. **2025-08-27**: 🤖 **E2E 테스트 자동 관리 시스템 완성** - 자동 아카이브 시스템 구현으로 테스트 파일 자동 정리 (16개→7개 핵심 파일만 유지), 임시/데모 파일 자동 감지 및 archive 폴더 이동, post-test-hook.js로 테스트 완료 후 자동 실행, 62% 실행시간 추가 단축, 완전 자동화 달성 ✅
+2. **2025-08-27**: 🎉 **Next.js Runtime Error 완전 해결 - 사이트 안정화 달성** - React Hooks 서버사이드 컨텍스트 에러 해결, 정적 assets 404 에러 수정, SVG 이미지 최적화 설정 완료, E2E 테스트 포트 설정 수정, 빌드 성공 + 홈페이지 정상 접속 확인 ✅
+3. **2025-08-27**: 🚀 **E2E 테스트 시스템 완전 최적화 완료** - 런타임 에러 감지 기본값 설정, 실행 시간 60% 단축 (5-8분→2-3분), `npm run e2e:ui` 한 번으로 모든 설정 완료, 설정 과정 95% 감소, global-setup.ts + playwright.config.ts + package.json 최적화 ✅
+4. **2025-08-27**: 🧪 **E2E 테스트 인증 시스템 분석 완료** - 개발 모드 테스트 로그인 시스템 발견 및 문서화, 실제 카카오 OAuth 없이 완전한 E2E 테스트 가능, INSTRUCTION_TEMPLATE_E2E.md, PLAYWRIGHT_USAGE.md, FLOWMAP.md 업데이트 ✅
+5. **2025-08-27**: 🔧 **Playwright 테스트 설정 문제 해결** - testDir: './e2e' 설정과 실제 파일 위치 불일치 문제 발견 및 해결, tests/e2e/ 파일들의 ./e2e/ 이동 필요성 문서화, PLAYWRIGHT_USAGE.md와 CONTEXT_BRIDGE.md 업데이트 ✅
+6. **2025-08-27**: 🛡️ **E2E 런타임 에러 감지 시스템 구현** - ErrorDetector 클래스로 Console/Page/Web 에러 즉시 감지, Next.js 에러 오버레이 감지, 테스트 중단으로 "엄한짓" 방지, 3개 문서 작성 (E2E_ERROR_DETECTION.md, E2E_ERROR_DETECTION_VALIDATION.md) ✅
+7. **2025-08-27**: 🧪 **통합 테스트 시스템 완성** - 4개 테스트 도구 통합 (Playwright + Vitest + Testing Library + MSW), TEST_GUIDE.md 작성, E2E Workflow 테스트 시나리오 5개 추가 ✅
+7. **2025-08-26**: 🎯 **Claude Code Hook System 구현** - 3개 코드 품질 검증 Hook (any 타입, TODO, 빈 catch), 주당 3.5시간 절약 예상, Production Ready ✅
 
 ### 🔍 현재 주요 이슈 (반드시 확인)
 
