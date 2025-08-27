@@ -10,6 +10,11 @@
 module.exports = {
   validateContent(input) {
     const { content, file_path } = input;
+    
+    // Skip .md files - documentation doesn't need code validation
+    if (file_path && (file_path.endsWith('.md') || file_path.endsWith('.MD'))) {
+      return { pass: true };
+    }
     const filePath = file_path || '';
     
     // CRITICAL EXCEPTION: types/index.ts is THE ONLY file allowed to import from database.generated

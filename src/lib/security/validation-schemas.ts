@@ -37,12 +37,23 @@ export const paginationSchema = z.object({
 // ============================================
 
 // 프로필 업데이트
-export const updateProfileSchema = z.object({
-  name: z.string().min(2, '이름은 2자 이상이어야 합니다.').max(50).optional(),
-  bio: z.string().max(500, '자기소개는 500자 이내로 작성해주세요.').optional(),
-  avatar_url: urlSchema.optional(),
-  website: urlSchema.optional(),
+export const profileUpdateSchema = z.object({
+  username: z.string().min(2, '사용자명은 2자 이상이어야 합니다.').max(30).optional(),
+  fullName: z.string().min(2, '이름은 2자 이상이어야 합니다.').max(50).optional(),
+  channelName: z.string().max(100).optional(),
+  channelUrl: urlSchema.optional(),
+  workType: z.enum(['student', 'employee', 'freelancer', 'business', 'other']).optional(),
+  jobCategory: z.string().max(50).optional(),
+  currentIncome: z.string().max(20).optional(),
+  targetIncome: z.string().max(20).optional(),
+  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'expert']).optional(),
+  avatarUrl: urlSchema.optional(),
+  naverCafeNickname: z.string().max(50).optional(),
+  naverCafeMemberUrl: urlSchema.optional()
 });
+
+// 프로필 업데이트 (legacy compatibility)
+export const updateProfileSchema = profileUpdateSchema;
 
 // 사용자명 체크
 export const checkUsernameSchema = z.object({
@@ -246,11 +257,26 @@ export function validateQueryParams<T>(
 /**
  * 검증 에러 응답 생성
  */
-export function createValidationErrorResponse(error: string): NextResponse {
+export function createValidationErrorResponse(error: string | z.ZodError): NextResponse {
+  if (typeof error === 'string') {
+    return NextResponse.json(
+      {
+        error: `입력값 검증 실패: ${error}`,
+        type: 'validationError',
+      },
+      { status: 400 }
+    );
+  }
+  
+  // Handle ZodError
   return NextResponse.json(
     {
-      error: `입력값 검증 실패: ${error}`,
+      error: 'Validation failed',
       type: 'validationError',
+      issues: error.issues.map(issue => ({
+        field: issue.path.join('.'),
+        message: issue.message
+      }))
     },
     { status: 400 }
   );

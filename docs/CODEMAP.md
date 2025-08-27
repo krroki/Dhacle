@@ -93,13 +93,17 @@ npm run format:biome           # Biome 코드 포맷팅
 npm run verify:complete        # 전체 검증 (기존 + Biome)
 npm run fix:all                # 모든 자동 수정 한번에
 
-# 🧪 테스트 명령어 (2025-02-01 추가)
+# 🧪 테스트 명령어 (2025-08-27 업데이트) 🎭
 npm run test                   # Vitest 테스트 실행 (watch 모드)
 npm run test:coverage          # 테스트 커버리지 확인
 npm run test:ui                # Vitest UI 실행
-npm run e2e                    # Playwright E2E 테스트
-npm run e2e:ui                 # Playwright UI 실행
+npm run e2e                    # Playwright E2E 테스트 (헤드리스)
+npm run e2e:ui                 # Playwright UI 실행 (시각적 테스트) ⭐추천
+npm run e2e:debug              # Playwright 디버그 모드
+npm run e2e:chromium           # Chrome만 테스트
+npm run e2e:headed             # 브라우저 보면서 테스트
 npm run e2e:install            # Playwright 브라우저 설치
+npx playwright codegen localhost:3000  # 🎬 테스트 코드 자동 생성!
 
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
@@ -257,6 +261,8 @@ src/
 ├── .semgrep.yml                   # Semgrep 보안 규칙 🆕 2025-08-20
 ├── biome.json                     # Biome 설정 파일 🆕 2025-08-20
 ├── SEMGREP_GUIDE.md              # Semgrep 사용 가이드 🆕 2025-08-20
+├── PLAYWRIGHT_GUIDE.md           # 🎭 Playwright 사용 가이드 🆕 2025-08-27
+├── TEST_GUIDE.md                 # 🧪 테스트 통합 가이드 🔥 2025-08-27
 ├── src/
 │   ├── middleware.ts              # 캐싱 정책 & 보안 헤더 ✅ Wave 2
 │   ├── app/
@@ -355,6 +361,15 @@ src/
 │   │   ├── 20250123000002_wave2_security_rls.sql # Wave 2 RLS 정책 ✅ NEW
 │   │   └── ... (기존 마이그레이션 파일들)
 │   └── config.toml                # Supabase 설정
+├── e2e/                          # 🎭 E2E 테스트 (Playwright) - 2025-08-27 확대
+│   ├── auth.spec.ts              # 인증 플로우 테스트 (로그인/로그아웃)
+│   ├── full-journey.spec.ts      # 10분 사용자 시나리오 테스트
+│   ├── payment-flow.spec.ts      # 🆕 결제 프로세스 E2E 테스트
+│   ├── youtube-lens.spec.ts      # 🆕 YouTube Lens 기능 테스트
+│   └── fixtures/                 # 테스트 데이터/설정
+├── tests/                        # 단위/통합 테스트 (Vitest)
+│   ├── setup.ts                  # 테스트 설정
+│   └── helpers/                  # 🆕 테스트 헬퍼 함수
 ├── scripts/                      # 자동화 스크립트 (검증 스크립트만 유지)
 │   ├── backup-unused-scripts-20250131/  # 자동 변환 스크립트 백업 (38개) ⚠️ 사용 금지
 │   │   ├── fix-type-system.js    # ❌ 자동 변환 금지

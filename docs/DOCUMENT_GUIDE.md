@@ -29,7 +29,9 @@
 │   ├── ROUTE_SPEC.md      # 라우트 구조 명세
 │   ├── STATE_FLOW.md      # 상태 관리 플로우
 │   ├── DATA_MODEL.md      # 데이터 모델 명세
-│   └── ERROR_BOUNDARY.md  # HTTP 에러 처리 전략
+│   ├── ERROR_BOUNDARY.md  # HTTP 에러 처리 전략
+│   ├── PLAYWRIGHT_USAGE.md # Playwright E2E 테스트 가이드
+│   └── INSTRUCTION_TEMPLATE_E2E.md # 📌 최종 E2E 지시 템플릿 V5
 ```
 
 ---

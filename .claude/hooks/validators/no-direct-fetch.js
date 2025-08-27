@@ -17,8 +17,10 @@ module.exports = {
     
     const { file_path, content } = tool_input;
     
-    // 예외 처리: api-client 자체, 테스트 파일
-    if (file_path.includes('api-client') || 
+    // 예외 처리: .md 파일, api-client 자체, 테스트 파일
+    if (file_path.endsWith('.md') ||
+        file_path.endsWith('.MD') ||
+        file_path.includes('api-client') || 
         file_path.includes('.test.') ||
         file_path.includes('.spec.')) {
       return { pass: true };

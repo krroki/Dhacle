@@ -4,14 +4,12 @@ export const runtime = 'nodejs';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
   DINOHIGHCLASS_CAFE,
   isDinoHighClassCafeUrl,
   isValidNaverCafeUrl,
 } from '@/lib/utils/nickname-generator';
-import type { Database } from '@/types';
 
 // 네이버 카페 연동 상태 확인
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -26,15 +24,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
-    // TODO: 네이버 카페 인증 기능 구현 예정
-    // naverCafeVerifications 테이블 및 관련 필드 생성 후 주석 해제
-
-    // 프로필 정보 가져오기 (임시로 기본 필드만)
-    const { data: _profile, error: profile_error } = await supabase
+    // 프로필 정보 가져오기 (profiles는 VIEW이므로 읽기 가능)
+    const { data: profile, error: profile_error } = await supabase
       .from('profiles')
-      .select('id, username')
+      .select('id, naver_cafe_nickname, naver_cafe_verified, cafe_member_url, naver_cafe_verified_at')
       .eq('id', user.id)
       .single();
 
@@ -55,16 +50,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if user is verified
-    const isVerified = false; // profile doesn't have naver_cafe_verified field
+    const isVerified = profile?.naver_cafe_verified || false;
     const latestVerification = verifications?.[0];
 
     return NextResponse.json({
       verified: isVerified,
-      cafeId: null, // Table doesn't have cafe_id field
-      cafeName: null, // Table doesn't have cafe_name field
-      nickname: null, // profile doesn't have naver_cafe_nickname field
-      memberUrl: null, // profile doesn't have naver_cafe_member_url field
-      verifiedAt: latestVerification?.verified_at || null,
+      cafeId: DINOHIGHCLASS_CAFE.id,
+      cafeName: DINOHIGHCLASS_CAFE.name,
+      nickname: profile?.naver_cafe_nickname || null,
+      memberUrl: profile?.cafe_member_url || null,
+      verifiedAt: profile?.naver_cafe_verified_at || latestVerification?.verified_at || null,
       verificationHistory: verifications || [],
     });
   } catch (error) {
@@ -86,11 +81,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 요청 데이터 파싱
     const body = await request.json();
-    const { nickname, memberUrl } = body;
+    const { cafeNickname, cafeMemberUrl } = body;
+    
+    // Support both naming conventions for compatibility
+    const nickname = cafeNickname || body.nickname;
+    const memberUrl = cafeMemberUrl || body.memberUrl;
 
     // 유효성 검사
     if (!nickname || !memberUrl) {
@@ -112,7 +111,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 닉네임 중복 체크
+    // 닉네임 중복 체크 (profiles VIEW로 읽기)
     const { data: existingNickname } = await supabase
       .from('profiles')
       .select('id')
@@ -124,16 +123,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
     }
 
-    // 이미 인증된 상태인지 확인
-    // Note: naver_cafe_verified column doesn't exist in profiles
-    // Check from naver_cafe_verifications table instead
-    const { data: existingVerification } = await supabase
-      .from('naver_cafe_verifications')
-      .select('id, verification_status')
-      .eq('user_id', user.id)
+    // 이미 인증된 상태인지 확인 (profiles VIEW로 읽기)
+    const { data: profileCheck } = await supabase
+      .from('profiles')
+      .select('naver_cafe_verified')
+      .eq('id', user.id)
       .single();
 
-    if (existingVerification?.verification_status === 'verified') {
+    if (profileCheck?.naver_cafe_verified) {
       return NextResponse.json({ error: 'Naver Cafe is already verified' }, { status: 400 });
     }
 
@@ -153,48 +150,44 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
     }
 
-    // 자동 승인 (실제 환경에서는 관리자 검증 필요)
-    // TODO: 실제 네이버 카페 API 연동 또는 관리자 수동 검증 구현
-    const auto_approve = true;
+    // 관리자 수동 검증 대기 상태로 저장 (users 테이블에 UPDATE!)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        cafe_member_url: memberUrl,
+        naver_cafe_nickname: nickname,
+        naver_cafe_verified: false, // 관리자 검증 대기
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id);
 
-    if (auto_approve) {
-      // 프로필 업데이트
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          naver_cafe_nickname: nickname,
-          naver_cafe_member_url: memberUrl,
-          naver_cafe_verified: true,
-          naver_cafe_verified_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Failed to update profile:', updateError);
-        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
-      }
-
-      // 인증 요청 상태 업데이트
-      await supabase
-        .from('naver_cafe_verifications')
-        .update({
-          verified: true,
-          verified_at: new Date().toISOString(),
-        })
-        .eq('id', verification.id);
-
-      return NextResponse.json({
-        verified: true,
-        message: `${DINOHIGHCLASS_CAFE.name} cafe verification completed successfully`,
-        verificationId: verification.id,
-        cafeName: DINOHIGHCLASS_CAFE.name,
-      });
+    if (updateError) {
+      console.error('Failed to update profile:', updateError);
+      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
     }
 
-    return NextResponse.json({
-      verified: false,
-      message: 'Verification request submitted. Please wait for admin approval.',
+    // 인증 요청 상태 업데이트
+    await supabase
+      .from('naver_cafe_verifications')
+      .update({
+        cafe_nickname: nickname,
+        verification_status: 'pending',
+      })
+      .eq('id', verification.id);
+
+    // 관리자 알림은 Phase 6에서 구현 예정
+    // 현재는 로그로 기록하여 관리자가 확인 가능하도록 함
+    console.log('[ADMIN_NOTIFICATION] 네이버 카페 인증 요청:', {
+      userId: user.id,
+      nickname,
+      memberUrl,
+      requestedAt: new Date().toISOString()
+    });
+    // 추후 알림 시스템 구현 시 이 로그를 실제 알림으로 대체
+
+      return NextResponse.json({
+      success: true,
+      message: '인증 요청이 접수되었습니다. 관리자 검증을 기다려주세요.',
       verificationId: verification.id,
     });
   } catch (error) {
@@ -216,16 +209,16 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필 업데이트
+    // 프로필 업데이트 (users 테이블에 UPDATE!)
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         naver_cafe_verified: false,
         naver_cafe_verified_at: null,
         naver_cafe_nickname: null,
-        naver_cafe_member_url: null,
+        cafe_member_url: null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id);

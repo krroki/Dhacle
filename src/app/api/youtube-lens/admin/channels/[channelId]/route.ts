@@ -3,14 +3,15 @@ export const runtime = 'nodejs';
 
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
 
-// PUT: 채널 정보 수정 (관리자 전용)
-export async function PUT(
+// PATCH: 채널 승인/거부 (관리자 전용)
+export async function PATCH(
   request: NextRequest,
-  _context: { params: Promise<{ channelId: string }> }
-) {
+  context: { params: Promise<{ channelId: string }> }
+): Promise<NextResponse> {
   // Step 1: Authentication check (required!)
   const user = await requireAuth(request);
   if (!user) {
@@ -21,8 +22,8 @@ export async function PUT(
     );
   }
 
-  // channelId는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
-  // const { channelId } = await params;
+  const { channelId } = await context.params;
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
@@ -32,55 +33,46 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { status, notes, category, subcategory, dominantFormat } = body;
+    const { action, notes } = body;
 
-    const updateData: Record<string, unknown> = {
-      updated_at: new Date().toISOString(),
-    };
-
-    // 상태 변경
-    if (status) {
-      updateData.approval_status = status;
-      updateData.approval_notes = notes;
-
-      if (status === 'approved') {
-        updateData.approved_by = user.id;
-        updateData.approved_at = new Date().toISOString();
-      }
-    }
-
-    // 카테고리 정보 업데이트
-    if (category !== undefined) updateData.category = category;
-    if (subcategory !== undefined) updateData.subcategory = subcategory;
-    if (dominantFormat !== undefined) updateData.dominant_format = dominantFormat;
-
-    // TODO: yl_channels 테이블이 존재하지 않음 - channels 테이블 사용 검토 필요
-    // 채널 업데이트 임시 비활성화
-    /*
-    const { data, error } = await supabase
+    // 트랜잭션으로 처리
+    // 1. 채널 상태 업데이트
+    const { data: channel, error: channelError } = await supabase
       .from('yl_channels')
-      .update(updateData)
+      .update({
+        status: action,
+        approved_by: user.id,
+        approved_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
       .eq('channel_id', channelId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (channelError) throw channelError;
+
+    // 2. 승인 로그 추가
+    const { error: logError } = await supabase
+      .from('yl_approval_logs')
+      .insert({
+        channel_id: channelId,
+        action,
+        admin_id: user.id,
+        notes
+      });
+
+    if (logError) throw logError;
+
+    // 3. PubSub 구독 시작 (승인된 경우)
+    if (action === 'approved') {
+      // TODO: PubSub 구독 구현
+      console.log('TODO: Start PubSub subscription for channel', channelId);
+    }
 
     return NextResponse.json({
       success: true,
-      data: {
-        channel_id: data.channel_id,
-        approvalStatus: data.approval_status,
-        updated_at: data.updated_at,
-      },
+      data: snakeToCamelCase(channel)
     });
-    */
-
-    // 임시 응답
-    return NextResponse.json(snakeToCamelCase({
-      success: false,
-      error: 'yl_channels 테이블이 존재하지 않음',
-    }));
   } catch (error) {
     console.error('Admin channel PUT error:', error);
     return NextResponse.json(
@@ -93,8 +85,8 @@ export async function PUT(
 // DELETE: 채널 삭제 (관리자 전용)
 export async function DELETE(
   request: NextRequest,
-  _context: { params: Promise<{ channelId: string }> }
-) {
+  context: { params: Promise<{ channelId: string }> }
+): Promise<NextResponse> {
   // Step 1: Authentication check (required!)
   const user = await requireAuth(request);
   if (!user) {
@@ -105,8 +97,8 @@ export async function DELETE(
     );
   }
 
-  // channelId는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
-  // const { channelId } = await params;
+  const { channelId } = await context.params;
+  const supabase = await createSupabaseRouteHandlerClient();
 
   // 관리자 권한 체크
   const adminEmails = ['glemfkcl@naver.com'];
@@ -115,28 +107,24 @@ export async function DELETE(
   }
 
   try {
-    // TODO: yl_approval_logs, yl_channels 테이블이 존재하지 않음
-    // 채널 삭제 기능 임시 비활성화
-    /*
     // 삭제 전 로그 남기기
     await supabase.from('yl_approval_logs').insert({
       channel_id: channelId,
       action: 'delete',
-      actor_id: user.id,
+      admin_id: user.id,
       notes: 'Channel deleted by admin',
       created_at: new Date().toISOString(),
     });
 
     // 채널 삭제 (CASCADE로 관련 데이터도 삭제됨)
-    const { error } = await supabase.from('yl_channels').delete().eq('channel_id', channel_id);
+    const { error } = await supabase.from('yl_channels').delete().eq('channel_id', channelId);
 
     if (error) throw error;
-    */
 
-    return NextResponse.json(snakeToCamelCase({
-      success: false,
-      error: 'yl_channels 테이블이 존재하지 않음',
-    }));
+    return NextResponse.json({
+      success: true,
+      message: 'Channel deleted successfully'
+    });
   } catch (error) {
     console.error('Admin channel DELETE error:', error);
     return NextResponse.json(

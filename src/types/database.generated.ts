@@ -70,6 +70,7 @@ export type Database = {
       }
       alert_rules: {
         Row: {
+          channel_id: string | null
           comparison_period: string | null
           condition: string
           cooldown_minutes: number | null
@@ -86,11 +87,12 @@ export type Database = {
           target_type: string | null
           threshold_max: number | null
           threshold_min: number | null
-          threshold_value: number | null
+          threshold_value: Json | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          channel_id?: string | null
           comparison_period?: string | null
           condition: string
           cooldown_minutes?: number | null
@@ -107,11 +109,12 @@ export type Database = {
           target_type?: string | null
           threshold_max?: number | null
           threshold_min?: number | null
-          threshold_value?: number | null
+          threshold_value?: Json | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          channel_id?: string | null
           comparison_period?: string | null
           condition?: string
           cooldown_minutes?: number | null
@@ -128,9 +131,75 @@ export type Database = {
           target_type?: string | null
           threshold_max?: number | null
           threshold_min?: number | null
-          threshold_value?: number | null
+          threshold_value?: Json | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      alert_rules_backup_20250826: {
+        Row: {
+          comparison_period: string | null
+          condition: string | null
+          cooldown_minutes: number | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_active: boolean | null
+          last_triggered_at: string | null
+          metric: string | null
+          name: string | null
+          notification_channels: Json | null
+          rule_type: string | null
+          target_id: string | null
+          target_type: string | null
+          threshold_max: number | null
+          threshold_min: number | null
+          threshold_value: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comparison_period?: string | null
+          condition?: string | null
+          cooldown_minutes?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          metric?: string | null
+          name?: string | null
+          notification_channels?: Json | null
+          rule_type?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          threshold_max?: number | null
+          threshold_min?: number | null
+          threshold_value?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comparison_period?: string | null
+          condition?: string | null
+          cooldown_minutes?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          metric?: string | null
+          name?: string | null
+          notification_channels?: Json | null
+          rule_type?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          threshold_max?: number | null
+          threshold_min?: number | null
+          threshold_value?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -523,8 +592,10 @@ export type Database = {
           id: string
           is_public: boolean | null
           item_count: number | null
+          metadata: Json | null
           name: string
           tags: string[] | null
+          type: string | null
           updated_at: string | null
           user_id: string
         }
@@ -535,8 +606,10 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           item_count?: number | null
+          metadata?: Json | null
           name: string
           tags?: string[] | null
+          type?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -547,8 +620,10 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           item_count?: number | null
+          metadata?: Json | null
           name?: string
           tags?: string[] | null
+          type?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -2344,6 +2419,7 @@ export type Database = {
       users: {
         Row: {
           avatar_url: string | null
+          cafe_member_url: string | null
           channel_name: string | null
           channel_url: string | null
           created_at: string | null
@@ -2353,7 +2429,10 @@ export type Database = {
           full_name: string | null
           id: string
           job_category: string | null
-          randomnickname: string | null
+          naver_cafe_nickname: string | null
+          naver_cafe_verified: boolean | null
+          naver_cafe_verified_at: string | null
+          random_nickname: string | null
           role: string | null
           target_income: string | null
           total_revenue: number | null
@@ -2363,6 +2442,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          cafe_member_url?: string | null
           channel_name?: string | null
           channel_url?: string | null
           created_at?: string | null
@@ -2372,7 +2452,10 @@ export type Database = {
           full_name?: string | null
           id: string
           job_category?: string | null
-          randomnickname?: string | null
+          naver_cafe_nickname?: string | null
+          naver_cafe_verified?: boolean | null
+          naver_cafe_verified_at?: string | null
+          random_nickname?: string | null
           role?: string | null
           target_income?: string | null
           total_revenue?: number | null
@@ -2382,6 +2465,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          cafe_member_url?: string | null
           channel_name?: string | null
           channel_url?: string | null
           created_at?: string | null
@@ -2391,7 +2475,10 @@ export type Database = {
           full_name?: string | null
           id?: string
           job_category?: string | null
-          randomnickname?: string | null
+          naver_cafe_nickname?: string | null
+          naver_cafe_verified?: boolean | null
+          naver_cafe_verified_at?: string | null
+          random_nickname?: string | null
           role?: string | null
           target_income?: string | null
           total_revenue?: number | null
@@ -2696,37 +2783,49 @@ export type Database = {
       }
       yl_channels: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           channel_id: string
           created_at: string | null
           description: string | null
           id: string
+          status: string | null
           subscriber_count: number | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
           video_count: number | null
+          view_count: number | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           channel_id: string
           created_at?: string | null
           description?: string | null
           id?: string
+          status?: string | null
           subscriber_count?: number | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
           video_count?: number | null
+          view_count?: number | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           channel_id?: string
           created_at?: string | null
           description?: string | null
           id?: string
+          status?: string | null
           subscriber_count?: number | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
           video_count?: number | null
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -2843,15 +2942,20 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          cafe_member_url: string | null
           channel_name: string | null
           channel_url: string | null
           created_at: string | null
           current_income: string | null
+          email: string | null
           experience_level: string | null
           full_name: string | null
           id: string | null
           job_category: string | null
-          randomnickname: string | null
+          naver_cafe_nickname: string | null
+          naver_cafe_verified: boolean | null
+          naver_cafe_verified_at: string | null
+          random_nickname: string | null
           target_income: string | null
           updated_at: string | null
           username: string | null
@@ -2859,15 +2963,20 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          cafe_member_url?: string | null
           channel_name?: string | null
           channel_url?: string | null
           created_at?: string | null
           current_income?: string | null
+          email?: string | null
           experience_level?: string | null
           full_name?: string | null
           id?: string | null
           job_category?: string | null
-          randomnickname?: string | null
+          naver_cafe_nickname?: string | null
+          naver_cafe_verified?: boolean | null
+          naver_cafe_verified_at?: string | null
+          random_nickname?: string | null
           target_income?: string | null
           updated_at?: string | null
           username?: string | null
@@ -2875,19 +2984,33 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          cafe_member_url?: string | null
           channel_name?: string | null
           channel_url?: string | null
           created_at?: string | null
           current_income?: string | null
+          email?: string | null
           experience_level?: string | null
           full_name?: string | null
           id?: string | null
           job_category?: string | null
-          randomnickname?: string | null
+          naver_cafe_nickname?: string | null
+          naver_cafe_verified?: boolean | null
+          naver_cafe_verified_at?: string | null
+          random_nickname?: string | null
           target_income?: string | null
           updated_at?: string | null
           username?: string | null
           work_type?: string | null
+        }
+        Relationships: []
+      }
+      schema_validation: {
+        Row: {
+          column_name: unknown | null
+          data_type: string | null
+          is_nullable: string | null
+          table_name: string | null
         }
         Relationships: []
       }

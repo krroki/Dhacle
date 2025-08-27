@@ -161,8 +161,8 @@ function validateContent(input) {
     return { pass: true };
   }
   
-  // Skip non-TypeScript files
-  if (!filePath.match(/\.(ts|tsx|js|jsx)$/)) {
+  // Skip non-TypeScript files and markdown files
+  if (!filePath.match(/\.(ts|tsx|js|jsx)$/) || filePath.match(/\.md$/i)) {
     return { pass: true };
   }
   

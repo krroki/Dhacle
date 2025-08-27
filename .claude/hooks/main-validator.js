@@ -10,6 +10,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Import Progressive Hook Configuration
+const ProgressiveHookConfig = require('./progressive-config');
+
 // Import validators
 const validators = {
   'no-any-type': require('./validators/no-any-type'),
@@ -96,6 +99,26 @@ function loadConfig() {
   // Debug mode
   if (process.env.CLAUDE_HOOKS_DEBUG === 'true') {
     config.debugMode = true;
+  }
+  
+  // Apply Progressive Hook Configuration
+  try {
+    const progressive = new ProgressiveHookConfig();
+    
+    // Log activity for Claude Code detection
+    progressive.logActivity();
+    
+    // Merge with progressive config
+    config = progressive.mergeWithCurrent(config);
+    
+    // Show Claude Code mode if active
+    if (progressive.isClaudeCode) {
+      console.error('🤖 Claude Code Mode - Progressive Configuration Active');
+    }
+  } catch (error) {
+    if (process.env.CLAUDE_HOOKS_DEBUG === 'true') {
+      console.error('Progressive config error:', error.message);
+    }
   }
   
   return config;
@@ -266,6 +289,15 @@ function main() {
   // Skip if not a relevant tool
   const { tool_name } = input;
   if (!['Write', 'Edit', 'MultiEdit'].includes(tool_name)) {
+    process.exit(0);
+  }
+  
+  // Skip .md files - documentation doesn't need code validation
+  const filePath = input.tool_input?.file_path || input.tool_input?.path || '';
+  if (filePath.endsWith('.md') || filePath.endsWith('.MD')) {
+    if (config.debugMode) {
+      console.error(`Skipping validation for markdown file: ${filePath}`);
+    }
     process.exit(0);
   }
   

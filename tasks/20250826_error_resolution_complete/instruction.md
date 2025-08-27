@@ -1,5 +1,5 @@
 /sc:implement --seq --validate --think-hard --c7 --delegate files --wave-mode
-"Phase별 100개 TypeScript 에러 체계적 해결 및 실제 작동 사이트 구현"
+"Phase별 100개 TypeScript 에러 체계적 해결 및 실제 작동 사이트 구현 - 이미 이전 세션에서 2차 진행을 했으니 진행상황을 정확하게 파악한 후 이어서 진행을 하세요."
 
 # 🚨 Dhacle 프로젝트 100개 에러 완전 해결 지시서
 

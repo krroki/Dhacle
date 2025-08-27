@@ -27,10 +27,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = Number(searchParams.get('limit')) || 20;
     const offset = Number(searchParams.get('offset')) || 0;
 
+    // collections 테이블 사용 (youtube_favorites 대신)
     const { data: favorites, error } = await supabase
-      .from('youtube_favorites')
+      .from('collections')
       .select('*')
       .eq('user_id', user.id)
+      .eq('type', 'youtube_favorite')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -89,12 +91,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 이미 즐겨찾기에 있는지 확인
+    // 이미 즐겨찾기에 있는지 확인 (collections 테이블 사용)
     const { data: existing } = await supabase
-      .from('youtube_favorites')
+      .from('collections')
       .select('id')
       .eq('user_id', user.id)
-      .eq('video_id', video_id)
+      .eq('type', 'youtube_favorite')
+      .eq('metadata->>video_id', video_id)
       .single();
 
     if (existing) {
@@ -104,17 +107,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 즐겨찾기 추가
+    // 즐겨찾기 추가 (collections 테이블 사용)
     const { data, error } = await supabase
-      .from('youtube_favorites')
+      .from('collections')
       .insert({
         user_id: user.id,
-        video_id,
-        video_title,
-        video_description,
-        video_thumbnail,
-        channel_id,
-        channel_title,
+        name: video_title || 'YouTube Favorite',
+        type: 'youtube_favorite',
+        metadata: {
+          video_id,
+          video_title,
+          video_description,
+          video_thumbnail,
+          channel_id,
+          channel_title,
+        },
+        is_public: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -164,17 +174,24 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 선택된 즐겨찾기들 삭제
-    const { error } = await supabase
-      .from('youtube_favorites')
-      .delete()
-      .eq('user_id', user.id)
-      .in('video_id', videoIds);
-
-    if (error) {
-      logger.error('Failed to delete favorites:', error);
+    // 선택된 즐겨찾기들 삭제 (collections 테이블 사용)
+    // 각 비디오 ID에 대해 삭제 수행
+    const deletePromises = videoIds.map(videoId => 
+      supabase
+        .from('collections')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('type', 'youtube_favorite')
+        .eq('metadata->>video_id', videoId)
+    );
+    
+    const results = await Promise.allSettled(deletePromises);
+    const hasError = results.some(result => result.status === 'rejected');
+    
+    if (hasError) {
+      logger.error('Failed to delete some favorites');
       return NextResponse.json(
-        { error: '즐겨찾기 삭제 중 오류가 발생했습니다.' },
+        { error: '일부 즐겨찾기 삭제 중 오류가 발생했습니다.' },
         { status: 500 }
       );
     }

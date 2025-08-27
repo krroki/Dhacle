@@ -24,7 +24,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     // 이미 랜덤 닉네임이 있는지 확인
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('randomnickname')
+      .select('random_nickname')
       .eq('id', user.id)
       .single();
 
@@ -32,11 +32,11 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
 
-    if (profile?.randomnickname) {
+    if (profile?.random_nickname) {
       return NextResponse.json(
         {
           error: 'Random nickname already exists',
-          nickname: profile.randomnickname,
+          nickname: profile.random_nickname,
         },
         { status: 400 }
       );
@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       const { data: existing, error: checkError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('randomnickname', nickname)
+        .eq('random_nickname', nickname)
         .single();
 
       if (checkError || !existing) {
@@ -73,7 +73,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
-        randomnickname: nickname,
+        random_nickname: nickname,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
@@ -119,7 +119,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       const { data: existing } = await supabase
         .from('profiles')
         .select('id')
-        .eq('randomnickname', suggestion)
+        .eq('random_nickname', suggestion)
         .single();
 
       if (!existing) {
@@ -134,7 +134,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       const { data: existing } = await supabase
         .from('profiles')
         .select('id')
-        .eq('randomnickname', new_nickname)
+        .eq('random_nickname', new_nickname)
         .single();
 
       if (!existing && !available_suggestions.includes(new_nickname)) {

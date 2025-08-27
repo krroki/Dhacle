@@ -51,6 +51,15 @@ test -f .claude/hooks/config.json && echo "✅ Hook 활성화" || echo "❌ Hook
 # 6. snake_case/camelCase 일관성 체크 (2025-08-22 추가)
 grep -r "use_[a-z]" src/ --include="*.tsx" | wc -l # → 0이어야 함 (React Hook 위반)
 node scripts/verify-case-consistency.js # → Pass: 일관성 확인
+
+# 7. E2E 테스트 환경 체크 (2025-08-27 강화) 🧪
+test -f TEST_GUIDE.md && echo "✅ 테스트 통합 가이드 존재" || echo "❌ 가이드 없음"
+test -f e2e/auth.spec.ts && echo "✅ 인증 테스트 존재" || echo "❌ 인증 테스트 없음"
+test -f e2e/payment-flow.spec.ts && echo "✅ 결제 테스트 존재" || echo "❌ 결제 테스트 없음"
+test -f e2e/youtube-lens.spec.ts && echo "✅ YouTube Lens 테스트 존재" || echo "❌ 테스트 없음"
+ls src/**/*.test.ts* 2>/dev/null | wc -l # → 10개 이상이어야 함 (현재 개수)
+npx vitest --version # → 3.2.4 이상
+npx playwright --version # → 1.54.2 이상
 ```
 
 #### 체크 항목
@@ -60,6 +69,7 @@ node scripts/verify-case-consistency.js # → Pass: 일관성 확인
 - [ ] 의존성 정상 설치됨
 - [ ] **CONTEXT_BRIDGE.md 반복 실수 체크 통과** 🆕
 - [ ] **Claude Code Hook System 정상 작동** 🆕
+- [ ] **E2E 테스트 파일 존재 (auth.spec.ts, full-journey.spec.ts)** 🎭
 
 ### 🔨 작업 중 (During Work)
 
@@ -182,6 +192,11 @@ npm run verify:all            # → 모든 검증 통과
 npm run build                 # → 빌드 성공
 npm run security:test         # → 보안 테스트 통과
 
+# E2E 테스트 실행 (2025-08-27 추가) 🎭
+npm run e2e                   # → Playwright E2E 테스트 통과
+npm run e2e:ui                # → UI 모드로 시각적 확인
+npm run test:coverage         # → 커버리지 80% 이상
+
 # 환경 변수 확인
 grep "NEXT_PUBLIC" .env.local | wc -l # → 필수 환경변수 개수
 ```
@@ -189,6 +204,7 @@ grep "NEXT_PUBLIC" .env.local | wc -l # → 필수 환경변수 개수
 #### 배포 체크리스트
 - [ ] 모든 검증 통과 (`npm run verify:all`)
 - [ ] 빌드 성공 (`npm run build`)
+- [ ] **E2E 테스트 통과 (`npm run e2e`)** 🎭
 - [ ] 환경 변수 설정 확인
 - [ ] 데이터베이스 마이그레이션 완료
 - [ ] 보안 테스트 통과
@@ -253,6 +269,32 @@ ls src/components/ui/         # → shadcn/ui 컴포넌트 확인
 - [ ] Tailwind CSS만 사용
 - [ ] 인라인 스타일 금지
 - [ ] Server Component 기본, 필요시만 'use client'
+
+### 🎭 E2E 테스트 (2025-08-27 추가)
+
+#### E2E 테스트 명령어
+```bash
+# Playwright 테스트 실행
+npm run e2e                   # → 헤드리스 모드 (CI/CD용)
+npm run e2e:ui                # → UI 모드 (시각적 테스트) ⭐추천
+npm run e2e:debug             # → 디버그 모드 (단계별 실행)
+
+# 테스트 코드 자동 생성
+npx playwright codegen localhost:3000  # → 브라우저 조작으로 코드 생성!
+
+# 특정 테스트만 실행
+npx playwright test auth.spec.ts       # → 인증 테스트만
+npx playwright test --grep "로그인"    # → 특정 테스트만
+
+# 리포트 확인
+npx playwright show-report    # → HTML 리포트 열기
+```
+
+#### 통과 기준
+- [ ] auth.spec.ts - 로그인/로그아웃 테스트 통과
+- [ ] full-journey.spec.ts - 전체 사용자 시나리오 통과
+- [ ] 테스트 로그인 버튼 정상 작동 (개발 모드)
+- [ ] 모든 critical path 테스트 존재
 
 ### 🗜️ 데이터베이스
 

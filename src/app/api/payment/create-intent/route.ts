@@ -47,51 +47,55 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
     }
 
-    const final_price = course.price;
-    // @ts-expect-error - 쿠폰 기능 구현 대기 중
-    const _applied_coupon: { id: string; code: string; discountType: string; discountValue: number } | null = null;
+    // 쿠폰 적용 로직
+    let final_price = course.price;
+    let applied_coupon: {
+      id: string;
+      code: string;
+      description?: string | null;
+      discount_type: string;
+      discount_value: number;
+    } | null = null;
 
-    // TODO: coupons 테이블이 없어서 임시로 비활성화
-    // 쿠폰 적용
     if (couponCode) {
-      // 쿠폰 기능 임시 비활성화
-      return NextResponse.json(
-        { error: '쿠폰 기능은 현재 준비 중입니다.' },
-        { status: 503 }
-      );
-      
-      /* 원본 코드 - coupons 테이블 생성 후 활성화 필요
-      const { data: coupon, error: coupon_error } = await supabase
+      const { data: coupon } = await supabase
         .from('coupons')
         .select('*')
         .eq('code', couponCode.toUpperCase())
         .eq('is_active', true)
         .single();
 
-      if (!coupon_error && coupon) {
+      if (coupon) {
+        // 유효 기간 체크
         const now = new Date();
-        const valid_from = new Date(coupon.validFrom);
-        const valid_until = new Date(coupon.validUntil);
+        const valid_from = new Date(coupon.valid_from);
+        const valid_until = new Date(coupon.valid_until);
 
         if (now >= valid_from && now <= valid_until) {
-          if (coupon.discountType === 'percentage') {
-            final_price = Math.round(course.price * (1 - coupon.discountValue / 100));
-          } else {
-            final_price = Math.max(0, course.price - coupon.discountValue);
+          // 사용 제한 체크
+          if (!coupon.max_usage || (coupon.usage_count || 0) < coupon.max_usage) {
+            // 강의별 쿠폰 체크
+            if (!coupon.course_id || coupon.course_id === course_id) {
+              // 할인 적용
+              let discount = 0;
+              if (coupon.discount_type === 'percentage') {
+                discount = Math.round(course.price * (coupon.discount_value / 100));
+              } else {
+                discount = coupon.discount_value;
+              }
+              
+              final_price = Math.max(0, course.price - discount);
+              applied_coupon = coupon;
+
+              // 사용 횟수 증가
+              await supabase
+                .from('coupons')
+                .update({ usage_count: (coupon.usage_count || 0) + 1 })
+                .eq('id', coupon.id);
+            }
           }
-
-          applied_coupon = coupon;
-
-          // 쿠폰 사용 횟수 증가
-          await supabase
-            .from('coupons')
-            .update({
-              usageCount: (coupon.usageCount || 0) + 1,
-            })
-            .eq('id', coupon.id);
         }
       }
-      */
     }
 
     // 주문 ID 생성 (고유해야 함)
@@ -108,7 +112,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         payment_method: 'tosspayments',
         payment_intent_id: order_id, // snake_case로 변경
         status: 'pending',
-        coupon_id: null,  // 쿠폰 기능 비활성화 중
+        coupon_id: applied_coupon?.id || null,  // 쿠폰 ID 저장
       })
       .select()
       .single();
@@ -133,17 +137,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       customerName: profile?.username || '고객',
       customerEmail: user.email,  // user.email 직접 사용
       purchaseId: purchase.id,
-      // 쿠폰 기능이 비활성화되어 있으므로 항상 null
-      appliedCoupon: null,
-      /* 쿠폰 기능 활성화 시 사용
       appliedCoupon: applied_coupon
         ? {
+            id: applied_coupon.id,
             code: applied_coupon.code,
-            discountType: applied_coupon.discountType,
-            discountValue: applied_coupon.discountValue,
+            description: applied_coupon.description,
+            discountType: applied_coupon.discount_type,
+            discountValue: applied_coupon.discount_value,
           }
         : null,
-      */
     });
   } catch (error) {
     logger.error('Payment intent creation failed:', error);

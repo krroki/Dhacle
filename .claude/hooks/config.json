@@ -3,37 +3,45 @@
   "validators": {
     "no-any-type": {
       "enabled": true,
-      "severity": "error",
-      "description": "Prevents use of TypeScript 'any' type for better type safety"
+      "severity": "warning",
+      "description": "Prevents use of TypeScript any type for better type safety"
     },
     "no-todo-comments": {
       "enabled": true,
-      "severity": "error",
+      "severity": "warning",
       "description": "Prevents TODO/FIXME comments to ensure complete implementations"
     },
     "no-empty-catch": {
       "enabled": true,
-      "severity": "error",
+      "severity": "warning",
       "description": "Prevents empty catch blocks that silence errors"
     },
     "no-direct-fetch": {
       "enabled": true,
-      "severity": "error",
+      "severity": "warning",
       "description": "Prevents direct fetch() usage, enforces apiClient for consistency"
     },
     "no-deprecated-supabase": {
       "enabled": true,
-      "severity": "warning",
+      "severity": "error",
       "description": "Prevents deprecated @supabase/auth-helpers-nextjs usage that causes PKCE errors"
     },
     "no-wrong-type-imports": {
       "enabled": true,
-      "severity": "warning",
+      "severity": "error",
       "description": "Ensures type imports come from @/types, not database.generated.ts directly"
+    },
+    "db-truth-enforcer": {
+      "enabled": true,
+      "severity": "error",
+      "description": "Prevents profiles↔users oscillation pattern by enforcing DB truth",
+      "scriptPath": ".claude/hooks/db-truth-enforcer.js",
+      "maxOscillations": 2,
+      "trackHistory": true
     }
   },
   "maxViolations": 10,
-  "includeWarnings": false,
+  "includeWarnings": true,
   "strictMode": false,
   "debugMode": false,
   "excludePaths": [

@@ -4,6 +4,86 @@
 
 ---
 
+## 🚨🚨🚨 최우선 경고: 가짜 타입 = 프로젝트 파괴 🚨🚨🚨
+
+### 💀 2025-08-26 재앙: 가짜 database.generated.ts 사건
+
+**문제**: AI가 임시방편으로 가짜 타입 생성
+```typescript
+// ❌ 절대 금지 - "Auto-generated fallback types" 
+export interface Database {
+  public: {
+    Tables: {
+      users: { // 추측으로 만든 구조
+        Row: { id: string; email: string }
+      }
+    }
+  }
+}
+```
+
+**결과**: 
+- TypeScript 컴파일 ✅ → 런타임 실패 ❌
+- VSCode 잘못된 자동완성 → 존재하지 않는 필드 사용
+- 디버깅 지옥 → "타입은 맞는데 왜 undefined?"
+- 데이터 손실 위험 → INSERT/UPDATE 실패
+
+### ✅ 유일한 올바른 방법: Supabase CLI 사용
+
+```bash
+# 1. 항상 실제 DB에서 타입 생성 (2>&1 필수!)
+npm run types:generate
+
+# 생성 실패 시 확인사항:
+# - Supabase 프로젝트 ID 확인
+# - 네트워크 연결 확인
+# - Supabase CLI 설치 여부
+
+# 2. stdout 리다이렉션 시 반드시 2>&1 포함
+npx supabase gen types typescript --project-id [ID] > src/types/database.generated.ts 2>&1
+
+# ❌ 절대 금지 - 에러 무시하는 리다이렉션
+npm run types:generate > database.generated.ts  # 에러 숨김!
+```
+
+### 🎯 TCREI Framework 적용 지침
+
+**Trigger (문제 발생 시그널)**:
+- database.generated.ts가 빈 파일이거나 짧음
+- "Auto-generated fallback types" 주석 발견
+- Tables import 에러 발생
+
+**Context (상황 파악)**:
+```bash
+# 파일 상태 확인
+ls -la src/types/database.generated.ts
+wc -l src/types/database.generated.ts  # 최소 1000줄 이상이어야 정상
+
+# 생성 날짜 확인
+head -5 src/types/database.generated.ts  # Supabase 자동 생성 주석 확인
+```
+
+**Response (대응)**:
+1. 즉시 작업 중단
+2. `npm run types:generate` 실행
+3. 생성된 파일 검증
+4. index.ts import 수정
+
+**Evidence (증거 확보)**:
+```bash
+# 타입 생성 로그 저장
+npm run types:generate 2>&1 | tee types-generation.log
+
+# 생성 완료 검증
+grep -c "export interface Database" src/types/database.generated.ts  # 1개 이상
+```
+
+**Impact (영향 평가)**:
+- 가짜 타입 = 전체 타입 시스템 붕괴
+- 실제 타입 = 안정적인 개발 환경
+
+---
+
 ## 🛑 타입 정의 3단계 필수 규칙
 
 ### 1️⃣ STOP - 즉시 중단 신호

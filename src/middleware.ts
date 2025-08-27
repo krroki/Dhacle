@@ -7,7 +7,7 @@ import {
   createRateLimitResponse,
   getClientIp,
 } from '@/lib/security/rate-limiter';
-import type { Database } from '@/types';
+// Type will be inferred from createServerClient
 import { env } from '@/env';
 
 /**
@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     const supabase_anon_key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (supabase_url && supabase_anon_key) {
-      const supabase = createServerClient<Database>(supabase_url, supabase_anon_key, {
+      const supabase = createServerClient(supabase_url, supabase_anon_key, {
         cookies: {
           get(name: string) {
             return request.cookies.get(name)?.value;

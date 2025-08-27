@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
+import { profileUpdateSchema, createValidationErrorResponse } from '@/lib/security/validation-schemas';
 
 // GET: Get user profile
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -22,15 +23,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // Get user profile
+    // Get user profile from profiles table
     const { data: profile, error: profileError } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
     if (profileError) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      // If profile doesn't exist, create one
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (createError) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      }
+      
+      return NextResponse.json(snakeToCamelCase({ profile: newProfile }));
     }
 
     return NextResponse.json(snakeToCamelCase({ profile }));
@@ -60,7 +76,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Convert from camelCase (frontend) to snake_case (DB)
     const {
       username,
-      // workType, // TODO: Use when work_type field is properly implemented
+      workType,
       jobCategory,
       currentIncome,
       targetIncome,
@@ -72,9 +88,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
     }
 
-    // Check if profile exists (users 테이블 사용)
+    // Check if profile exists (profiles 테이블 사용)
     const { data: existingProfile } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id')
       .eq('id', user.id)
       .single();
@@ -84,10 +100,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (existingProfile) {
       // Update existing profile
       result = await supabase
-        .from('users')
+        .from('profiles')
         .update({
           username,
-          // work_type: workType, // TODO: Use work_type when field is properly implemented
+          work_type: workType,
           job_category: jobCategory,
           current_income: currentIncome,
           target_income: targetIncome,
@@ -104,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .insert({
           id: user.id,
           username,
-          // work_type: workType, // TODO: Use work_type when field is properly implemented
+          work_type: workType,
           job_category: jobCategory,
           current_income: currentIncome,
           target_income: targetIncome,
@@ -147,55 +163,96 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // Parse request body
+    // Parse and validate request body
     const body = await request.json();
-    // Convert from camelCase (frontend) to snake_case (DB)
+    
+    // Validate with Zod schema
+    const validation = profileUpdateSchema.safeParse(body);
+    if (!validation.success) {
+      return createValidationErrorResponse(validation.error);
+    }
+    
+    // Use validated data
     const {
       username,
       fullName,
       channelName,
       channelUrl,
-      // workType, // TODO: Use when work_type field is properly implemented
+      workType,
       jobCategory,
       currentIncome,
       targetIncome,
       experienceLevel,
-    } = body;
+      avatarUrl,
+      naverCafeNickname,
+      naverCafeMemberUrl
+    } = validation.data;
 
     // Validate username format
     if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
       return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
     }
 
-    // Update user profile
-    const { data: updatedProfile, error: updateError } = await supabase
-      .from('users')
-      .update({
-        username,
-        full_name: fullName,
-        channel_name: channelName,
-        channel_url: channelUrl,
-        // work_type: workType, // TODO: Use work_type when field is properly implemented
-        job_category: jobCategory,
-        current_income: currentIncome,
-        target_income: targetIncome,
-        experience_level: experienceLevel,
-        updated_at: new Date().toISOString(),
-      })
+    // Build update object only with provided fields
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString()
+    };
+    
+    if (username !== undefined) updateData.username = username;
+    if (fullName !== undefined) updateData.full_name = fullName;
+    if (channelName !== undefined) updateData.channel_name = channelName;
+    if (channelUrl !== undefined) updateData.channel_url = channelUrl;
+    if (workType !== undefined) updateData.work_type = workType;
+    if (jobCategory !== undefined) updateData.job_category = jobCategory;
+    if (currentIncome !== undefined) updateData.current_income = currentIncome;
+    if (targetIncome !== undefined) updateData.target_income = targetIncome;
+    if (experienceLevel !== undefined) updateData.experience_level = experienceLevel;
+    if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl;
+    if (naverCafeNickname !== undefined) updateData.naver_cafe_nickname = naverCafeNickname;
+    if (naverCafeMemberUrl !== undefined) updateData.cafe_member_url = naverCafeMemberUrl;
+
+    // Check if profile exists
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id')
       .eq('id', user.id)
-      .select()
       .single();
 
-    if (updateError) {
+    let result;
+    if (!existingProfile) {
+      // Create new profile
+      result = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          ...updateData,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+    } else {
+      // Update existing profile in profiles table
+      result = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id)
+        .select()
+        .single();
+    }
+
+    if (result.error) {
       // Check for unique constraint violation
-      if (updateError.code === '23505' && updateError.message.includes('username')) {
+      if (result.error.code === '23505' && result.error.message.includes('username')) {
         return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
       }
 
       return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
     }
 
-    return NextResponse.json(snakeToCamelCase({ profile: updatedProfile }));
+    return NextResponse.json(snakeToCamelCase({ 
+      profile: result.data,
+      message: '프로필이 업데이트되었습니다'
+    }));
   } catch (error) {
     logger.error('Failed to update user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

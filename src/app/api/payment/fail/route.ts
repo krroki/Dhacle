@@ -44,9 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: '주문 상태 업데이트에 실패했습니다.' }, { status: 500 });
     }
 
-    // 쿠폰 사용 횟수 되돌리기 (coupons 테이블 생성 후 활성화)
-    // TODO: coupons 테이블 생성 후 아래 코드 활성화
-    /*
+    // 쿠폰 사용 횟수 되돌리기
     if (purchase?.coupon_id) {
       const { data: coupon } = await supabase
         .from('coupons')
@@ -54,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         .eq('id', purchase.coupon_id)
         .single();
 
-      if (coupon && coupon.usage_count > 0) {
+      if (coupon && coupon.usage_count && coupon.usage_count > 0) {
         await supabase
           .from('coupons')
           .update({
@@ -63,7 +61,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           .eq('id', purchase.coupon_id);
       }
     }
-    */
 
     return NextResponse.json({
       success: true,

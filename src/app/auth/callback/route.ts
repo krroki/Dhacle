@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { env } from '@/env';
 import { logger } from '@/lib/logger';
+import { generateRandomNickname } from '@/lib/utils/nickname-generator';
 
 export async function GET(request: NextRequest) {
   const request_url = new URL(request.url);
@@ -93,10 +94,10 @@ export async function GET(request: NextRequest) {
       });
 
       if (user) {
-        // Check if user profile exists in public.profiles table
+        // Check if user profile exists (profiles is a VIEW, read-only)
         const { data: user_profile, error: profile_error } = await supabase
           .from('profiles')
-          .select('id') // TODO: Add randomNickname, naverCafeVerified when fields are implemented
+          .select('id, random_nickname, naver_cafe_verified')
           .eq('id', user.id)
           .single();
 
@@ -107,13 +108,41 @@ export async function GET(request: NextRequest) {
 
           // Create profile directly instead of calling API
           try {
-            // Create profile with basic information
+            // Generate unique random nickname
+            let randomNickname = '';
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            while (attempts < maxAttempts) {
+              randomNickname = generateRandomNickname();
+
+              // Check for duplicates (read from profiles VIEW)
+              const { data: duplicateCheck } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('random_nickname', randomNickname)
+                .single();
+
+              if (!duplicateCheck) {
+                break;
+              }
+
+              attempts++;
+            }
+
+            if (attempts >= maxAttempts) {
+              // If we couldn't find a unique nickname, append timestamp
+              randomNickname = `${generateRandomNickname()}_${Date.now().toString(36)}`;
+            }
+
+            // Create/update profile in users table (profiles is a VIEW!)
             const { data: new_profile, error: create_error } = await supabase
-              .from('profiles')
-              .insert({
+              .from('users')
+              .upsert({
                 id: user.id,
-                email: user.email,
+                email: user.email || '',
                 username: user.email?.split('@')[0] || 'user',
+                random_nickname: randomNickname,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               })
@@ -144,22 +173,55 @@ export async function GET(request: NextRequest) {
             });
             // Don't throw - allow user to continue with basic profile
           }
-          // TODO: Uncomment when randomNickname field is implemented
-          // } else if (userProfile && !userProfile.randomNickname) {
-          //   // Profile exists but no random nickname, add one
-          //   console.log('[Auth Callback] Adding random nickname to existing profile');
+        } else if (user_profile && !user_profile.random_nickname) {
+          // Profile exists but no random nickname, add one
+          logger.info('[Auth Callback] Adding random nickname to existing profile');
 
-          //   const initResponse = await fetch(`${requestUrl.origin}/api/user/init-profile`, {
-          //     method: 'POST',
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //       Cookie: request.headers.get('cookie') || '',
-          //     },
-          //   });
+          try {
+            // Generate unique random nickname
+            let randomNickname = '';
+            let attempts = 0;
+            const maxAttempts = 10;
 
-          //   if (!initResponse.ok) {
-          //   }
-          // }
+            while (attempts < maxAttempts) {
+              randomNickname = generateRandomNickname();
+
+              // Check for duplicates (read from profiles VIEW)
+              const { data: duplicateCheck } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('random_nickname', randomNickname)
+                .single();
+
+              if (!duplicateCheck) {
+                break;
+              }
+
+              attempts++;
+            }
+
+            if (attempts >= maxAttempts) {
+              randomNickname = `${generateRandomNickname()}_${Date.now().toString(36)}`;
+            }
+
+            // Update profile with random nickname (users table!)
+            const { error: update_error } = await supabase
+              .from('users')
+              .update({
+                random_nickname: randomNickname,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', user.id);
+
+            if (update_error) {
+              logger.error('[Auth Callback] Failed to update profile with random nickname', update_error);
+            } else {
+              logger.info('[Auth Callback] Successfully added random nickname to profile');
+            }
+          } catch (error) {
+            logger.error('[Auth Callback] Error adding random nickname', error);
+            // Don't throw - allow user to continue
+          }
         }
       }
     } catch (error) {

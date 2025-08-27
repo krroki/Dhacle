@@ -1,15 +1,22 @@
+'use client';
+
 import { CheckCircle2, Clock, Trophy, Users } from 'lucide-react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { KakaoLoginButton } from '@/components/features/auth/KakaoLoginButton';
 import { Card, CardContent } from '@/components/ui';
 
-export const metadata: Metadata = {
-  title: '로그인 - 디하클',
-  description: '디하클에 로그인하여 크리에이터 교육을 시작하세요',
-};
-
 export default function LoginPage() {
+  // 개발 모드 감지 - 초기값을 true로 설정하고 프로덕션에서만 false로 변경
+  const [isDev, setIsDev] = useState(true);
+  
+  useEffect(() => {
+    // localhost가 아니면 개발 모드 비활성화
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setIsDev(false);
+    }
+  }, []);
+  
   const benefits = [
     {
       icon: Clock,
@@ -59,6 +66,33 @@ export default function LoginPage() {
                 text="카카오톡으로 3초 만에 시작하기"
                 className="w-full"
               />
+
+              {/* 개발 모드에서만 테스트 로그인 표시 */}
+              {isDev && (
+                <button
+                  onClick={async () => {
+                    try {
+                      const { apiPost } = await import('@/lib/api-client');
+                      const result = await apiPost<{ success: boolean; user?: unknown; message?: string }>('/api/auth/test-login', {
+                        email: 'test@dhacle.com',
+                        password: 'test1234'
+                      });
+                      
+                      if (result.success) {
+                        window.location.href = '/mypage/profile';
+                      } else {
+                        alert('테스트 로그인 실패');
+                      }
+                    } catch (error) {
+                      console.error('Test login error:', error);
+                      alert('테스트 로그인 실패');
+                    }
+                  }}
+                  className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                >
+                  🧪 테스트 로그인 (localhost 전용)
+                </button>
+              )}
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

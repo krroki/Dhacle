@@ -61,7 +61,7 @@
 
 ---
 
-## 🔗 14개 핵심 문서 체계
+## 🔗 15개 핵심 문서 체계
 
 > **필독 순서대로 확인**:
 > 1. 🔥 `/docs/CONTEXT_BRIDGE.md` - **최우선!** 반복 실수 패턴 + 예방책
@@ -69,7 +69,7 @@
 > 3. 🗺️ `/docs/CODEMAP.md` - 프로젝트 구조
 > 4. ✅ `/docs/CHECKLIST.md` - 작업 검증 (12개 검증 스크립트)
 > 5. 📖 `/docs/DOCUMENT_GUIDE.md` - 문서 작성 가이드
-> 6. 🎯 `/docs/INSTRUCTION_TEMPLATE.md` - 지시 템플릿
+> 6. 🎯 `/docs/INSTRUCTION_TEMPLATE_E2E.md` - **최종 E2E 지시 템플릿 **
 > 7. 🔄 `/docs/FLOWMAP.md` - 사용자 플로우
 > 8. 🔌 `/docs/WIREFRAME.md` - UI-API 연결
 > 9. 🧩 `/docs/COMPONENT_INVENTORY.md` - 컴포넌트 목록
@@ -77,7 +77,8 @@
 > 11. 💾 `/docs/STATE_FLOW.md` - 상태 관리 (React Query + Zustand)
 > 12. 📦 `/docs/DATA_MODEL.md` - 데이터 모델
 > 13. 🚨 `/docs/ERROR_BOUNDARY.md` - HTTP 에러 처리
-> 14. 🎯 `/docs/INSTRUCTION_TEMPLATE_v16.md` - 최신 템플릿
+> 14. 🎭 `/docs/PLAYWRIGHT_USAGE.md` - **E2E 테스트 가이드** (2025-08-27 추가)
+
 
 ---
 

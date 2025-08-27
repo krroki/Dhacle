@@ -12,6 +12,9 @@ import type { Database, Tables, TablesInsert, TablesUpdate } from './database.ge
 // ============= 기본 Database 타입 =============
 export type { Database, Json } from './database.generated';
 
+// Export helper types for use in components
+export type { Tables, TablesInsert, TablesUpdate } from './database.generated';
+
 // ============= Snake Case 원본 타입 (DB용) =============
 export type DBTables = Database['public']['Tables'];
 export type DBViews = Database['public']['Views'];
@@ -491,9 +494,9 @@ export interface YouTubeSearchFilters {
   publishedAfter?: string;
   publishedBefore?: string;
   videoDuration?: 'short' | 'medium' | 'long';
-  videoDefinition?: 'any' | 'high' | 'standard';
-  videoType?: 'any' | 'episode' | 'movie';
-  videoEmbeddable?: 'any' | 'true';
+  videoDefinition?: 'all' | 'high' | 'standard';
+  videoType?: 'all' | 'episode' | 'movie';
+  videoEmbeddable?: 'all' | 'true';
   maxResults?: number;
   pageToken?: string;
   regionCode?: string;

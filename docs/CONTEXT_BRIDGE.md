@@ -1,8 +1,8 @@
 # 🌉 CONTEXT_BRIDGE - AI 필수 참조 문서 (예방 + 대응 통합)
 
-> **최종 업데이트**: 2025-08-26
-> **버전**: v2.1 (Claude Code Hook System 추가)
-> **중요 변경**: 자동 코드 품질 검증 시스템 구현
+> **최종 업데이트**: 2025-08-27
+> **버전**: v2.2 (Playwright 테스트 패턴 추가)
+> **중요 변경**: 14번째 실수 패턴 추가 - 테스트 도구 미활용
 
 **목적**: AI가 디하클 프로젝트 작업 시 반복 실수를 예방하고 에러에 대응하는 통합 가이드
 
@@ -53,7 +53,7 @@ catch (error) { /* 무시 */ }
 
 ---
 
-## 🔥 반복되는 12가지 치명적 실수 (2025-08-25 업데이트)
+## 🔥 반복되는 15가지 치명적 실수 (2025-08-27 업데이트)
 
 ### 1. @supabase/auth-helpers-nextjs 패키지 사용 🔴
 **❌ 실제 사례**: 44개 파일에서 deprecated 패키지 사용
@@ -237,6 +237,53 @@ import { createServerClient } from '@supabase/ssr';
 **🛡️ 예방책**: OAuth 플로우 전체에서 동일한 Supabase 클라이언트 라이브러리 사용
 **📍 증상**: "code challenge does not match previously saved code verifier" 에러
 
+### 14. 테스트 도구 설치만 하고 제대로 사용 안 함 (2025-08-27 강화)
+
+### 15. Playwright 도구 혼동 - MCP vs Native Framework (2025-08-27 추가) 🆕
+**❌ 실제 사례**: MCP Playwright Stealth를 E2E 테스트에 사용 시도
+```typescript
+// ❌ 잘못된 시도 - MCP는 브라우저 자동화용
+mcp__playwright-stealth__playwright_navigate({
+  url: "http://localhost:3000",
+  headless: false  // 이것은 UI 모드가 아님!
+})
+
+// ✅ 올바른 명령어 - Playwright Test Framework
+npx playwright test --ui        // UI 모드 (시각적)
+npx playwright test --debug      // 디버그 모드
+npx playwright codegen          // 코드 생성
+```
+**🛡️ 예방책**: 
+- E2E 테스트 = `npx playwright` 명령어 사용
+- 프로젝트의 PLAYWRIGHT_GUIDE.md 먼저 확인
+- /docs/PLAYWRIGHT_USAGE.md 참조 (실패 분석 문서)
+**📍 해결**: 도구별 목적과 사용법 명확히 구분, 문서화 완료
+**❌ 실제 사례**: 4개 테스트 도구 설치했지만 25% 활용
+```typescript
+// ❌ 문제: package.json에 있지만 사용 안 함
+"@playwright/test": "^1.54.2"  // E2E 테스트 → 2개 파일만
+"vitest": "^3.2.4"             // 단위 테스트 → 4개 파일만  
+"@testing-library/react": "^16.3.0" // 컴포넌트 테스트 → 1개만
+"msw": "^2.10.5"               // API 모킹 → 설정만 있음
+
+// ✅ 해결: TEST_GUIDE.md 참조하여 모든 도구 활용
+npm run test:all               # 전체 테스트 실행
+npm run test:dev               # 개발 중 Watch 모드
+npm run e2e:ui                 # Playwright UI 모드
+npm run test:coverage:full     # 전체 커버리지
+
+// ✅ E2E Workflow 중심 테스트
+// 1. 사용자 시나리오 (Playwright)
+// 2. API 안정성 (Vitest + MSW)  
+// 3. 컴포넌트 동작 (Testing Library)
+// 4. 유틸리티 함수 (Vitest)
+```
+**🛡️ 예방책**: 
+- TEST_GUIDE.md 전체 테스트 전략 참조
+- E2E Workflow 중심으로 테스트 작성
+- 4개 도구 모두 활용 (Playwright + Vitest + Testing Library + MSW)
+- `npm run test:all`로 통합 테스트 실행
+
 ---
 
 ## 🆕 Claude Code Hook System (2025-08-26 구현)
@@ -272,6 +319,12 @@ node .claude/hooks/emergency-disable.js
 # 방법 3: 개별 비활성화
 export CLAUDE_HOOKS_NO_ANY=false  # any 타입 허용
 ```
+
+#### Progressive Configuration (자동 조정)
+- **Claude Code 감지**: activity.log 5분 이내 활동 시 자동으로 Warning 모드 전환
+- **Severity 동적 조정**: Claude Code 작업 중에는 error→warning/info로 완화
+- **TODO 날짜 자동 추가**: Claude Code 작업 시 TODO에 날짜 자동 삽입
+- **프로젝트 단계별 설정**: development/production/hotfix 모드 지원
 
 #### 예상 효과
 - **주당 시간 절약**: 3.5시간

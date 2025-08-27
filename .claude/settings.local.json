@@ -65,7 +65,14 @@
       "Bash(mkdir:*)",
       "Bash(for file in monitoring.ts pubsub.ts queue-manager.ts api-client.ts)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(npm run verify:security:*)"
+      "Bash(npm run verify:security:*)",
+      "Bash(for file in *.js)",
+      "Bash(for:*)",
+      "Bash(do sed -i '/const.*file_path.*=/a\\    \\n    // Skip .md files - documentation doesn''''t need code validation\\n    if (file_path && (file_path.endsWith(''''\\.md'''') || file_path.endsWith(''''\\.MD''''))) {\\n      return { pass: true };\\n    }' \"$file\")",
+      "Bash(cat:*)",
+      "Bash(npx supabase:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.aitmpl.com)"
     ],
     "deny": [],
     "ask": [],

@@ -2,10 +2,8 @@
 export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomNickname as _generateRandomNickname } from '@/lib/utils/nickname-generator';
-import type { Database } from '@/types';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
 
@@ -25,12 +23,12 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필이 이미 있는지 확인
+    // 프로필이 이미 있는지 확인 (profiles VIEW로 읽기)
     const { data: existing_profile, error: profile_error } = await supabase
       .from('profiles')
-      .select('id, randomnickname')
+      .select('id, random_nickname')
       .eq('id', user.id)
       .single();
 
@@ -44,11 +42,11 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       while (attempts < maxAttempts) {
         randomNickname = _generateRandomNickname();
 
-        // 중복 체크
+        // 중복 체크 (profiles VIEW로 읽기)
         const { data: duplicateCheck } = await supabase
           .from('profiles')
           .select('id')
-          .eq('randomNickname', randomNickname)
+          .eq('random_nickname', randomNickname)
           .single();
 
         if (!duplicateCheck) {
@@ -63,14 +61,14 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
         randomNickname = `user_${user.id.substring(0, 8)}`;
       }
 
-      // 프로필 생성
+      // 프로필 생성 (users 테이블에 INSERT/UPDATE!)
       const { data: new_profile, error: create_error } = await supabase
-        .from('profiles')
-        .insert({
+        .from('users')
+        .upsert({
           id: user.id,
-          email: user.email,
+          email: user.email || '',
           username: user.email?.split('@')[0] || 'user',
-          randomNickname: randomNickname,
+          random_nickname: randomNickname,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -88,7 +86,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    if (existing_profile && !existing_profile.randomnickname) {
+    if (existing_profile && !existing_profile.random_nickname) {
       // 프로필은 있지만 랜덤 닉네임이 없는 경우
       let randomNickname = '';
       let attempts = 0;
@@ -97,11 +95,11 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       while (attempts < maxAttempts) {
         randomNickname = _generateRandomNickname();
 
-        // 중복 체크
+        // 중복 체크 (profiles VIEW로 읽기)
         const { data: duplicateCheck } = await supabase
           .from('profiles')
           .select('id')
-          .eq('randomnickname', randomNickname)
+          .eq('random_nickname', randomNickname)
           .single();
 
         if (!duplicateCheck) {
@@ -115,11 +113,11 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
         randomNickname = `user_${user.id.substring(0, 8)}`;
       }
 
-      // 랜덤 닉네임 업데이트
+      // 랜덤 닉네임 업데이트 (users 테이블에 UPDATE!)
       const { data: updatedProfile, error: updateError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
-          randomnickname: randomNickname,
+          random_nickname: randomNickname,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
@@ -162,9 +160,9 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필 가져오기
+    // 프로필 가져오기 (profiles VIEW로 읽기)
     const { data: profile, error: profile_error } = await supabase
       .from('profiles')
       .select('*')
@@ -180,15 +178,16 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       exists: true,
-      needsInitialization: false, // TODO: Set to !profile.randomNickname when field is implemented
+      needsInitialization: !profile.random_nickname,
       profile: {
         id: profile.id,
         username: profile.username,
-        // TODO: Uncomment when fields are implemented
-        // randomNickname: profile.randomNickname,
-        // naverCafeNickname: profile.naverCafeNickname,
-        // naverCafeVerified: profile.naverCafeVerified,
-        // displayNickname: profile.displayNickname,
+        randomNickname: profile.random_nickname,
+        naverCafeNickname: profile.naver_cafe_nickname,
+        naverCafeVerified: profile.naver_cafe_verified,
+        displayNickname: profile.naver_cafe_verified && profile.naver_cafe_nickname 
+          ? profile.naver_cafe_nickname 
+          : profile.random_nickname || profile.username,
       },
     });
   } catch (error) {

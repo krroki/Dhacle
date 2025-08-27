@@ -215,7 +215,8 @@
       "!**/build",
       "!**/dist",
       "!**/*.min.js",
-      "!**/*.generated.*"
+      "!**/*.generated.*",
+      "!**/*.md"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
