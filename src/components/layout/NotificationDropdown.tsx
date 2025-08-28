@@ -23,6 +23,7 @@ import {
 } from '@/hooks/queries/useNotifications';
 import { useNotificationStore } from '@/store/notifications';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 const notificationIcons = {
   info: AlertCircle,
@@ -49,6 +50,12 @@ interface NotificationDropdownProps {
 
 export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropdownProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  
+  // Don't render notifications dropdown if user is not authenticated
+  if (!user) {
+    return null;
+  }
   
   // React Query hooks for server state
   const { data, isLoading, error } = useNotifications();

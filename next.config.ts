@@ -6,6 +6,21 @@ const nextConfig: NextConfig = {
   // 서버 외부 패키지 설정
   serverExternalPackages: ['@supabase/supabase-js'],
   
+  // Supabase Edge Runtime 호환성 설정 (experimental에서 제거됨)
+  // serverComponentsExternalPackages: ['@supabase/supabase-js', '@supabase/ssr'],
+  
+  // Webpack 설정으로 Node.js API 경고 방지
+  webpack: (config, { isServer, nextRuntime }) => {
+    // Edge Runtime에서 Node.js API 사용 경고 억제
+    if (nextRuntime === 'edge' && !isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        process: false,
+      }
+    }
+    return config
+  },
+  
   // 이미지 설정
   images: {
     remotePatterns: [

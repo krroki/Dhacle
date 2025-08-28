@@ -259,7 +259,8 @@ export function HeroCarousel() {
       {!should_disable_autoplay && (
         <div ref={progress_bar_ref} className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
           <div
-            className="h-full bg-white transition-all ease-linear w-[var(--progress-width,0%)] duration-[var(--progress-duration,50ms)]"
+            className="h-full bg-white transition-all ease-linear w-[var(--progress-width,0%)]"
+            style={{ transitionDuration: 'var(--progress-duration, 50ms)' }}
             aria-hidden="true"
           />
         </div>

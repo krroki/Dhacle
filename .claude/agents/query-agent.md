@@ -1,6 +1,7 @@
 ---
 name: query-agent
 description: React Query 전문가. 15개 구현된 훅 활용, 캐싱 전략.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: component-agent
 description: React/Next.js 컴포넌트 전문가. shadcn/ui 우선, Server Component 기본.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

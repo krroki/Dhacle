@@ -1,6 +1,7 @@
 ---
 name: lib-agent
 description: 라이브러리 관리자. 유틸리티, API 클라이언트, 환경변수.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

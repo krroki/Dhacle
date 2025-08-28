@@ -1,6 +1,7 @@
 ---
 name: api-route-agent
 description: Next.js App Router API 전문가. 인증, 타입 안전성, snake_case 변환.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

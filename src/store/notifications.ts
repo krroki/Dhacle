@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 
 // This store manages client-side notification preferences and UI state
 // Actual notification data is managed by React Query (useNotifications hook)
@@ -29,8 +29,9 @@ interface NotificationStore {
 }
 
 export const useNotificationStore = create<NotificationStore>()(
-  persist(
-    (set, get) => ({
+  devtools(
+    persist(
+      (set, get) => ({
       // User preferences (persisted)
       soundEnabled: true,
       desktopNotificationsEnabled: false,
@@ -97,15 +98,19 @@ export const useNotificationStore = create<NotificationStore>()(
           console.error('Failed to play notification sound:', error);
         });
       },
-    }),
-    {
-      name: 'notification-preferences',
-      // Only persist user preferences, not UI state
-      partialize: (state) => ({
-        soundEnabled: state.soundEnabled,
-        desktopNotificationsEnabled: state.desktopNotificationsEnabled,
-        emailNotificationsEnabled: state.emailNotificationsEnabled,
       }),
+      {
+        name: 'notification-preferences',
+        // Only persist user preferences, not UI state
+        partialize: (state) => ({
+          soundEnabled: state.soundEnabled,
+          desktopNotificationsEnabled: state.desktopNotificationsEnabled,
+          emailNotificationsEnabled: state.emailNotificationsEnabled,
+        }),
+      }
+    ),
+    {
+      name: 'NotificationStore',
     }
   )
 );

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export interface Notification {
   id: string;
@@ -24,8 +25,10 @@ export const notificationKeys = {
   unread: () => [...notificationKeys.all, 'unread'] as const,
 };
 
-// Fetch all notifications
+// Fetch all notifications (only when authenticated)
 export function useNotifications() {
+  const { user } = useAuth();
+  
   return useQuery({
     queryKey: notificationKeys.list(),
     queryFn: async () => {
@@ -35,6 +38,7 @@ export function useNotifications() {
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute for real-time updates
     refetchIntervalInBackground: true,
+    enabled: !!user, // Only run when user is authenticated
   });
 }
 

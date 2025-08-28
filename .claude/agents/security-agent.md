@@ -1,6 +1,7 @@
 ---
 name: security-agent
 description: 보안 수호자. RLS, 인증, XSS, 환경변수 관리.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

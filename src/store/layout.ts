@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 interface LayoutStore {
   // Banner state
@@ -35,7 +36,8 @@ interface LayoutStore {
   setProfileOpen: (open: boolean) => void;
 }
 
-export const useLayoutStore = create<LayoutStore>((set) => ({
+export const useLayoutStore = create<LayoutStore>()(
+  devtools((set) => ({
   // Banner
   isBannerClosed: false,
   closeBanner: () => {
@@ -71,4 +73,7 @@ export const useLayoutStore = create<LayoutStore>((set) => ({
   isProfileOpen: false,
   toggleProfile: () => set((state) => ({ isProfileOpen: !state.isProfileOpen })),
   setProfileOpen: (open) => set({ isProfileOpen: open }),
-}));
+  }), {
+    name: 'LayoutStore',
+  })
+);

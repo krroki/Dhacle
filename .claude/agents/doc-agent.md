@@ -1,6 +1,7 @@
 ---
 name: doc-agent
 description: 문서 관리자. 14개 핵심 문서 체계 유지, 중복 방지.
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
 

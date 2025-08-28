@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { User } from '@/types';
 import { apiGet, apiPut } from '@/lib/api-client';
 
@@ -33,8 +33,9 @@ const defaultPreferences = {
 };
 
 export const useUserStore = create<UserStore>()(
-  persist(
-    (set, get) => ({
+  devtools(
+    persist(
+      (set, get) => ({
       user: null,
       isLoading: false,
       error: null,
@@ -98,13 +99,17 @@ export const useUserStore = create<UserStore>()(
       setError: (error) => {
         set({ error });
       },
-    }),
-    {
-      name: 'user-storage',
-      partialize: (state) => ({ 
-        user: state.user,
-        preferences: state.preferences 
       }),
+      {
+        name: 'user-storage',
+        partialize: (state) => ({ 
+          user: state.user,
+          preferences: state.preferences 
+        }),
+      }
+    ),
+    {
+      name: 'UserStore',
     }
   )
 );

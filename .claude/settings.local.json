@@ -91,7 +91,9 @@
       "Read(c:\\My_Claude_Project\\9.Dhacle\\tasks\\20250101_subagent_system/**)",
       "Read(c:\\My_Claude_Project\\9.Dhacle\\tasks\\20250828_quality_debt_systematic_resolution/**)",
       "Bash(bash:*)",
-      "Bash(if ! grep -q \"Stop Triggers\\|중단 신호\\|🚫.*STOP\" \"$file\")"
+      "Bash(if ! grep -q \"Stop Triggers\\|중단 신호\\|🚫.*STOP\" \"$file\")",
+      "mcp__playwright-stealth__playwright_expect_response",
+      "Bash(if ! grep -q \"tools:\" \"$file\")"
     ],
     "deny": [],
     "ask": [],
