@@ -86,6 +86,7 @@
     "verify:legacy:db": "node scripts/verify-database.js",
     "verify:legacy:imports": "node scripts/verify-imports.js",
     "verify:legacy:all": "npm run verify:legacy:api && npm run verify:legacy:ui && npm run verify:legacy:types && npm run verify:legacy:routes && npm run verify:legacy:runtime && npm run verify:legacy:deps && npm run verify:legacy:db && npm run verify:legacy:imports",
+    "verify:redis": "node scripts/verify-redis-setup.js",
     "types:generate": "npx supabase gen types typescript --project-id golbwnsytwbyoneucunx --schema public > src/types/database.generated.ts",
     "types:generate:local": "npx supabase gen types typescript --local > src/types/database.generated.ts",
     "types:watch": "npm run types:generate && echo 'Types generated successfully!'",

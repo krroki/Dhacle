@@ -1,20 +1,35 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Search, Youtube } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAdminYouTubeChannels, useAdminChannelStats, useChannelCategories, type ChannelFilters } from '@/hooks/queries/useAdminQueries';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  type ChannelFilters,
+  useAdminChannelStats,
+  useAdminYouTubeChannels,
+  useChannelCategories,
+} from '@/hooks/queries/useAdminQueries';
 import { formatNumberKo } from '@/lib/youtube-lens/format-number-ko';
-
-interface DeltaDashboardProps {
-  // Define any props if needed
-}
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
@@ -47,17 +62,22 @@ function formatDate(dateString: string) {
   return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
 }
 
-export function DeltaDashboard({ }: DeltaDashboardProps) {
+export function DeltaDashboard() {
   // State management
   const [filters, setFilters] = useState<ChannelFilters>({
     status: undefined,
-    category: undefined, 
+    category: undefined,
     format: undefined,
-    search: ''
+    search: '',
   });
 
   // React Query hooks
-  const { data: channelsData, isLoading: isLoadingChannels, error: channelsError, refetch } = useAdminYouTubeChannels(filters);
+  const {
+    data: channelsData,
+    isLoading: isLoadingChannels,
+    error: channelsError,
+    refetch,
+  } = useAdminYouTubeChannels(filters);
   const { data: statsData, isLoading: isLoadingStats } = useAdminChannelStats();
   const { data: categoriesData, isLoading: isLoadingCategories } = useChannelCategories();
 
@@ -67,16 +87,16 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
 
   // Event handlers
   const handleFilterChange = (key: keyof ChannelFilters, value: string | undefined) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [key]: value === '전체' ? undefined : value
+      [key]: value === '전체' ? undefined : value,
     }));
   };
 
   const handleSearchChange = (value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      search: value
+      search: value,
     }));
   };
 
@@ -98,7 +118,7 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
             </div>
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+                <Skeleton key={`skeleton-${i}`} className="h-16 w-full" />
               ))}
             </div>
           </div>
@@ -113,9 +133,7 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
       <Card>
         <CardContent className="text-center py-8">
           <p className="text-red-500 mb-4">데이터 로드 실패</p>
-          <Button onClick={() => refetch()}>
-            다시 시도
-          </Button>
+          <Button onClick={() => refetch()}>다시 시도</Button>
         </CardContent>
       </Card>
     );
@@ -130,10 +148,8 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
           승인된 YouTube 채널 목록
         </CardTitle>
         <div className="text-sm text-muted-foreground">
-          총 {stats?.totalChannels || 0}개 채널 | 
-          승인: {stats?.approvedChannels || 0} | 
-          대기: {stats?.pendingChannels || 0} | 
-          거부: {stats?.rejectedChannels || 0}
+          총 {stats?.totalChannels || 0}개 채널 | 승인: {stats?.approvedChannels || 0} | 대기:{' '}
+          {stats?.pendingChannels || 0} | 거부: {stats?.rejectedChannels || 0}
         </div>
       </CardHeader>
 
@@ -141,7 +157,10 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
         {/* Filters row */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Status filter */}
-          <Select value={filters.status || '전체'} onValueChange={(value) => handleFilterChange('status', value)}>
+          <Select
+            value={filters.status || '전체'}
+            onValueChange={(value) => handleFilterChange('status', value)}
+          >
             <SelectTrigger className="w-full sm:w-32">
               <SelectValue placeholder="전체 상태" />
             </SelectTrigger>
@@ -154,9 +173,15 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
           </Select>
 
           {/* Category filter */}
-          <Select value={filters.category || '전체'} onValueChange={(value) => handleFilterChange('category', value)}>
+          <Select
+            value={filters.category || '전체'}
+            onValueChange={(value) => handleFilterChange('category', value)}
+            disabled={isLoadingCategories}
+          >
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="전체 카테고리" />
+              <SelectValue
+                placeholder={isLoadingCategories ? '카테고리 로딩중...' : '전체 카테고리'}
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="전체">전체 카테고리</SelectItem>
@@ -169,7 +194,10 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
           </Select>
 
           {/* Format filter */}
-          <Select value={filters.format || '전체'} onValueChange={(value) => handleFilterChange('format', value)}>
+          <Select
+            value={filters.format || '전체'}
+            onValueChange={(value) => handleFilterChange('format', value)}
+          >
             <SelectTrigger className="w-full sm:w-32">
               <SelectValue placeholder="전체 형식" />
             </SelectTrigger>
@@ -222,9 +250,11 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {channel.thumbnailUrl && (
-                          <img
+                          <Image
                             src={channel.thumbnailUrl}
                             alt={channel.title}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 rounded-full object-cover"
                           />
                         )}
@@ -246,16 +276,13 @@ export function DeltaDashboard({ }: DeltaDashboardProps) {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {channel.category && channel.subcategory 
+                        {channel.category && channel.subcategory
                           ? `${channel.category}>${channel.subcategory}`
-                          : channel.category || '-'
-                        }
+                          : channel.category || '-'}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {channel.dominantFormat || '-'}
-                      </div>
+                      <div className="text-sm">{channel.dominantFormat || '-'}</div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(channel.status)}>
