@@ -21,10 +21,10 @@ export async function GET(request: Request) {
     const supabase = await createSupabaseRouteHandlerClient();
     
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }
@@ -114,10 +114,10 @@ export async function POST(request: Request) {
     const supabase = await createSupabaseRouteHandlerClient();
     
     // Check authentication
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    if (authError || !session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }

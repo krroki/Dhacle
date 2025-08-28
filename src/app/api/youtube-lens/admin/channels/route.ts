@@ -31,6 +31,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const search_query = searchParams.get('q');
+    const category = searchParams.get('category');
+    const format = searchParams.get('format');
 
     // yl_channels 테이블에서 데이터 조회
     let query = supabase
@@ -44,6 +46,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // 상태 필터
     if (status) {
       query = query.eq('status', status);
+    }
+
+    // 카테고리 필터
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    // 포맷 필터
+    if (format) {
+      query = query.eq('dominant_format', format);
     }
 
     // 검색
@@ -66,6 +78,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       videoCount: channel.video_count,
       viewCount: channel.view_count,
       status: channel.status,
+      category: channel.category,
+      subcategory: channel.subcategory,
+      dominantFormat: channel.dominant_format,
+      formatStats: channel.format_stats,
+      language: channel.language,
+      country: channel.country,
       approvedBy: channel.approved_by,
       approvedAt: channel.approved_at,
       createdAt: channel.created_at,

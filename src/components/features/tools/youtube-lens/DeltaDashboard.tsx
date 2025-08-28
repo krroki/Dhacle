@@ -1,262 +1,284 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { FolderOpen, Hash, PieChart, Sparkles, Youtube } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Youtube } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiGet } from '@/lib/api-client';
-import { formatDelta, formatNumberKo, formatPercent } from '@/lib/youtube-lens/format-number-ko';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAdminYouTubeChannels, useAdminChannelStats, useChannelCategories, type ChannelFilters } from '@/hooks/queries/useAdminQueries';
+import { formatNumberKo } from '@/lib/youtube-lens/format-number-ko';
 
-interface ChannelData {
-  channel_id: string;
-  title: string;
-  subscriber_count: number;
-  view_count_total: number;
-  category: string;
-  subcategory: string;
-  dominant_format: '쇼츠' | '롱폼' | '라이브';
+interface DeltaDashboardProps {
+  // Define any props if needed
 }
 
-interface DeltaData {
-  channel_id: string;
-  date: string;
-  delta_views: number;
-  delta_subscribers: number;
-  growth_rate: number;
-  channel: ChannelData;
+function getStatusBadgeVariant(status: string) {
+  switch (status) {
+    case 'approved':
+      return 'default';
+    case 'pending':
+      return 'secondary';
+    case 'rejected':
+      return 'destructive';
+    default:
+      return 'outline';
+  }
 }
 
-interface DashboardSummary {
-  categoryStats: Array<{
-    category: string;
-    channelCount: number;
-    totalDelta: number;
-    share: number;
-  }>;
-  topDeltas: DeltaData[];
-  newcomers: ChannelData[];
-  trendingKeywords: Array<{
-    keyword: string;
-    count: number;
-    growth: number;
-  }>;
-  topShorts: Array<{
-    video_id: string;
-    title: string;
-    channel_title: string;
-    viewDelta: number;
-  }>;
-  followedChannels: DeltaData[];
+function getStatusLabel(status: string) {
+  switch (status) {
+    case 'approved':
+      return '승인';
+    case 'pending':
+      return '대기';
+    case 'rejected':
+      return '거부';
+    default:
+      return status;
+  }
 }
 
-export function DeltaDashboard() {
-  const today = new Date().toISOString().split('T')[0];
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+}
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['yl/dash/summary', today],
-    queryFn: async () => {
-      const response = await apiGet<{ success: boolean; data: DashboardSummary }>(
-        '/api/youtube-lens/trending-summary'
-      );
-      return response.data;
-    },
-    refetchInterval: 5 * 60 * 1000, // 5분 캐싱
-    staleTime: 5 * 60 * 1000,
+export function DeltaDashboard({ }: DeltaDashboardProps) {
+  // State management
+  const [filters, setFilters] = useState<ChannelFilters>({
+    status: undefined,
+    category: undefined, 
+    format: undefined,
+    search: ''
   });
 
-  if (isLoading) {
+  // React Query hooks
+  const { data: channelsData, isLoading: isLoadingChannels, error: channelsError, refetch } = useAdminYouTubeChannels(filters);
+  const { data: statsData, isLoading: isLoadingStats } = useAdminChannelStats();
+  const { data: categoriesData, isLoading: isLoadingCategories } = useChannelCategories();
+
+  const channels = channelsData?.data || [];
+  const stats = statsData?.data;
+  const categories = categoriesData?.data || [];
+
+  // Event handlers
+  const handleFilterChange = (key: keyof ChannelFilters, value: string | undefined) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value === '전체' ? undefined : value
+    }));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      search: value
+    }));
+  };
+
+  // Loading state
+  if (isLoadingChannels || isLoadingStats) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-6 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-32 w-full" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 flex-1" />
+            </div>
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
-  if (error) {
+  // Error state
+  if (channelsError) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-500">데이터 로드 실패</p>
-        <Button onClick={() => refetch()} className="mt-4">
-          다시 시도
-        </Button>
-      </div>
+      <Card>
+        <CardContent className="text-center py-8">
+          <p className="text-red-500 mb-4">데이터 로드 실패</p>
+          <Button onClick={() => refetch()}>
+            다시 시도
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">오늘의 30초</h2>
-          <p className="text-muted-foreground">승인된 채널의 일일 델타 요약</p>
+    <Card>
+      {/* Header with stats */}
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Youtube className="w-6 h-6" />
+          승인된 YouTube 채널 목록
+        </CardTitle>
+        <div className="text-sm text-muted-foreground">
+          총 {stats?.totalChannels || 0}개 채널 | 
+          승인: {stats?.approvedChannels || 0} | 
+          대기: {stats?.pendingChannels || 0} | 
+          거부: {stats?.rejectedChannels || 0}
         </div>
-        <Button variant="outline" onClick={() => refetch()}>
-          새로고침
-        </Button>
-      </div>
+      </CardHeader>
 
-      {/* 6블록 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* 1. 카테고리 점유율 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="w-5 h-5" />
-              카테고리 점유율
-            </CardTitle>
-            <CardDescription>승인 채널 카테고리 분포</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data?.categoryStats && data.categoryStats.length > 0 ? (
-              <div className="space-y-2">
-                {data.categoryStats.slice(0, 5).map((stat) => (
-                  <div key={stat.category} className="flex items-center justify-between">
-                    <span className="text-sm">{stat.category}</span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{stat.channelCount}개</Badge>
-                      <span className="text-xs text-gray-500">{formatPercent(stat.share)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-4">데이터 없음</div>
-            )}
-          </CardContent>
-        </Card>
+      <CardContent>
+        {/* Filters row */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          {/* Status filter */}
+          <Select value={filters.status || '전체'} onValueChange={(value) => handleFilterChange('status', value)}>
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="전체 상태" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="전체">전체 상태</SelectItem>
+              <SelectItem value="approved">승인</SelectItem>
+              <SelectItem value="pending">대기</SelectItem>
+              <SelectItem value="rejected">거부</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* 2. 급상승 키워드 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Hash className="w-5 h-5" />
-              급상승 키워드
-            </CardTitle>
-            <CardDescription>오늘의 핫 키워드</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data?.trendingKeywords && data.trendingKeywords.length > 0 ? (
-              <div className="space-y-2">
-                {data.trendingKeywords.slice(0, 5).map((kw, idx) => (
-                  <div key={kw.keyword} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
-                      <span className="text-sm font-medium">{kw.keyword}</span>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800">
-                      {formatPercent(kw.growth)}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-8">Phase 2 구현 예정</div>
-            )}
-          </CardContent>
-        </Card>
+          {/* Category filter */}
+          <Select value={filters.category || '전체'} onValueChange={(value) => handleFilterChange('category', value)}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="전체 카테고리" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="전체">전체 카테고리</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.categoryId} value={category.nameKo}>
+                  {category.nameKo}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* 3. 신흥 채널 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              신흥 채널
-            </CardTitle>
-            <CardDescription>최근 승인된 채널</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data?.newcomers && data.newcomers.length > 0 ? (
-              <div className="space-y-2">
-                {data.newcomers.slice(0, 3).map((ch) => (
-                  <div key={ch.channel_id} className="text-sm">
-                    <div className="font-medium truncate">{ch.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      구독 {formatNumberKo(ch.subscriber_count)} · {ch.category}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-4">신규 채널 없음</div>
-            )}
-          </CardContent>
-        </Card>
+          {/* Format filter */}
+          <Select value={filters.format || '전체'} onValueChange={(value) => handleFilterChange('format', value)}>
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="전체 형식" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="전체">전체 형식</SelectItem>
+              <SelectItem value="쇼츠">쇼츠</SelectItem>
+              <SelectItem value="롱폼">롱폼</SelectItem>
+              <SelectItem value="라이브">라이브</SelectItem>
+              <SelectItem value="혼합">혼합</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* 4. Top 쇼츠 (2칸 차지) */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Youtube className="w-5 h-5" />
-              Top 쇼츠 (어제 Δ 상위)
-            </CardTitle>
-            <CardDescription>전일 조회수 증가 상위 채널</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data?.topDeltas && data.topDeltas.length > 0 ? (
-              <div className="space-y-3">
-                {data.topDeltas.slice(0, 3).map((item, idx) => (
-                  <div key={item.channel_id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">{item.channel.title}</div>
-                        <div className="text-xs text-muted-foreground space-x-2">
-                          <span>구독 {formatNumberKo(item.channel.subscriber_count)}</span>
-                          <span>·</span>
-                          <span>총 {formatNumberKo(item.channel.view_count_total)}</span>
-                          <span>·</span>
-                          <span>{item.channel.category}</span>
-                          {item.channel.subcategory && (
-                            <>
-                              <span>·</span>
-                              <span>{item.channel.subcategory}</span>
-                            </>
-                          )}
-                          <span>·</span>
-                          <span>{item.channel.dominant_format}</span>
+          {/* Search input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="채널명/ID 검색"
+              value={filters.search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Table with data */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>채널명</TableHead>
+                <TableHead>구독자</TableHead>
+                <TableHead>조회수</TableHead>
+                <TableHead>카테고리</TableHead>
+                <TableHead>형식</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>추가일</TableHead>
+                <TableHead>작업</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {channels.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    채널이 없습니다
+                  </TableCell>
+                </TableRow>
+              ) : (
+                channels.map((channel) => (
+                  <TableRow key={channel.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {channel.thumbnailUrl && (
+                          <img
+                            src={channel.thumbnailUrl}
+                            alt={channel.title}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        )}
+                        <div>
+                          <div className="font-medium truncate max-w-48" title={channel.title}>
+                            {channel.title}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {channel.channelId}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800">
-                      {formatDelta(item.delta_views)}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-8">데이터 수집 중...</div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 5. 팔로우 채널 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FolderOpen className="w-5 h-5" />
-              팔로우 채널
-            </CardTitle>
-            <CardDescription>내 팔로우 채널 업데이트</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center text-muted-foreground py-8">Phase 2 구현 예정</div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+                    </TableCell>
+                    <TableCell>
+                      {channel.subscriberCount ? formatNumberKo(channel.subscriberCount) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {channel.viewCount ? formatNumberKo(channel.viewCount) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {channel.category && channel.subcategory 
+                          ? `${channel.category}>${channel.subcategory}`
+                          : channel.category || '-'
+                        }
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {channel.dominantFormat || '-'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(channel.status)}>
+                        {getStatusLabel(channel.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-muted-foreground">
+                        {formatDate(channel.createdAt)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm">
+                        상세보기
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

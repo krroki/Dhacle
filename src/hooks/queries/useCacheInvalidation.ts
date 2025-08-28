@@ -132,9 +132,9 @@ export function useCacheInvalidation() {
       });
     },
     
-    invalidateAdminChannels: (status?: string) => {
+    invalidateAdminChannels: (filters?: FilterParams) => {
       queryClient.invalidateQueries({ 
-        queryKey: queryKeys.admin.channels(status) 
+        queryKey: queryKeys.admin.channels(filters) 
       });
     },
     

@@ -9,6 +9,67 @@ interface PaginatedResponse<T> {
   page?: number;
 }
 
+// YouTube Lens Channel Management Types
+export interface ChannelFilters extends FilterParams {
+  status?: 'pending' | 'approved' | 'rejected';
+  category?: string;
+  format?: '쇼츠' | '롱폼' | '라이브' | '혼합';
+  search?: string;
+}
+
+export interface YouTubeChannel {
+  id: string;
+  channelId: string;
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  subscriberCount?: number;
+  videoCount?: number;
+  viewCount?: number;
+  status: 'pending' | 'approved' | 'rejected';
+  category?: string;
+  subcategory?: string;
+  dominantFormat?: string;
+  formatStats?: Record<string, unknown>;
+  language?: string;
+  country?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  approvalLogs?: ApprovalLog[];
+}
+
+export interface ApprovalLog {
+  id: string;
+  channelId: string;
+  action: string;
+  adminId: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ChannelStats {
+  totalChannels: number;
+  pendingChannels: number;
+  approvedChannels: number;
+  rejectedChannels: number;
+  channelsByCategory: Record<string, number>;
+  channelsByFormat: Record<string, number>;
+  recentApprovals: ApprovalLog[];
+}
+
+export interface YouTubeCategory {
+  categoryId: string;
+  nameKo: string;
+  nameEn: string;
+  parentCategory?: string;
+  icon?: string;
+  color?: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
 // 시스템 설정 타입 정의
 interface SystemSettings {
   siteName?: string;
@@ -136,21 +197,104 @@ export function useToggleUserSuspension() {
 }
 
 /**
- * YouTube Lens 채널 목록 쿼리 훅 (관리자용)
+ * YouTube Lens 채널 목록 쿼리 훅 (관리자용) - 향상된 필터링
  */
-export function useAdminYouTubeChannels(status?: 'pending' | 'approved' | 'rejected') {
-  return useQuery({
-    queryKey: queryKeys.admin.channels(status),
+export function useAdminYouTubeChannels(filters?: ChannelFilters) {
+  return useQuery<{ data: YouTubeChannel[] }>({
+    queryKey: queryKeys.admin.channels(filters),
     queryFn: () => {
-      const params = status ? `?status=${status}` : '';
-      return apiGet(`/api/youtube-lens/admin/channels${params}`);
+      const params = new URLSearchParams();
+      
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.category) params.append('category', filters.category);
+      if (filters?.format) params.append('format', filters.format);
+      if (filters?.search) params.append('q', filters.search);
+      
+      const queryString = params.toString();
+      return apiGet(`/api/youtube-lens/admin/channels${queryString ? `?${queryString}` : ''}`);
     },
     staleTime: 2 * 60 * 1000, // 2분
   });
 }
 
 /**
- * YouTube 채널 승인/거부 뮤테이션 훅
+ * 관리자 채널 통계 쿼리 훅
+ */
+export function useAdminChannelStats() {
+  return useQuery<{ data: ChannelStats }>({
+    queryKey: queryKeys.admin.channelStats(),
+    queryFn: () => apiGet('/api/youtube-lens/admin/channel-stats'),
+    staleTime: 5 * 60 * 1000, // 5분
+    refetchInterval: 5 * 60 * 1000, // 5분마다 자동 갱신
+  });
+}
+
+/**
+ * 새 YouTube 채널 추가 뮤테이션 훅
+ */
+export function useAddYouTubeChannel() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ channelId }: { channelId: string }) => 
+      apiPost('/api/youtube-lens/admin/channels', { channel_id: channelId }),
+    onSuccess: () => {
+      // 채널 목록 무효화 (모든 필터)
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.admin.channels() 
+      });
+      // 통계 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.admin.channelStats() 
+      });
+    },
+  });
+}
+
+/**
+ * 채널 상태 업데이트 뮤테이션 훅 (승인/거부)
+ */
+export function useUpdateChannelStatus() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ channelId, action, notes }: {
+      channelId: string;
+      action: 'approved' | 'rejected';
+      notes?: string;
+    }) => apiPut(`/api/youtube-lens/admin/channels/${channelId}`, { 
+      action, 
+      notes 
+    }),
+    onSuccess: () => {
+      // 채널 목록 무효화 (모든 필터)
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.admin.channels() 
+      });
+      // 통계 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.admin.channelStats() 
+      });
+    },
+  });
+}
+
+/**
+ * YouTube 카테고리 목록 쿼리 훅
+ */
+export function useChannelCategories() {
+  return useQuery<{ data: YouTubeCategory[] }>({
+    queryKey: queryKeys.admin.categories(),
+    queryFn: () => apiGet('/api/youtube-lens/categories'),
+    staleTime: 30 * 60 * 1000, // 30분 (카테고리는 자주 변경되지 않음)
+    gcTime: 30 * 60 * 1000, // 30분
+    retry: 3,
+  });
+}
+
+/**
+ * YouTube 채널 승인/거부 뮤테이션 훅 (레거시 - 호환성을 위해 유지)
+ * @deprecated useUpdateChannelStatus를 사용하세요
  */
 export function useApproveYouTubeChannel() {
   const queryClient = useQueryClient();
@@ -161,13 +305,17 @@ export function useApproveYouTubeChannel() {
       approved: boolean;
       reason?: string;
     }) => apiPut(`/api/youtube-lens/admin/channels/${channelId}`, { 
-      approved, 
-      reason 
+      action: approved ? 'approved' : 'rejected', 
+      notes: reason 
     }),
     onSuccess: () => {
       // 채널 목록 무효화 (모든 상태)
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.admin.channels() 
+      });
+      // 통계 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.admin.channelStats() 
       });
     },
   });

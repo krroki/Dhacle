@@ -58,8 +58,8 @@ export async function PATCH(
       .insert({
         channel_id: channelId,
         action,
-        admin_id: user.id,
-        notes
+        user_id: user.id,
+        details: notes ? { notes } : null
       });
 
     if (logError) throw logError;
@@ -111,8 +111,8 @@ export async function DELETE(
     await supabase.from('yl_approval_logs').insert({
       channel_id: channelId,
       action: 'delete',
-      admin_id: user.id,
-      notes: 'Channel deleted by admin',
+      user_id: user.id,
+      details: { notes: 'Channel deleted by admin' },
       created_at: new Date().toISOString(),
     });
 

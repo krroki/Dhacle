@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 // 키워드 트렌드 스키마
-const KeywordTrendSchema = z.object({
+const _KeywordTrendSchema = z.object({
   keyword: z.string(),
   frequency: z.number(),
   growth: z.number(), // 전일 대비 성장률
@@ -16,7 +16,7 @@ const KeywordTrendSchema = z.object({
   category: z.string().optional(),
 });
 
-export type KeywordTrend = z.infer<typeof KeywordTrendSchema>;
+export type KeywordTrend = z.infer<typeof _KeywordTrendSchema>;
 
 // 비디오 입력 스키마
 export interface VideoInput {

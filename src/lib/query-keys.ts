@@ -85,8 +85,10 @@ export const queryKeys = {
     user: (id: string) => ['admin', 'user', id] as const,
     stats: () => ['admin', 'stats'] as const,
     logs: (filters?: FilterParams) => ['admin', 'logs', filters] as const,
-    channels: (status?: string) => ['admin', 'channels', status] as const,
+    channels: (filters?: FilterParams) => ['admin', 'channels', filters] as const,
+    channelStats: () => ['admin', 'channel-stats'] as const,
     approvalLogs: (channelId: string) => ['admin', 'approval-logs', channelId] as const,
+    categories: () => ['admin', 'categories'] as const,
   },
 };
 

@@ -2857,11 +2857,17 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          category: string | null
           channel_id: string
+          country: string | null
           created_at: string | null
           description: string | null
+          dominant_format: string | null
+          format_stats: Json | null
           id: string
+          language: string | null
           status: string | null
+          subcategory: string | null
           subscriber_count: number | null
           thumbnail_url: string | null
           title: string
@@ -2872,11 +2878,17 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          category?: string | null
           channel_id: string
+          country?: string | null
           created_at?: string | null
           description?: string | null
+          dominant_format?: string | null
+          format_stats?: Json | null
           id?: string
+          language?: string | null
           status?: string | null
+          subcategory?: string | null
           subscriber_count?: number | null
           thumbnail_url?: string | null
           title: string
@@ -2887,11 +2899,17 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          category?: string | null
           channel_id?: string
+          country?: string | null
           created_at?: string | null
           description?: string | null
+          dominant_format?: string | null
+          format_stats?: Json | null
           id?: string
+          language?: string | null
           status?: string | null
+          subcategory?: string | null
           subscriber_count?: number | null
           thumbnail_url?: string | null
           title?: string

@@ -11,7 +11,7 @@ import { z } from 'zod';
 const DurationSchema = z.string().regex(/^PT(?:\d+H)?(?:\d+M)?(?:\d+S)?$/);
 
 // 비디오 데이터 스키마
-const VideoDataSchema = z.object({
+const _VideoDataSchema = z.object({
   id: z.string(),
   contentDetails: z.object({
     duration: DurationSchema,
@@ -44,7 +44,7 @@ const VideoDataSchema = z.object({
   }).optional(),
 });
 
-export type VideoData = z.infer<typeof VideoDataSchema>;
+export type VideoData = z.infer<typeof _VideoDataSchema>;
 
 export interface ShortsDetectionResult {
   isShorts: boolean;
