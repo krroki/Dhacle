@@ -172,11 +172,6 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
         if (response.status === 401) {
           logger.logAuth('unauthorized');
           
-          // 로그인 페이지로 리다이렉트 (브라우저 환경에서만)
-          if (typeof window !== 'undefined' && !skipAuth) {
-            window.location.href = '/auth/login?session=expired';
-          }
-          
           const error = new ApiError(
             getErrorMessage(401),
             401,
@@ -184,8 +179,43 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
             data
           );
           
+          // Smart redirect logic: only redirect when appropriate
+          if (typeof window !== 'undefined' && !skipAuth) {
+            const currentPath = window.location.pathname;
+            const isLoginPage = currentPath.startsWith('/auth/login');
+            const isPublicPage = currentPath === '/' || 
+                                 currentPath.startsWith('/courses/free') || 
+                                 currentPath.startsWith('/community') ||
+                                 currentPath.startsWith('/tools') ||
+                                 currentPath.startsWith('/privacy') ||
+                                 currentPath.startsWith('/terms');
+            
+            // Only redirect if:
+            // 1. Not already on login page
+            // 2. Not on a public page that should be accessible without auth
+            // 3. The API call was expected to require authentication
+            const shouldRedirect = !isLoginPage && !isPublicPage;
+            
+            if (shouldRedirect) {
+              window.location.href = `/auth/login?session=expired&redirect=${encodeURIComponent(currentPath)}`;
+            }
+          }
+          
+          // Only show error toast when appropriate (not for expected failures on public pages)
           if (showErrorToast && typeof window !== 'undefined') {
-            toast.error(error.message);
+            const currentPath = window.location.pathname;
+            const isPublicPage = currentPath === '/' || 
+                                 currentPath.startsWith('/auth/') ||
+                                 currentPath.startsWith('/courses/free') || 
+                                 currentPath.startsWith('/community') ||
+                                 currentPath.startsWith('/tools') ||
+                                 currentPath.startsWith('/privacy') ||
+                                 currentPath.startsWith('/terms');
+            
+            // Don't show error toast on public pages for expected auth failures
+            if (!isPublicPage) {
+              toast.error(error.message);
+            }
           }
           
           throw error;
@@ -582,7 +612,13 @@ export async function apiUpload<T = unknown>(
         logger.logAuth('unauthorized');
         
         if (typeof window !== 'undefined' && !skipAuth) {
-          window.location.href = '/auth/login?session=expired';
+          const currentPath = window.location.pathname;
+          const isLoginPage = currentPath.startsWith('/auth/login');
+          
+          // 로그인 페이지에서는 리다이렉트하지 않음 (무한 루프 방지)
+          if (!isLoginPage) {
+            window.location.href = '/auth/login?session=expired';
+          }
         }
         
         throw new ApiError(

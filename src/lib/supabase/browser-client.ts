@@ -31,12 +31,31 @@ export function createBrowserClient() {
           data: { subscription: { unsubscribe: () => {} } },
         }),
         signOut: async () => ({ error: null }),
+        signInWithOAuth: async (options: { provider: string; options?: { redirectTo?: string; scopes?: string } }) => {
+          console.error('CRITICAL: Supabase environment variables missing. OAuth login unavailable.');
+          return { 
+            data: { provider: options.provider, url: null }, 
+            error: { 
+              message: 'Supabase environment variables are not configured. Please contact support.',
+              __isAuthError: true,
+              status: 500
+            } 
+          };
+        },
+        getSession: async () => ({ data: { session: null }, error: null }),
+        exchangeCodeForSession: async () => ({ 
+          data: { session: null }, 
+          error: { message: 'Environment variables not configured' } 
+        }),
       },
       from: () => ({
         select: () => ({ data: [], error: null }),
         insert: () => ({ data: null, error: null }),
         update: () => ({ data: null, error: null }),
         delete: () => ({ data: null, error: null }),
+        single: () => ({ data: null, error: null }),
+        eq: function() { return this; },
+        upsert: () => ({ data: null, error: null }),
       }),
     } as unknown as ReturnType<typeof createSupabaseBrowserClientSSR<Database>>;
   }
