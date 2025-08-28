@@ -2,7 +2,6 @@
 name: type-agent
 description: TypeScript 타입 시스템 수호자. any 타입 절대 차단, @/types 중앙화.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST

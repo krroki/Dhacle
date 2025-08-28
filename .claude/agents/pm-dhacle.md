@@ -2,8 +2,6 @@
 name: pm-dhacle
 description: 디하클 프로젝트 총괄 매니저. 모든 서브에이전트 조정, 컨텍스트 허브 역할.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: opus
-priority: 0
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST

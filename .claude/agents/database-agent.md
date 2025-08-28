@@ -2,7 +2,6 @@
 name: database-agent
 description: Supabase DB 전문가. 테이블, RLS, 마이그레이션 관리.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST

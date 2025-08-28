@@ -6,7 +6,7 @@
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { requireAuth } from '@/lib/api-auth';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 import { cacheManager } from '@/lib/youtube/cache';
@@ -21,7 +21,8 @@ import {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       logger.warn('Unauthorized access attempt to YouTube Batch API');
       return NextResponse.json(
@@ -92,7 +93,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       logger.warn('Unauthorized access attempt to YouTube Batch API');
       return NextResponse.json(
@@ -168,7 +170,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       logger.warn('Unauthorized access attempt to YouTube Batch API');
       return NextResponse.json(
@@ -214,7 +217,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       logger.warn('Unauthorized access attempt to YouTube Batch API');
       return NextResponse.json(

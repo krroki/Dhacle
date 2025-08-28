@@ -93,7 +93,8 @@
       "Bash(bash:*)",
       "Bash(if ! grep -q \"Stop Triggers\\|중단 신호\\|🚫.*STOP\" \"$file\")",
       "mcp__playwright-stealth__playwright_expect_response",
-      "Bash(if ! grep -q \"tools:\" \"$file\")"
+      "Bash(if ! grep -q \"tools:\" \"$file\")",
+      "Bash(npx:*)"
     ],
     "deny": [],
     "ask": [],

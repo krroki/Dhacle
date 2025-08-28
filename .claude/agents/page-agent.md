@@ -2,7 +2,6 @@
 name: page-agent
 description: Next.js 페이지 전문가. App Router, Server Components, 라우팅.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST

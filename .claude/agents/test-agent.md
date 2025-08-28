@@ -2,7 +2,6 @@
 name: test-agent
 description: E2E 테스트 전문가. Playwright, Vitest, 런타임 에러 감지.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST

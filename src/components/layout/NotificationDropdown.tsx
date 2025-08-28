@@ -52,12 +52,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
   const router = useRouter();
   const { user } = useAuth();
   
-  // Don't render notifications dropdown if user is not authenticated
-  if (!user) {
-    return null;
-  }
-  
-  // React Query hooks for server state
+  // React Query hooks for server state - MUST be called before any conditional returns
   const { data, isLoading, error } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
@@ -75,6 +70,7 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
   const notifications = data?.notifications ?? [];
   const unreadCount = data?.unreadCount ?? 0;
   
+  // ALL useEffect hooks must be called before any conditional returns
   // Sync dropdown state with Zustand
   useEffect(() => {
     setDropdownOpen(isOpen);
@@ -93,6 +89,11 @@ export function NotificationDropdown({ isOpen, onOpenChange }: NotificationDropd
       playNotificationSound();
     }
   }, [unreadCount, soundEnabled, isOpen, playNotificationSound]);
+  
+  // Don't render notifications dropdown if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   const handleNotificationClick = (notification: Notification) => {
     // Optimistic update via React Query

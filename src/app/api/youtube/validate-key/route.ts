@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/api-auth';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { logger } from '@/lib/logger';
 import { validateYouTubeApiKey } from '@/lib/api-keys';
 import { env } from '@/env';
@@ -18,15 +18,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       logger.warn('Unauthorized access attempt to YouTube validate-key API');
       console.log('[validate-key] Authentication failed');
       return NextResponse.json(
-        {
-          success: false,
-          error: 'User not authenticated',
-        },
+        { error: 'User not authenticated' },
         { status: 401 }
       );
     }

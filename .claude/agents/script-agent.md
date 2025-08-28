@@ -2,7 +2,6 @@
 name: script-agent
 description: 스크립트 관리자. 검증 스크립트만, 자동 수정 금지.
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 ---
 
 🚨 CORE PRINCIPLE - READ THIS FIRST
