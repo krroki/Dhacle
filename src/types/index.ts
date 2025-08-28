@@ -1206,6 +1206,20 @@ export type PaginatedResponse<T> = {
   hasMore: boolean;
 };
 
+// Notification 타입
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'achievement';
+  isRead: boolean;
+  metadata?: Record<string, unknown>;
+  actionUrl?: string;
+  createdAt: Date | string;
+  readAt?: Date | string | null;
+}
+
 // ============= Re-export 변환 유틸리티 =============
 export {
   batchCamelToSnake,

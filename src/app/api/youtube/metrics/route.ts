@@ -36,8 +36,61 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const id = search_params.get('id');
     const period = search_params.get('period') || '7d';
 
+    // If no id is provided, return user's overall metrics
     if (!id) {
-      return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
+      // Get user's recent videos and calculate aggregate metrics
+      const supabase = await createSupabaseRouteHandlerClient();
+      
+      const { data: videos } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (!videos || videos.length === 0) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            type: 'overview',
+            metrics: {
+              totalVideos: 0,
+              totalViews: 0,
+              avgViews: 0,
+              avgEngagement: 0,
+              vph: 0,
+              viralScore: 0,
+              trends: [],
+              entities: [],
+            },
+            period,
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
+
+      // Calculate aggregate metrics
+      const aggregateMetrics = {
+        totalVideos: videos.length,
+        totalViews: videos.reduce((sum, v) => sum + (v.view_count || 0), 0),
+        avgViews: videos.length > 0 ? videos.reduce((sum, v) => sum + (v.view_count || 0), 0) / videos.length : 0,
+        avgEngagement: 0,
+        vph: 0,
+        viralScore: 0,
+        trends: [],
+        entities: [],
+      };
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          type: 'overview',
+          metrics: aggregateMetrics,
+          videos: videos.slice(0, 10), // Return top 10 videos
+          period,
+          timestamp: new Date().toISOString(),
+        },
+      });
     }
 
     if (type === 'video') {
