@@ -218,12 +218,12 @@ Direct tool 작업 시 항상 활성화: 모든 도구 사용 시
 - RLS 정책: 21개 테이블 SQL 작성 완료
 - Rate Limiting, Zod, XSS 방지: 구현 완료
 
-### 🤖 서브에이전트 시스템 (2025-08-28 활성화 준비 완료)
-- **12개 전문 에이전트**: pm-dhacle + 11개 전문 에이전트 구축
-- **자동 활성화**: API Route/Component/Type/Database/Security 등 파일 패턴 매칭
+### 🤖 서브에이전트 시스템 (2025-08-28 활성화)
+- **16개 전문 에이전트**: pm-dhacle + 15개 전문 에이전트 구축 완료
+- **자동 활성화**: Edit/Write/MultiEdit 시 파일 패턴 매칭으로 자동 활성화
 - **즉시 차단**: any 타입, 임시방편 코드, TODO 주석, 빈 함수
 - **품질 향상**: 반복 실수 40-50% → 5% 이하 목표
-- **활성화 방법**: `claude` 재시작 → 즉시 사용 가능
+- **Task 도구 사용 시 주의**: `analyzer`가 아닌 `general-purpose` 사용 (CONTEXT_BRIDGE.md #19 참조)
 
 ---
 

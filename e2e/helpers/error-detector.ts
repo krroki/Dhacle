@@ -20,6 +20,14 @@ export class ErrorDetector {
   }> = [];
 
   /**
+   * ErrorDetector 초기화 (명시적 초기화 메서드)
+   */
+  async initialize() {
+    this.errors = [];
+    this.currentAction = '';
+  }
+
+  /**
    * 페이지에 에러 감지 리스너 설정
    */
   async attachToPage(page: Page, testName: string) {
@@ -151,6 +159,24 @@ export class ErrorDetector {
       ).join('\n');
       
       throw new Error(`테스트 중 ${this.errors.length}개 에러 발생:\n${summary}`);
+    }
+  }
+
+  /**
+   * 에러 리포트 생성
+   */
+  async generateReport() {
+    if (this.errors.length > 0) {
+      console.log(`🚨 총 ${this.errors.length}개 에러 감지됨:`);
+      this.errors.forEach((error, index) => {
+        console.log(`\n[${index + 1}] ${error.type} 에러:`);
+        console.log(`  메시지: ${error.message}`);
+        console.log(`  URL: ${error.context.url}`);
+        console.log(`  시간: ${error.context.timestamp}`);
+        console.log(`  액션: ${error.context.action || 'N/A'}`);
+      });
+    } else {
+      console.log('✅ 에러 감지되지 않음');
     }
   }
 }

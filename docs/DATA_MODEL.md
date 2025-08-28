@@ -112,6 +112,7 @@ const data = handleUnknownResult(result);
 ### 데이터 모델
 - [👤 User/Profile](#-userprofile)
 - [🎬 YouTube Video](#-youtube-video)
+- [🆕 YouTube Lens Phase 2](#-youtube-lens-phase-2-2025-08-28-추가) - Shorts/키워드 분석 
 - [📚 Course](#-course)
 - [💰 Revenue Proof](#-revenue-proof)
 - [📝 Community Post](#-community-post)
@@ -490,6 +491,149 @@ const mapVideo = (data): Video => ({
 **변환 함수 상태**: 
 - ✅ snake_case → camelCase 변환 부분 구현
 - ⚠️ 타입 변환 함수 필요 (Number, Date)
+
+---
+
+## 🆕 YouTube Lens Phase 2 (2025-08-28 추가)
+
+**Phase 2 구현**: Shorts 자동 분석, 키워드 트렌드 시스템, 카테고리 통계, 팔로우 알림
+
+### 1. 비디오 메타데이터 (yl_videos)
+
+#### Supabase Schema
+```sql
+CREATE TABLE yl_videos (
+  video_id TEXT PRIMARY KEY,
+  channel_id TEXT REFERENCES yl_channels(channel_id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  duration_seconds INTEGER,
+  is_shorts BOOLEAN DEFAULT false,     -- 🆕 Shorts 자동 판별
+  published_at TIMESTAMPTZ,
+  view_count BIGINT DEFAULT 0,
+  like_count BIGINT DEFAULT 0,
+  comment_count BIGINT DEFAULT 0,
+  thumbnail_url TEXT,
+  tags TEXT[],
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+#### Frontend Type
+```typescript
+interface YlVideo {
+  videoId: string;
+  channelId: string;
+  title: string;
+  description: string;
+  durationSeconds: number;
+  isShorts: boolean;                   // 🆕 Shorts 판별 결과
+  publishedAt: Date;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  thumbnailUrl?: string;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### 2. 키워드 트렌드 (yl_keyword_trends)
+
+#### Supabase Schema
+```sql
+CREATE TABLE yl_keyword_trends (
+  keyword TEXT,
+  date DATE,
+  frequency INTEGER DEFAULT 1,
+  channels TEXT[],                     -- 사용 채널 목록
+  growth_rate NUMERIC(5,2),           -- 전일 대비 성장률
+  category TEXT,
+  PRIMARY KEY(keyword, date)
+);
+```
+
+#### Frontend Type
+```typescript
+interface KeywordTrend {
+  keyword: string;
+  date: string;                        // YYYY-MM-DD
+  frequency: number;
+  channels: string[];
+  growthRate: number;                  // 성장률 (%)
+  category?: string;
+}
+```
+
+### 3. 카테고리 통계 (yl_category_stats)
+
+#### Supabase Schema
+```sql
+CREATE TABLE yl_category_stats (
+  category TEXT,
+  subcategory TEXT,
+  date DATE,
+  channel_count INTEGER DEFAULT 0,
+  total_views BIGINT DEFAULT 0,
+  total_subscribers BIGINT DEFAULT 0,
+  avg_delta_views BIGINT DEFAULT 0,
+  top_channel_id TEXT,
+  PRIMARY KEY(category, subcategory, date)
+);
+```
+
+#### Frontend Type
+```typescript
+interface CategoryStats {
+  category: string;
+  subcategory: string;
+  date: string;
+  channelCount: number;
+  totalViews: number;
+  totalSubscribers: number;
+  avgDeltaViews: number;
+  topChannelId?: string;
+}
+```
+
+### 4. 팔로우 업데이트 (yl_follow_updates)
+
+#### Supabase Schema
+```sql
+CREATE TABLE yl_follow_updates (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  channel_id TEXT REFERENCES yl_channels(channel_id) ON DELETE CASCADE,
+  update_type TEXT CHECK (update_type IN ('new_video', 'milestone', 'trending')),
+  message TEXT,
+  metadata JSONB DEFAULT '{}',
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+#### Frontend Type
+```typescript
+interface FollowUpdate {
+  id: number;
+  userId: string;
+  channelId: string;
+  updateType: 'new_video' | 'milestone' | 'trending';
+  message: string;
+  metadata: Record<string, any>;
+  isRead: boolean;
+  createdAt: Date;
+}
+```
+
+### API 엔드포인트
+- `GET/POST /api/youtube-lens/keywords/trends` - 키워드 트렌드 조회/분석
+- **분석 라이브러리**: 
+  - `src/lib/youtube-lens/shorts-detector.ts` - Shorts 자동 판별
+  - `src/lib/youtube-lens/keyword-analyzer.ts` - 키워드 추출/트렌드 분석
+- **UI 컴포넌트**: `src/components/features/tools/youtube-lens/KeywordTrends.tsx`
 
 ---
 

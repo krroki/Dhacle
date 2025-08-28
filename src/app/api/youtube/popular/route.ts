@@ -23,9 +23,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Step 1: Authentication check (required!)
     const user = await requireAuth(request);
     if (!user) {
-      logger.warn('Unauthorized access attempt to YouTube Popular API');
+      logger.warn('YouTube Popular API 무단 접근 시도');
       return NextResponse.json(
-        { error: 'User not authenticated' },
+        { error: '사용자 인증이 필요합니다' },
         { status: 401 }
       );
     }
@@ -40,15 +40,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Validate parameters
     if (!['KR', 'US', 'JP', 'GB', 'FR', 'DE'].includes(region_code)) {
-      return NextResponse.json({ error: 'Invalid region code' }, { status: 400 });
+      return NextResponse.json({ error: '잘못된 지역 코드입니다' }, { status: 400 });
     }
 
     if (!['1d', '7d', '30d'].includes(period)) {
-      return NextResponse.json({ error: 'Invalid period. Use 1d, 7d, or 30d' }, { status: 400 });
+      return NextResponse.json({ error: '잘못된 기간입니다. 1d, 7d, 30d 중 선택하세요' }, { status: 400 });
     }
 
     if (limit < 1 || limit > 100) {
-      return NextResponse.json({ error: 'Limit must be between 1 and 100' }, { status: 400 });
+      return NextResponse.json({ error: '결과 수는 1에서 100 사이여야 합니다' }, { status: 400 });
     }
 
     // Check if user has API key
@@ -75,8 +75,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         // 401 should only be for authentication issues
         return NextResponse.json(
           {
-            error: 'YouTube API key not configured',
-            message: 'Please configure your YouTube API key in settings to use this feature',
+            error: 'YouTube API 키가 설정되지 않았습니다',
+            message: '이 기능을 사용하려면 설정에서 YouTube API 키를 구성해주세요',
             requiresApiKey: true,
             error_code: 'api_key_required',
             debug: {
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         );
       }
       // If env key exists, continue with the request
-      console.log('[Popular Shorts API] Using environment API key as fallback');
+      console.log('[Popular Shorts API] 환경변수 API 키를 대체 수단으로 사용');
     }
 
     // Fetch popular shorts (already includes metrics)
@@ -136,8 +136,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (error instanceof Error && error.message.includes('quota')) {
       return NextResponse.json(
         {
-          error: 'YouTube API quota exceeded',
-          message: 'Please try again later or use your own API key',
+          error: 'YouTube API 할당량 초과',
+          message: '나중에 다시 시도하거나 자체 API 키를 사용해주세요',
         },
         { status: 429 }
       );
@@ -163,9 +163,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Step 1: Authentication check (required!)
     const user = await requireAuth(request);
     if (!user) {
-      logger.warn('Unauthorized access attempt to YouTube Popular API');
+      logger.warn('YouTube Popular API 무단 접근 시도');
       return NextResponse.json(
-        { error: 'User not authenticated' },
+        { error: '사용자 인증이 필요합니다' },
         { status: 401 }
       );
     }
@@ -259,8 +259,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error: unknown) {
     return NextResponse.json(
       {
-        error: 'Failed to perform advanced search',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        error: '고급 검색 실행 실패',
+        message: error instanceof Error ? error.message : '알 수 없는 오류',
       },
       { status: 500 }
     );

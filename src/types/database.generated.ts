@@ -2781,6 +2781,39 @@ export type Database = {
         }
         Relationships: []
       }
+      yl_category_stats: {
+        Row: {
+          avg_delta_views: number | null
+          category: string
+          channel_count: number | null
+          date: string
+          subcategory: string
+          top_channel_id: string | null
+          total_subscribers: number | null
+          total_views: number | null
+        }
+        Insert: {
+          avg_delta_views?: number | null
+          category: string
+          channel_count?: number | null
+          date: string
+          subcategory: string
+          top_channel_id?: string | null
+          total_subscribers?: number | null
+          total_views?: number | null
+        }
+        Update: {
+          avg_delta_views?: number | null
+          category?: string
+          channel_count?: number | null
+          date?: string
+          subcategory?: string
+          top_channel_id?: string | null
+          total_subscribers?: number | null
+          total_views?: number | null
+        }
+        Relationships: []
+      }
       yl_channel_daily_delta: {
         Row: {
           channel_id: string
@@ -2867,6 +2900,133 @@ export type Database = {
           view_count?: number | null
         }
         Relationships: []
+      }
+      yl_follow_updates: {
+        Row: {
+          channel_id: string | null
+          created_at: string | null
+          id: number
+          is_read: boolean | null
+          message: string | null
+          metadata: Json | null
+          update_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          channel_id?: string | null
+          created_at?: string | null
+          id?: number
+          is_read?: boolean | null
+          message?: string | null
+          metadata?: Json | null
+          update_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          channel_id?: string | null
+          created_at?: string | null
+          id?: number
+          is_read?: boolean | null
+          message?: string | null
+          metadata?: Json | null
+          update_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "yl_follow_updates_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "yl_channels"
+            referencedColumns: ["channel_id"]
+          },
+        ]
+      }
+      yl_keyword_trends: {
+        Row: {
+          category: string | null
+          channels: string[] | null
+          date: string
+          frequency: number | null
+          growth_rate: number | null
+          keyword: string
+        }
+        Insert: {
+          category?: string | null
+          channels?: string[] | null
+          date: string
+          frequency?: number | null
+          growth_rate?: number | null
+          keyword: string
+        }
+        Update: {
+          category?: string | null
+          channels?: string[] | null
+          date?: string
+          frequency?: number | null
+          growth_rate?: number | null
+          keyword?: string
+        }
+        Relationships: []
+      }
+      yl_videos: {
+        Row: {
+          channel_id: string | null
+          comment_count: number | null
+          created_at: string | null
+          description: string | null
+          duration_seconds: number | null
+          is_shorts: boolean | null
+          like_count: number | null
+          published_at: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          video_id: string
+          view_count: number | null
+        }
+        Insert: {
+          channel_id?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          is_shorts?: boolean | null
+          like_count?: number | null
+          published_at?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          video_id: string
+          view_count?: number | null
+        }
+        Update: {
+          channel_id?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          is_shorts?: boolean | null
+          like_count?: number | null
+          published_at?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          video_id?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "yl_videos_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "yl_channels"
+            referencedColumns: ["channel_id"]
+          },
+        ]
       }
       youtube_analysis_cache: {
         Row: {

@@ -139,12 +139,15 @@ node scripts/type-suggester.js <파일>  # 타입 제안 도구 (Wave 3)
 2. `src/lib/api-client.ts` - 클라이언트 API 래퍼 + snake_case 변환 ⭐⭐⭐⭐⭐
 3. `src/env.ts` - 환경변수 타입 안전성 설정 🆕 2025-08-23 ⭐⭐⭐⭐⭐
 4. `src/lib/utils/case-converter.ts` - React 보호 변환 유틸리티 ⭐⭐⭐⭐⭐
-5. `src/components/ErrorBoundary.tsx` - 에러 바운더리 컴포넌트 🆕 2025-08-23 ⭐⭐⭐⭐
-6. `src/app/layout.tsx` - 루트 레이아웃 (ErrorBoundary 적용) ⭐⭐⭐⭐
-7. `next.config.ts` - Next.js 설정 (이미지 최적화) ⭐⭐⭐⭐
-8. `src/app/auth/callback/route.ts` - 인증 콜백
-9. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens
-10. `src/app/api/youtube/popular/route.ts` - 인기 Shorts API
+5. **🆕 `src/lib/youtube-lens/shorts-detector.ts`** - YouTube Shorts 자동 판별 라이브러리 (2025-08-28) ⭐⭐⭐⭐
+6. **🆕 `src/lib/youtube-lens/keyword-analyzer.ts`** - 키워드 트렌드 분석 라이브러리 (2025-08-28) ⭐⭐⭐⭐
+7. **🆕 `src/lib/youtube-lens/format-number-ko.ts`** - 한국어 숫자 포맷터 라이브러리 (2025-08-28) ⭐⭐⭐
+8. `src/components/ErrorBoundary.tsx` - 에러 바운더리 컴포넌트 🆕 2025-08-23 ⭐⭐⭐⭐
+9. `src/app/layout.tsx` - 루트 레이아웃 (ErrorBoundary 적용) ⭐⭐⭐⭐
+10. `next.config.ts` - Next.js 설정 (이미지 최적화) ⭐⭐⭐⭐
+11. `src/app/auth/callback/route.ts` - 인증 콜백
+12. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens (키워드 트렌드 탭 추가)
+13. **🆕 `src/app/api/youtube-lens/keywords/trends/route.ts`** - 키워드 트렌드 API (2025-08-28)
 
 ---
 
@@ -560,11 +563,15 @@ Build & Deploy:
 - `course_qna` - 강의 Q&A
 - `course_weeks` - 주차별 구성
 
-### YouTube Lens
+### YouTube Lens (2025-08-28 Phase 2 확장)
 - `videos` - YouTube 비디오 정보
 - `video_stats` - 비디오 통계 ✨ NEW
 - `collections` - 비디오 컬렉션
 - `source_folders` - 채널 폴더 관리
+- **🆕 `yl_videos`** - Phase 2 비디오 메타데이터 (Shorts 분석)
+- **🆕 `yl_keyword_trends`** - Phase 2 키워드 트렌드 분석
+- **🆕 `yl_category_stats`** - Phase 2 카테고리 통계
+- **🆕 `yl_follow_updates`** - Phase 2 팔로우 알림
 
 ### 수익 인증
 - `revenue_proofs` - 수익 인증 게시글

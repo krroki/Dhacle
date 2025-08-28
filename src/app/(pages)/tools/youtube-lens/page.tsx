@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Folder,
   FolderOpen,
+  Hash,
   Heart,
   History,
   Key,
@@ -29,6 +30,7 @@ import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
 import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
 import { DeltaDashboard } from '@/components/features/tools/youtube-lens/DeltaDashboard';
+import { KeywordTrends } from '@/components/features/tools/youtube-lens/KeywordTrends';
 import PopularShortsList from '@/components/features/tools/youtube-lens/PopularShortsList';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -314,7 +316,7 @@ function YouTubeLensContent() {
   const is_authenticated = has_api_key;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="w-full px-4 py-8">
       {/* 페이지 헤더 */}
       <div className="mb-8 bg-gradient-to-r from-yt-lens-primary/10 to-yt-lens-secondary/10 rounded-xl p-6">
         <div className="flex items-center justify-between">
@@ -385,7 +387,7 @@ function YouTubeLensContent() {
 
       {/* 메인 콘텐츠 */}
       <Tabs value={active_tab} onValueChange={set_active_tab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1">
+        <TabsList className="grid w-full grid-cols-9 bg-gradient-to-r from-yt-lens-primary/5 to-yt-lens-secondary/5 p-1 overflow-x-auto">
           <TabsTrigger
             value="dashboard"
             className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
@@ -399,6 +401,13 @@ function YouTubeLensContent() {
           >
             <TrendingUp className="mr-2 h-4 w-4" />
             인기 Shorts
+          </TabsTrigger>
+          <TabsTrigger
+            value="keywords"
+            className="data-[state=active]:bg-yt-lens-primary data-[state=active]:text-white"
+          >
+            <Hash className="mr-2 h-4 w-4" />
+            트렌드 키워드
           </TabsTrigger>
           <TabsTrigger
             value="folders"
@@ -452,6 +461,11 @@ function YouTubeLensContent() {
         {/* 인기 Shorts 탭 */}
         <TabsContent value="popular" className="space-y-4">
           <PopularShortsList />
+        </TabsContent>
+
+        {/* 트렌드 키워드 탭 */}
+        <TabsContent value="keywords" className="space-y-4">
+          <KeywordTrends />
         </TabsContent>
 
         {/* 채널 폴더 탭 */}

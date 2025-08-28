@@ -177,6 +177,8 @@ _업데이트: 2025-01-31 - DOCUMENT_GUIDE 지침 반영_
 | QuotaStatus       | onMount  | GET /api/youtube/metrics               | 할당량 표시        | -           | ✅   |
 | VideoAnalyzer     | onSubmit | POST /api/youtube/analysis             | 분석 결과 표시     | 로딩 상태   | ✅   |
 | API 키 검증       | onChange | POST /api/youtube/validate-key         | 검증 상태 표시     | 유효성 에러 | ✅   |
+| **🆕 KeywordTrends** | onMount  | **GET /api/youtube-lens/keywords/trends** | **트렌드 표시**    | **스켈레톤** | **✅** |
+| **키워드 분석**   | onClick  | **POST /api/youtube-lens/keywords/trends** | **분석 결과**     | **토스트**   | **✅** |
 
 ---
 

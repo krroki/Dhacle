@@ -167,18 +167,18 @@ export default function PopularShortsList({
   // Get tier name
   const get_tier_name = (score: number): string => {
     if (score >= 80) {
-      return 'Viral';
+      return '바이럴';
     }
     if (score >= 60) {
-      return 'Trending';
+      return '트렌딩';
     }
     if (score >= 40) {
-      return 'Growing';
+      return '성장중';
     }
     if (score >= 20) {
-      return 'Steady';
+      return '안정적';
     }
-    return 'Low';
+    return '낮음';
   };
 
   // Filter videos by tier
@@ -207,7 +207,7 @@ export default function PopularShortsList({
       ],
       ...filtered_videos.map((video) => [
         video.title,
-        video.channel?.title || '',
+        video.channel?.title || video.channel_id || '',
         video.stats?.view_count || 0,
         video.stats?.like_count || 0,
         video.stats?.comment_count || 0,
@@ -245,35 +245,35 @@ export default function PopularShortsList({
       {/* Controls */}
       <Card>
         <CardHeader>
-          <CardTitle>Popular YouTube Shorts</CardTitle>
-          <CardDescription>Discover trending short-form videos without keywords</CardDescription>
+          <CardTitle>인기 YouTube Shorts</CardTitle>
+          <CardDescription>키워드 없이 트렌드 중인 짧은 동영상을 발견하세요</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
             {/* Region selector */}
             <Select value={region} onValueChange={set_region}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select region" />
+                <SelectValue placeholder="지역 선택" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="KR">🇰🇷 Korea</SelectItem>
-                <SelectItem value="US">🇺🇸 United States</SelectItem>
-                <SelectItem value="JP">🇯🇵 Japan</SelectItem>
-                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                <SelectItem value="FR">🇫🇷 France</SelectItem>
-                <SelectItem value="DE">🇩🇪 Germany</SelectItem>
+                <SelectItem value="KR">🇰🇷 한국</SelectItem>
+                <SelectItem value="US">🇺🇸 미국</SelectItem>
+                <SelectItem value="JP">🇯🇵 일본</SelectItem>
+                <SelectItem value="GB">🇬🇧 영국</SelectItem>
+                <SelectItem value="FR">🇫🇷 프랑스</SelectItem>
+                <SelectItem value="DE">🇩🇪 독일</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Period selector */}
             <Select value={period} onValueChange={set_period}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select period" />
+                <SelectValue placeholder="기간 선택" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1d">Last 24 hours</SelectItem>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="1d">지난 24시간</SelectItem>
+                <SelectItem value="7d">지난 7일</SelectItem>
+                <SelectItem value="30d">지난 30일</SelectItem>
               </SelectContent>
             </Select>
 
@@ -281,7 +281,7 @@ export default function PopularShortsList({
             <div className="flex gap-2 ml-auto">
               <Button variant="outline" size="sm" onClick={fetch_popular_shorts} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                새로고침
               </Button>
               <Button
                 variant="outline"
@@ -290,7 +290,7 @@ export default function PopularShortsList({
                 disabled={filtered_videos.length === 0}
               >
                 <Download className="w-4 h-4 mr-2" />
-                Export CSV
+                CSV 내보내기
               </Button>
             </div>
           </div>
@@ -300,12 +300,12 @@ export default function PopularShortsList({
       {/* Performance Tiers */}
       <Tabs value={selected_tier} onValueChange={set_selected_tier}>
         <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="all">All ({videos.length})</TabsTrigger>
+          <TabsTrigger value="all">전체 ({videos.length})</TabsTrigger>
           <TabsTrigger value="viral">
-            Viral ({videos.filter((v) => (v.stats?.viralScore || 0) >= 80).length})
+            바이럴 ({videos.filter((v) => (v.stats?.viralScore || 0) >= 80).length})
           </TabsTrigger>
           <TabsTrigger value="trending">
-            Trending (
+            트렌딩 (
             {
               videos.filter((v) => {
                 const score = v.stats?.viralScore || 0;
@@ -315,7 +315,7 @@ export default function PopularShortsList({
             )
           </TabsTrigger>
           <TabsTrigger value="growing">
-            Growing (
+            성장중 (
             {
               videos.filter((v) => {
                 const score = v.stats?.viralScore || 0;
@@ -325,7 +325,7 @@ export default function PopularShortsList({
             )
           </TabsTrigger>
           <TabsTrigger value="steady">
-            Steady (
+            안정적 (
             {
               videos.filter((v) => {
                 const score = v.stats?.viralScore || 0;
@@ -335,7 +335,7 @@ export default function PopularShortsList({
             )
           </TabsTrigger>
           <TabsTrigger value="low">
-            Low ({videos.filter((v) => (v.stats?.viralScore || 0) < 20).length})
+            낮음 ({videos.filter((v) => (v.stats?.viralScore || 0) < 20).length})
           </TabsTrigger>
         </TabsList>
 
@@ -368,19 +368,25 @@ export default function PopularShortsList({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered_videos.map((video) => (
                 <Card
-                  key={video.id}
+                  key={video.video_id || video.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => onVideoSelect?.(video)}
                 >
                   <CardContent className="p-4">
                     {/* Thumbnail */}
                     <div className="relative mb-3 w-full h-40">
-                      <Image
-                        src={video.thumbnails?.medium?.url || '/placeholder.jpg'}
-                        alt={video.title}
-                        fill={true}
-                        className="object-cover rounded-lg"
-                      />
+                      {video.thumbnails?.medium?.url ? (
+                        <Image
+                          src={video.thumbnails.medium.url}
+                          alt={video.title}
+                          fill={true}
+                          className="object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                          <TrendingUp className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
                       <Badge
                         className={`absolute top-2 right-2 ${get_tier_color(video.stats?.viralScore || 0)} text-white`}
                       >
@@ -423,19 +429,19 @@ export default function PopularShortsList({
                       {video.stats && (
                         <div className="pt-2 border-t space-y-1">
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">VPH</span>
+                            <span className="text-muted-foreground">시간당 조회수</span>
                             <span className="font-medium">
                               {format_number(video.stats.viewsPerHour ?? 0)}
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Engagement</span>
+                            <span className="text-muted-foreground">참여율</span>
                             <span className="font-medium">
                               {video.stats.engagementRate?.toFixed(2)}%
                             </span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Viral Score</span>
+                            <span className="text-muted-foreground">바이럴 점수</span>
                             <span className="font-medium">
                               {video.stats.viralScore?.toFixed(0)}/100
                             </span>
@@ -452,11 +458,11 @@ export default function PopularShortsList({
                         className="flex-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');
+                          window.open(`https://youtube.com/watch?v=${video.video_id || video.id}`, '_blank');
                         }}
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
-                        Watch
+                        시청
                       </Button>
                       <Button
                         variant="outline"
@@ -469,7 +475,7 @@ export default function PopularShortsList({
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                videoId: video.id,
+                                videoId: video.video_id || video.id,
                                 type: 'favorites'
                               })
                             });
@@ -495,9 +501,9 @@ export default function PopularShortsList({
             <Card>
               <CardContent className="text-center py-12">
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No videos found</h3>
+                <h3 className="text-lg font-semibold mb-2">동영상을 찾을 수 없습니다</h3>
                 <p className="text-muted-foreground">
-                  Try adjusting your filters or refresh to fetch new data
+                  필터를 조정하거나 새로고침하여 새 데이터를 가져오세요
                 </p>
               </CardContent>
             </Card>

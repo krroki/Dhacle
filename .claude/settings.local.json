@@ -94,7 +94,13 @@
       "Bash(if ! grep -q \"Stop Triggers\\|중단 신호\\|🚫.*STOP\" \"$file\")",
       "mcp__playwright-stealth__playwright_expect_response",
       "Bash(if ! grep -q \"tools:\" \"$file\")",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Read(C:\\Users\\정영록\\.claude/**)",
+      "Read(C:\\Users\\정영록\\.claude/**)",
+      "Read(C:\\Users\\정영록\\.claude/**)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "mcp__playwright-stealth__playwright_get_visible_html"
     ],
     "deny": [],
     "ask": [],

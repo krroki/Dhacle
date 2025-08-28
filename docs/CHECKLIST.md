@@ -2,7 +2,7 @@
 
 _목적: 세션별/작업별 품질 검증 가이드_
 _핵심 질문: "지금 무엇을 확인해야 하나?"_
-_업데이트: 2025-08-25 - 검증 시스템 통합 Phase 5 완료 반영_
+_업데이트: 2025-08-28 - 서브에이전트 시스템 활성화 및 Task 도구 사용 가이드 추가_
 
 > **체크리스트 사용 원칙**:
 > - ✅ 실행 가능한 명령어 중심
@@ -77,15 +77,15 @@ npm run e2e:fast --dry-run 2>&1 | grep "smoke" # → Smoke 프로젝트 설정 �
 npm run e2e:ui --dry-run 2>&1 | grep "chromium" # → Chromium 전용 설정 확인
 echo "실행 시간 목표: 2-3분 (이전 5-8분에서 60% 단축)"
 
-# 10. 서브에이전트 시스템 체크 (2025-08-28 구축 완료) 🤖
-bash install-agents.sh | grep "✨ 설치 완료!" # → 설치 성공 메시지 확인
+# 10. 서브에이전트 시스템 체크 (2025-08-28 활성화) 🤖
 test -d .claude/agents && echo "✅ 에이전트 디렉토리 존재" || echo "❌ 에이전트 디렉토리 없음"
-ls .claude/agents/*.md 2>/dev/null | wc -l # → 12개 에이전트 파일 존재
+ls .claude/agents/*.md 2>/dev/null | wc -l # → 16개 에이전트 파일 존재
 test -f .claude/settings.json && echo "✅ 에이전트 설정 존재" || echo "❌ 설정 파일 없음"
 grep -c "enabled.*true" .claude/settings.json # → 1 이상 (활성화 상태)
-find .claude/agents -name "*.md" -exec grep -l "CORE PRINCIPLE" {} \; | wc -l # → 12개 (모든 에이전트)
-find .claude/agents -name "*.md" -exec grep -l "Stop Triggers" {} \; | wc -l # → 12개 (모든 에이전트)
-echo "Claude Code 재시작 후 자동 활성화: claude → API/Component/Type 작업 시 자동 매칭"
+find .claude/agents -name "*.md" -exec grep -l "CORE PRINCIPLE" {} \; | wc -l # → 16개 (모든 에이전트)
+find .claude/agents -name "*.md" -exec grep -l "Stop Triggers" {} \; | wc -l # → 16개 (모든 에이전트)
+echo "서브에이전트 자동 활성화: Edit/Write/MultiEdit 시 파일 패턴 매칭으로 자동 실행"
+echo "⚠️ Task 도구 사용 시: 'analyzer' 아님, 'general-purpose' 사용"
 ```
 
 #### 체크 항목

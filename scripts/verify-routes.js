@@ -34,7 +34,9 @@ const PUBLIC_ROUTES = [
   'debug/env-check',
   'webhook',
   'payment/confirm',  // 결제 확인은 외부 서비스 콜백
-  'payment/fail'      // 결제 실패는 외부 서비스 콜백
+  'payment/fail',     // 결제 실패는 외부 서비스 콜백
+  'auth/test-login',  // 개발 환경 테스트용 로그인
+  'analytics/vitals'  // Core Web Vitals 성능 모니터링 (모든 사용자)
 ];
 
 // 특수 권한이 필요한 라우트
@@ -103,7 +105,8 @@ class RouteProtectionChecker {
 
     // 공개 라우트가 아닌 경우 인증 체크
     if (!isPublic) {
-      const hasAuthCheck = /getUser\(\)/.test(content);
+      // requireAuth 또는 getUser() 패턴을 모두 인식
+      const hasAuthCheck = /getUser\(\)/.test(content) || /requireAuth\(/.test(content);
       const hasSessionCheck = /getSession\(\)/.test(content);
       const has401Response = /status:\s*401/.test(content);
 
