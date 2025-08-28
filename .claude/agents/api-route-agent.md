@@ -1,6 +1,6 @@
 ---
 name: api-route-agent
-description: Next.js App Router API 전문가. 인증, 타입 안전성, snake_case 변환.
+description: Next.js App Router API specialist for authentication, type safety, and snake_case conversion. Use PROACTIVELY for API endpoint creation, route handler implementation, authentication patterns, server-side data processing, and Supabase integration in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

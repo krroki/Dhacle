@@ -1,6 +1,6 @@
 ---
 name: query-agent
-description: React Query 전문가. 15개 구현된 훅 활용, 캐싱 전략.
+description: React Query specialist with 15 implemented hooks and caching strategies. Use PROACTIVELY for React Query hook development, data fetching optimization, cache management, API client integration, and query pattern implementation in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: type-agent
-description: TypeScript 타입 시스템 수호자. any 타입 절대 차단, @/types 중앙화.
+description: TypeScript type system guardian and any-type eliminator. Use PROACTIVELY for type definition creation, type safety enforcement, any type elimination, TypeScript error resolution, and @/types centralization in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: database-agent
-description: Supabase DB 전문가. 테이블, RLS, 마이그레이션 관리.
+description: Supabase database specialist for table management, RLS policies, and migration control. Use PROACTIVELY for database table creation, RLS policy implementation, migration management, Supabase integration, and data model design in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

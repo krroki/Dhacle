@@ -1,6 +1,6 @@
 ---
 name: test-agent
-description: E2E 테스트 전문가. Playwright, Vitest, 런타임 에러 감지.
+description: E2E testing specialist for Playwright, Vitest, and runtime error detection. Use PROACTIVELY for test development, end-to-end testing, runtime error monitoring, test automation, and quality assurance in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

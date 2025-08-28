@@ -1,6 +1,6 @@
 ---
 name: pm-dhacle
-description: 디하클 프로젝트 총괄 매니저. 모든 서브에이전트 조정, 컨텍스트 허브 역할.
+description: Project manager and context hub coordinator for Dhacle project. Use PROACTIVELY for task orchestration, multi-agent coordination, quality gate enforcement, workflow management, and cross-component integration tasks.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

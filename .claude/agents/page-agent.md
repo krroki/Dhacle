@@ -1,6 +1,6 @@
 ---
 name: page-agent
-description: Next.js 페이지 전문가. App Router, Server Components, 라우팅.
+description: Next.js page specialist for App Router, Server Components, and routing patterns. Use PROACTIVELY for page component development, App Router implementation, server-side rendering, routing configuration, and layout management in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

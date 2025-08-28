@@ -1,6 +1,6 @@
 ---
 name: component-agent
-description: React/Next.js 컴포넌트 전문가. shadcn/ui 우선, Server Component 기본.
+description: React/Next.js component specialist with shadcn/ui focus and Server Component priority. Use PROACTIVELY for UI component creation, React component development, responsive design implementation, component architecture, and shadcn/ui integration in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

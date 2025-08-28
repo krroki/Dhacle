@@ -1,6 +1,6 @@
 ---
 name: lib-agent
-description: 라이브러리 관리자. 유틸리티, API 클라이언트, 환경변수.
+description: Library manager for utilities, API client, and environment variables. Use PROACTIVELY for utility function development, API client management, environment variable configuration, helper function creation, and library integration in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

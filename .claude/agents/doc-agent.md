@@ -1,6 +1,6 @@
 ---
 name: doc-agent
-description: 문서 관리자. 14개 핵심 문서 체계 유지, 중복 방지.
+description: Documentation manager for 14 core document system maintenance and duplication prevention. Use PROACTIVELY for documentation creation, document system maintenance, content organization, documentation updates, and knowledge management in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

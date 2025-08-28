@@ -1,6 +1,6 @@
 ---
 name: script-agent
-description: 스크립트 관리자. 검증 스크립트만, 자동 수정 금지.
+description: Script manager for verification scripts only, with automatic modification prevention. Use PROACTIVELY for script development, verification script creation, validation automation, quality checking, and script maintenance while prohibiting auto-fix scripts in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

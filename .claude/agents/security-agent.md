@@ -1,6 +1,6 @@
 ---
 name: security-agent
-description: 보안 수호자. RLS, 인증, XSS, 환경변수 관리.
+description: Security guardian specialist for RLS, authentication, and vulnerability prevention. Use PROACTIVELY for RLS policy implementation, authentication security, XSS prevention, environment variable management, and security audit enforcement in Dhacle project.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

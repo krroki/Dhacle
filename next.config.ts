@@ -52,7 +52,6 @@ const nextConfig: NextConfig = {
     // SVG 최적화 허용 (Dicebear 아바타용)
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 }
 
