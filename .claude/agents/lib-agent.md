@@ -1,6 +1,6 @@
 ---
 name: lib-agent
-description: Library manager for utilities, API client, and environment variables. Use PROACTIVELY for utility function development, API client management, environment variable configuration, helper function creation, and library integration in Dhacle project.
+description: Library manager for utilities, API client, and environment variables. Use PROACTIVELY for utility function development, API client management, environment variable configuration, helper function creation, and library integration in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving src/lib/** files. IMMEDIATELY enforce env.ts usage, standardize api-client patterns, ensure utils.ts consistency, and apply Supabase client patterns.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

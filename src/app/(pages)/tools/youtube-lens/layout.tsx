@@ -3,7 +3,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
-import { env } from '@/env';
 
 export default function YouTubeLensLayout({ children }: { children: React.ReactNode }) {
   const [query_client] = useState(
@@ -20,10 +19,13 @@ export default function YouTubeLensLayout({ children }: { children: React.ReactN
       })
   );
 
+  // Client-safe environment check
+  const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
   return (
     <QueryClientProvider client={query_client}>
       {children}
-      {env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
+      {isDevelopment && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

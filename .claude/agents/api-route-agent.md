@@ -1,6 +1,6 @@
 ---
 name: api-route-agent
-description: Next.js App Router API specialist for authentication, type safety, and snake_case conversion. Use PROACTIVELY for API endpoint creation, route handler implementation, authentication patterns, server-side data processing, and Supabase integration in Dhacle project.
+description: Next.js App Router API specialist for authentication, type safety, and snake_case conversion. Use PROACTIVELY for API endpoint creation, route handler implementation, authentication patterns, server-side data processing, and Supabase integration in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving src/app/api/** files. IMMEDIATELY enforce authentication patterns, prevent any type usage, and apply project-specific Supabase integration standards.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

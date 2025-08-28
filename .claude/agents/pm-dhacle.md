@@ -1,6 +1,6 @@
 ---
 name: pm-dhacle
-description: Project manager and context hub coordinator for Dhacle project. Use PROACTIVELY for task orchestration, multi-agent coordination, quality gate enforcement, workflow management, and cross-component integration tasks.
+description: Project manager and context hub coordinator for Dhacle project. Use PROACTIVELY for task orchestration, multi-agent coordination, quality gate enforcement, workflow management, and cross-component integration tasks. AUTOMATICALLY ACTIVATE on ALL Edit, Write, MultiEdit operations across the entire project. IMMEDIATELY coordinate 11 specialized agents, enforce quality gates, prevent temporary workarounds, and ensure API→Type→Component→Test workflow sequence.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

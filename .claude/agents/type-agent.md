@@ -1,6 +1,6 @@
 ---
 name: type-agent
-description: TypeScript type system guardian and any-type eliminator. Use PROACTIVELY for type definition creation, type safety enforcement, any type elimination, TypeScript error resolution, and @/types centralization in Dhacle project.
+description: TypeScript type system guardian and any-type eliminator. Use PROACTIVELY for type definition creation, type safety enforcement, any type elimination, TypeScript error resolution, and @/types centralization in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving *.ts, *.tsx files. IMMEDIATELY eliminate any types, enforce @/types imports, prevent database.generated direct imports, and ensure biome compliance.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

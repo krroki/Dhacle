@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { requireAuth } from '@/lib/api-auth';
 
 interface DashboardData {
   user: {
@@ -19,17 +20,15 @@ interface DashboardData {
 
 type ApiResponse = { data: DashboardData } | { error: string };
 
-export async function GET(): Promise<NextResponse<ApiResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const supabase = await createSupabaseRouteHandlerClient();
-
     // 인증 체크 (필수)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await requireAuth(request);
     if (!user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
+
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 사용자 프로필 정보 조회
     const { data: profile, error: profileError } = await supabase

@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '@/env';
-import { requireAuth } from '@/lib/api-auth';
-import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 
 // Vitals 데이터 스키마
@@ -18,16 +16,8 @@ interface VitalsData {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Step 1: Authentication check (required!)
-    const user = await requireAuth(request);
-    if (!user) {
-      logger.warn('Unauthorized access attempt to analytics vitals API');
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
-    }
-
+    // Vitals collection should work for all users (authenticated or not)
+    // for performance monitoring purposes
     const data: VitalsData = await request.json();
     
     // 개발 환경에서는 로그만 남기고 반환

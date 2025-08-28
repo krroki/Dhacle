@@ -1,6 +1,6 @@
 ---
 name: doc-agent
-description: Documentation manager for 14 core document system maintenance and duplication prevention. Use PROACTIVELY for documentation creation, document system maintenance, content organization, documentation updates, and knowledge management in Dhacle project.
+description: Documentation manager for 14 core document system maintenance and duplication prevention. Use PROACTIVELY for documentation creation, document system maintenance, content organization, documentation updates, and knowledge management in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving docs/**, *.md files. IMMEDIATELY maintain 14-document structure, update CONTEXT_BRIDGE.md patterns, prevent content duplication, and ensure latest 7-change retention.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

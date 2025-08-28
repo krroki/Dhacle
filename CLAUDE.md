@@ -41,6 +41,110 @@
 
 ---
 
+## 🤖 Active Agents (Direct Tool Integration)
+
+**⚡ CRITICAL: 모든 Edit, Write, MultiEdit 작업 시 해당 전문 서브에이전트의 품질 기준을 즉시 적용하세요.**
+
+**🛑 MANDATORY WORKFLOW:**
+1. **컴포넌트 파일** (src/components/**) → shadcn/ui 우선, any 타입 차단, Server Component 기본
+2. **API 파일** (src/app/api/**) → 인증 검사 필수, snake_case 변환, Supabase 패턴
+3. **타입 파일** (*.ts, *.tsx) → any 타입 즉시 제거, @/types 중앙화
+4. **보안 관련** (auth, security) → RLS 정책, env.ts 사용, XSS 방지
+5. **데이터베이스** (SQL, migration) → RLS 필수, 타입 생성, 검증 실행
+6. **React Query** (src/hooks/**) → 15개 훅 패턴, api-client 강제
+7. **페이지** (src/app/(pages)**) → Server Component, force-dynamic
+8. **라이브러리** (src/lib/**) → env.ts, api-client, utils 패턴
+9. **테스트** (e2e/, *.test.ts) → 런타임 에러 감지, 80% 커버리지
+10. **스크립트** (scripts/**) → verify-*.js만 허용, fix-*.js 금지
+11. **문서** (docs/, *.md) → 14개 체계, CONTEXT_BRIDGE.md 우선
+12. **모든 작업** → Quality Gates, 임시방편 금지, 검증 필수
+
+### API Route Agent
+Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (src/app/api/**)
+- **인증 패턴**: 모든 API Route에 세션 검사 강제 실행
+- **타입 안전성**: any 타입 즉시 차단 및 수정
+- **snake_case 변환**: DB 경계에서 자동 변환 적용
+- **Supabase 통합**: 프로젝트 표준 패턴 강제 준수
+
+### Component Agent  
+Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (src/components/**)
+- **shadcn/ui 우선**: 기존 컴포넌트 확인 후 사용 강제
+- **Server Component 기본**: 'use client' 최소화
+- **Tailwind CSS**: styled-components 등 대체 스타일링 차단
+- **프로젝트 패턴**: 기존 컴포넌트 일관성 유지
+
+### Type Agent
+Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (*.ts, *.tsx)
+- **any 타입 절대 차단**: 발견 즉시 수정 또는 작업 중단
+- **@/types 중앙화**: database.generated 직접 import 금지
+- **타입 생성**: DB 변경 시 자동 타입 업데이트 실행
+- **biome 규칙**: TypeScript strict 모드 강제 준수
+
+### Security Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (security, auth 관련)
+- **RLS 정책**: 새 테이블 생성 시 즉시 RLS 정책 생성
+- **환경변수**: process.env 직접 접근 차단, env.ts 사용 강제
+- **XSS 방지**: innerHTML 직접 사용 차단, DOMPurify 강제
+- **Wave 보안**: 0-3 Wave 보안 기준 자동 적용
+
+### Database Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (migration, SQL 파일)
+- **RLS 필수**: 테이블 생성과 동시에 RLS 정책 적용
+- **타입 생성**: SQL 변경 후 자동으로 npm run types:generate 실행
+- **검증**: 모든 DB 변경 후 verify-with-service-role.js 실행
+- **22개 테이블**: 기존 테이블과 일관성 유지
+
+### Query Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (src/hooks/**)
+- **React Query 패턴**: 15개 구현된 훅 패턴 준수
+- **api-client.ts**: 직접 fetch 차단, api-client 함수만 허용
+- **캐싱 전략**: 적절한 staleTime, gcTime 설정 강제
+- **타입 안전성**: useQuery, useMutation 타입 파라미터 필수
+
+### Test Agent  
+Direct tool 작업 시 자동 활성화: Edit, Write (테스트 파일)
+- **런타임 에러 감지**: global-setup.ts 패턴 적용
+- **E2E 자동화**: Playwright 설정 최적화
+- **80% 커버리지**: 핵심 기능 테스트 강제 적용
+- **자동 아카이브**: 임시 테스트 파일 자동 정리
+
+### Page Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (src/app/(pages)/**)
+- **Server Component**: 기본값으로 강제 적용
+- **force-dynamic**: 환경변수 사용 시 자동 추가
+- **App Router**: Next.js 13+ 패턴 강제 준수
+- **라우팅**: 프로젝트 라우팅 구조 일관성 유지
+
+### Library Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (src/lib/**)
+- **env.ts**: 환경변수 타입 안전 접근 강제
+- **api-client.ts**: 내부 API 호출 표준화
+- **utils.ts**: cn() 등 유틸리티 함수 일관성
+- **Supabase**: 프로젝트 클라이언트 패턴 준수
+
+### Script Agent
+Direct tool 작업 시 자동 활성화: Edit, Write (scripts/**)
+- **검증만 허용**: verify-*.js만 생성 허용
+- **자동 수정 금지**: fix-*.js 생성 시 즉시 차단
+- **SQL 실행**: supabase-sql-executor.js 패턴 준수
+- **38개 스크립트 교훈**: 2025년 1월 에러 지옥 방지
+
+### Documentation Agent  
+Direct tool 작업 시 자동 활성화: Edit, Write (docs/**, *.md)
+- **14개 문서 체계**: 기존 문서 구조 유지
+- **CONTEXT_BRIDGE.md**: 반복 실수 패턴 업데이트
+- **중복 방지**: 문서 간 내용 중복 차단
+- **최신 정보**: 최신 7개 변경사항만 유지
+
+### PM Dhacle (Total Coordinator)
+Direct tool 작업 시 항상 활성화: 모든 도구 사용 시
+- **Quality Gates**: 모든 작업 후 검증 스크립트 실행 강제
+- **컨텍스트 관리**: 11개 전문 에이전트 조정
+- **작업 흐름**: API → Type → Component → Test 순서 강제
+- **에러 제로**: 임시방편 코드 발견 시 즉시 작업 중단
+
+---
+
 ## 📁 폴더별 상세 지침 맵
 
 **작업 위치에 따라 해당 폴더의 CLAUDE.md를 우선 확인하세요.**

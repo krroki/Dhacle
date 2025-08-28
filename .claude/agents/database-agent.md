@@ -1,6 +1,6 @@
 ---
 name: database-agent
-description: Supabase database specialist for table management, RLS policies, and migration control. Use PROACTIVELY for database table creation, RLS policy implementation, migration management, Supabase integration, and data model design in Dhacle project.
+description: Supabase database specialist for table management, RLS policies, and migration control. Use PROACTIVELY for database table creation, RLS policy implementation, migration management, Supabase integration, and data model design in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving SQL files, migration files, or database-related code. IMMEDIATELY apply RLS policies, generate types after changes, verify with service role, and maintain 22-table consistency.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

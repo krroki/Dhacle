@@ -43,7 +43,7 @@ export function WebVitals() {
         });
       }
       
-      // 개발 환경에서 콘솔 출력
+      // 개발 환경에서 상세 콘솔 출력
       if (process.env.NODE_ENV === 'development') {
         logger.debug(`Web Vitals: ${metric.name}`, {
           operation: 'web-vitals',

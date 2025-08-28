@@ -1,6 +1,6 @@
 ---
 name: component-agent
-description: React/Next.js component specialist with shadcn/ui focus and Server Component priority. Use PROACTIVELY for UI component creation, React component development, responsive design implementation, component architecture, and shadcn/ui integration in Dhacle project.
+description: React/Next.js component specialist with shadcn/ui focus and Server Component priority. Use PROACTIVELY for UI component creation, React component development, responsive design implementation, component architecture, and shadcn/ui integration in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving src/components/** files. IMMEDIATELY enforce shadcn/ui usage, prevent any type, ensure Server Component default, and maintain project component patterns.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

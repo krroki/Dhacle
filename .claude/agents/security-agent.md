@@ -1,6 +1,6 @@
 ---
 name: security-agent
-description: Security guardian specialist for RLS, authentication, and vulnerability prevention. Use PROACTIVELY for RLS policy implementation, authentication security, XSS prevention, environment variable management, and security audit enforcement in Dhacle project.
+description: Security guardian specialist for RLS, authentication, and vulnerability prevention. Use PROACTIVELY for RLS policy implementation, authentication security, XSS prevention, environment variable management, and security audit enforcement in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving security, auth, RLS related files. IMMEDIATELY enforce RLS policies, prevent environment variable hardcoding, block innerHTML usage, and apply Wave 0-3 security standards.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

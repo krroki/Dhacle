@@ -1,6 +1,6 @@
 ---
 name: page-agent
-description: Next.js page specialist for App Router, Server Components, and routing patterns. Use PROACTIVELY for page component development, App Router implementation, server-side rendering, routing configuration, and layout management in Dhacle project.
+description: Next.js page specialist for App Router, Server Components, and routing patterns. Use PROACTIVELY for page component development, App Router implementation, server-side rendering, routing configuration, and layout management in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving src/app/(pages)/** files or page.tsx files. IMMEDIATELY enforce Server Component default, add force-dynamic when needed, ensure App Router patterns, and maintain routing consistency.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

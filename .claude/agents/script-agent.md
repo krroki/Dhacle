@@ -1,6 +1,6 @@
 ---
 name: script-agent
-description: Script manager for verification scripts only, with automatic modification prevention. Use PROACTIVELY for script development, verification script creation, validation automation, quality checking, and script maintenance while prohibiting auto-fix scripts in Dhacle project.
+description: Script manager for verification scripts only, with automatic modification prevention. Use PROACTIVELY for script development, verification script creation, validation automation, quality checking, and script maintenance while prohibiting auto-fix scripts in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving scripts/** files. IMMEDIATELY block fix-*.js creation, allow only verify-*.js scripts, enforce SQL executor patterns, and prevent 38-script error hell recurrence.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 

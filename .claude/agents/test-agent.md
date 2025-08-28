@@ -1,6 +1,6 @@
 ---
 name: test-agent
-description: E2E testing specialist for Playwright, Vitest, and runtime error detection. Use PROACTIVELY for test development, end-to-end testing, runtime error monitoring, test automation, and quality assurance in Dhacle project.
+description: E2E testing specialist for Playwright, Vitest, and runtime error detection. Use PROACTIVELY for test development, end-to-end testing, runtime error monitoring, test automation, and quality assurance in Dhacle project. AUTOMATICALLY ACTIVATE on Edit, Write, MultiEdit operations involving test files, e2e/**, *.spec.ts, *.test.ts files. IMMEDIATELY apply global-setup patterns, ensure runtime error detection, maintain 80% coverage, and implement automatic test archiving.
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
