@@ -1,15 +1,4 @@
 {
-  "cookies": [
-    {
-      "name": "__next_hmr_refresh_hash__",
-      "value": "c2f5fbd9574fe8f61c1425cfc39298236c9f8ab107127ac1",
-      "domain": "localhost",
-      "path": "/",
-      "expires": -1,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    }
-  ],
+  "cookies": [],
   "origins": []
 }

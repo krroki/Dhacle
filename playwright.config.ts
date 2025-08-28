@@ -167,6 +167,27 @@ export default defineConfig({
       // setup 의존성 없이 자체적으로 OAuth 수행
       dependencies: [],
     },
+
+    // 🖥️ UI 테스트 (localhost:3001, headless: false)
+    {
+      name: 'ui-test',
+      testMatch: /.*\/youtube-lens-ui-test\.spec\.ts/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        // UI 테스트 전용 설정
+        baseURL: 'http://localhost:3001',
+        headless: false, // 브라우저를 실제로 보여줌
+        ignoreHTTPSErrors: true,
+        acceptDownloads: true,
+        // 넉넉한 타임아웃 (UI 확인 시간 포함)
+        actionTimeout: 30 * 1000,
+        navigationTimeout: 35 * 1000,
+        // 느린 동작으로 UI 확인 가능
+        slowMo: 1000, // 1초씩 느리게 실행
+      },
+      // setup 의존성 없이 자체적으로 OAuth 수행
+      dependencies: [],
+    },
   ],
 
   /* 최적화된 서버 설정 */

@@ -125,8 +125,8 @@ export function Sidebar() {
 
   const sidebar_items = get_sidebar_items();
 
-  // Don't show sidebar on mypage (has its own sidebar) or if no matching data
-  if (pathname.startsWith('/mypage') || !sidebar_items) {
+  // Don't show sidebar on mypage (has its own sidebar), youtube-lens, or if no matching data
+  if (pathname.startsWith('/mypage') || pathname.startsWith('/tools/youtube-lens') || !sidebar_items) {
     return null;
   }
 

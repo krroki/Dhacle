@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
+import { apiGet, apiPost, apiPut, apiDelete, ApiError } from '@/lib/api-client';
 import { queryKeys } from '@/lib/query-keys';
 import type { FilterParams } from '@/types';
 
@@ -96,6 +96,13 @@ export function useAdminStats() {
     queryFn: () => apiGet('/api/admin/stats'),
     staleTime: 5 * 60 * 1000, // 5분
     refetchInterval: 5 * 60 * 1000, // 5분마다 자동 갱신
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -133,6 +140,13 @@ export function useAdminUsers(filters?: AdminUserFilters) {
       return pages.length;
     },
     staleTime: 2 * 60 * 1000, // 2분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -145,6 +159,13 @@ export function useAdminUser(userId: string) {
     queryFn: () => apiGet(`/api/admin/users/${userId}`),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -214,6 +235,13 @@ export function useAdminYouTubeChannels(filters?: ChannelFilters) {
       return apiGet(`/api/youtube-lens/admin/channels${queryString ? `?${queryString}` : ''}`);
     },
     staleTime: 2 * 60 * 1000, // 2분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -226,6 +254,13 @@ export function useAdminChannelStats() {
     queryFn: () => apiGet('/api/youtube-lens/admin/channel-stats'),
     staleTime: 5 * 60 * 1000, // 5분
     refetchInterval: 5 * 60 * 1000, // 5분마다 자동 갱신
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -330,6 +365,13 @@ export function useAdminApprovalLogs(channelId: string) {
     queryFn: () => apiGet(`/api/youtube-lens/admin/approval-logs/${channelId}`),
     enabled: !!channelId,
     staleTime: 10 * 60 * 1000, // 10분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -369,6 +411,13 @@ export function useAdminLogs(filters?: AdminLogFilters) {
       return pages.length;
     },
     staleTime: 1 * 60 * 1000, // 1분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 
@@ -402,6 +451,13 @@ export function useSystemSettings() {
     queryKey: ['admin', 'settings'],
     queryFn: () => apiGet('/api/admin/settings'),
     staleTime: 10 * 60 * 1000, // 10분
+    retry: (failureCount, error) => {
+      // Don't retry authentication or permission errors
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 }
 

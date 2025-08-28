@@ -17,26 +17,16 @@ const footer_links = {
   service: [
     { label: '서비스 약관', href: '/terms' },
     { label: '개인정보 처리방침', href: '/privacy' },
-    { label: '자주 묻는 질문', href: '/faq' },
-    { label: '고객센터', href: '/support' },
   ],
   education: [
     { label: '전체 강의', href: '/courses' },
     { label: '무료 강의', href: '/courses/free' },
     { label: '신규 강의', href: '/courses/new' },
-    { label: '로드맵', href: '/roadmap' },
   ],
   community: [
-    { label: '공지사항', href: '/community/notice' },
     { label: 'Q&A', href: '/community/qna' },
-    { label: '작품 공유', href: '/community/showcase' },
     { label: '스터디 모집', href: '/community/study' },
-  ],
-  company: [
-    { label: '회사 소개', href: '/about' },
-    { label: '채용 정보', href: '/careers' },
-    { label: '제휴 문의', href: '/partnership' },
-    { label: '광고 문의', href: '/advertising' },
+    { label: '성공 사례', href: '/community/success' },
   ],
 };
 
@@ -89,7 +79,7 @@ export function Footer() {
     <footer className="bg-muted/50 border-t mt-auto">
       <div className="container-responsive py-12">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="mb-4">

@@ -56,8 +56,9 @@ _최종 수정: 2025-01-31 - DOCUMENT_GUIDE 지침 반영_
 ### 자주 사용하는 명령어
 
 ```bash
-# 🚨 빌드 오류 시 긴급 명령어 (2025-08-24 업데이트)
+# 🚨 빌드 오류 시 긴급 명령어 (2025-08-28 업데이트)
 npm run verify:parallel          # 병렬 검증 (60% 빠름) 🔥
+npm run verify:redis            # Redis 연결 상태 검증 ⚡ NEW
 npm run verify:critical         # 핵심 검증 (API + Routes + Types)
 npm run verify:quick            # 빠른 검증 (API + Types)
 npm run types:generate          # DB에서 타입 재생성
@@ -520,6 +521,12 @@ API:
 Storage:
   - Files: Supabase Storage
   - Images: Next.js Image Optimization
+
+Caching & Performance:
+  - Redis: ioredis 5.7.0 (2-level caching system) ⚡ NEW
+  - Memory Cache: LRU Cache (50MB limit)
+  - Cache Strategy: Memory → Redis → API fallback
+  - Performance: 12x speed improvement (1.2s → 0.1s)
 
 Security:
   - Encryption: AES-256-CBC (API Keys)

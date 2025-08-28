@@ -2,12 +2,10 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Suspense } from 'react';
-import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { ProgressBar } from '@/components/layout/ProgressBar';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
-import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBanner } from '@/components/layout/TopBanner';
 import { Providers } from '@/components/providers/Providers';
 import { Toaster } from '@/components/ui/sonner';
@@ -15,6 +13,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { WebVitals } from '@/components/WebVitals';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { RootLayoutClient } from '@/components/layout/RootLayoutClient';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -120,16 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* Main Layout with proper padding */}
             <div className="flex min-h-screen transition-all duration-300 pt-[calc(var(--top-banner-height)+var(--header-height))]">
-              {/* Sidebar */}
-              <Sidebar />
-
-              {/* Main Content */}
-              <main className="flex-1 flex flex-col max-w-full overflow-x-hidden">
-                <div className="flex-1">{children}</div>
-
-                {/* Footer */}
-                <Footer />
-              </main>
+              <RootLayoutClient>{children}</RootLayoutClient>
             </div>
 
             {/* Mobile Navigation */}
