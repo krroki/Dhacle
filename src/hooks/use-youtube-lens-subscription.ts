@@ -16,10 +16,11 @@ export function useYoutubeLensSubscription(channelId: string | null) {
   
   useEffect(() => {
     let isMounted = true;
+    const currentPubsub = pubsub.current;
     
     async function setupSubscription() {
       // Clean up previous subscription
-      await pubsub.current.unsubscribe();
+      await currentPubsub.unsubscribe();
       
       if (!channelId) {
         setIsSubscribed(false);
@@ -29,14 +30,14 @@ export function useYoutubeLensSubscription(channelId: string | null) {
       // Subscribe to specific channel
       if (channelId === '*') {
         // Admin view - all channels
-        await pubsub.current.subscribeToAll((payload) => {
+        await currentPubsub.subscribeToAll((payload) => {
           if (isMounted) {
             setUpdates(prev => [...prev, payload]);
           }
         });
       } else {
         // Specific channel
-        await pubsub.current.subscribe(channelId, (payload) => {
+        await currentPubsub.subscribe(channelId, (payload) => {
           if (isMounted) {
             setUpdates(prev => [...prev, payload]);
           }
@@ -51,7 +52,7 @@ export function useYoutubeLensSubscription(channelId: string | null) {
     // Cleanup on unmount or channel change
     return () => {
       isMounted = false;
-      pubsub.current.unsubscribe();
+      currentPubsub.unsubscribe();
     };
   }, [channelId]);
   

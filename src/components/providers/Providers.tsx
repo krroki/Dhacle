@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { LayoutProvider } from '@/lib/layout/LayoutContext';
 import { useLayoutStore } from '@/store/layout';
-import { env } from '@/env';
+// Note: Using process.env directly in client component since NODE_ENV is available on both client and server
 
 interface ProvidersProps {
   children: ReactNode;
@@ -87,7 +87,7 @@ export function Providers({ children }: ProvidersProps) {
           </LayoutProvider>
         </AuthProvider>
       </ThemeProvider>
-      {env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>

@@ -1,0 +1,576 @@
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:      return NextResponse.json({ 
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:    return NextResponse.json(
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:      return NextResponse.json(
+src/app/api/account/delete/route.ts:    return NextResponse.json({
+src/app/api/account/delete/route.ts:    return NextResponse.json(
+src/app/api/admin/coupons/route.ts:      return NextResponse.json(
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json(coupons || []);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 조회 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json(
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ 
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '이미 존재하는 쿠폰 코드입니다.' }, { status: 409 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json(newCoupon, { status: 201 });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 생성 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json(
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '쿠폰 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json(updatedCoupon);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 수정 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json(
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '쿠폰 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ message: '쿠폰이 비활성화되었습니다.' });
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 삭제 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:        return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json({
+src/app/api/admin/verify-cafe/route.ts:        return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json({
+src/app/api/admin/verify-cafe/route.ts:    return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-cafe/route.ts:    return NextResponse.json({
+src/app/api/admin/verify-cafe/route.ts:    return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:    return NextResponse.json({ 
+src/app/api/admin/verify-naver/route.ts:    return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:      return NextResponse.json(
+src/app/api/admin/verify-naver/route.ts:    return NextResponse.json({
+src/app/api/admin/verify-naver/route.ts:    return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '파일 크기는 5GB를 초과할 수 없습니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 업로드 처리에 실패했습니다.' }, { status: 500 });
+src/app/api/admin/video/upload/route.ts:    return NextResponse.json({
+src/app/api/admin/video/upload/route.ts:    return NextResponse.json({ error: '비디오 업로드 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json(
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 정보가 없습니다.' }, { status: 404 });
+src/app/api/admin/video/upload/route.ts:    return NextResponse.json({
+src/app/api/admin/video/upload/route.ts:    return NextResponse.json(
+src/app/api/analytics/vitals/route.ts:      return NextResponse.json(
+src/app/api/analytics/vitals/route.ts:      return NextResponse.json({ success: true });
+src/app/api/analytics/vitals/route.ts:    return NextResponse.json({ success: true });
+src/app/api/analytics/vitals/route.ts:    return NextResponse.json(
+src/app/api/auth/test-login/route.ts:    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
+src/app/api/auth/test-login/route.ts:      return NextResponse.json({ 
+src/app/api/auth/test-login/route.ts:      return NextResponse.json({ 
+src/app/api/auth/test-login/route.ts:    return NextResponse.json({ 
+src/app/api/auth/test-login/route.ts:    return NextResponse.json({ 
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:        return NextResponse.json(
+src/app/api/certificates/route.ts:        return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json({ data });
+src/app/api/certificates/route.ts:        return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json({ data: data || null });
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:    return NextResponse.json({ data: data || [] });
+src/app/api/certificates/route.ts:    return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:    return NextResponse.json(
+src/app/api/certificates/route.ts:    return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:      return NextResponse.json(
+src/app/api/certificates/route.ts:    return NextResponse.json({ 
+src/app/api/certificates/route.ts:    return NextResponse.json(
+src/app/api/certificates/[id]/route.ts:      return NextResponse.json(
+src/app/api/certificates/[id]/route.ts:      return NextResponse.json(
+src/app/api/certificates/[id]/route.ts:        return NextResponse.json(
+src/app/api/certificates/[id]/route.ts:    return NextResponse.json({
+src/app/api/certificates/[id]/route.ts:    return NextResponse.json(
+src/app/api/community/posts/route.ts:      return NextResponse.json(
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: error.message }, { status: 500 });
+src/app/api/community/posts/route.ts:    return NextResponse.json(snakeToCamelCase({
+src/app/api/community/posts/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/route.ts:      return NextResponse.json(
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: '모든 필드를 입력해주세요' }, { status: 400 });
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: '유효하지 않은 카테고리입니다' }, { status: 400 });
+src/app/api/community/posts/route.ts:      return NextResponse.json(
+src/app/api/community/posts/route.ts:      return NextResponse.json(
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: error.message }, { status: 500 });
+src/app/api/community/posts/route.ts:    return NextResponse.json(snakeToCamelCase({
+src/app/api/community/posts/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:      return NextResponse.json(
+src/app/api/community/posts/[id]/route.ts:      return NextResponse.json({ error: '제목과 내용을 입력해주세요' }, { status: 400 });
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 수정할 권한이 없습니다' }, { status: 403 });
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:      return NextResponse.json(
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 삭제할 권한이 없습니다' }, { status: 403 });
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/coupons/validate/route.ts:    return NextResponse.json(
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '쿠폰 코드가 필요합니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '유효하지 않은 쿠폰입니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '사용 한도 초과' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json(
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '이미 사용한 쿠폰입니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:        return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '할인을 적용할 금액이 필요합니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:    return NextResponse.json({
+src/app/api/coupons/validate/route.ts:    return NextResponse.json({ error: '쿠폰 검증 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/debug/env-check/route.ts:    return NextResponse.json(
+src/app/api/debug/env-check/route.ts:    return NextResponse.json({ error: 'Invalid debug key' }, { status: 401 });
+src/app/api/debug/env-check/route.ts:  return NextResponse.json({
+src/app/api/health/route.ts:      return NextResponse.json({
+src/app/api/health/route.ts:    return NextResponse.json(
+src/app/api/health/route.ts:    return NextResponse.json(
+src/app/api/payment/confirm/route.ts:    return NextResponse.json(
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
+src/app/api/payment/confirm/route.ts:      return NextResponse.json(
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '주문 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/confirm/route.ts:    return NextResponse.json({
+src/app/api/payment/confirm/route.ts:    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json(
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '구매 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/create-intent/route.ts:    return NextResponse.json({
+src/app/api/payment/create-intent/route.ts:    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/fail/route.ts:      return NextResponse.json(
+src/app/api/payment/fail/route.ts:      return NextResponse.json({ error: '주문 ID가 누락되었습니다.' }, { status: 400 });
+src/app/api/payment/fail/route.ts:      return NextResponse.json({ error: '주문 상태 업데이트에 실패했습니다.' }, { status: 500 });
+src/app/api/payment/fail/route.ts:    return NextResponse.json({
+src/app/api/payment/fail/route.ts:    return NextResponse.json({ error: '결제 실패 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json({ error: '확인 토큰이 올바르지 않습니다' }, { status: 400 });
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json({ error: '인증 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/ranking/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/ranking/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/ranking/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/ranking/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/route.ts:    return NextResponse.json(snakeToCamelCase({
+src/app/api/revenue-proof/route.ts:    return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/route.ts:        return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json({ error: '이미지 업로드 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:        return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json({ error: '인증 작성 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:    return NextResponse.json(
+src/app/api/revenue-proof/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/route.ts:    return NextResponse.json(
+src/app/api/revenue-proof/seed/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/seed/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/seed/route.ts:      return NextResponse.json({ error: '데이터 확인 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '이 인증에는 댓글을 작성할 수 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 작성 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 ID가 필요합니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/like/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/like/route.ts:      return NextResponse.json({ error: '이 인증에는 좋아요를 할 수 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/like/route.ts:        return NextResponse.json({ error: '좋아요 취소 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:        return NextResponse.json({ error: '좋아요 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/like/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '자신의 인증은 신고할 수 없습니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '이미 처리된 인증입니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '이미 신고한 인증입니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '신고 처리 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:        return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '수정 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '생성 시간 정보가 없습니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '수정 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json(
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:      return NextResponse.json(
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일이 없습니다' }, { status: 400 });
+src/app/api/upload/route.ts:      return NextResponse.json(
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일 크기는 5MB 이하여야 합니다' }, { status: 400 });
+src/app/api/upload/route.ts:        return NextResponse.json(
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '이미지 업로드 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:    return NextResponse.json({
+src/app/api/upload/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:      return NextResponse.json(
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일 경로가 필요합니다' }, { status: 400 });
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '이미지 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:    return NextResponse.json({
+src/app/api/upload/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:    return NextResponse.json({
+src/app/api/user/api-keys/route.ts:    return NextResponse.json(
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:        return NextResponse.json(
+src/app/api/user/api-keys/route.ts:    return NextResponse.json({
+src/app/api/user/api-keys/route.ts:    return NextResponse.json(
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:      return NextResponse.json(
+src/app/api/user/api-keys/route.ts:    return NextResponse.json({
+src/app/api/user/api-keys/route.ts:    return NextResponse.json(
+src/app/api/user/check-username/route.ts:      return NextResponse.json(
+src/app/api/user/check-username/route.ts:      return NextResponse.json(
+src/app/api/user/check-username/route.ts:      return NextResponse.json(
+src/app/api/user/check-username/route.ts:      return NextResponse.json({ error: 'Failed to check username' }, { status: 500 });
+src/app/api/user/check-username/route.ts:    return NextResponse.json({
+src/app/api/user/check-username/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json(
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json(
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to generate unique nickname' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json(
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:      return NextResponse.json(
+src/app/api/user/generate-username/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:      return NextResponse.json(
+src/app/api/user/generate-username/route.ts:      return NextResponse.json({ error: 'Failed to generate unique username' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:    return NextResponse.json({
+src/app/api/user/generate-username/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:      return NextResponse.json(
+src/app/api/user/init-profile/route.ts:        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:      return NextResponse.json({
+src/app/api/user/init-profile/route.ts:        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:      return NextResponse.json({
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:      return NextResponse.json(
+src/app/api/user/init-profile/route.ts:      return NextResponse.json({
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json(
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json(
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Nickname and member URL are required' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json(
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json(
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Naver Cafe is already verified' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json(
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:      return NextResponse.json(
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+src/app/api/user/profile/route.ts:      return NextResponse.json(snakeToCamelCase({ profile: newProfile }));
+src/app/api/user/profile/route.ts:    return NextResponse.json(snakeToCamelCase({ profile }));
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:      return NextResponse.json(
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
+src/app/api/user/profile/route.ts:    return NextResponse.json(snakeToCamelCase({ profile: result.data }));
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:      return NextResponse.json(
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/profile/route.ts:    return NextResponse.json(snakeToCamelCase({ 
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json(
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Analysis type is required' }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'No videos found' }, { status: 404 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Failed to fetch video statistics' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:        return NextResponse.json({ error: `Invalid analysis type: ${type}` }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json(
+src/app/api/youtube/analysis/route.ts:        return NextResponse.json({ error: `Invalid query type: ${type}` }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:      return NextResponse.json(
+src/app/api/youtube/batch/route.ts:        return NextResponse.json(status);
+src/app/api/youtube/batch/route.ts:        return NextResponse.json(quota);
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ stats, size });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'jobId and jobType are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:      return NextResponse.json(
+src/app/api/youtube/batch/route.ts:      return NextResponse.json({ error: 'type and params are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:      return NextResponse.json({
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({
+src/app/api/youtube/batch/route.ts:      return NextResponse.json(
+src/app/api/youtube/batch/route.ts:    return NextResponse.json(
+src/app/api/youtube/batch/route.ts:      return NextResponse.json(
+src/app/api/youtube/batch/route.ts:      return NextResponse.json({ error: 'action and jobType are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ success: true, message: 'Queue paused' });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ success: true, message: 'Queue resumed' });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ success: true, message: 'Failed jobs retried' });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ success: true, message: 'Queue cleaned' });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:      return NextResponse.json(
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ success: true, message: 'Cache cleared' });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'pattern is required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ items: data });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ item: data }, { status: 201 });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ success });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ success });
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ collections: data });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection name is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ collection: data }, { status: 201 });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ collection: data });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json(
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ success });
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json(
+src/app/api/youtube/favorites/[id]/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json(
+src/app/api/youtube/favorites/[id]/route.ts:      return NextResponse.json(
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    return NextResponse.json(
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
+src/app/api/youtube/folders/route.ts:        return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json(
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to delete folder channels' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json(
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({
+src/app/api/youtube/metrics/route.ts:    return NextResponse.json({ error: 'Invalid type. Use "video" or "channel"' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:    return NextResponse.json(
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json(
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({ error: 'Videos array is required' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:    return NextResponse.json({
+src/app/api/youtube/metrics/route.ts:    return NextResponse.json(
+src/app/api/youtube/popular/route.ts:      return NextResponse.json(
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Invalid region code' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Invalid period. Use 1d, 7d, or 30d' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Limit must be between 1 and 100' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:        return NextResponse.json(
+src/app/api/youtube/popular/route.ts:    return NextResponse.json({
+src/app/api/youtube/popular/route.ts:      return NextResponse.json(
+src/app/api/youtube/popular/route.ts:    return NextResponse.json(
+src/app/api/youtube/popular/route.ts:      return NextResponse.json(
+src/app/api/youtube/popular/route.ts:    return NextResponse.json({
+src/app/api/youtube/popular/route.ts:    return NextResponse.json(
+src/app/api/youtube/search/route.ts:      return NextResponse.json(
+src/app/api/youtube/search/route.ts:      return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
+src/app/api/youtube/search/route.ts:      return NextResponse.json(
+src/app/api/youtube/search/route.ts:      return NextResponse.json(
+src/app/api/youtube/search/route.ts:    return NextResponse.json({
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:        return NextResponse.json(
+src/app/api/youtube/search/route.ts:    return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to subscribe to channel' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to unsubscribe from channel' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json(
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to renew subscription' }, { status: 500 });
+src/app/api/youtube/validate-key/route.ts:      return NextResponse.json(
+src/app/api/youtube/validate-key/route.ts:      return NextResponse.json(
+src/app/api/youtube/validate-key/route.ts:      return NextResponse.json(
+src/app/api/youtube/validate-key/route.ts:      return NextResponse.json(
+src/app/api/youtube/validate-key/route.ts:    return NextResponse.json({
+src/app/api/youtube/validate-key/route.ts:    return NextResponse.json(
+src/app/api/youtube/webhook/route.ts:      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: result.error || 'Verification failed' }, { status: 404 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/webhook/route.ts:      return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:      return NextResponse.json({ success: true }, { status: 200 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: result.error || 'Processing failed' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 200 });
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    return NextResponse.json({ data: camelCaseData || [] });
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({ data: camel_case_data || [] });
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube-lens/admin/channels/route.ts:      return NextResponse.json({ error: 'Channel not found on YouTube' }, { status: 404 });
+src/app/api/youtube-lens/admin/channels/route.ts:        return NextResponse.json({ error: 'Channel already exists' }, { status: 409 });
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/trending-summary/route.ts:    return NextResponse.json(
+src/app/api/youtube-lens/trending-summary/route.ts:    return NextResponse.json({
+src/app/api/youtube-lens/trending-summary/route.ts:    return NextResponse.json({ error: 'Failed to fetch summary' }, { status: 500 });

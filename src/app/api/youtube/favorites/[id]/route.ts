@@ -12,7 +12,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  */
 export async function PATCH(
   request: NextRequest,
-  _params: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   // Step 1: Authentication check (required!)
   const user = await requireAuth(request);
@@ -24,11 +24,36 @@ export async function PATCH(
     );
   }
 
-  // TODO: youtube_favorites 테이블이 없음 - collections로 마이그레이션 필요
-  return NextResponse.json(
-    { error: '즐겨찾기 기능은 현재 재구성 중입니다.' },
-    { status: 503 }
-  );
+  try {
+    const supabase = await createSupabaseRouteHandlerClient();
+    const { id: videoId } = await params;
+    const body = await request.json();
+
+    // collections 테이블로 업데이트
+    const { error } = await supabase
+      .from('collection_items')
+      .update({
+        notes: body.notes || '',
+        position: body.position || 0
+      })
+      .eq('added_by', user.id)
+      .eq('video_id', videoId);
+
+    if (error) {
+      logger.error('Failed to update favorite:', error);
+      return NextResponse.json(
+        { error: '즐겨찾기 업데이트 중 오류가 발생했습니다.' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: '즐겨찾기가 업데이트되었습니다.',
+    });
+  } catch (error) {
+    logger.error('API error in route:', error);
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+  }
 }
 
 /**
@@ -53,11 +78,11 @@ export async function DELETE(
     const supabase = await createSupabaseRouteHandlerClient();
     const { id: videoId } = await params;
 
-    // 사용자의 즐겨찾기인지 확인하고 삭제
+    // collections 테이블에서 삭제
     const { error } = await supabase
-      .from('youtube_favorites')
+      .from('collection_items')
       .delete()
-      .eq('user_id', user.id)
+      .eq('added_by', user.id)
       .eq('video_id', videoId);
 
     if (error) {

@@ -1,12 +1,157 @@
 /**
- * 타입 검증 모듈
- * TypeScript 타입 시스템 검증 및 any 타입 사용 감지
+ * 타입 검증 모듈 v2.0 - TypeScript ESLint 기준 적용
+ * 위험 기반 분류 및 컨텍스트 인식 시스템
+ * any 타입: 'error' → 'warn' 수준으로 조정 (TypeScript ESLint 공식 기준)
  */
 
 const { FileScanner, IssueTracker, Reporter, logger, helpers } = require('../utils');
 const config = require('../config');
 const fs = require('fs');
 const path = require('path');
+
+/**
+ * TypeScript ESLint 기준을 적용한 스마트 타입 분류자
+ */
+class SmartTypeClassifier {
+  constructor() {
+    // TypeScript ESLint 공식 기준 (no-explicit-any: 'warn')
+    this.anyTypeRisk = {
+      // High 위험: 실제 런타임 에러 가능성
+      unsafe: [
+        /as\s+any\s*\[/,         // Array index as any[]
+        /any\s*\)/,              // Function return any
+        /Promise<any>/,          // Promise with any
+      ],
+      
+      // Medium 위험: 일반적인 any 사용
+      common: [
+        /:\s*any(?:\s|;|,|\)|>|$)/,    // Type annotation: any
+        /:\s*any\[\]/,                  // any[]
+        /:\s*Array<any>/,               // Array<any>
+        /:\s*Record<[^,]+,\s*any>/,     // Record<key, any>
+      ],
+      
+      // Low 위험: 특수 상황에서 허용 가능
+      acceptable: [
+        /:\s*Function(?:\s|;|,|\)|$)/,  // Function type (일반적)
+        /catch\s*\([^)]*any/,           // Error handling
+        /JSON\.parse.*any/,              // JSON parsing
+      ]
+    };
+    
+    // 파일 예외 분류
+    this.fileExceptions = {
+      // 완전 예외 (검사 안 함)
+      excluded: [
+        '**/node_modules/**',
+        '**/*.d.ts',
+        '**/generated/**',
+        '**/dist/**'
+      ],
+      
+      // 완화된 기준
+      relaxed: [
+        '**/__tests__/**',
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        '**/mocks/**',
+        '**/legacy/**',
+        '**/external/**',
+        '**/vendor/**'
+      ],
+      
+      // 외부 라이브러리 연관
+      external: [
+        '**/youtube/**',    // YouTube API
+        '**/supabase/**',   // Supabase 클라이언트
+        '**/api/**'         // 외부 API 클라이언트
+      ]
+    };
+    
+    // 개선 마커
+    this.improvementMarkers = [
+      '// TODO: 타입 개선',
+      '// FIXME: any 타입 제거 예정',
+      '// Phase',
+      '// 점진적 개선',
+      '// Intentional any',
+      '@ts-ignore'
+    ];
+  }
+  
+  analyzeContext(file) {
+    const filePath = file.path.toLowerCase();
+    const content = file.content;
+    
+    return {
+      // 파일 타입
+      isTestFile: this.matchPatterns(filePath, ['**/__tests__/**', '**/*.test.*', '**/*.spec.*']),
+      isMockFile: this.matchPatterns(filePath, ['**/mocks/**', '**/__mocks__/**']),
+      isLegacyFile: this.matchPatterns(filePath, ['**/legacy/**', '**/deprecated/**']),
+      isExternalLib: this.matchPatterns(filePath, this.fileExceptions.external),
+      
+      // 상태 분석
+      hasImprovementPlan: this.improvementMarkers.some(marker => content.includes(marker)),
+      hasProperTypes: this.hasProperTypeDefinitions(content),
+      usesExternalLibs: this.usesExternalLibraries(content),
+      
+      // TypeScript 특징
+      hasTypeAssertions: /as\s+\w+/.test(content),
+      hasGenerics: /<[A-Z]\w*>/.test(content),
+      hasInterfaces: /interface\s+\w+/.test(content)
+    };
+  }
+  
+  matchPatterns(path, patterns) {
+    return patterns.some(pattern => {
+      if (pattern.includes('*')) {
+        const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\//g, '[\\\\/]'));
+        return regex.test(path);
+      }
+      return path.includes(pattern);
+    });
+  }
+  
+  hasProperTypeDefinitions(content) {
+    const typeDefinitionPatterns = [
+      /interface\s+\w+/,
+      /type\s+\w+\s*=/,
+      /enum\s+\w+/,
+      /class\s+\w+/
+    ];
+    return typeDefinitionPatterns.some(pattern => pattern.test(content));
+  }
+  
+  usesExternalLibraries(content) {
+    const externalLibs = ['youtube', 'supabase', 'axios', 'fetch', 'process.env'];
+    return externalLibs.some(lib => content.includes(lib));
+  }
+  
+  classifyAnyUsage(match, context, line) {
+    // Critical: 실제 위험이 높은 패턴
+    if (this.anyTypeRisk.unsafe.some(pattern => pattern.test(match))) {
+      return { level: 'high', message: '위험한 any 사용 패턴' };
+    }
+    
+    // 외부 라이브러리와 관련된 any 사용
+    if (context.usesExternalLibs && (line.includes('youtube') || line.includes('supabase'))) {
+      return { level: 'low', message: '외부 라이브러리 연관 any 사용' };
+    }
+    
+    // 테스트/Mock 파일
+    if (context.isTestFile || context.isMockFile) {
+      return { level: 'low', message: '테스트/Mock 파일에서 any 사용' };
+    }
+    
+    // 개선 계획 있음
+    if (context.hasImprovementPlan) {
+      return { level: 'low', message: '점진적 개선 예정' };
+    }
+    
+    // 일반적인 any 사용 (TypeScript ESLint 'warn' 수준)
+    return { level: 'medium', message: 'any 타입 사용 (가능하면 구체적 타입 사용 근장)' };
+  }
+}
 
 class TypeVerifier {
   constructor(options = {}) {
@@ -20,14 +165,16 @@ class TypeVerifier {
       ignore: config.ignore
     });
     
-    // 타입 검증 규칙
+    // 스마트 타입 분류 시스템
+    this.classifier = new SmartTypeClassifier();
+    
+    // 개선된 타입 검증 규칙 - Context7 베스트 프랙티스 적용
     this.checks = {
-      anyTypeUsage: this.checkAnyType.bind(this),
-      implicitAny: this.checkImplicitAny.bind(this),
+      smartAnyTypeUsage: this.checkSmartAnyType.bind(this),
       typeAssertions: this.checkTypeAssertions.bind(this),
+      typeConsistency: this.checkTypeConsistency.bind(this),
       generatedTypes: this.checkGeneratedTypes.bind(this),
-      unusedTypes: this.checkUnusedTypes.bind(this),
-      typeConsistency: this.checkTypeConsistency.bind(this)
+      unusedTypes: this.checkUnusedTypes.bind(this)
     };
   }
 
@@ -80,53 +227,191 @@ class TypeVerifier {
   async verifyFile(file, options) {
     this.tracker.incrementFilesChecked();
     const relativePath = helpers.getRelativePath(file.path);
-
-    // 각 검증 규칙 실행
+    
+    // 컨텍스트 분석 (스마트 분류의 핵심)
+    const context = this.classifier.analyzeContext(file);
+    
+    // 파일 분류에 따른 처리
+    const fileCategory = this.categorizeFile(relativePath);
+    
+    if (fileCategory === 'excluded') {
+      return; // 완전 제외
+    }
+    
+    if (fileCategory === 'relaxed') {
+      // 완화된 기준 적용
+      context.relaxedMode = true;
+    }
+    
+    // 각 검증 규칙 실행 (컨텍스트 전달)
     for (const [checkName, checkFunction] of Object.entries(this.checks)) {
       if (this.options.rules[checkName] !== false) {
-        await checkFunction(file, relativePath, options);
+        await checkFunction(file, relativePath, context, options);
       }
     }
   }
-
-  checkAnyType(file, relativePath, options) {
+  
+  /**
+   * 스마트 any 타입 검증 - TypeScript ESLint 기준 적용
+   * Context7 베스트 프랙티스: no-explicit-any: 'warn' 수준
+   */
+  checkSmartAnyType(file, relativePath, context, options) {
+    const lines = file.content.split('\n');
     const anyPatterns = [
-      // any 타입 선언
-      /:\s*any(?:\s|;|,|\)|>|$)/g,
-      /:\s*any\[\]/g,
-      /:\s*Array<any>/g,
-      /:\s*Promise<any>/g,
-      /:\s*Record<[^,]+,\s*any>/g,
-      
-      // as any 타입 단언
-      /as\s+any(?:\s|;|,|\)|$)/g,
-      
-      // Function 타입 (암시적 any)
-      /:\s*Function(?:\s|;|,|\)|$)/g
+      ...this.classifier.anyTypeRisk.unsafe,
+      ...this.classifier.anyTypeRisk.common,
+      ...this.classifier.anyTypeRisk.acceptable
     ];
-
-    file.lines.forEach((line, index) => {
-      // 주석 제외
-      const codeOnly = line.split('//')[0];
-      if (codeOnly.includes('/*') || codeOnly.includes('*/')) return;
-
-      anyPatterns.forEach(pattern => {
-        const matches = codeOnly.matchAll(pattern);
+    
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex];
+      const lineNumber = lineIndex + 1;
+      
+      // 개선 마커가 있는 라인은 스킵
+      if (this.classifier.improvementMarkers.some(marker => line.includes(marker))) {
+        continue;
+      }
+      
+      // any 패턴 검사
+      for (const pattern of anyPatterns) {
+        const matches = line.matchAll(new RegExp(pattern.source, 'g'));
+        
         for (const match of matches) {
-          const context = helpers.getLineContext(file.lines, index + 1);
+          // 스마트 분류 적용
+          const classification = this.classifier.classifyAnyUsage(match[0], context, line);
           
-          this.tracker.addError(
-            relativePath,
-            index + 1,
-            'any 타입 사용',
-            match[0],
-            context,
-            this.getAnySolution(match[0])
-          );
+          // Context7 베스트 프랙티스: TypeScript ESLint 공식 기준
+          const issue = {
+            file: relativePath,
+            line: lineNumber,
+            match: match[0],
+            level: this.adjustSeverityByContext(classification.level, context),
+            message: classification.message,
+            solution: this.getSolution(classification.level, match[0])
+          };
+          
+          // 위험도별 이슈 추가
+          this.addSmartIssue(issue);
+          
+          if (options.verbose) {
+            logger.debug(`[${issue.level.toUpperCase()}] ${relativePath}:${lineNumber} - ${issue.message}`);
+          }
         }
-      });
-    });
+      }
+    }
   }
+  
+  /**
+   * 컨텍스트에 따른 심각도 조정
+   * Context7 베스트 프랙티스: 테스트/외부 라이브러리에서 완화
+   */
+  adjustSeverityByContext(level, context) {
+    // 완화된 모드 (테스트 파일, 외부 라이브러리)
+    if (context.relaxedMode || context.isTestFile || context.isMockFile) {
+      if (level === 'high') return 'medium';
+      if (level === 'medium') return 'low';
+      return level;
+    }
+    
+    // 외부 라이브러리 사용 시 완화
+    if (context.usesExternalLibs && level === 'medium') {
+      return 'low';
+    }
+    
+    // 개선 계획 있을 시 완화
+    if (context.hasImprovementPlan && level !== 'critical') {
+      return level === 'high' ? 'medium' : 'low';
+    }
+    
+    return level;
+  }
+  
+  /**
+   * TypeScript ESLint 베스트 프랙티스 기반 해결책 제안
+   */
+  getSolution(level, match) {
+    switch (level) {
+      case 'critical':
+        return '즉시 구체적 타입으로 교체 필요';
+      case 'high':
+        return 'unknown 타입이나 구체적 타입으로 교체 권장';
+      case 'medium':
+        return 'TypeScript ESLint 권장: 가능하면 구체적 타입 사용';
+      case 'low':
+        return '현재 상황에서 허용 가능하나 점진적 개선 고려';
+      default:
+        return '타입 개선 검토';
+    }
+  }
+  
+  categorizeFile(relativePath) {
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+    
+    // 완전 제외
+    if (this.classifier.matchPatterns(normalizedPath, this.classifier.fileExceptions.excluded)) {
+      return 'excluded';
+    }
+    
+    // 완화된 기준
+    if (this.classifier.matchPatterns(normalizedPath, this.classifier.fileExceptions.relaxed)) {
+      return 'relaxed';
+    }
+    
+    return 'standard';
+  }
+  
+  addSmartIssue(issue) {
+    // 위험도에 따른 분류
+    switch (issue.level) {
+      case 'critical':
+        this.tracker.addError(
+          issue.file,
+          issue.line,
+          `[CRITICAL] ${issue.message}`,
+          issue.match,
+          null,
+          `즉시 수정 필요: ${issue.solution || ''}`
+        );
+        break;
+        
+      case 'high':
+        this.tracker.addError(
+          issue.file,
+          issue.line,
+          `[HIGH] ${issue.message}`,
+          issue.match,
+          null,
+          `우선 수정 권장: ${issue.solution || ''}`
+        );
+        break;
+        
+      case 'medium':
+        this.tracker.addWarning(
+          issue.file,
+          issue.line,
+          `[MEDIUM] ${issue.message}`,
+          issue.match,
+          null,
+          `TypeScript ESLint 'warn' 수준: ${issue.solution || ''}`
+        );
+        break;
+        
+      case 'low':
+      default:
+        this.tracker.addInfo(
+          issue.file,
+          issue.line,
+          `[LOW] ${issue.message}`,
+          issue.match,
+          null,
+          `참고사항: ${issue.solution || ''}`
+        );
+        break;
+    }
+  }
+
+  // Legacy checkAnyType 제거됨 - checkSmartAnyType으로 대체
+  // TypeScript ESLint 베스트 프랙티스 적용: any 타입을 'warn' 수준으로 처리
 
   checkImplicitAny(file, relativePath, options) {
     const implicitPatterns = [

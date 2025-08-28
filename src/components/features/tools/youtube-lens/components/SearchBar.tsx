@@ -195,7 +195,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                       <SelectItem value="short">4분 미만</SelectItem>
                       <SelectItem value="medium">4-20분</SelectItem>
                       <SelectItem value="long">20분 이상</SelectItem>
-                      <SelectItem value="any">모든 길이</SelectItem>
+                      <SelectItem value="all">모든 길이</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -204,11 +204,11 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                 <div className="space-y-2">
                   <label className="text-sm font-medium">화질</label>
                   <Select
-                    value={searchFilters.videoDefinition || 'any'}
+                    value={searchFilters.videoDefinition || 'all'}
                     onValueChange={(value) =>
                       setSearchFilters({
                         videoDefinition:
-                          value === 'any'
+                          value === 'all'
                             ? undefined
                             : (value as YouTubeSearchFilters['videoDefinition']),
                       })
@@ -218,7 +218,7 @@ export function SearchBar({ onSearch, isLoading = false, disabled = false }: Sea
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="any">모든 화질</SelectItem>
+                      <SelectItem value="all">모든 화질</SelectItem>
                       <SelectItem value="high">HD (고화질)</SelectItem>
                       <SelectItem value="standard">SD (표준화질)</SelectItem>
                     </SelectContent>

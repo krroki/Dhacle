@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { onCLS, onFCP, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
 import { apiPost } from '@/lib/api-client';
-import { env } from '@/env';
+// Note: Using process.env directly in client component since NODE_ENV is available on both client and server
 import { logger } from '@/lib/logger';
 
 /**
@@ -19,7 +19,7 @@ export function WebVitals() {
     const sendToAnalytics = (metric: Metric) => {
       // Google Analytics로 전송 (gtag이 있는 경우)
       if (typeof window !== 'undefined' && 'gtag' in window) {
-        const gtag = (window as { gtag: Function }).gtag;
+        const gtag = (window as { gtag: (command: string, action: string, options?: Record<string, unknown>) => void }).gtag;
         gtag('event', metric.name, {
           value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
           event_label: metric.id,
@@ -28,7 +28,7 @@ export function WebVitals() {
       }
       
       // 커스텀 엔드포인트로 전송
-      if (env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production') {
         apiPost('/api/analytics/vitals', {
           metric: metric.name,
           value: metric.value,
@@ -44,7 +44,7 @@ export function WebVitals() {
       }
       
       // 개발 환경에서 콘솔 출력
-      if (env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
         logger.debug(`Web Vitals: ${metric.name}`, {
           operation: 'web-vitals',
           metadata: {

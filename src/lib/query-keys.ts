@@ -148,9 +148,6 @@ export async function prefetchQueries<T = unknown>(
  * Helper to invalidate related queries after a mutation
  * Usage: invalidateRelated(queryClient, 'youtube', ['search', 'popular'])
  */
-type ModuleKeysType = {
-  [key: string]: (...args: unknown[]) => readonly unknown[];
-};
 
 export function invalidateRelated(
   queryClient: QueryClient,
@@ -161,7 +158,7 @@ export function invalidateRelated(
   if (typeof moduleKeys === 'object') {
     subKeys.forEach((subKey) => {
       if (subKey in moduleKeys) {
-        const keyFunction = (moduleKeys as unknown as ModuleKeysType)[subKey];
+        const keyFunction = moduleKeys[subKey as keyof typeof moduleKeys] as ((...args: unknown[]) => readonly unknown[]) | undefined;
         if (typeof keyFunction === 'function') {
           queryClient.invalidateQueries({ queryKey: keyFunction() });
         }

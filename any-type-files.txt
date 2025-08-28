@@ -1,0 +1,21 @@
+src/app/api/youtube/webhook/route.ts:      // Trigger any additional processing here
+src/components/features/tools/youtube-lens/components/SearchBar.tsx:                      <SelectItem value="any">모든 길이</SelectItem>
+src/components/features/tools/youtube-lens/components/SearchBar.tsx:                    value={searchFilters.videoDefinition || 'any'}
+src/components/features/tools/youtube-lens/components/SearchBar.tsx:                          value === 'any'
+src/components/features/tools/youtube-lens/components/SearchBar.tsx:                      <SelectItem value="any">모든 화질</SelectItem>
+src/components/features/tools/youtube-lens/PopularShortsList.tsx:                <SelectItem value="DE">🇩🇪 Germany</SelectItem>
+src/components/layout/Footer.tsx:  company: [
+src/components/layout/Footer.tsx:          {/* Company Info */}
+src/hooks/queries/useNotifications.ts:      // Cancel any outgoing refetches
+src/hooks/queries/useUserProfile.ts:      // Cancel any outgoing refetches
+src/hooks/use-youtube-lens-subscription.ts:  const [logs, setLogs] = useState<any[]>([]);
+src/lib/api-client.test.ts:            { error: 'Too Many Requests' },
+src/lib/pubsub/youtube-lens-pubsub.ts:   * @param onUpdate - Callback function when any channel is updated
+src/lib/security/rate-limiter.ts:      error: 'Too many requests. Please try again later.',
+src/lib/tosspayments/client.ts:    // SDK가 특정 타입만 허용하므로 any 캐스팅 필요
+src/lib/utils/db-types.ts: * Type Safety: 제네릭 타입으로 any 타입 제거
+src/lib/youtube/monitoring.ts:   * Check if a video triggers any alert rules
+src/lib/youtube/monitoring.ts:    // Clear existing interval if any
+src/mocks/handlers.ts:      { error: 'Too Many Requests' },
+src/types/filters.ts: * These types replace any types in query-keys and hooks
+src/types/youtube.ts: * These types replace any types in YouTube-related API and monitoring files

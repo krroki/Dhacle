@@ -116,7 +116,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
         error: errorMessage,
         ...(env.NODE_ENV === 'development' && {
-          details: error instanceof Error ? error.stack : String(error),
+          details: error instanceof Error ? error.message : 'Unknown error',
         }),
       },
       { status: 500 }
@@ -285,7 +285,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         error: errorMessage,
         ...(env.NODE_ENV === 'development' && {
-          details: error instanceof Error ? error.stack : String(error),
+          details: error instanceof Error ? error.message : 'Unknown error',
         }),
       },
       { status: 500 }

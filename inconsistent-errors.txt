@@ -1,0 +1,582 @@
+src/app/api/account/delete/route.ts:        { error: 'Invalid request data', details: validation.error },
+src/app/api/account/delete/route.ts:    const { error: authError } = await supabase.auth.signInWithPassword({
+src/app/api/account/delete/route.ts:        { error: 'Invalid password' },
+src/app/api/account/delete/route.ts:      const { error: profileError } = await serviceClient
+src/app/api/account/delete/route.ts:        logger.error('Failed to anonymize profile:', profileError);
+src/app/api/account/delete/route.ts:      const { error: revenueError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: postsError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: apiKeyError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: collectionsError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: collectionItemsError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: alertsError } = await serviceClient
+src/app/api/account/delete/route.ts:      const { error: logError } = await serviceClient
+src/app/api/account/delete/route.ts:      logger.error('Failed to delete account:', error);
+src/app/api/account/delete/route.ts:        { error: 'Failed to delete account' },
+src/app/api/account/delete/route.ts:    logger.error('Account deletion error:', error);
+src/app/api/account/delete/route.ts:      { error: 'Internal server error' },
+src/app/api/account/delete/route.ts:        { error: 'Profile not found' },
+src/app/api/account/delete/route.ts:    logger.error('Deletion status check error:', error);
+src/app/api/account/delete/route.ts:      { error: 'Internal server error' },
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      logger.error('Failed to fetch coupons:', error);
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    logger.error('API error in admin coupons GET:', error);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 조회 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:        error: '필수 필드가 누락되었습니다. (code, discount_type, discount_value, valid_until)' 
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '이미 존재하는 쿠폰 코드입니다.' }, { status: 409 });
+src/app/api/admin/coupons/route.ts:      logger.error('Failed to create coupon:', error);
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    logger.error('API error in admin coupons POST:', error);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 생성 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '쿠폰 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/coupons/route.ts:      logger.error('Failed to update coupon:', error);
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    logger.error('API error in admin coupons PATCH:', error);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 수정 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: '쿠폰 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/coupons/route.ts:      logger.error('Failed to delete coupon:', error);
+src/app/api/admin/coupons/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/admin/coupons/route.ts:    logger.error('API error in admin coupons DELETE:', error);
+src/app/api/admin/coupons/route.ts:    return NextResponse.json({ error: '쿠폰 삭제 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/verify-cafe/route.ts:        { error: '관리자 권한이 필요합니다' },
+src/app/api/admin/verify-cafe/route.ts:        { error: 'User ID is required' },
+src/app/api/admin/verify-cafe/route.ts:        { error: 'Approval status must be a boolean' },
+src/app/api/admin/verify-cafe/route.ts:    const { data: targetProfile, error: profileError } = await supabase
+src/app/api/admin/verify-cafe/route.ts:        { error: 'User profile not found' },
+src/app/api/admin/verify-cafe/route.ts:        { error: 'User is already verified' },
+src/app/api/admin/verify-cafe/route.ts:        { error: 'No verification request found for this user' },
+src/app/api/admin/verify-cafe/route.ts:      const { error: updateError } = await supabase
+src/app/api/admin/verify-cafe/route.ts:          { error: 'Failed to update profile' },
+src/app/api/admin/verify-cafe/route.ts:      const { error: updateError } = await supabase
+src/app/api/admin/verify-cafe/route.ts:          { error: 'Failed to update profile' },
+src/app/api/admin/verify-cafe/route.ts:      { error: 'Internal server error' },
+src/app/api/admin/verify-cafe/route.ts:        { error: '관리자 권한이 필요합니다' },
+src/app/api/admin/verify-cafe/route.ts:    const { data: pendingUsers, error: fetchError } = await supabase
+src/app/api/admin/verify-cafe/route.ts:        { error: 'Failed to fetch pending verifications' },
+src/app/api/admin/verify-cafe/route.ts:      { error: 'Internal server error' },
+src/app/api/admin/verify-naver/route.ts:        { error: 'Invalid request data', details: validation.error },
+src/app/api/admin/verify-naver/route.ts:        { error: 'Verification failed', message: 'Could not verify Naver Cafe membership' },
+src/app/api/admin/verify-naver/route.ts:    const { error: profileError } = await serviceSupabase
+src/app/api/admin/verify-naver/route.ts:      logger.error('Failed to update user profile:', profileError);
+src/app/api/admin/verify-naver/route.ts:        { error: 'Failed to grant admin role' },
+src/app/api/admin/verify-naver/route.ts:    const { error: logError } = await serviceSupabase
+src/app/api/admin/verify-naver/route.ts:    logger.error('Admin verification error:', error);
+src/app/api/admin/verify-naver/route.ts:      { error: 'Internal server error' },
+src/app/api/admin/verify-naver/route.ts:        { error: 'Profile not found' },
+src/app/api/admin/verify-naver/route.ts:    logger.error('Admin status check error:', error);
+src/app/api/admin/verify-naver/route.ts:      { error: 'Internal server error' },
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
+src/app/api/admin/video/upload/route.ts:        { error: 'Cloudflare Stream이 설정되지 않았습니다.' },
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '파일 크기는 5GB를 초과할 수 없습니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:        { error: '지원하지 않는 파일 형식입니다. MP4, WebM, MOV, AVI만 지원합니다.' },
+src/app/api/admin/video/upload/route.ts:        { error: 'Cloudflare Stream 업로드에 실패했습니다.' },
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 업로드 처리에 실패했습니다.' }, { status: 500 });
+src/app/api/admin/video/upload/route.ts:      const { error: update_error } = await supabase
+src/app/api/admin/video/upload/route.ts:    logger.error('Video upload failed:', error);
+src/app/api/admin/video/upload/route.ts:    return NextResponse.json({ error: '비디오 업로드 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 ID가 필요합니다.' }, { status: 400 });
+src/app/api/admin/video/upload/route.ts:        { error: 'Cloudflare Stream이 설정되지 않았습니다.' },
+src/app/api/admin/video/upload/route.ts:        { error: '비디오 정보를 가져올 수 없습니다.' },
+src/app/api/admin/video/upload/route.ts:      return NextResponse.json({ error: '비디오 정보가 없습니다.' }, { status: 404 });
+src/app/api/admin/video/upload/route.ts:    logger.error('Video status check failed:', error);
+src/app/api/admin/video/upload/route.ts:      { error: '비디오 상태 확인 중 오류가 발생했습니다.' },
+src/app/api/analytics/vitals/route.ts:        console.error('Failed to save performance metrics:', error);
+src/app/api/analytics/vitals/route.ts:      console.error('Error saving performance metrics:', dbError);
+src/app/api/analytics/vitals/route.ts:    console.error('Error processing vitals:', error);
+src/app/api/analytics/vitals/route.ts:      { error: 'Failed to process vitals' },
+src/app/api/auth/test-login/route.ts:    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
+src/app/api/auth/test-login/route.ts:    const { data: createdProfile, error: profileError } = await supabase
+src/app/api/auth/test-login/route.ts:      console.error('Profile creation error:', profileError);
+src/app/api/auth/test-login/route.ts:    console.error('Test login error:', error);
+src/app/api/certificates/route.ts:        logger.error('Failed to fetch certificate:', error);
+src/app/api/certificates/route.ts:          { error: 'Certificate not found' },
+src/app/api/certificates/route.ts:          { error: 'Access denied' },
+src/app/api/certificates/route.ts:        logger.error('Failed to fetch course certificate:', error);
+src/app/api/certificates/route.ts:          { error: 'Failed to fetch certificate' },
+src/app/api/certificates/route.ts:      logger.error('Failed to fetch certificates:', error);
+src/app/api/certificates/route.ts:        { error: 'Failed to fetch certificates' },
+src/app/api/certificates/route.ts:    logger.error('Certificates API error:', error);
+src/app/api/certificates/route.ts:      { error: 'Internal server error' },
+src/app/api/certificates/route.ts:        { error: 'Missing required fields' },
+src/app/api/certificates/route.ts:        { error: 'Certificate already exists for this course' },
+src/app/api/certificates/route.ts:      logger.error('Failed to create certificate:', error);
+src/app/api/certificates/route.ts:        { error: 'Failed to create certificate' },
+src/app/api/certificates/route.ts:    logger.error('Certificates API error:', error);
+src/app/api/certificates/route.ts:      { error: 'Internal server error' },
+src/app/api/certificates/route.ts:        { error: 'Certificate ID is required' },
+src/app/api/certificates/route.ts:        { error: 'Certificate not found or access denied' },
+src/app/api/certificates/route.ts:      logger.error('Failed to update certificate:', error);
+src/app/api/certificates/route.ts:        { error: 'Failed to update certificate' },
+src/app/api/certificates/route.ts:    logger.error('Certificates API error:', error);
+src/app/api/certificates/route.ts:      { error: 'Internal server error' },
+src/app/api/certificates/[id]/route.ts:        { error: 'Certificate ID is required' },
+src/app/api/certificates/[id]/route.ts:      logger.error('Failed to fetch certificate:', error);
+src/app/api/certificates/[id]/route.ts:        { error: 'Certificate not found' },
+src/app/api/certificates/[id]/route.ts:          { error: 'This certificate is private' },
+src/app/api/certificates/[id]/route.ts:    logger.error('Certificate detail API error:', error);
+src/app/api/certificates/[id]/route.ts:      { error: 'Internal server error' },
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: error.message }, { status: 500 });
+src/app/api/community/posts/route.ts:    logger.error('Failed to fetch community posts:', error);
+src/app/api/community/posts/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: '모든 필드를 입력해주세요' }, { status: 400 });
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: '유효하지 않은 카테고리입니다' }, { status: 400 });
+src/app/api/community/posts/route.ts:        { error: '제목은 2자 이상 100자 이하로 입력해주세요' },
+src/app/api/community/posts/route.ts:        { error: '내용은 10자 이상 10000자 이하로 입력해주세요' },
+src/app/api/community/posts/route.ts:      return NextResponse.json({ error: error.message }, { status: 500 });
+src/app/api/community/posts/route.ts:    logger.error('Failed to create community post:', error);
+src/app/api/community/posts/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:    const { data: post, error: post_error } = await supabase
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/community/posts/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:      return NextResponse.json({ error: '제목과 내용을 입력해주세요' }, { status: 400 });
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 수정할 권한이 없습니다' }, { status: 403 });
+src/app/api/community/posts/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/community/posts/[id]/route.ts:        return NextResponse.json({ error: '게시글을 삭제할 권한이 없습니다' }, { status: 403 });
+src/app/api/community/posts/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/community/posts/[id]/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '쿠폰 코드가 필요합니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:    const { data: coupon, error: coupon_error } = await supabase
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '유효하지 않은 쿠폰입니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '사용 한도 초과' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:        { error: '이 강의에는 사용할 수 없는 쿠폰입니다.' },
+src/app/api/coupons/validate/route.ts:    const { data: user_usage, error: usage_error } = await supabase
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '이미 사용한 쿠폰입니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:      const { data: course, error: course_error } = await supabase
+src/app/api/coupons/validate/route.ts:        return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
+src/app/api/coupons/validate/route.ts:      return NextResponse.json({ error: '할인을 적용할 금액이 필요합니다.' }, { status: 400 });
+src/app/api/coupons/validate/route.ts:    logger.error('API error in coupon validation:', error);
+src/app/api/coupons/validate/route.ts:    return NextResponse.json({ error: '쿠폰 검증 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/debug/env-check/route.ts:    return NextResponse.json({ error: 'Invalid debug key' }, { status: 401 });
+src/app/api/health/route.ts:      const { data: table_check, error: table_error } = await supabase
+src/app/api/health/route.ts:        error: table_error?.message,
+src/app/api/health/route.ts:        error: auth_error,
+src/app/api/health/route.ts:        error: auth_error?.message,
+src/app/api/health/route.ts:    } catch (error: unknown) {
+src/app/api/health/route.ts:      supabase_error = error instanceof Error ? error.message : 'Unknown error';
+src/app/api/health/route.ts:          error: supabase_error,
+src/app/api/health/route.ts:  } catch (error: unknown) {
+src/app/api/health/route.ts:        error: error instanceof Error ? error.message : 'Unknown error',
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
+src/app/api/payment/confirm/route.ts:          error: payment_data.message || '결제 승인에 실패했습니다.',
+src/app/api/payment/confirm/route.ts:    const { data: purchase, error: update_error } = await supabase
+src/app/api/payment/confirm/route.ts:      return NextResponse.json({ error: '주문 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/confirm/route.ts:    logger.error('API error:', error);
+src/app/api/payment/confirm/route.ts:    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/create-intent/route.ts:    const { data: course, error: course_error } = await supabase
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '강의를 찾을 수 없습니다.' }, { status: 404 });
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '이미 구매한 강의입니다.' }, { status: 400 });
+src/app/api/payment/create-intent/route.ts:    const { data: purchase, error: purchase_error } = await supabase
+src/app/api/payment/create-intent/route.ts:      return NextResponse.json({ error: '구매 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/create-intent/route.ts:    logger.error('Payment intent creation failed:', error);
+src/app/api/payment/create-intent/route.ts:    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/payment/fail/route.ts:      return NextResponse.json({ error: '주문 ID가 누락되었습니다.' }, { status: 400 });
+src/app/api/payment/fail/route.ts:    const { data: purchase, error: update_error } = await supabase
+src/app/api/payment/fail/route.ts:      return NextResponse.json({ error: '주문 상태 업데이트에 실패했습니다.' }, { status: 500 });
+src/app/api/payment/fail/route.ts:    logger.error('API error:', error);
+src/app/api/payment/fail/route.ts:    return NextResponse.json({ error: '결제 실패 처리 중 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:        { error: '내 인증을 불러오는 중 오류가 발생했습니다' },
+src/app/api/revenue-proof/my/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json({ error: '확인 토큰이 올바르지 않습니다' }, { status: 400 });
+src/app/api/revenue-proof/my/route.ts:      return NextResponse.json({ error: '인증 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/my/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/my/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/ranking/route.ts:        { error: '랭킹을 불러오는 중 오류가 발생했습니다' },
+src/app/api/revenue-proof/ranking/route.ts:  } catch (error: unknown) {
+src/app/api/revenue-proof/ranking/route.ts:    console.error('Revenue proof ranking error:', error);
+src/app/api/revenue-proof/ranking/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:        { error: '데이터를 불러오는 중 오류가 발생했습니다' },
+src/app/api/revenue-proof/route.ts:  } catch (error: unknown) {
+src/app/api/revenue-proof/route.ts:        ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+src/app/api/revenue-proof/route.ts:        error: errorMessage,
+src/app/api/revenue-proof/route.ts:          details: error instanceof Error ? error.message : 'Unknown error',
+src/app/api/revenue-proof/route.ts:          error: '오늘은 이미 인증하셨습니다. 내일 다시 시도해주세요!',
+src/app/api/revenue-proof/route.ts:    const { data: _uploadData, error: uploadError } = await supabase.storage
+src/app/api/revenue-proof/route.ts:            error: 'Storage 설정이 필요합니다.',
+src/app/api/revenue-proof/route.ts:      return NextResponse.json({ error: '이미지 업로드 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:          { error: '오늘은 이미 인증하셨습니다. 내일 다시 시도해주세요!' },
+src/app/api/revenue-proof/route.ts:      return NextResponse.json({ error: '인증 작성 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/route.ts:  } catch (error: unknown) {
+src/app/api/revenue-proof/route.ts:          error: '입력값이 올바르지 않습니다',
+src/app/api/revenue-proof/route.ts:        ? `서버 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+src/app/api/revenue-proof/route.ts:        error: errorMessage,
+src/app/api/revenue-proof/route.ts:          details: error instanceof Error ? error.message : 'Unknown error',
+src/app/api/revenue-proof/seed/route.ts:          error: error.message,
+src/app/api/revenue-proof/seed/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/seed/route.ts:      return NextResponse.json({ error: '데이터 확인 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/seed/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/seed/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:        { error: '댓글을 불러오는 중 오류가 발생했습니다' },
+src/app/api/revenue-proof/[id]/comment/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    const { data: proof, error: proof_error } = await supabase
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '이 인증에는 댓글을 작성할 수 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    const { data: new_comment, error: insert_error } = await supabase
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 작성 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:          error: '입력값이 올바르지 않습니다',
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 ID가 필요합니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    const { data: comment, error: fetch_error } = await supabase
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    const { error: delete_error } = await supabase
+src/app/api/revenue-proof/[id]/comment/route.ts:      return NextResponse.json({ error: '댓글 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/comment/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/comment/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:    const { data: proof, error: proof_error } = await supabase
+src/app/api/revenue-proof/[id]/like/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/like/route.ts:      return NextResponse.json({ error: '이 인증에는 좋아요를 할 수 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/like/route.ts:      const { error: delete_error } = await supabase
+src/app/api/revenue-proof/[id]/like/route.ts:        return NextResponse.json({ error: '좋아요 취소 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:      const { error: insert_error } = await supabase.from('proof_likes').insert({
+src/app/api/revenue-proof/[id]/like/route.ts:        return NextResponse.json({ error: '좋아요 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/like/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/like/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:    const { data: proof, error: proof_error } = await supabase
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '자신의 인증은 신고할 수 없습니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '이미 처리된 인증입니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '이미 신고한 인증입니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/report/route.ts:        { error: '신고 악용 시 제재 조치에 동의해야 합니다' },
+src/app/api/revenue-proof/[id]/report/route.ts:    const { error: insert_error } = await supabase.from('proof_reports').insert({
+src/app/api/revenue-proof/[id]/report/route.ts:      logger.error('Failed to insert proof report:', insert_error);
+src/app/api/revenue-proof/[id]/report/route.ts:      return NextResponse.json({ error: '신고 처리 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:    const { error: update_error } = await supabase
+src/app/api/revenue-proof/[id]/report/route.ts:      const { error: notification_error } = await supabase.from('adminnotifications').insert({
+src/app/api/revenue-proof/[id]/report/route.ts:        logger.error('Failed to create admin notification:', notification_error);
+src/app/api/revenue-proof/[id]/report/route.ts:          error: '입력값이 올바르지 않습니다',
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/report/route.ts:      logger.error('Failed to fetch proof reports:', error);
+src/app/api/revenue-proof/[id]/report/route.ts:        { error: '신고 목록을 불러오는 중 오류가 발생했습니다' },
+src/app/api/revenue-proof/[id]/report/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/report/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    const { data: proof, error: proof_error } = await supabase
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:        return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    const { data: existing_proof, error: fetch_error } = await supabase
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '수정 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '생성 시간 정보가 없습니다' }, { status: 400 });
+src/app/api/revenue-proof/[id]/route.ts:        { error: '작성 후 24시간이 지나 수정할 수 없습니다' },
+src/app/api/revenue-proof/[id]/route.ts:    const { data, error: update_error } = await supabase
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '수정 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:          error: '입력값이 올바르지 않습니다',
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    const { data: existing_proof, error: fetch_error } = await supabase
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '인증을 찾을 수 없습니다' }, { status: 404 });
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/revenue-proof/[id]/route.ts:    const { error: delete_error } = await supabase.from('revenue_proofs').delete().eq('id', id);
+src/app/api/revenue-proof/[id]/route.ts:      return NextResponse.json({ error: '삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/revenue-proof/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/revenue-proof/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일이 없습니다' }, { status: 400 });
+src/app/api/upload/route.ts:        { error: 'JPG, PNG, WebP 형식만 업로드 가능합니다' },
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일 크기는 5MB 이하여야 합니다' }, { status: 400 });
+src/app/api/upload/route.ts:    const { error: upload_error } = await supabase.storage
+src/app/api/upload/route.ts:          { error: 'Storage 버킷이 설정되지 않았습니다. 관리자에게 문의하세요.' },
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '이미지 업로드 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:    logger.error('API error:', error);
+src/app/api/upload/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '파일 경로가 필요합니다' }, { status: 400 });
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '삭제 권한이 없습니다' }, { status: 403 });
+src/app/api/upload/route.ts:    const { error: delete_error } = await supabase.storage.from(bucket).remove([path]);
+src/app/api/upload/route.ts:      return NextResponse.json({ error: '이미지 삭제 중 오류가 발생했습니다' }, { status: 500 });
+src/app/api/upload/route.ts:    logger.error('API error:', error);
+src/app/api/upload/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+src/app/api/user/api-keys/route.ts:      validation_error: api_key.validation_error,
+src/app/api/user/api-keys/route.ts:    logger.error('API error:', error);
+src/app/api/user/api-keys/route.ts:        error: 'Failed to fetch API key',
+src/app/api/user/api-keys/route.ts:          error: 'API key is required',
+src/app/api/user/api-keys/route.ts:            error: validation.error || 'API key가 유효하지 않습니다.',
+src/app/api/user/api-keys/route.ts:        error: error_message,
+src/app/api/user/api-keys/route.ts:        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+src/app/api/user/api-keys/route.ts:          error: 'Failed to delete API key',
+src/app/api/user/api-keys/route.ts:    logger.error('API error:', error);
+src/app/api/user/api-keys/route.ts:        error: 'Failed to delete API key',
+src/app/api/user/check-username/route.ts:        { error: 'Username must be at least 3 characters' },
+src/app/api/user/check-username/route.ts:        { error: 'Username can only contain letters, numbers, and underscores' },
+src/app/api/user/check-username/route.ts:      return NextResponse.json({ error: 'Failed to check username' }, { status: 500 });
+src/app/api/user/check-username/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/check-username/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:    const { data: profile, error: profileError } = await supabase
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:          error: 'Random nickname already exists',
+src/app/api/user/generate-nickname/route.ts:      const { data: existing, error: checkError } = await supabase
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to generate unique nickname' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:    const { error: updateError } = await supabase
+src/app/api/user/generate-nickname/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-nickname/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/generate-nickname/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:    const { data: profile, error: profile_error } = await supabase
+src/app/api/user/generate-username/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:          error: 'Username already exists',
+src/app/api/user/generate-username/route.ts:      const { data: existing, error: _checkError } = await supabase
+src/app/api/user/generate-username/route.ts:      return NextResponse.json({ error: 'Failed to generate unique username' }, { status: 500 });
+src/app/api/user/generate-username/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/generate-username/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:    const { data: existing_profile, error: profile_error } = await supabase
+src/app/api/user/init-profile/route.ts:      const { data: new_profile, error: create_error } = await supabase
+src/app/api/user/init-profile/route.ts:        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:      const { data: updatedProfile, error: updateError } = await supabase
+src/app/api/user/init-profile/route.ts:        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/init-profile/route.ts:    const { data: profile, error: profile_error } = await supabase
+src/app/api/user/init-profile/route.ts:    logger.error('API error in route:', error);
+src/app/api/user/init-profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    const { data: profile, error: profile_error } = await supabase
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    const { data: verifications, error: verificationError } = await supabase
+src/app/api/user/naver-cafe/route.ts:      console.error('Failed to fetch verifications:', verificationError);
+src/app/api/user/naver-cafe/route.ts:    console.error('Naver cafe API error:', error);
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Nickname and member URL are required' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:        { error: `Invalid URL. Only ${DINOHIGHCLASS_CAFE.name} cafe URLs are allowed` },
+src/app/api/user/naver-cafe/route.ts:        { error: `Only ${DINOHIGHCLASS_CAFE.name} cafe members can link their profile` },
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Naver Cafe is already verified' }, { status: 400 });
+src/app/api/user/naver-cafe/route.ts:    const { data: verification, error: verificationError } = await supabase
+src/app/api/user/naver-cafe/route.ts:      console.error('Failed to create verification:', verificationError);
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to create verification request' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    const { error: updateError } = await supabase
+src/app/api/user/naver-cafe/route.ts:      console.error('Failed to update profile:', updateError);
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    console.error('Naver cafe API error:', error);
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    const { error: updateError } = await supabase
+src/app/api/user/naver-cafe/route.ts:      console.error('Failed to update profile:', updateError);
+src/app/api/user/naver-cafe/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/naver-cafe/route.ts:    console.error('Naver cafe API error:', error);
+src/app/api/user/naver-cafe/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:    const { data: profile, error: profileError } = await supabase
+src/app/api/user/profile/route.ts:      const { data: newProfile, error: createError } = await supabase
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+src/app/api/user/profile/route.ts:    logger.error('Failed to get user profile:', error);
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
+src/app/api/user/profile/route.ts:    logger.error('Failed to create/update user profile:', error);
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Invalid username format' }, { status: 400 });
+src/app/api/user/profile/route.ts:        return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
+src/app/api/user/profile/route.ts:      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+src/app/api/user/profile/route.ts:    logger.error('Failed to update user profile:', error);
+src/app/api/user/profile/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Analysis type is required' }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:    const { data: dbVideos, error: videos_error } = await videos_query.limit(100);
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'No videos found' }, { status: 404 });
+src/app/api/youtube/analysis/route.ts:    const { data: stats, error: stats_error } = await supabase
+src/app/api/youtube/analysis/route.ts:      return NextResponse.json({ error: 'Failed to fetch video statistics' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:        return NextResponse.json({ error: `Invalid analysis type: ${type}` }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/analysis/route.ts:        return NextResponse.json({ error: `Invalid query type: ${type}` }, { status: 400 });
+src/app/api/youtube/analysis/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/analysis/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'jobId and jobType are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:      return NextResponse.json({ error: 'type and params are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/batch/route.ts:        { error: 'Daily quota exceeded. Please try again tomorrow.' },
+src/app/api/youtube/batch/route.ts:      { error: error instanceof Error ? error.message : 'Internal server error' },
+src/app/api/youtube/batch/route.ts:      return NextResponse.json({ error: 'action and jobType are required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/batch/route.ts:          return NextResponse.json({ error: 'pattern is required' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+src/app/api/youtube/batch/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/batch/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:        { error: 'Collection ID and Video ID are required' },
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:        { error: 'Collection ID and Video ID are required' },
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/items/route.ts:        { error: 'Collection ID and items array are required' },
+src/app/api/youtube/collections/items/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/items/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/items/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection name is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: 'Collection ID is required' }, { status: 400 });
+src/app/api/youtube/collections/route.ts:      return NextResponse.json({ error: error.message }, { status: 400 });
+src/app/api/youtube/collections/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/collections/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:      logger.error('Failed to fetch favorites:', error);
+src/app/api/youtube/favorites/route.ts:        { error: '즐겨찾기를 불러오는 중 오류가 발생했습니다.' },
+src/app/api/youtube/favorites/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:        { error: '비디오 ID가 필요합니다.' },
+src/app/api/youtube/favorites/route.ts:        { error: '이미 즐겨찾기에 추가된 비디오입니다.' },
+src/app/api/youtube/favorites/route.ts:      logger.error('Failed to add favorite:', error);
+src/app/api/youtube/favorites/route.ts:        { error: '즐겨찾기 추가 중 오류가 발생했습니다.' },
+src/app/api/youtube/favorites/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/route.ts:        { error: '삭제할 비디오 ID가 필요합니다.' },
+src/app/api/youtube/favorites/route.ts:        { error: '일부 즐겨찾기 삭제 중 오류가 발생했습니다.' },
+src/app/api/youtube/favorites/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/favorites/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/[id]/route.ts:      logger.error('Failed to update favorite:', error);
+src/app/api/youtube/favorites/[id]/route.ts:        { error: '즐겨찾기 업데이트 중 오류가 발생했습니다.' },
+src/app/api/youtube/favorites/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/favorites/[id]/route.ts:      logger.error('Failed to delete favorite:', error);
+src/app/api/youtube/favorites/[id]/route.ts:        { error: '즐겨찾기 삭제 중 오류가 발생했습니다.' },
+src/app/api/youtube/favorites/[id]/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/favorites/[id]/route.ts:    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:        { error: 'A folder with this name already exists' },
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
+src/app/api/youtube/folders/route.ts:          { error: 'A folder with this name already exists' },
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to update folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
+src/app/api/youtube/folders/route.ts:    const { error: channel_error } = await supabase
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to delete folder channels' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:      return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 });
+src/app/api/youtube/folders/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/folders/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:    return NextResponse.json({ error: 'Invalid type. Use "video" or "channel"' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/metrics/route.ts:        error: error instanceof Error ? error.message : 'Failed to fetch metrics',
+src/app/api/youtube/metrics/route.ts:        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+src/app/api/youtube/metrics/route.ts:        details: env.NODE_ENV === 'development' ? String(error) : undefined,
+src/app/api/youtube/metrics/route.ts:      return NextResponse.json({ error: 'Videos array is required' }, { status: 400 });
+src/app/api/youtube/metrics/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/metrics/route.ts:        error: error instanceof Error ? error.message : 'Failed to calculate batch metrics',
+src/app/api/youtube/metrics/route.ts:        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+src/app/api/youtube/metrics/route.ts:        details: env.NODE_ENV === 'development' ? String(error) : undefined,
+src/app/api/youtube/metrics/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Invalid region code' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Invalid period. Use 1d, 7d, or 30d' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:      return NextResponse.json({ error: 'Limit must be between 1 and 100' }, { status: 400 });
+src/app/api/youtube/popular/route.ts:            error: 'YouTube API key not configured',
+src/app/api/youtube/popular/route.ts:            error_code: 'api_key_required',
+src/app/api/youtube/popular/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/popular/route.ts:          error: 'YouTube API quota exceeded',
+src/app/api/youtube/popular/route.ts:        error: error instanceof Error ? error.message : 'Failed to fetch popular shorts',
+src/app/api/youtube/popular/route.ts:        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+src/app/api/youtube/popular/route.ts:        details: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+src/app/api/youtube/popular/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/popular/route.ts:        error: 'Failed to perform advanced search',
+src/app/api/youtube/popular/route.ts:        message: error instanceof Error ? error.message : 'Unknown error',
+src/app/api/youtube/search/route.ts:      return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
+src/app/api/youtube/search/route.ts:          error: 'YouTube API Key가 필요합니다. 설정 페이지에서 API Key를 등록해주세요.',
+src/app/api/youtube/search/route.ts:          error_code: 'apiKeyRequired',
+src/app/api/youtube/search/route.ts:    const { data: api_key_data, error: _usageError } = await supabase
+src/app/api/youtube/search/route.ts:          error: 'API quota exceeded. Please try again tomorrow.',
+src/app/api/youtube/search/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/search/route.ts:            error: 'YouTube API 일일 할당량을 초과했습니다. 내일 다시 시도해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'quotaExceeded',
+src/app/api/youtube/search/route.ts:            error: 'YouTube API 접근 권한이 없습니다. API Key를 확인해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'accessForbidden',
+src/app/api/youtube/search/route.ts:            error: '잘못된 검색 요청입니다. 검색어를 확인해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'invalidRequest',
+src/app/api/youtube/search/route.ts:            error: 'API Key가 유효하지 않습니다. 설정 페이지에서 다시 등록해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'invalidApiKey',
+src/app/api/youtube/search/route.ts:            error: '저장된 API Key를 읽을 수 없습니다. 다시 등록해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'decryptionFailed',
+src/app/api/youtube/search/route.ts:            error: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+src/app/api/youtube/search/route.ts:            error_code: 'networkError',
+src/app/api/youtube/search/route.ts:        error: 'YouTube 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+src/app/api/youtube/search/route.ts:        error_code: 'searchFailed',
+src/app/api/youtube/subscribe/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:        error: result.error || 'Failed to subscribe',
+src/app/api/youtube/subscribe/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to subscribe to channel' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:        error: result.error || 'Failed to unsubscribe',
+src/app/api/youtube/subscribe/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to unsubscribe from channel' }, { status: 500 });
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube/subscribe/route.ts:    const { data: subscription, error: fetch_error } = await supabase
+src/app/api/youtube/subscribe/route.ts:      return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
+src/app/api/youtube/subscribe/route.ts:        error: result.error || 'Failed to renew subscription',
+src/app/api/youtube/subscribe/route.ts:    logger.error('API error in route:', error);
+src/app/api/youtube/subscribe/route.ts:    return NextResponse.json({ error: 'Failed to renew subscription' }, { status: 500 });
+src/app/api/youtube/validate-key/route.ts:      console.error('[validate-key] Failed to parse request body:', parseError);
+src/app/api/youtube/validate-key/route.ts:          error: '잘못된 요청 형식입니다.',
+src/app/api/youtube/validate-key/route.ts:          error: 'API key를 입력해주세요.',
+src/app/api/youtube/validate-key/route.ts:          error: validation.error || 'API key가 유효하지 않습니다.',
+src/app/api/youtube/validate-key/route.ts:  } catch (error: unknown) {
+src/app/api/youtube/validate-key/route.ts:    console.error('[validate-key] Unexpected error:', error);
+src/app/api/youtube/validate-key/route.ts:        error: 'API key 검증 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+src/app/api/youtube/webhook/route.ts:      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: result.error || 'Verification failed' }, { status: 404 });
+src/app/api/youtube/webhook/route.ts:    console.error('Webhook GET error:', error);
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+src/app/api/youtube/webhook/route.ts:      return NextResponse.json({ error: 'Invalid notification format' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: result.error || 'Processing failed' }, { status: 400 });
+src/app/api/youtube/webhook/route.ts:    console.error('Webhook POST error:', error);
+src/app/api/youtube/webhook/route.ts:    return NextResponse.json({ error: 'Internal server error' }, { status: 200 });
+src/app/api/youtube/webhook/route.ts:    console.error('Failed to handle video update:', error);
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:    console.error('Approval logs GET error:', error);
+src/app/api/youtube-lens/admin/approval-logs/[channelId]/route.ts:      { error: error instanceof Error ? error.message : 'Failed to fetch approval logs' },
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/route.ts:  } catch (error: unknown) {
+src/app/api/youtube-lens/admin/channels/route.ts:    console.error('Admin channels GET error:', error);
+src/app/api/youtube-lens/admin/channels/route.ts:      { error: error instanceof Error ? error.message : 'Failed to fetch channels' },
+src/app/api/youtube-lens/admin/channels/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/route.ts:      return NextResponse.json({ error: 'Channel ID is required' }, { status: 400 });
+src/app/api/youtube-lens/admin/channels/route.ts:      return NextResponse.json({ error: 'Channel not found on YouTube' }, { status: 404 });
+src/app/api/youtube-lens/admin/channels/route.ts:        return NextResponse.json({ error: 'Channel already exists' }, { status: 409 });
+src/app/api/youtube-lens/admin/channels/route.ts:  } catch (error: unknown) {
+src/app/api/youtube-lens/admin/channels/route.ts:    console.error('Admin channel POST error:', error);
+src/app/api/youtube-lens/admin/channels/route.ts:      { error: error instanceof Error ? error.message : 'Failed to add channel' },
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    const { data: channel, error: channelError } = await supabase
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    const { error: logError } = await supabase
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    console.error('Admin channel PUT error:', error);
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:      { error: error instanceof Error ? error.message : 'Failed to update channel' },
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:    console.error('Admin channel DELETE error:', error);
+src/app/api/youtube-lens/admin/channels/[channelId]/route.ts:      { error: error instanceof Error ? error.message : 'Failed to delete channel' },
+src/app/api/youtube-lens/trending-summary/route.ts:    console.error('Dashboard summary error:', error);
+src/app/api/youtube-lens/trending-summary/route.ts:    return NextResponse.json({ error: 'Failed to fetch summary' }, { status: 500 });

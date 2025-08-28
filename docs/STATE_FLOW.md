@@ -89,6 +89,9 @@ import { Database } from '@/types/database.types';     // 금지!
 - [📊 상태 관리 통계](#-상태-관리-통계)
 - [🚨 개선 필요 사항](#-개선-필요-사항)
 
+### E2E 테스트
+- [🚨 E2E 테스트 에러 상태 관리](#-e2e-테스트-에러-상태-관리)
+
 ---
 
 ## 🏗️ 상태 관리 아키텍처
@@ -884,6 +887,49 @@ const setApiKey = (key) => {
 - **Local State**: 페이지당 평균 5-10개
 - **UI State**: 컴포넌트당 평균 2-3개
 - **캐싱 효율**: API 호출 70% 감소 (React Query 도입 후)
+
+---
+
+## 🚨 E2E 테스트 에러 상태 관리
+*추가: 2025-01-31*
+
+### 에러 감지 상태 플로우
+```typescript
+// ErrorDetector 클래스 내부 상태
+class ErrorDetector {
+  private errors: Array<{
+    type: 'console' | 'pageerror' | 'weberror' | 'nextjs-overlay' | 'error-boundary';
+    message: string;
+    context: ErrorContext;
+  }> = [];
+  
+  private currentAction: string = '';
+}
+```
+
+### 에러 컨텍스트 추적
+```typescript
+interface ErrorContext {
+  url: string;           // 에러 발생 페이지
+  timestamp: string;      // 에러 발생 시간
+  testName: string;       // 테스트 이름
+  action?: string;        // 실행 중이던 액션
+}
+```
+
+### 에러 감지 후 상태 변화
+```
+[정상 실행] → [에러 감지] → [스크린샷 저장] → [테스트 중단] → [에러 리포트]
+     ↓           ↓              ↓                  ↓              ↓
+  실행 중    errors 배열     test-results/     throw Error    getErrors()
+            추가           error-*.png
+```
+
+### E2E 테스트 에러 복구 전략
+- **즉시 실패 (Fail Fast)**: 에러 발생 즉시 테스트 중단
+- **컨텍스트 보존**: 에러 발생 시점의 모든 정보 저장
+- **자동 리포트**: 테스트 종료 시 에러 요약 제공
+- **재시도 불가**: 런타임 에러는 재시도 없이 실패 처리
 
 ---
 

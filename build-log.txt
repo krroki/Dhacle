@@ -1,0 +1,20 @@
+
+> dhacle-v2@0.2.1 build
+> next build
+
+   ▲ Next.js 15.4.6
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+
+[1m[33mwarn[39m[22m - The class `duration-[var(--progress-duration,50ms)]` is ambiguous and matches multiple utilities.
+[1m[33mwarn[39m[22m - If this is content and not a class, replace it with `duration-&lsqb;var(--progress-duration,50ms)&rsqb;` to silence this warning.
+ ✓ Compiled successfully in 11.0s
+   Linting and checking validity of types ...
+Failed to compile.
+
+Type error: File 'C:/My_Claude_Project/9.Dhacle/.next/types/app/(pages)/accessibility/page.ts' not found.
+  The file is in the program because:
+    Root file specified for compilation
+
+Next.js build worker exited with code: 1 and signal: null

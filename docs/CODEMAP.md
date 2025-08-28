@@ -79,6 +79,13 @@ npm run build:analyze          # 번들 분석기 실행 (ANALYZE=true) 🆕 202
 npx tsc --noEmit               # TypeScript 체크
 npm run lint                    # ESLint 검사
 
+# 🧪 E2E 테스트 명령어 (2025-08-27 최적화) ⚡
+npm run e2e:ui                 # 추천! 시각적 + 빠른 실행 (Chromium만)
+npm run e2e:fast               # 초고속 검증 (Smoke 테스트, 1-2분)
+npm run e2e                    # 기본 실행 (Chromium만, 60% 빠름)
+npm run e2e:debug              # 디버그 모드 (단계별 실행)
+npm run e2e:all-browsers       # 전체 브라우저 테스트 (기존 방식)
+
 # 🔧 보안 도구 (5개) - 2025-08-24
 npm run security:test           # 보안 테스트
 npm run security:apply-rls-all  # RLS 정책 적용
@@ -93,17 +100,14 @@ npm run format:biome           # Biome 코드 포맷팅
 npm run verify:complete        # 전체 검증 (기존 + Biome)
 npm run fix:all                # 모든 자동 수정 한번에
 
-# 🧪 테스트 명령어 (2025-08-27 업데이트) 🎭
+# 🧪 단위/통합 테스트 명령어 (Vitest)
 npm run test                   # Vitest 테스트 실행 (watch 모드)
 npm run test:coverage          # 테스트 커버리지 확인
 npm run test:ui                # Vitest UI 실행
-npm run e2e                    # Playwright E2E 테스트 (헤드리스)
-npm run e2e:ui                 # Playwright UI 실행 (시각적 테스트) ⭐추천
-npm run e2e:debug              # Playwright 디버그 모드
-npm run e2e:chromium           # Chrome만 테스트
-npm run e2e:headed             # 브라우저 보면서 테스트
-npm run e2e:install            # Playwright 브라우저 설치
-npx playwright codegen localhost:3000  # 🎬 테스트 코드 자동 생성!
+
+# 🎬 테스트 코드 생성 도구
+npx playwright codegen localhost:3000  # 테스트 코드 자동 생성!
+npx playwright install         # Playwright 브라우저 설치
 
 # Supabase 마이그레이션 (100% 완료 ✅)
 npm run supabase:migrate-complete # Service Role Key 활용 완벽 실행 ✅
@@ -258,11 +262,34 @@ src/
 
 ```
 9.Dhacle/
+├── .claude/                       # 🤖 Claude Code 서브에이전트 시스템 🆕 2025-08-28
+│   ├── agents/                   # 12개 전문 에이전트 (pm-dhacle + 11개)
+│   │   ├── pm-dhacle.md          # 프로젝트 매니저 (총괄 조정)
+│   │   ├── api-route-agent.md    # API 라우트 전문가
+│   │   ├── component-agent.md    # React 컴포넌트 전문가
+│   │   ├── type-agent.md         # TypeScript 타입 수호자
+│   │   ├── database-agent.md     # Supabase DB 전문가
+│   │   ├── security-agent.md     # 보안 수호자
+│   │   ├── query-agent.md        # React Query 전문가
+│   │   ├── test-agent.md         # E2E 테스트 전문가
+│   │   ├── script-agent.md       # 스크립트 관리자
+│   │   ├── lib-agent.md          # 라이브러리 관리자
+│   │   ├── page-agent.md         # Next.js 페이지 전문가
+│   │   └── doc-agent.md          # 문서 관리자
+│   ├── settings.json             # 에이전트 설정 및 자동 활성화 규칙
+│   └── hooks/                    # Claude Code 훅 디렉토리
+├── install-agents.sh              # 서브에이전트 시스템 설치/검증 스크립트 🆕
 ├── .semgrep.yml                   # Semgrep 보안 규칙 🆕 2025-08-20
 ├── biome.json                     # Biome 설정 파일 🆕 2025-08-20
 ├── SEMGREP_GUIDE.md              # Semgrep 사용 가이드 🆕 2025-08-20
 ├── PLAYWRIGHT_GUIDE.md           # 🎭 Playwright 사용 가이드 🆕 2025-08-27
 ├── TEST_GUIDE.md                 # 🧪 테스트 통합 가이드 🔥 2025-08-27
+├── E2E_ERROR_DETECTION.md        # 🛡️ E2E 런타임 에러 감지 가이드 🆕 2025-08-27
+├── E2E_ERROR_DETECTION_VALIDATION.md # 🔍 E2E 에러 감지 검증 결과 🆕 2025-08-27
+├── E2E_OPTIMIZATION_GUIDE.md     # 🚀 E2E 테스트 최적화 완전 가이드 🔥 2025-08-27
+├── playwright.config.ts          # 🎭 Playwright 설정 (최적화 완료) 🔥 2025-08-27
+├── playwright.temp.config.ts     # 🆕 임시 테스트 설정 (디버깅용) 2025-08-27
+├── next.config.ts                # 🆕 SVG 최적화 설정 포함 (2025-08-27)
 ├── src/
 │   ├── middleware.ts              # 캐싱 정책 & 보안 헤더 ✅ Wave 2
 │   ├── app/
@@ -313,6 +340,7 @@ src/
 │   │   ├── user.ts                # 사용자 상태 🆕 2025-08-23
 │   │   └── notifications.ts       # 알림 상태 🆕 2025-08-23
 │   ├── hooks/                     # Custom Hooks
+│   │   ├── use-youtube-lens-subscription.ts  # 🆕 클라이언트 PubSub Hook (2025-08-27)
 │   │   └── queries/               # React Query Hooks 🆕 2025-08-23 (17개)
 │   │       ├── index.ts           # Export barrel
 │   │       └── ... (16개 Hook 파일)
@@ -335,6 +363,8 @@ src/
 │   │       └── VideoPlayer.tsx    # 비디오 플레이어
 │   ├── env.ts                     # 환경변수 타입 정의 🆕 2025-08-23
 │   └── lib/
+│       ├── pubsub/                # 🆕 PubSub 시스템 (2025-08-27)
+│       │   └── youtube-lens-pubsub.ts  # 서버사이드 Realtime PubSub
 │       ├── supabase/              # Supabase 설정
 │       │   ├── browser-client.ts  # 브라우저 클라이언트
 │       │   └── server-client.ts   # 서버 클라이언트
@@ -362,10 +392,18 @@ src/
 │   │   └── ... (기존 마이그레이션 파일들)
 │   └── config.toml                # Supabase 설정
 ├── e2e/                          # 🎭 E2E 테스트 (Playwright) - 2025-08-27 확대
+│   ├── helpers/                  # 🆕 E2E 테스트 헬퍼 (2025-08-27)
+│   │   └── error-detector.ts     # 🛡️ 런타임 에러 감지 시스템
 │   ├── auth.spec.ts              # 인증 플로우 테스트 (로그인/로그아웃)
 │   ├── full-journey.spec.ts      # 10분 사용자 시나리오 테스트
 │   ├── payment-flow.spec.ts      # 🆕 결제 프로세스 E2E 테스트
 │   ├── youtube-lens.spec.ts      # 🆕 YouTube Lens 기능 테스트
+│   ├── auth-enhanced.spec.ts     # 🚀 런타임 에러 감지 강화 인증 테스트 (2025-08-27)
+│   ├── error-detection-validation.spec.ts # 🆕 에러 감지 검증 테스트
+│   ├── error-safe-example.spec.ts        # 🆕 에러 감지 예시
+│   ├── comprehensive-e2e-with-error-detection.spec.ts # 🆕 종합 테스트
+│   ├── global-setup.ts           # 🛡️ 전역 에러 감지 설정 (2025-08-27)
+│   ├── demo-error-detection.js   # 🆕 에러 감지 데모 스크립트
 │   └── fixtures/                 # 테스트 데이터/설정
 ├── tests/                        # 단위/통합 테스트 (Vitest)
 │   ├── setup.ts                  # 테스트 설정

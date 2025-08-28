@@ -1,0 +1,6 @@
+.claude/agents/api-route-agent.md
+.claude/agents/component-agent.md
+.claude/agents/database-agent.md
+.claude/agents/pm-dhacle.md
+.claude/agents/security-agent.md
+.claude/agents/type-agent.md

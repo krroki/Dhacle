@@ -301,6 +301,77 @@ class ErrorBoundary extends React.Component {
 
 ---
 
+## 🧪 E2E 테스트 런타임 에러 감지 전략 (2025-08-27 추가)
+
+### 문제: 테스트가 런타임 에러를 무시하고 계속 진행
+E2E 테스트 중 Next.js 런타임 에러가 발생해도 Playwright 테스트가 이를 감지하지 못하고 계속 진행되어, 잘못된 테스트 결과를 제공하는 문제가 있었습니다.
+
+### 해결: ErrorDetector 시스템 도입
+```typescript
+// e2e/helpers/error-detector.ts 활용
+import { errorSafeTest, withErrorContext } from './helpers/error-detector';
+
+errorSafeTest('안전한 테스트', async ({ page, errorDetector }) => {
+  // 자동으로 다음 에러들을 감지:
+  // 1. console.error() 메시지
+  // 2. JavaScript 런타임 에러 (TypeError, ReferenceError 등)
+  // 3. Next.js 에러 오버레이 ([data-nextjs-dialog])
+  // 4. React Error Boundary 활성화
+  // 5. 웹 에러 (weberror 이벤트)
+  
+  await withErrorContext(errorDetector, '중요 액션', async () => {
+    await page.goto('/');
+    // 에러 발생 시 즉시 테스트 실패 + 컨텍스트 정보 제공
+  });
+});
+```
+
+### 에러 감지 레벨
+| 레벨 | 감지 대상 | 처리 방법 |
+|------|----------|----------|
+| **Console 에러** | console.error() 호출 | 즉시 테스트 실패 |
+| **JavaScript 에러** | throw Error, TypeError 등 | 즉시 테스트 실패 |
+| **Next.js 오버레이** | 개발 모드 에러 UI | 즉시 테스트 실패 |
+| **Error Boundary** | React 에러 경계 활성화 | 즉시 테스트 실패 |
+| **웹 에러** | 브라우저 레벨 에러 | 즉시 테스트 실패 |
+
+### 에러 컨텍스트 추적
+```typescript
+// 에러 발생 시 자동으로 기록되는 정보:
+{
+  type: 'console' | 'pageerror' | 'weberror' | 'nextjs-overlay' | 'error-boundary',
+  message: '에러 메시지',
+  context: {
+    url: '발생 페이지 URL',
+    timestamp: '2025-01-27T12:00:00Z',
+    testName: '실행 중이던 테스트',
+    action: '실행 중이던 액션 (withErrorContext로 설정)'
+  },
+  screenshot: 'test-results/error-console-1234567890.png'
+}
+```
+
+### 마이그레이션 가이드
+```typescript
+// Before: 일반 테스트 (에러 무시)
+test('기존 테스트', async ({ page }) => {
+  await page.goto('/'); // 에러 발생해도 계속 진행
+});
+
+// After: 에러 감지 테스트
+errorSafeTest('개선된 테스트', async ({ page, errorDetector }) => {
+  await page.goto('/'); // 에러 시 즉시 실패
+});
+```
+
+### 관련 파일
+- 구현: `/e2e/helpers/error-detector.ts`
+- 문서: `/docs/E2E_ERROR_DETECTION.md`
+- 데모: `/e2e/demo-error-detection.js`
+- 검증: `/docs/E2E_ERROR_DETECTION_VALIDATION.md`
+
+---
+
 ## 📝 에러 메시지 가이드라인
 
 ### 사용자 친화적 메시지

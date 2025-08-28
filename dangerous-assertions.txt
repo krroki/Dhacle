@@ -1,0 +1,22 @@
+src/app/(pages)/revenue-proof/create/page.tsx:                        setValue('screenshot', undefined as unknown as File);
+src/app/api/payment/confirm/route.ts:        payment_data: { paymentKey } as unknown as Json, // 토스페이먼츠 결제 키 저장
+src/app/api/payment/fail/route.ts:        payment_data: { failureReason: message || code || '결제 실패' } as unknown as Json,
+src/app/api/youtube/analysis/route.ts:          })) as unknown as Parameters<typeof batchPredict>[0],
+src/app/api/youtube/analysis/route.ts:              })) as unknown as Parameters<typeof batchPredict>[0],
+src/app/api/youtube/analysis/route.ts:            })) as unknown as Parameters<typeof detectOutliers>[0]
+src/app/api/youtube/analysis/route.ts:            const prediction = await predictVideoPerformance(video, (v.video_stats || []) as unknown as Parameters<typeof predictVideoPerformance>[1]);
+src/app/api/youtube/search/route.ts:      filters: filters as unknown as Json,
+src/lib/api-keys.ts:      metadata: metadata as unknown as Json | null,
+src/lib/query-keys.ts:        const keyFunction = (moduleKeys as unknown as ModuleKeysType)[subKey];
+src/lib/supabase/browser-client.ts:    } as unknown as ReturnType<typeof createSupabaseBrowserClientSSR<Database>>;
+src/lib/youtube/collections-server.ts:          video: item.video as unknown as Video, // Cast to Video type since we've validated it above
+src/lib/youtube/monitoring.ts:    } as unknown as SourceFolder;
+src/lib/youtube/monitoring.ts:    } as unknown as SourceFolder));
+src/lib/youtube/monitoring.ts:    } as unknown as SourceFolder;
+src/lib/youtube/monitoring.ts:    } as unknown as AlertRule;
+src/lib/youtube/monitoring.ts:    } as unknown as AlertRule));
+src/lib/youtube/monitoring.ts:      metric_data: alert.contextData as unknown as undefined,
+src/lib/youtube/monitoring.ts:            const fcData = fc as unknown as { channel_id?: string; [key: string]: unknown };
+src/lib/youtube/popular-shorts.ts:      thumbnails: (video.snippet.thumbnails as unknown as Video['thumbnails']) || null,
+src/lib/youtube/pubsub.ts:          const subData = subscription as unknown as SubscriptionData;
+src/middleware.ts:  const client_ip = getClientIp(request as unknown as Request);

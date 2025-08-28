@@ -226,7 +226,7 @@ export async function saveUserApiKey(params: {
       api_key_masked: api_key_masked,
       is_active: true,
       is_valid: true,
-      metadata: metadata as unknown as Json | null,
+      metadata: metadata as Json | null,
     })
     .select()
     .single();

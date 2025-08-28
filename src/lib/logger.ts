@@ -6,8 +6,6 @@
  * and environment-specific behavior
  */
 
-import { env } from '@/env';
-
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogContext {
@@ -18,7 +16,7 @@ interface LogContext {
 }
 
 class Logger {
-  private isDevelopment = env.NODE_ENV === 'development';
+  private isDevelopment = typeof window === 'undefined' && process.env.NODE_ENV === 'development';
   
   private formatMessage(
     level: LogLevel,

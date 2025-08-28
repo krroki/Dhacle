@@ -108,7 +108,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // Wave 3: Rate Limiting 적용
-  const client_ip = getClientIp(request as unknown as Request);
+  const client_ip = getClientIp(request);
   const identifier = `${client_ip}:${pathname}`;
 
   // 인증 관련 엔드포인트는 더 엄격한 제한

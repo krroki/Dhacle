@@ -265,7 +265,7 @@ export default function CreateRevenueProof() {
                       onClick={() => {
                         setImagePreview('');
                         setImageFile(null);
-                        setValue('screenshot', undefined as unknown as File);
+                        setValue('screenshot', null as unknown as File);
                       }}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />

@@ -461,9 +461,24 @@ export default function PopularShortsList({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          // TODO: Implement save to collection
+                          // Save to collection
+                          try {
+                            const response = await fetch('/api/youtube/collections', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                videoId: video.id,
+                                type: 'favorites'
+                              })
+                            });
+                            if (response.ok) {
+                              console.log('Saved to collection');
+                            }
+                          } catch (error) {
+                            console.error('Failed to save:', error);
+                          }
                         }}
                       >
                         <Bookmark className="w-3 h-3" />

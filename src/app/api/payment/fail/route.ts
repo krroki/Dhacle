@@ -34,7 +34,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .update({
         payment_status: 'failed',
         updated_at: new Date().toISOString(),
-        payment_data: { failureReason: message || code || '결제 실패' } as unknown as Json,
+        payment_data: { failureReason: message || code || '결제 실패' } satisfies Json,
       })
       .eq('payment_id', orderId)
       .select()

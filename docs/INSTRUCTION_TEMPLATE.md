@@ -208,6 +208,26 @@ npm run build
 npm run types:check
 ```
 
+#### 🚨 E2E 테스트 에러 감지 (2025-01-31 추가)
+```bash
+# E2E 테스트 시 런타임 에러 즉시 감지
+- [ ] errorSafeTest 사용으로 변환
+- [ ] Console 에러 리스너 설정
+- [ ] JavaScript 런타임 에러 감지
+- [ ] Next.js 에러 오버레이 감지
+- [ ] Error Boundary 활성화 감지
+
+# 에러 감지 테스트 예시
+import { errorSafeTest, withErrorContext } from './e2e/helpers/error-detector';
+
+errorSafeTest('기능 테스트', async ({ page, errorDetector }) => {
+  await withErrorContext(errorDetector, '작업 설명', async () => {
+    await page.goto('/');
+    // 에러 발생 시 즉시 테스트 중단
+  });
+});
+```
+
 #### 📚 프로젝트 핵심 정보
 - **프레임워크**: Next.js 15.4.6 (App Router)
 - **데이터베이스**: Supabase

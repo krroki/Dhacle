@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { snakeToCamelCase } from '@/types';
+import { startChannelSubscription } from '@/lib/pubsub/youtube-lens-pubsub';
 
 // PATCH: 채널 승인/거부 (관리자 전용)
 export async function PATCH(
@@ -65,8 +66,7 @@ export async function PATCH(
 
     // 3. PubSub 구독 시작 (승인된 경우)
     if (action === 'approved') {
-      // TODO: PubSub 구독 구현
-      console.log('TODO: Start PubSub subscription for channel', channelId);
+      await startChannelSubscription(channelId);
     }
 
     return NextResponse.json({

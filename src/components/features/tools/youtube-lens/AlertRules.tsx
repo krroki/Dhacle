@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,13 +58,7 @@ export default function AlertRules({ channelId }: AlertRulesProps) {
   const supabase = createBrowserClient();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (channelId) {
-      loadAlertRules();
-    }
-  }, [channelId]);
-
-  const loadAlertRules = async () => {
+  const loadAlertRules = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -100,7 +94,13 @@ export default function AlertRules({ channelId }: AlertRulesProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [channelId, supabase, toast, setLoading, setRules]);
+
+  useEffect(() => {
+    if (channelId) {
+      loadAlertRules();
+    }
+  }, [channelId, loadAlertRules]);
 
   const createRule = async () => {
     if (!channelId) {

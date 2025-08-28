@@ -2,12 +2,15 @@
 export const runtime = 'nodejs';
 
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { generateRandomUsername } from '@/lib/utils/username-generator';
-import type { Database } from '@/types';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
+import { 
+  createSuccessResponse, 
+  createInternalServerErrorResponse, 
+  createValidationErrorResponse 
+} from '@/lib/api-error-utils';
 
 // POST: Generate unique username
 export async function POST(_request: NextRequest): Promise<NextResponse> {
@@ -22,7 +25,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const supabase = (await createSupabaseRouteHandlerClient()) as SupabaseClient<Database>;
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 이미 username이 있는지 확인
     const { data: profile, error: profile_error } = await supabase
@@ -32,16 +35,17 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (profile_error && profile_error.code !== 'PGRST116') {
-      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+      logger.error('Failed to fetch user profile:', profile_error);
+      return createInternalServerErrorResponse(
+        'Failed to fetch user profile',
+        'PROFILE_FETCH_FAILED'
+      );
     }
 
     if (profile?.username) {
-      return NextResponse.json(
-        {
-          error: 'Username already exists',
-          username: profile.username,
-        },
-        { status: 400 }
+      return createValidationErrorResponse(
+        'Username already exists for this user',
+        { username: profile.username }
       );
     }
 
@@ -69,15 +73,20 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     }
 
     if (attempts >= max_attempts) {
-      return NextResponse.json({ error: 'Failed to generate unique username' }, { status: 500 });
+      return createInternalServerErrorResponse(
+        'Failed to generate unique username after multiple attempts',
+        'USERNAME_GENERATION_EXHAUSTED'
+      );
     }
 
-    return NextResponse.json({
+    return createSuccessResponse({
       username: username,
-      message: 'Username generated successfully',
-    });
+    }, 'Username generated successfully');
   } catch (error) {
-    logger.error('API error in route:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('API error in generate-username route:', error);
+    return createInternalServerErrorResponse(
+      'Username generation failed due to server error',
+      'USERNAME_GENERATION_FAILED'
+    );
   }
 }

@@ -73,7 +73,14 @@ export async function middleware(request: NextRequest) {
     }
     
     // Protected route logic with proper enforcement
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/tools/transcribe')
+    const protectedRoutes = [
+      '/mypage',
+      '/admin', 
+      '/tools/youtube-lens',
+      '/tools/transcribe',
+      '/dashboard'
+    ]
+    const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
     const isAuthRoute = request.nextUrl.pathname.startsWith('/auth')
     
     if (isProtectedRoute && !session && !isAuthRoute) {

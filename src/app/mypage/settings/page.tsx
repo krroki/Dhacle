@@ -36,14 +36,27 @@ export default function SettingsPage() {
       return;
     }
 
-    if (!confirm('계정 삭제 시 모든 데이터가 영구적으로 삭제됩니다. 계속하시겠습니까?')) {
+    const password = prompt('계정 삭제를 확인하기 위해 비밀번호를 입력해주세요:');
+    if (!password) {
       return;
     }
 
     set_loading(true);
     try {
-      // TODO: 계정 삭제 API 구현
-      set_message('계정 삭제 기능은 준비 중입니다. 고객센터로 문의해주세요.');
+      const response = await fetch('/api/account/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password })
+      });
+
+      if (response.ok) {
+        window.location.href = '/';
+      } else {
+        const error = await response.json();
+        set_message(error.error || '계정 삭제 중 오류가 발생했습니다');
+      }
     } catch (error) {
       console.error('Page error:', error);
       set_message('계정 삭제 중 오류가 발생했습니다');

@@ -1,7 +1,19 @@
-# 🎯 E2E 실행 지시서 템플릿 V7 - 안정적 사이트 구현 중심
+# 🎯 E2E 실행 지시서 템플릿 V7.2 - 테스트 실행 강제화
 
 **핵심**: "사용자가 실제로 사용할 수 있는 안정적인 사이트가 아니면 완료가 아니다"
 **V7 철학**: "타입 에러 0개 < 실제 작동 < 안정적 사용 가능"
+
+## 🆕 V7.2 업데이트 - 테스트 즉시 실행 강제화
+- **테스트 생성 즉시 실행**: 생성만 하고 끝내는 것 절대 금지
+- **Phase 5 진입 차단**: 테스트 실행 없이는 다음 단계 진입 불가
+- **실행 보고서 필수**: 실행 결과 증거 없이 완료 선언 금지
+- **AI 실수 패턴 방지**: "테스트 작성 완료" 후 실행 없이 넘어가는 것 차단
+
+## 🆕 V7.1 업데이트 - 런타임 에러 감지 강화
+- **errorSafeTest**: 런타임 에러 즉시 감지 및 중단
+- **withErrorContext**: 에러 발생 위치 정확히 추적
+- **에러 감지 헬퍼**: Console/JS/Next.js 에러 모니터링
+- **"엄한짓" 방지**: 에러 무시하고 계속 진행하는 것 차단
 
 ---
 
@@ -275,6 +287,8 @@ find src -name "*auth*" -type f
 - [ ] 기존 패턴 파악 완료  
 - [ ] 연관 파일 목록 작성
 - [ ] DB 스키마 확인 완료
+- [ ] 에러 감지 시스템 확인 (e2e/helpers/error-detector.ts)
+- [ ] 기존 에러 처리 패턴 분석
 ```
 
 ---
@@ -383,6 +397,12 @@ npm run types:check 2>&1 | grep "error TS"
 - [ ] 권한 검증
 - [ ] XSS 방지
 - [ ] SQL Injection 방지
+
+## 3.4 런타임 에러 방어 (신규)
+- [ ] Console 에러 모니터링 설정
+- [ ] JavaScript 에러 캐치 구현
+- [ ] Error Boundary 설정 (React)
+- [ ] Next.js 에러 페이지 구성
 ```
 
 ### 🚨 안정성 체크포인트 #3
@@ -401,7 +421,65 @@ echo "5. 로그아웃 → 재로그인 → 데이터 유지"
 
 ---
 
-## 🧪 Phase 4: 테스트 작성 (필수!)
+## 🧪 Phase 4: 테스트 작성 및 즉시 실행 (필수!)
+
+### ⚠️ AI가 자주 하는 실수 (이것만큼은 절대 금지!)
+```markdown
+🤖 AI 실수 패턴:
+1. "테스트 파일을 생성했습니다" → Phase 5로 이동 ❌
+2. "테스트를 작성했습니다. 이제 검증을..." → 실행 없이 넘어감 ❌
+3. "e2e/test.spec.ts 파일 생성 완료" → 실행 안 함 ❌
+4. "테스트 코드는 다음과 같습니다..." → 보여만 주고 실행 안 함 ❌
+
+✅ 올바른 AI 행동:
+1. 테스트 파일 생성
+2. "이제 테스트를 실행하겠습니다"
+3. npx playwright test 실행
+4. 실행 결과 보고
+5. 실패 시 수정 및 재실행
+```
+
+### ⛔ STOP! 테스트 생성만 하면 미완료
+```markdown
+❌ 테스트 파일 생성만 = 작업 미완료
+❌ "테스트 작성 완료" 후 Phase 5로 이동 = 실패
+✅ 테스트 생성 → 즉시 실행 → 통과 확인 = 완료
+```
+
+### 🔴 필수 실행 워크플로우
+```bash
+# AI는 반드시 다음 순서로 실행해야 함:
+1. 테스트 파일 생성
+2. 즉시 실행: npx playwright test [파일명]
+3. 실패 시 수정
+4. 재실행하여 통과 확인
+5. 실행 로그와 함께 완료 보고
+```
+
+### 🤖 자동 실행 강제화
+```bash
+# 테스트 파일 생성 직후 바로 실행하는 스크립트
+cat > run-test-immediately.sh << 'EOF'
+#!/bin/bash
+TEST_FILE=$1
+echo "🔴 테스트 파일 생성 감지: $TEST_FILE"
+echo "⚡ 3초 후 자동 실행됩니다..."
+sleep 3
+echo "🚀 테스트 실행 시작"
+npx playwright test $TEST_FILE --project=chromium
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+  echo "❌ 테스트 실패! 수정 필요"
+  exit 1
+else
+  echo "✅ 테스트 통과!"
+fi
+EOF
+
+# AI는 테스트 파일 생성 후 즉시 이 스크립트 실행
+chmod +x run-test-immediately.sh
+./run-test-immediately.sh e2e/[feature].spec.ts
+```
 
 ### 4.1 작동 확인된 기능 테스트로 보호
 
@@ -451,12 +529,45 @@ describe('API E2E 동작', () => {
 })
 ```
 
-```typescript  
-// E2E 시나리오 테스트
+### 🔴 4.2 런타임 에러 감지가 강화된 E2E 테스트
+
+```typescript
+// 에러 감지가 강화된 E2E 테스트 (권장)
 // e2e/[feature].spec.ts
+import { errorSafeTest, withErrorContext } from './helpers/error-detector'
+
+// 일반 테스트 대신 errorSafeTest 사용
+errorSafeTest('[기능명] 전체 플로우 (에러 감지)', async ({ page, errorDetector }) => {
+  // 1. 시작 - 에러 컨텍스트 추적
+  await withErrorContext(errorDetector, '홈페이지 접속', async () => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+  })
+  
+  // 2. 로그인 - 런타임 에러 즉시 감지
+  await withErrorContext(errorDetector, '테스트 로그인', async () => {
+    await page.click('text=테스트 로그인')
+    await page.waitForURL('/dashboard')
+  })
+  
+  // 3. 기능 사용 - Console/JS 에러 모니터링
+  await withErrorContext(errorDetector, '핵심 기능 실행', async () => {
+    await page.click('[data-testid="feature-button"]')
+    // 에러 발생 시 즉시 테스트 중단
+    await expect(page.locator('.success-message')).toBeVisible()
+  })
+  
+  // 4. 데이터 확인 - 안정성 검증
+  await withErrorContext(errorDetector, '데이터 영속성 확인', async () => {
+    await page.reload()
+    await expect(page.locator('.saved-data')).toBeVisible()
+  })
+})
+
+// 기존 Playwright 테스트도 유지 (호환성)
 import { test, expect } from '@playwright/test'
 
-test('[기능명] 전체 플로우', async ({ page }) => {
+test('[기능명] 전체 플로우 (기본)', async ({ page }) => {
   // 1. 시작
   await page.goto('/')
   
@@ -474,19 +585,157 @@ test('[기능명] 전체 플로우', async ({ page }) => {
 })
 ```
 
-### 🚨 안정성 체크포인트 #4
+### 🛡️ 4.3 에러 감지 헬퍼 설정 (필수)
+
+```typescript
+// e2e/helpers/error-detector.ts 
+// 런타임 에러를 즉시 감지하여 "엄한짓" 방지
+export class ErrorDetector {
+  async attachToPage(page: Page, testName: string) {
+    // 1. Console 에러 감지
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        throw new Error(`🔴 Console 에러: ${msg.text()}`)
+      }
+    })
+    
+    // 2. JavaScript 런타임 에러 감지
+    page.on('pageerror', exception => {
+      throw new Error(`🔴 JS 런타임 에러: ${exception.message}`)
+    })
+    
+    // 3. Next.js 에러 오버레이 감지
+    page.on('load', async () => {
+      const errorOverlay = await page.locator('[data-nextjs-dialog]').count()
+      if (errorOverlay > 0) {
+        const errorText = await page.locator('[data-nextjs-dialog]').textContent()
+        throw new Error(`🔴 Next.js 에러: ${errorText}`)
+      }
+    })
+  }
+}
+```
+
+### 📊 4.4 에러 감지 효과 비교
+
+```markdown
+## 일반 테스트 vs 에러 감지 테스트
+
+### ❌ 일반 테스트 (문제점)
+- Console 에러 무시하고 계속 진행
+- JavaScript 런타임 에러 감지 못함
+- 테스트는 통과하지만 실제로는 에러 존재
+- "엄한짓" - 잘못된 요소 찾기 시도
+
+### ✅ 에러 감지 테스트 (해결)
+- Console 에러 즉시 감지 및 중단
+- JavaScript 에러 즉시 감지 및 중단
+- Next.js 에러 오버레이 감지
+- 정확한 에러 위치와 컨텍스트 제공
+```
+
+### 🔴 4.5 테스트 즉시 실행 (건너뛸 수 없는 단계!)
 
 ```bash
-# 테스트 실행 및 통과 확인
+# ⚡ 테스트 생성 후 즉시 실행 - 이 단계를 건너뛰면 작업 미완료!
+
+echo "=== 테스트 실행 시작 (필수) ==="
+
+# 1단계: 컴포넌트 테스트 실행
 npm run test:component [Component]
-npm run test:api [endpoint]
-npm run e2e:test [feature]
+# 실패? → 수정 → 재실행 → 통과까지 반복
 
-# 커버리지 확인
-npm run test:coverage
+# 2단계: API 테스트 실행
+npm run test:api [endpoint]  
+# 실패? → 수정 → 재실행 → 통과까지 반복
 
-# ❌ 테스트 실패 → 수정 후 재시도
-# ✅ 모든 테스트 통과 → Phase 5 진행
+# 3단계: E2E 테스트 실행 (가장 중요!)
+npx playwright test e2e/[feature].spec.ts --project=chromium
+# 실패? → 수정 → 재실행 → 통과까지 반복
+
+# 4단계: 에러 감지 테스트 실행
+npx playwright test e2e/error-safe-[feature].spec.ts
+# Console 에러 1개라도? → 수정 → 재실행 → 0개까지 반복
+
+echo "=== 모든 테스트 통과 확인 완료 ==="
+```
+
+### 🚫 Phase 5 진입 차단 게이트
+```markdown
+## ⛔ 다음 중 하나라도 해당하면 Phase 5 진입 금지:
+- [ ] 테스트 파일만 생성하고 실행 안 함
+- [ ] 테스트 실행했지만 실패 무시
+- [ ] "나중에 수정하겠다"며 진행
+- [ ] 실행 로그 없이 "통과했다"고만 보고
+
+## ✅ Phase 5 진입 조건 (모두 충족 필수):
+- [x] 모든 테스트 파일 생성 완료
+- [x] 모든 테스트 실행 완료
+- [x] 모든 테스트 통과 (0 failures)
+- [x] Console 에러 0개 확인
+- [x] 실행 로그 제공 완료
+```
+
+### 📝 4.6 E2E 테스트 작성 가이드라인
+
+```markdown
+## 테스트 작성 시 필수 체크리스트
+- [ ] errorSafeTest 사용 (런타임 에러 감지)
+- [ ] withErrorContext로 각 단계 감싸기
+- [ ] Console 에러 모니터링
+- [ ] JavaScript 런타임 에러 감지
+- [ ] Next.js 에러 오버레이 체크
+- [ ] 에러 발생 시 즉시 중단 확인
+- [ ] 정확한 에러 위치 기록
+
+## 테스트 파일 구조
+e2e/
+├── helpers/
+│   └── error-detector.ts     # 에러 감지 헬퍼 (필수)
+├── [feature].spec.ts          # 기능별 테스트
+├── error-safe-[feature].spec.ts  # 에러 감지 강화 테스트
+└── demo-error-detection.js    # 에러 감지 데모
+```
+
+---
+
+### 🔴 4.7 필수 테스트 실행 보고서 (Phase 5 진입 전 필수!)
+
+```markdown
+# 테스트 실행 완료 보고서
+## AI는 다음 보고서를 작성해야 Phase 5 진입 가능
+
+### 📋 테스트 생성 현황
+- [ ] 컴포넌트 테스트 파일: [파일경로]
+- [ ] API 테스트 파일: [파일경로]
+- [ ] E2E 테스트 파일: [파일경로]
+
+### 🚀 테스트 실행 결과
+#### 1. 컴포넌트 테스트
+- 실행 명령: `npm run test:component [name]`
+- 실행 시간: [시간]
+- 결과: ✅ Pass / ❌ Fail
+- 실패 시 수정 내용: [수정 내역]
+
+#### 2. API 테스트  
+- 실행 명령: `npm run test:api [name]`
+- 실행 시간: [시간]
+- 결과: ✅ Pass / ❌ Fail
+- 실패 시 수정 내용: [수정 내역]
+
+#### 3. E2E 테스트
+- 실행 명령: `npx playwright test [file]`
+- 실행 시간: [시간]
+- 결과: ✅ Pass / ❌ Fail
+- Console 에러: 0개 확인 ✅
+
+### 📊 최종 확인
+- 모든 테스트 통과: ✅
+- Console 에러 없음: ✅
+- 실행 증거 제공: ✅
+
+### 🎯 Phase 5 진입 승인
+위 모든 항목이 완료되어 Phase 5 진입을 승인합니다.
 ```
 
 ---
@@ -509,6 +758,8 @@ npm run test:coverage
 - [ ] Network 실패 요청 0개
 - [ ] 모든 엣지 케이스 처리됨
 - [ ] 테스트 코드로 보호됨
+- [ ] **에러 감지 테스트 통과** (errorSafeTest)
+- [ ] **런타임 에러 0개 검증**
 - [ ] 프로젝트 규약 100% 준수
 ```
 
@@ -606,6 +857,11 @@ echo "- 해당 폴더의 CLAUDE.md (패턴 변경?)"
 ## Phase 2: 수정 및 검증
 - onClick 핸들러 수정
 - 실제 클릭 테스트
+
+## Phase 3: 테스트 생성 및 즉시 실행
+- 테스트 파일 생성
+- ⚡ npx playwright test login-button.spec.ts 즉시 실행
+- 실행 결과 확인 및 통과 보고
 ```
 
 ### 예시 2: 중간 복잡도 기능
@@ -619,8 +875,17 @@ echo "- 해당 폴더의 CLAUDE.md (패턴 변경?)"
 - API 라우트 패턴 확인
 - React Query 훅 확인
 
-## Phase 1-4: 구현 및 테스트
-[상세 Phase 진행]
+## Phase 1-3: 구현
+[상세 구현 과정]
+
+## Phase 4: 테스트 작성 및 즉시 실행
+- E2E 테스트 파일 생성
+- ⚡ npx playwright test youtube-search.spec.ts 즉시 실행
+- 실패 시 수정 → 재실행 → 통과까지 반복
+- 실행 보고서 작성
+
+## Phase 5: 최종 검증
+[테스트 통과 후에만 진입]
 ```
 
 ### 예시 3: 복잡한 시스템 작업

@@ -4,11 +4,12 @@ export const runtime = 'nodejs';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 
 // GET: 채널별 승인 로그 조회 (관리자 전용)
 export async function GET(
   request: NextRequest,
-  _context: { params: Promise<{ channel_id: string }> }
+  context: { params: Promise<{ channelId: string }> }
 ) {
   // Step 1: Authentication check (required!)
   const user = await requireAuth(request);
@@ -20,8 +21,7 @@ export async function GET(
     );
   }
 
-  // channel_id는 주석 처리된 코드에서만 사용되므로 현재는 사용하지 않음
-  // const { channel_id } = await params;
+  const { channelId } = await context.params;
 
   // 관리자 권한 체크
   const admin_emails = ['glemfkcl@naver.com'];
@@ -30,41 +30,35 @@ export async function GET(
   }
 
   try {
-    // TODO: yl_approval_logs 테이블이 존재하지 않음 - 테이블 생성 필요
-    // 승인 로그 조회 임시 비활성화
-    /*
+    const supabase = await createSupabaseRouteHandlerClient();
+    
+    // 승인 로그 조회
     const { data, error } = await supabase
       .from('yl_approval_logs')
       .select(`
         id,
         channel_id,
         action,
-        actor_id,
-        before_status,
-        after_status,
-        notes,
+        user_id,
+        details,
         created_at
       `)
-      .eq('channel_id', channel_id)
+      .eq('channel_id', channelId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     // snake_case를 camelCase로 변환
-    const camel_case_data = data?.map((log) => ({
+    const camelCaseData = data?.map((log) => ({
       id: log.id,
-      channel_id: log.channel_id,
+      channelId: log.channel_id,
       action: log.action,
-      actorId: log.actor_id,
-      beforeStatus: log.before_status,
-      afterStatus: log.after_status,
-      notes: log.notes,
-      created_at: log.created_at,
+      userId: log.user_id,
+      details: log.details,
+      createdAt: log.created_at,
     }));
-    */
 
-    // 임시로 빈 데이터 반환
-    return NextResponse.json({ data: [] });
+    return NextResponse.json({ data: camelCaseData || [] });
   } catch (error) {
     console.error('Approval logs GET error:', error);
     return NextResponse.json(

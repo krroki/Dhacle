@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 
+// 개발 모드 체크를 위한 상수 (빌드 타임에 결정됨)
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 export default function Error({
   error,
   reset,
@@ -39,7 +42,7 @@ export default function Error({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {process.env.NODE_ENV === 'development' && (
+            {isDevelopment && (
               <div className="p-3 bg-muted rounded-md">
                 <p className="text-sm font-mono text-muted-foreground break-all">
                   {error.message}

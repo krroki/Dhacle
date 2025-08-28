@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { env } from '@/env';
 
 export async function POST(_request: NextRequest) {
   // 개발 환경에서만 작동
-  if (process.env.NODE_ENV !== 'development') {
+  if (env.NODE_ENV !== 'development') {
     return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
   }
   

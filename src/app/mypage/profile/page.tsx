@@ -149,8 +149,22 @@ export default function ProfilePage() {
         throw verification_error;
       }
 
-      // 임시로 자동 승인 (실제로는 관리자가 수동 검증)
-      // TODO: 관리자 검증 시스템 구현
+      // 관리자 검증 요청
+      const verification_response = await fetch('/api/admin/verify-naver', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cafeUrl: cafe_member_url,
+          memberLevel: 'member'
+        })
+      });
+
+      if (!verification_response.ok) {
+        throw new Error('관리자 검증 실패');
+      }
+
       const { error: update_error } = await supabase
         .from('profiles')
         .update({
@@ -380,21 +394,19 @@ export default function ProfilePage() {
                             }
                           </span>
                         </div>
-                        {
-                          /* TODO: profile.naverCafeMemberUrl */ false && (
-                            <div className="pt-2">
-                              <a
-                                href={/* TODO: profile.naverCafeMemberUrl */ '#'}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
-                              >
-                                카페 프로필 보기
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            </div>
-                          )
-                        }
+                        {profile.cafe_member_url && (
+                          <div className="pt-2">
+                            <a
+                              href={profile.cafe_member_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                            >
+                              카페 프로필 보기
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <Button

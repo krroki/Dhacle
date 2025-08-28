@@ -493,7 +493,7 @@ export interface YouTubeSearchFilters {
   order?: 'date' | 'rating' | 'relevance' | 'title' | 'videoCount' | 'view_count';
   publishedAfter?: string;
   publishedBefore?: string;
-  videoDuration?: 'short' | 'medium' | 'long';
+  videoDuration?: 'short' | 'medium' | 'long' | 'all';
   videoDefinition?: 'all' | 'high' | 'standard';
   videoType?: 'all' | 'episode' | 'movie';
   videoEmbeddable?: 'all' | 'true';

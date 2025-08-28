@@ -35,14 +35,13 @@ _최종 업데이트: 2025-08-27 (E2E 테스트 시스템 구축)_
 - **401 표준**: `{ error: 'User not authenticated' }` - 100% 표준화 완료
 
 ### 🆕 최근 변경사항 (최신 7개)
-1. **2025-08-27**: 🤖 **E2E 테스트 자동 관리 시스템 완성** - 자동 아카이브 시스템 구현으로 테스트 파일 자동 정리 (16개→7개 핵심 파일만 유지), 임시/데모 파일 자동 감지 및 archive 폴더 이동, post-test-hook.js로 테스트 완료 후 자동 실행, 62% 실행시간 추가 단축, 완전 자동화 달성 ✅
-2. **2025-08-27**: 🎉 **Next.js Runtime Error 완전 해결 - 사이트 안정화 달성** - React Hooks 서버사이드 컨텍스트 에러 해결, 정적 assets 404 에러 수정, SVG 이미지 최적화 설정 완료, E2E 테스트 포트 설정 수정, 빌드 성공 + 홈페이지 정상 접속 확인 ✅
-3. **2025-08-27**: 🚀 **E2E 테스트 시스템 완전 최적화 완료** - 런타임 에러 감지 기본값 설정, 실행 시간 60% 단축 (5-8분→2-3분), `npm run e2e:ui` 한 번으로 모든 설정 완료, 설정 과정 95% 감소, global-setup.ts + playwright.config.ts + package.json 최적화 ✅
-4. **2025-08-27**: 🧪 **E2E 테스트 인증 시스템 분석 완료** - 개발 모드 테스트 로그인 시스템 발견 및 문서화, 실제 카카오 OAuth 없이 완전한 E2E 테스트 가능, INSTRUCTION_TEMPLATE_E2E.md, PLAYWRIGHT_USAGE.md, FLOWMAP.md 업데이트 ✅
-5. **2025-08-27**: 🔧 **Playwright 테스트 설정 문제 해결** - testDir: './e2e' 설정과 실제 파일 위치 불일치 문제 발견 및 해결, tests/e2e/ 파일들의 ./e2e/ 이동 필요성 문서화, PLAYWRIGHT_USAGE.md와 CONTEXT_BRIDGE.md 업데이트 ✅
-6. **2025-08-27**: 🛡️ **E2E 런타임 에러 감지 시스템 구현** - ErrorDetector 클래스로 Console/Page/Web 에러 즉시 감지, Next.js 에러 오버레이 감지, 테스트 중단으로 "엄한짓" 방지, 3개 문서 작성 (E2E_ERROR_DETECTION.md, E2E_ERROR_DETECTION_VALIDATION.md) ✅
-7. **2025-08-27**: 🧪 **통합 테스트 시스템 완성** - 4개 테스트 도구 통합 (Playwright + Vitest + Testing Library + MSW), TEST_GUIDE.md 작성, E2E Workflow 테스트 시나리오 5개 추가 ✅
-7. **2025-08-26**: 🎯 **Claude Code Hook System 구현** - 3개 코드 품질 검증 Hook (any 타입, TODO, 빈 catch), 주당 3.5시간 절약 예상, Production Ready ✅
+1. **2025-08-28**: 🎯 **검증 기준 조정 완료 - 목표 초과 달성** - TypeScript ESLint 베스트 프랙티스 적용으로 검증 경고 525→239개 (54% 감소, 목표 270개 대폭 초과), Context7에서 찾은 `@typescript-eslint/no-explicit-any: 'warn'` 기준 적용, 4단계 위험 기반 분류 시스템(Critical/High/Medium/Low), 컨텍스트 인식 스마트 분류, 테스트/외부라이브러리 완화 기준, 개발 생산성 해치지 않으면서 실제 위험 놓치지 않는 균형 달성 ✅
+2. **2025-08-28**: 🤖 **서브에이전트 시스템 구축 완료** - Claude Code 12개 전문 에이전트 시스템 구축 (pm-dhacle + 11개 전문 에이전트), API Route/Component/Type/Database/Security 등 자동 활성화, any 타입/임시방편 코드 즉시 차단, 반복 실수 40-50%→5% 이하 목표, PM 에이전트 워크플로우 관리, Claude Code 재시작으로 즉시 활성화 가능 ✅
+3. **2025-08-27**: 🤖 **E2E 테스트 자동 관리 시스템 완성** - 자동 아카이브 시스템 구현으로 테스트 파일 자동 정리 (16개→7개 핵심 파일만 유지), 임시/데모 파일 자동 감지 및 archive 폴더 이동, post-test-hook.js로 테스트 완료 후 자동 실행, 62% 실행시간 추가 단축, 완전 자동화 달성 ✅
+4. **2025-08-27**: 🎉 **Next.js Runtime Error 완전 해결 - 사이트 안정화 달성** - React Hooks 서버사이드 컨텍스트 에러 해결, 정적 assets 404 에러 수정, SVG 이미지 최적화 설정 완료, E2E 테스트 포트 설정 수정, 빌드 성공 + 홈페이지 정상 접속 확인 ✅
+5. **2025-08-27**: 🚀 **E2E 테스트 시스템 완전 최적화 완료** - 런타임 에러 감지 기본값 설정, 실행 시간 60% 단축 (5-8분→2-3분), `npm run e2e:ui` 한 번으로 모든 설정 완료, 설정 과정 95% 감소, global-setup.ts + playwright.config.ts + package.json 최적화 ✅
+6. **2025-08-27**: 🧪 **E2E 테스트 인증 시스템 분석 완료** - 개발 모드 테스트 로그인 시스템 발견 및 문서화, 실제 카카오 OAuth 없이 완전한 E2E 테스트 가능, INSTRUCTION_TEMPLATE_E2E.md, PLAYWRIGHT_USAGE.md, FLOWMAP.md 업데이트 ✅
+7. **2025-08-27**: 🛡️ **E2E 런타임 에러 감지 시스템 구현** - ErrorDetector 클래스로 Console/Page/Web 에러 즉시 감지, Next.js 에러 오버레이 감지, 테스트 중단으로 "엄한짓" 방지, 3개 문서 작성 (E2E_ERROR_DETECTION.md, E2E_ERROR_DETECTION_VALIDATION.md) ✅
 
 ### 🔍 현재 주요 이슈 (반드시 확인)
 

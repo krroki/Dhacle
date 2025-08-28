@@ -2,11 +2,16 @@
 export const runtime = 'nodejs';
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server-client';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import type { Json } from '@/types';
 import { env } from '@/env';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
+import { 
+  createSuccessResponse, 
+  createInternalServerErrorResponse, 
+  createValidationErrorResponse 
+} from '@/lib/api-error-utils';
 
 const toss_secret_key = env.TOSS_SECRET_KEY;
 
@@ -25,11 +30,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { paymentKey, orderId, amount } = body;
 
     if (!paymentKey || !orderId || !amount) {
-      return NextResponse.json({ error: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
+      return createValidationErrorResponse(
+        'Required payment parameters missing',
+        { missing: { paymentKey: !paymentKey, orderId: !orderId, amount: !amount } }
+      );
     }
 
     if (!toss_secret_key) {
-      return NextResponse.json({ error: '결제 시스템 설정 오류' }, { status: 500 });
+      return createInternalServerErrorResponse(
+        'Payment system configuration error',
+        'TOSS_SECRET_KEY_MISSING'
+      );
     }
 
     // 토스페이먼츠 결제 승인 API 호출
@@ -59,7 +70,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // Supabase 업데이트
-    const supabase = await createClient();
+    const supabase = await createSupabaseRouteHandlerClient();
 
     // 구매 상태 업데이트
     const { data: purchase, error: update_error } = await supabase
@@ -68,7 +79,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         payment_status: 'succeeded',
         updated_at: new Date().toISOString(),
         payment_method: 'toss', // 토스페이먼츠 결제 방식
-        payment_data: { paymentKey } as unknown as Json, // 토스페이먼츠 결제 키 저장
+        payment_data: { paymentKey } satisfies Json, // 토스페이먼츠 결제 키 저장
       })
       .eq('payment_id', orderId)
       .select()
@@ -87,7 +98,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }),
       });
 
-      return NextResponse.json({ error: '주문 처리 중 오류가 발생했습니다.' }, { status: 500 });
+      return createInternalServerErrorResponse(
+        'Order processing failed after payment confirmation',
+        'ORDER_PROCESSING_FAILED'
+      );
     }
 
     if (purchase) {
@@ -124,17 +138,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       // await sendPurchaseConfirmationEmail(purchase);
     }
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       purchase,
       payment: {
         method: payment_data.method,
         approvedAt: payment_data.approvedAt,
         receipt: payment_data.receipt,
       },
-    });
+    }, 'Payment confirmed and order processed successfully');
   } catch (error) {
-    logger.error('API error:', error);
-    return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다.' }, { status: 500 });
+    logger.error('Payment confirm API error:', error);
+    return createInternalServerErrorResponse(
+      'Payment processing failed due to server error',
+      'PAYMENT_PROCESSING_FAILED'
+    );
   }
 }

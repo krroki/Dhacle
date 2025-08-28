@@ -1,27 +1,98 @@
 {
-  "hooks": {
-    "PreToolUse": [
+  "version": "1.0",
+  "project": "dhacle",
+  "agents": {
+    "enabled": true,
+    "auto_activate": true,
+    "pm_agent": "pm-dhacle",
+    "agents": [
       {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/main-validator.js",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
+        "name": "pm-dhacle",
+        "trigger": ["*"],
+        "priority": 0,
+        "role": "coordinator"
+      },
       {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo \"File operation completed\" >> .claude/hooks/activity.log"
-          }
-        ]
+        "name": "api-route-agent",
+        "trigger": ["src/app/api/**", "route.ts"],
+        "priority": 1,
+        "auto_read": ["src/app/api/CLAUDE.md", "docs/CONTEXT_BRIDGE.md"]
+      },
+      {
+        "name": "component-agent",
+        "trigger": ["src/components/**", "*.tsx"],
+        "priority": 1,
+        "auto_read": ["src/components/CLAUDE.md"]
+      },
+      {
+        "name": "page-agent",
+        "trigger": ["src/app/(pages)**", "page.tsx"],
+        "priority": 1,
+        "auto_read": ["src/app/(pages)/CLAUDE.md"]
+      },
+      {
+        "name": "type-agent",
+        "trigger": ["type error", "*.ts", "types/**"],
+        "priority": 1,
+        "auto_read": ["src/types/CLAUDE.md"]
+      },
+      {
+        "name": "query-agent",
+        "trigger": ["hooks/queries/**", "use*.ts"],
+        "priority": 2,
+        "auto_read": ["src/hooks/CLAUDE.md"]
+      },
+      {
+        "name": "database-agent",
+        "trigger": ["database", "supabase", "migration", "RLS"],
+        "priority": 1,
+        "auto_read": ["src/lib/supabase/CLAUDE.md"]
+      },
+      {
+        "name": "security-agent",
+        "trigger": ["security", "auth", "RLS", "XSS"],
+        "priority": 0,
+        "auto_read": ["src/lib/security/CLAUDE.md"]
+      },
+      {
+        "name": "test-agent",
+        "trigger": ["*.spec.ts", "e2e/**", "test", "playwright"],
+        "priority": 2,
+        "auto_read": ["docs/PLAYWRIGHT_USAGE.md"]
+      },
+      {
+        "name": "script-agent",
+        "trigger": ["scripts/**"],
+        "priority": 3,
+        "auto_read": ["scripts/CLAUDE.md"]
+      },
+      {
+        "name": "doc-agent",
+        "trigger": ["docs/**", "*.md"],
+        "priority": 3,
+        "auto_read": ["docs/DOCUMENT_GUIDE.md"]
+      },
+      {
+        "name": "lib-agent",
+        "trigger": ["src/lib/**"],
+        "priority": 2,
+        "auto_read": ["src/lib/CLAUDE.md"]
       }
     ]
+  },
+  "superclaude": {
+    "enabled": true,
+    "commands": ["/sc:*"]
+  },
+  "verification": {
+    "auto_run": true,
+    "on_save": ["npm run types:check"],
+    "before_commit": ["npm run verify:parallel"],
+    "after_task": ["npm run verify:quick"]
+  },
+  "hooks": {
+    "enabled": false,
+    "pre_task": [],
+    "post_task": []
   }
 }

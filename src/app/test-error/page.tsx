@@ -18,14 +18,14 @@ export default function TestErrorPage() {
   };
 
   const throwTypeError = () => {
-    // @ts-ignore - 의도적인 타입 에러
-    const obj = null;
-    obj.property; // TypeError 발생
+    const obj: { property?: string } | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    obj!.property; // TypeError 발생 (의도적)
   };
 
   const throwReferenceError = () => {
-    // @ts-ignore - 의도적인 참조 에러
-    nonExistentVariable; // ReferenceError 발생
+    // @ts-expect-error - 의도적인 참조 에러
+    nonExistentVariable; // eslint-disable-line @typescript-eslint/no-unused-expressions
   };
 
   const throwAsyncError = async () => {
@@ -39,8 +39,8 @@ export default function TestErrorPage() {
 
   // React 렌더링 에러 (error가 'trigger'일 때)
   if (error === 'trigger') {
-    // @ts-ignore
-    return <div>{undefined.property}</div>;
+    const undef: { property?: string } | undefined = undefined;
+    return <div>{undef!.property}</div>;
   }
 
   return (

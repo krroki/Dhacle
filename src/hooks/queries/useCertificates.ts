@@ -122,7 +122,9 @@ export function useCreateCertificate() {
       });
     },
     onError: (error: Error) => {
-      const message = (error as any).response?.data?.error || '수료증 발급에 실패했습니다.';
+      const message = error instanceof Error && 'response' in error 
+        ? (error as { response?: { data?: { error?: string } } }).response?.data?.error || '수료증 발급에 실패했습니다.'
+        : '수료증 발급에 실패했습니다.';
       toast({
         title: '오류',
         description: message,
@@ -168,7 +170,9 @@ export function useUpdateCertificate() {
       });
     },
     onError: (error: Error) => {
-      const message = (error as any).response?.data?.error || '수료증 업데이트에 실패했습니다.';
+      const message = error instanceof Error && 'response' in error 
+        ? (error as { response?: { data?: { error?: string } } }).response?.data?.error || '수료증 업데이트에 실패했습니다.'
+        : '수료증 업데이트에 실패했습니다.';
       toast({
         title: '오류',
         description: message,
