@@ -25,9 +25,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필이 이미 있는지 확인 (profiles VIEW로 읽기)
+    // 프로필이 이미 있는지 확인 (users 테이블에서 읽기)
     const { data: existing_profile, error: profile_error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, random_nickname')
       .eq('id', user.id)
       .single();
@@ -42,9 +42,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       while (attempts < maxAttempts) {
         randomNickname = _generateRandomNickname();
 
-        // 중복 체크 (profiles VIEW로 읽기)
+        // 중복 체크 (users 테이블에서 읽기)
         const { data: duplicateCheck } = await supabase
-          .from('profiles')
+          .from('users')
           .select('id')
           .eq('random_nickname', randomNickname)
           .single();
@@ -95,9 +95,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       while (attempts < maxAttempts) {
         randomNickname = _generateRandomNickname();
 
-        // 중복 체크 (profiles VIEW로 읽기)
+        // 중복 체크 (users 테이블에서 읽기)
         const { data: duplicateCheck } = await supabase
-          .from('profiles')
+          .from('users')
           .select('id')
           .eq('random_nickname', randomNickname)
           .single();
@@ -162,9 +162,9 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필 가져오기 (profiles VIEW로 읽기)
+    // 프로필 가져오기 (users 테이블에서 읽기)
     const { data: profile, error: profile_error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .single();

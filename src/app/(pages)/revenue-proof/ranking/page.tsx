@@ -21,14 +21,7 @@ export default async function RankingPage(): Promise<React.JSX.Element> {
   const month_ago = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data: monthly_proofs } = await supabase
     .from('revenue_proofs')
-    .select(`
-      user_id,
-      amount,
-      user:profiles(
-        id,
-        username
-      )
-    `)
+    .select('user_id, amount')
     .gte('created_at', month_ago)
     .eq('is_hidden', false);
 
@@ -36,14 +29,7 @@ export default async function RankingPage(): Promise<React.JSX.Element> {
   const today = new Date().toISOString().split('T')[0];
   const { data: daily_proofs } = await supabase
     .from('revenue_proofs')
-    .select(`
-      user_id,
-      amount,
-      user:profiles(
-        id,
-        username
-      )
-    `)
+    .select('user_id, amount')
     .gte('created_at', today)
     .eq('is_hidden', false);
 
@@ -51,61 +37,62 @@ export default async function RankingPage(): Promise<React.JSX.Element> {
   const week_ago = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: weekly_proofs } = await supabase
     .from('revenue_proofs')
-    .select(`
-      user_id,
-      amount,
-      user:profiles(
-        id,
-        username
-      )
-    `)
+    .select('user_id, amount')
     .gte('created_at', week_ago)
     .eq('is_hidden', false);
 
   // 사용자별 집계 함수
-  const aggregate_by_user = (
-    proofs:
-      | {
-          user_id: string;
-          amount: number;
-          user?:
-            | {
-                id: string | null;
-                username: string | null;
-              }
-            | {
-                id: string | null;
-                username: string | null;
-              }[];
-        }[]
-      | null
+  const aggregate_by_user = async (
+    proofs: { user_id: string; amount: number }[] | null
   ) => {
     if (!proofs) {
       return [];
     }
 
-    const user_map = new Map();
+    // 사용자별 집계
+    const user_map = new Map<string, { user_id: string; total_amount: number; proof_count: number }>();
 
     proofs.forEach((proof) => {
       const user_id = proof.user_id;
-      // Handle both single object and array format from Supabase
-      const user_obj = Array.isArray(proof.user) ? proof.user[0] : proof.user;
-
+      
       if (user_map.has(user_id)) {
-        const existing = user_map.get(user_id);
+        const existing = user_map.get(user_id)!;
         existing.total_amount += proof.amount;
         existing.proof_count += 1;
       } else {
         user_map.set(user_id, {
           user_id: user_id,
-          user: user_obj,
           total_amount: proof.amount,
           proof_count: 1,
         });
       }
     });
 
+    // 사용자 정보 가져오기
+    const user_ids = Array.from(user_map.keys());
+    if (user_ids.length === 0) {
+      return [];
+    }
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, username')
+      .in('id', user_ids);
+
+    // 프로필 맵 생성
+    const profile_map = new Map<string, { id: string; username: string | null }>();
+    (profiles || []).forEach((profile) => {
+      if (profile.id) {
+        profile_map.set(profile.id, profile);
+      }
+    });
+
+    // 최종 결과 생성
     return Array.from(user_map.values())
+      .map((item) => ({
+        ...item,
+        user: profile_map.get(item.user_id) || { id: item.user_id, username: null },
+      }))
       .sort((a, b) => b.total_amount - a.total_amount)
       .map((item, index) => ({
         ...item,
@@ -113,9 +100,9 @@ export default async function RankingPage(): Promise<React.JSX.Element> {
       }));
   };
 
-  const daily_rankings = aggregate_by_user(daily_proofs);
-  const weekly_rankings = aggregate_by_user(weekly_proofs);
-  const monthly_rankings = aggregate_by_user(monthly_proofs);
+  const daily_rankings = await aggregate_by_user(daily_proofs);
+  const weekly_rankings = await aggregate_by_user(weekly_proofs);
+  const monthly_rankings = await aggregate_by_user(monthly_proofs);
 
   // 보상 정보 (하드코딩 - 실제로는 DB나 설정에서 가져옴)
   const rewards = {

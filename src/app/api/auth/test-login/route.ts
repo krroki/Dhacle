@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { env } from '@/env';
 import { authRateLimiter, getClientIp } from '@/lib/security/rate-limiter';
 
@@ -25,7 +24,7 @@ export async function POST(_request: NextRequest) {
   try {
     // 환경변수에서 테스트 관리자 정보 가져오기
     const testEmail = env.TEST_ADMIN_EMAIL || 'test-admin@dhacle.com';
-    const testPassword = env.TEST_ADMIN_PASSWORD || 'test-admin-password-2025';
+    // testPassword는 실제로 사용하지 않으므로 제거 (세션 생성만 하므로)
     const testUserId = env.TEST_ADMIN_USER_ID || '11111111-1111-1111-1111-111111111111';
     
     // 실제 인증 세션 생성 시도

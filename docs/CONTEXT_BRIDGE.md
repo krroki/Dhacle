@@ -1,8 +1,8 @@
 # 🌉 CONTEXT_BRIDGE - AI 필수 참조 문서 (예방 + 대응 통합)
 
-> **최종 업데이트**: 2025-08-28
-> **버전**: v2.3 (YouTube Lens Phase 2 패턴 추가)
-> **중요 변경**: YouTube Lens Phase 2 완료 - 4개 신규 테이블, 분석 라이브러리, 키워드 트렌드 UI
+> **최종 업데이트**: 2025-08-29
+> **버전**: v2.4 (profiles vs users 테이블 문제 영구 해결)
+> **중요 변경**: profiles VIEW와 users TABLE 혼란 완전 해결 - naver_cafe 컬럼 위치 명확화
 
 **목적**: AI가 디하클 프로젝트 작업 시 반복 실수를 예방하고 에러에 대응하는 통합 가이드
 
@@ -243,7 +243,34 @@ import { createSupabaseServerClient } from '@/lib/supabase/server-client';
 ```
 **🛡️ 예방책**: 프로젝트 표준 패턴만 사용
 
-### 12. 임시방편 코드 작성 (2025-08-25 추가) 🔴
+### 12. profiles vs users 테이블 혼란 (2025-08-29 추가) 🔴🔴🔴
+**❌ 실제 사례**: profiles VIEW에서 naver_cafe 컬럼 접근 시도 (2주간 반복 에러!)
+```typescript
+// ❌ 절대 금지 - profiles는 VIEW, naver_cafe 컬럼 없음!
+const { data } = await supabase
+  .from('profiles')
+  .select('naver_cafe_nickname, cafe_member_url')  // ❌ ERROR!
+
+// ✅ 올바른 방법 - 테이블별 역할 분리
+// 1. 일반 프로필 정보 → profiles VIEW
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('username, avatar_url, bio')
+
+// 2. naver_cafe 정보 → users TABLE  
+const { data: userData } = await supabase
+  .from('users')
+  .select('naver_cafe_nickname, cafe_member_url, naver_cafe_verified')
+```
+
+**🛡️ 영구 해결책**:
+| 데이터 종류 | 사용할 테이블 | 컬럼 예시 |
+|------------|-------------|----------|
+| **일반 프로필** | `profiles` VIEW | username, avatar_url, bio, email |
+| **naver_cafe** | `users` TABLE | naver_cafe_nickname, cafe_member_url, naver_cafe_verified |
+| **random_nickname** | `users` TABLE | random_nickname (NOT in profiles!) |
+
+### 13. 임시방편 코드 작성 (2025-08-25 추가) 🔴
 **❌ 실제 사례**: "나중에 고치자"는 코드
 ```typescript
 // ❌ 절대 금지 - 2주간 에러 디버깅의 원인

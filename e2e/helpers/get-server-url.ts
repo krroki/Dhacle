@@ -30,7 +30,7 @@ export async function getRunningServerUrl(): Promise<string> {
       // 3000번대 포트 찾기
       for (const match of matches) {
         const port = match.split(':')[1];
-        if (port.startsWith('300')) {
+        if (port && port.startsWith('300')) {
           // 해당 포트가 실제로 Next.js 서버인지 확인
           try {
             const response = await fetch(`http://localhost:${port}`);

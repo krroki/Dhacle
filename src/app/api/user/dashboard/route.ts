@@ -30,9 +30,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // 사용자 프로필 정보 조회
+    // 사용자 프로필 정보 조회 (users 테이블에서 가져오기 - random_nickname은 users 테이블에 있음)
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .select('username, random_nickname, created_at')
       .eq('id', user.id)
       .single();

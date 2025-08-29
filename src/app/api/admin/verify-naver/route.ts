@@ -57,9 +57,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Step 4: Grant admin role using service role client
     const serviceSupabase = createServiceRoleClient();
     
-    // Update profiles table
+    // Update users table (naver_cafe columns are in users table, not profiles VIEW)
     const { error: profileError } = await serviceSupabase
-      .from('profiles')
+      .from('users')
       .update({
         cafe_member_url: cafeUrl,
         naver_cafe_verified: true,
@@ -173,10 +173,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
     
-    // Check current admin status in profiles
+    // Check current admin status in users table (naver_cafe columns are there)
     const supabase = await createSupabaseRouteHandlerClient();
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('cafe_member_url, naver_cafe_verified, naver_cafe_verified_at, naver_cafe_nickname')
       .eq('id', user.id)
       .single();

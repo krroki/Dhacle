@@ -26,9 +26,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // 프로필 정보 가져오기 (profiles는 VIEW이므로 읽기 가능)
+    // 프로필 정보 가져오기 (naver_cafe 필드들은 users 테이블에 있음)
     const { data: profile, error: profile_error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, naver_cafe_nickname, naver_cafe_verified, cafe_member_url, naver_cafe_verified_at')
       .eq('id', user.id)
       .single();
@@ -111,9 +111,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 닉네임 중복 체크 (profiles VIEW로 읽기)
+    // 닉네임 중복 체크 (users 테이블에서 읽기)
     const { data: existingNickname } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id')
       .eq('naver_cafe_nickname', nickname)
       .neq('id', user.id)
@@ -123,9 +123,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'This nickname is already in use' }, { status: 400 });
     }
 
-    // 이미 인증된 상태인지 확인 (profiles VIEW로 읽기)
+    // 이미 인증된 상태인지 확인 (users 테이블에서 읽기)
     const { data: profileCheck } = await supabase
-      .from('profiles')
+      .from('users')
       .select('naver_cafe_verified')
       .eq('id', user.id)
       .single();

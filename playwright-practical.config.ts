@@ -17,7 +17,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   
   use: {
-    baseURL: 'http://localhost:3003',
+    baseURL: 'http://localhost:3000',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

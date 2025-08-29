@@ -94,9 +94,9 @@ export async function GET(request: NextRequest) {
       });
 
       if (user) {
-        // Check if user profile exists (profiles is a VIEW, read-only)
+        // Check if user profile exists (check users table)
         const { data: user_profile, error: profile_error } = await supabase
-          .from('profiles')
+          .from('users')
           .select('id, random_nickname, naver_cafe_verified')
           .eq('id', user.id)
           .single();
@@ -116,9 +116,9 @@ export async function GET(request: NextRequest) {
             while (attempts < maxAttempts) {
               randomNickname = generateRandomNickname();
 
-              // Check for duplicates (read from profiles VIEW)
+              // Check for duplicates (read from users table)
               const { data: duplicateCheck } = await supabase
-                .from('profiles')
+                .from('users')
                 .select('id')
                 .eq('random_nickname', randomNickname)
                 .single();
@@ -186,9 +186,9 @@ export async function GET(request: NextRequest) {
             while (attempts < maxAttempts) {
               randomNickname = generateRandomNickname();
 
-              // Check for duplicates (read from profiles VIEW)
+              // Check for duplicates (read from users table)
               const { data: duplicateCheck } = await supabase
-                .from('profiles')
+                .from('users')
                 .select('id')
                 .eq('random_nickname', randomNickname)
                 .single();

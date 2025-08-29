@@ -33,11 +33,18 @@ import {
   isValidNaverCafeUrl,
 } from '@/lib/utils/nickname-generator';
 
-// Use DB type from generated types
+// Use DB types from generated types
 type DBProfile = Tables<'profiles'>;
 
-// Extended type with compatibility aliases for utility functions
+// Combined profile type with naver_cafe data from users table
 interface Profile extends DBProfile {
+  // Naver cafe data from users table
+  naver_cafe_nickname: string | null;
+  naver_cafe_verified: boolean | null;
+  naver_cafe_verified_at: string | null;
+  cafe_member_url: string | null;
+  random_nickname: string | null;
+  
   // Compatibility aliases for utility functions  
   randomNickname?: string | null;
   naverCafeNickname?: string | null;
@@ -67,31 +74,49 @@ export default function ProfilePage() {
         return;
       }
 
-      const { data, error } = await supabase
+      // Get basic profile data from profiles VIEW
+      const { data: profile_data, error: profile_error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error) {
-        throw error;
+      if (profile_error) {
+        throw profile_error;
       }
 
-      // Add compatibility mapping for utility functions
-      const profileWithAliases = {
-        ...data,
-        // Compatibility aliases for utility functions
-        randomNickname: data.random_nickname,
-        naverCafeNickname: data.naver_cafe_nickname,
-        naverCafeVerified: data.naver_cafe_verified,
-      } as Profile;
-      
-      set_profile(profileWithAliases);
-      if (data.naver_cafe_nickname) {
-        set_cafe_nickname(data.naver_cafe_nickname);
+      // Get naver_cafe data from users TABLE
+      const { data: user_data, error: user_error } = await supabase
+        .from('users')
+        .select('naver_cafe_nickname, naver_cafe_verified, naver_cafe_verified_at, cafe_member_url, random_nickname')
+        .eq('id', user.id)
+        .single();
+
+      if (user_error) {
+        throw user_error;
       }
-      if (data.cafe_member_url) {
-        set_cafe_member_url(data.cafe_member_url);
+
+      // Combine profile and user data
+      const combined_profile: Profile = {
+        ...profile_data,
+        // Naver cafe data from users table
+        naver_cafe_nickname: user_data.naver_cafe_nickname,
+        naver_cafe_verified: user_data.naver_cafe_verified,
+        naver_cafe_verified_at: user_data.naver_cafe_verified_at,
+        cafe_member_url: user_data.cafe_member_url,
+        random_nickname: user_data.random_nickname,
+        // Compatibility aliases for utility functions
+        randomNickname: user_data.random_nickname,
+        naverCafeNickname: user_data.naver_cafe_nickname,
+        naverCafeVerified: user_data.naver_cafe_verified || false,
+      };
+      
+      set_profile(combined_profile);
+      if (user_data.naver_cafe_nickname) {
+        set_cafe_nickname(user_data.naver_cafe_nickname);
+      }
+      if (user_data.cafe_member_url) {
+        set_cafe_member_url(user_data.cafe_member_url);
       }
     } catch (error) {
       console.error('Page error:', error);
@@ -165,8 +190,9 @@ export default function ProfilePage() {
         throw new Error('관리자 검증 실패');
       }
 
+      // Update naver_cafe data in users TABLE (not profiles VIEW)
       const { error: update_error } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           naver_cafe_nickname: cafe_nickname,
           cafe_member_url: cafe_member_url,
@@ -214,8 +240,9 @@ export default function ProfilePage() {
         throw new Error('User not found');
       }
 
+      // Update naver_cafe data in users TABLE (not profiles VIEW)
       const { error } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           naver_cafe_verified: false,
           naver_cafe_verified_at: null,

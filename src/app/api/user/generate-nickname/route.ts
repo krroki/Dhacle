@@ -21,9 +21,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 
     const supabase = await createSupabaseRouteHandlerClient();
 
-    // 이미 랜덤 닉네임이 있는지 확인
+    // 이미 랜덤 닉네임이 있는지 확인 (users 테이블에서 확인)
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .select('random_nickname')
       .eq('id', user.id)
       .single();
@@ -50,9 +50,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     while (attempts < max_attempts) {
       nickname = generateRandomNickname();
 
-      // 중복 체크
+      // 중복 체크 (users 테이블에서 확인)
       const { data: existing, error: checkError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('random_nickname', nickname)
         .single();
@@ -69,9 +69,9 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Failed to generate unique nickname' }, { status: 500 });
     }
 
-    // 프로필 업데이트
+    // 프로필 업데이트 (users 테이블에 UPDATE!)
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         random_nickname: nickname,
         updated_at: new Date().toISOString(),
@@ -115,9 +115,9 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // 중복 체크
     const available_suggestions = [];
     for (const suggestion of suggestions) {
-      // 중복 체크
+      // 중복 체크 (users 테이블에서 확인)
       const { data: existing } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('random_nickname', suggestion)
         .single();
@@ -130,9 +130,9 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     // 부족하면 추가 생성
     while (available_suggestions.length < 5) {
       const new_nickname = generateRandomNickname();
-      // 중복 체크
+      // 중복 체크 (users 테이블에서 확인)
       const { data: existing } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('random_nickname', new_nickname)
         .single();
