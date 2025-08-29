@@ -67,7 +67,7 @@ export class ChannelFolderManager {
       lastCheckedAt: null,
       folderChannels: [],
       deleted_at: null
-    } as unknown as SourceFolder;
+    } satisfies SourceFolder;
   }
 
   /**
@@ -156,7 +156,7 @@ export class ChannelFolderManager {
       lastCheckedAt: null,
       folderChannels: [],
       deleted_at: null
-    } as unknown as SourceFolder;
+    } satisfies SourceFolder;
   }
 
   /**
@@ -223,7 +223,7 @@ export class AlertRuleEngine {
       lastTriggeredAt: data.last_triggered_at,
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString()
-    } as unknown as AlertRule;
+    } satisfies AlertRule;
   }
 
   /**
@@ -260,7 +260,7 @@ export class AlertRuleEngine {
       lastTriggeredAt: rule.last_triggered_at,
       created_at: rule.created_at || new Date().toISOString(),
       updated_at: rule.updated_at || new Date().toISOString()
-    } as unknown as AlertRule));
+    } satisfies AlertRule));
   }
 
   /**
@@ -434,7 +434,7 @@ export class AlertRuleEngine {
       title: alert.title,
       message: alert.message,
       severity: alert.severity,
-      metric_data: alert.contextData as unknown as undefined,
+      metric_data: alert.contextData ? JSON.stringify(alert.contextData) : null,
       triggered_value: alert.metricValue || null,
       threshold_value: null,
       is_read: alert.is_read || false,
@@ -509,12 +509,20 @@ export class MonitoringScheduler {
       // Collect all channel IDs from folders
       const channel_ids = new Set<string>();
       for (const folder of folders) {
-        if (folder.isMonitoringEnabled && folder.folderChannels) {
-          folder.folderChannels.forEach((fc) => {
-            const fcData = fc as unknown as { channel_id?: string; [key: string]: unknown };
-            const channelId = fcData.channel_id;
-            if (channelId) {
-              channel_ids.add(channelId);
+        // Type-safe access to monitoring properties
+        const folderWithMonitoring = folder as { 
+          isMonitoringEnabled?: boolean; 
+          folderChannels?: Array<{ channel_id: string; channels?: unknown }>;
+          is_active?: boolean;
+        };
+        
+        const isMonitoringEnabled = folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
+        const folderChannels = folderWithMonitoring.folderChannels ?? [];
+        
+        if (isMonitoringEnabled && folderChannels.length > 0) {
+          folderChannels.forEach((fc) => {
+            if (fc.channel_id) {
+              channel_ids.add(fc.channel_id);
             }
           });
         }
@@ -628,8 +636,18 @@ export const monitoringUtils = {
     ]);
 
     const channel_count = folders.reduce((count, folder) => {
-      if (folder.isMonitoringEnabled && folder.folderChannels) {
-        return count + folder.folderChannels.length;
+      // Type-safe access to monitoring properties
+      const folderWithMonitoring = folder as {
+        isMonitoringEnabled?: boolean;
+        folderChannels?: Array<{ channel_id: string; channels?: unknown }>;
+        is_active?: boolean;
+      };
+      
+      const isMonitoringEnabled = folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
+      const folderChannels = folderWithMonitoring.folderChannels ?? [];
+      
+      if (isMonitoringEnabled && folderChannels.length > 0) {
+        return count + folderChannels.length;
       }
       return count;
     }, 0);

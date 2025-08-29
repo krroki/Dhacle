@@ -21,11 +21,12 @@ import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
-  QuotaStatus,
   SearchBar,
   VideoGrid,
   YouTubeLensErrorBoundary,
 } from '@/components/features/tools/youtube-lens';
+import { QuotaStatus as QuotaStatusComponent } from '@/components/features/tools/youtube-lens/components/QuotaStatus';
+import type { QuotaStatus } from '@/types';
 import AlertRules from '@/components/features/tools/youtube-lens/AlertRules';
 import ChannelFolders from '@/components/features/tools/youtube-lens/ChannelFolders';
 import CollectionBoard from '@/components/features/tools/youtube-lens/CollectionBoard';
@@ -43,9 +44,8 @@ import { useYouTubeLensStore } from '@/store/youtube-lens';
 import type {
   EntityExtraction,
   FlattenedYouTubeVideo,
-  QuotaStatus as QuotaStatusType,
   TrendAnalysis,
-  YouTubeLensVideoStats as VideoStats,
+  YouTubeVideoStats as VideoStats,
   YouTubeFavorite,
   YouTubeSearchFilters,
 } from '@/types';
@@ -84,7 +84,7 @@ const fetch_api_key_status = async () => {
           limit,
           remaining,
           percentage,
-          resetTime: new Date(new Date().setHours(24, 0, 0, 0)), // 다음날 자정
+          resetTime: new Date(new Date().setHours(24, 0, 0, 0)).toISOString(), // 다음날 자정
           warning: percentage >= 80,
           critical: percentage >= 95,
           searchCount: 0,
@@ -199,12 +199,12 @@ function YouTubeLensContent() {
       };
     }) => {
       if (result?.quota) {
-        const quota: QuotaStatusType = {
+        const quota: QuotaStatus = {
           used: result.quota.used || 0,
           limit: result.quota.limit || 10000,
           remaining: result.quota.remaining || 10000,
           percentage: ((result.quota.used || 0) / (result.quota.limit || 10000)) * 100,
-          resetTime: new Date(new Date().setHours(24, 0, 0, 0)),
+          resetTime: new Date(new Date().setHours(24, 0, 0, 0)).toISOString(),
           warning: (result.quota.remaining || 0) < 2000,
           critical: (result.quota.remaining || 0) < 500,
           searchCount: (result.quota.searchCount || 0) + 1,
@@ -384,7 +384,7 @@ function YouTubeLensContent() {
 
         {/* API 할당량 표시 */}
         {api_key_status?.quota && (
-          <QuotaStatus
+          <QuotaStatusComponent
             quotaStatus={api_key_status.quota}
             onRefresh={handle_refresh_quota}
             compact={true}
@@ -556,7 +556,18 @@ function YouTubeLensContent() {
             <CardContent>
               {favoriteVideos.size > 0 ? (
                 <VideoGrid
-                  videos={Array.from(favoriteVideos.values()).map((f) => f.videoData)}
+                  videos={Array.from(favoriteVideos.values()).map((f) => ({
+                    id: f.video_id, // FlattenedYouTubeVideo 타입의 필수 id 필드
+                    video_id: f.video_id,
+                    title: f.video_title || '',
+                    description: f.video_description || '',
+                    channel_id: f.channel_id || '',
+                    channel_title: f.channel_title || '',
+                    published_at: f.created_at,
+                    view_count: 0,
+                    duration: '',
+                    thumbnail_url: f.video_thumbnail || '',
+                  }))}
                   isLoading={false}
                   hasMore={false}
                 />

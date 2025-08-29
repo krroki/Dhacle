@@ -47,7 +47,10 @@ export function TrendChart({
   const sentiment_counts = useMemo(() => {
     const counts = { positive: 0, negative: 0, neutral: 0 };
     trends.forEach((trend) => {
-      counts[trend.sentiment]++;
+      const sentiment = trend.sentiment ?? 'neutral';
+      if (sentiment in counts) {
+        counts[sentiment as keyof typeof counts]++;
+      }
     });
     return counts;
   }, [trends]);
@@ -164,9 +167,9 @@ export function TrendChart({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {get_growth_icon(trend.growthRate)}
+                      {get_growth_icon(trend.growthRate ?? 0)}
                       <span className="font-bold text-green-600">
-                        {format_growth_rate(trend.growthRate)}
+                        {format_growth_rate(trend.growthRate ?? 0)}
                       </span>
                     </div>
                   </div>
@@ -209,9 +212,9 @@ export function TrendChart({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {get_growth_icon(trend.growthRate)}
+                      {get_growth_icon(trend.growthRate ?? 0)}
                       <span className="font-bold text-red-600">
-                        {format_growth_rate(trend.growthRate)}
+                        {format_growth_rate(trend.growthRate ?? 0)}
                       </span>
                     </div>
                   </div>

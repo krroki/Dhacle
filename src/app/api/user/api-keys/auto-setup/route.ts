@@ -79,7 +79,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .upsert({
         user_id: user.id,
         service_name: service_name,
-        api_key: youtubeApiKey,
+        encrypted_key: youtubeApiKey, // Changed from api_key to encrypted_key
         api_key_masked: maskedKey,
         is_active: true,
         is_valid: true,

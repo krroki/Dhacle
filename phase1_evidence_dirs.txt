@@ -1,8 +1,0 @@
-total 56
-drwxr-xr-x 1 정영록 197121    0  8월 28 12:57 ./
-drwxr-xr-x 1 정영록 197121    0  8월 28 12:59 ../
-drwxr-xr-x 1 정영록 197121    0  8월 28 12:58 agents/
-drwxr-xr-x 1 정영록 197121    0  8월 28 12:57 commands/
-drwxr-xr-x 1 정영록 197121    0  8월 27 15:45 hooks/
--rw-r--r-- 1 정영록 197121  566  8월 26 15:34 settings.json
--rw-r--r-- 1 정영록 197121 4649  8월 28 12:56 settings.local.json

@@ -6,7 +6,7 @@
  * Extracts keywords, entities, topics, and sentiment from video metadata
  */
 
-import type { EntityExtraction, TrendAnalysis, YouTubeLensVideo as Video } from '@/types';
+import type { EntityExtraction, TrendAnalysis, YouTubeVideo as Video } from '@/types';
 
 /**
  * Korean language patterns and stopwords
@@ -390,6 +390,7 @@ export async function extractEntities(video: Video): Promise<EntityExtraction> {
   const topics = extract_topics(keywords);
 
   return {
+    videoId: video.id,
     entities: {
       keywords: keywords.slice(0, 10),
       topics,
@@ -399,7 +400,7 @@ export async function extractEntities(video: Video): Promise<EntityExtraction> {
     },
     language: language === 'ko' ? 'Korean' : language === 'en' ? 'English' : 'Mixed',
     confidence: calculate_confidence(keywords, brands, people, locations),
-    processedAt: new Date().toISOString(),
+    extractedAt: new Date().toISOString(),
   };
 }
 
@@ -475,7 +476,9 @@ export async function analyzeTrends(
   const window_start = new Date(now.getTime() - time_window_days * 24 * 60 * 60 * 1000);
 
   // Filter videos within time window
-  const recent_videos = videos.filter((v) => new Date(v.published_at) >= window_start);
+  const recent_videos = videos.filter((v) => 
+    v.published_at && new Date(v.published_at) >= window_start
+  );
 
   // Extract all keywords from recent videos
   const all_keywords = new Map<
@@ -493,13 +496,13 @@ export async function analyzeTrends(
     const text = `${video.title} ${video.description || ''}`;
     const keywords = extract_keywords(text, 10);
     const { sentiment } = analyze_sentiment(text);
-    const video_date = new Date(video.published_at);
+    const video_date = new Date(video.published_at || new Date());
 
     keywords.forEach((keyword) => {
       const existing = all_keywords.get(keyword);
       if (existing) {
         existing.count++;
-        existing.videos.push(video.video_id);
+        existing.videos.push(video.id);
         existing.sentiments.push(sentiment);
         if (video_date < existing.firstSeen) {
           existing.firstSeen = video_date;
@@ -510,7 +513,7 @@ export async function analyzeTrends(
       } else {
         all_keywords.set(keyword, {
           count: 1,
-          videos: [video.video_id],
+          videos: [video.id],
           firstSeen: video_date,
           lastSeen: video_date,
           sentiments: [sentiment],
@@ -542,13 +545,16 @@ export async function analyzeTrends(
 
       trends.push({
         keyword,
+        trend: growth_rate > 0.1 ? 'RISING' : growth_rate < -0.1 ? 'DECLINING' : 'STABLE',
+        changePercent: growth_rate * 100,
+        searchVolume: data.count,
+        competition: data.count > 20 ? 'HIGH' : data.count > 10 ? 'MEDIUM' : 'LOW',
+        relatedTerms: [], // Related terms would need to be computed separately
+        timeframe: `${time_window_days} days`,
+        // Optional fields
         frequency: data.count,
         growthRate: growth_rate,
-        firstSeen: data.firstSeen.toISOString(),
-        lastSeen: data.lastSeen.toISOString(),
-        relatedVideos: data.videos.slice(0, 10),
         sentiment: dominant_sentiment,
-        confidence: Math.min(data.count / 10, 0.95),
       });
     }
   });
@@ -587,7 +593,9 @@ export function generateNLPReport(
 
   entity_extractions.forEach((extraction) => {
     // Language distribution
-    language_counts[extraction.language] = (language_counts[extraction.language] || 0) + 1;
+    if (extraction.language) {
+      language_counts[extraction.language] = (language_counts[extraction.language] || 0) + 1;
+    }
 
     // Type guard for entities
     if (!extraction.entities || typeof extraction.entities !== 'object') {
@@ -619,7 +627,9 @@ export function generateNLPReport(
   // Calculate sentiment distribution from trends
   const sentiment_dist = { positive: 0, negative: 0, neutral: 0 };
   trends.forEach((trend) => {
-    sentiment_dist[trend.sentiment]++;
+    if (trend.sentiment && trend.sentiment in sentiment_dist) {
+      sentiment_dist[trend.sentiment]++;
+    }
   });
 
   return {

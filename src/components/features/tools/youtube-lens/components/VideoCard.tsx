@@ -40,8 +40,35 @@ interface VideoCardProps {
   className?: string;
 }
 
+// ISO 8601 duration을 seconds로 변환하는 함수
+function parse_iso_duration(duration: string): number {
+  if (!duration) {
+    return 0;
+  }
+  
+  // PT4M13S 형태를 파싱
+  const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!matches) {
+    return 0;
+  }
+  
+  const hours = parseInt(matches[1] || '0', 10);
+  const minutes = parseInt(matches[2] || '0', 10);
+  const seconds = parseInt(matches[3] || '0', 10);
+  
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 // 시간 포맷팅 함수 (초 단위를 시간 형태로 변환)
-function format_duration(seconds: number): string {
+function format_duration(duration: string | number): string {
+  let seconds: number;
+  
+  if (typeof duration === 'string') {
+    seconds = parse_iso_duration(duration);
+  } else {
+    seconds = duration;
+  }
+  
   if (!seconds) {
     return '0:00';
   }
@@ -111,9 +138,9 @@ export const VideoCard = memo(function VideoCard({
   const handle_select = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      onSelect?.(video.id);
+      onSelect?.(video.video_id);
     },
-    [video.id, onSelect]
+    [video.video_id, onSelect]
   );
 
   const handle_toggle_favorite = useCallback(
@@ -129,12 +156,12 @@ export const VideoCard = memo(function VideoCard({
   }, [video, onPlay]);
 
   const handle_copy_link = useCallback(() => {
-    navigator.clipboard.writeText(`https://youtube.com/watch?v=${video.id}`);
-  }, [video.id]);
+    navigator.clipboard.writeText(`https://youtube.com/watch?v=${video.video_id}`);
+  }, [video.video_id]);
 
   const handle_open_in_you_tube = useCallback(() => {
-    window.open(`https://youtube.com/watch?v=${video.id}`, '_blank');
-  }, [video.id]);
+    window.open(`https://youtube.com/watch?v=${video.video_id}`, '_blank');
+  }, [video.video_id]);
 
   // Grid View
   if (viewMode === 'grid') {
@@ -156,7 +183,7 @@ export const VideoCard = memo(function VideoCard({
             <div className="absolute top-2 left-2 z-10">
               <Checkbox
                 checked={isSelected}
-                onCheckedChange={() => onSelect(video.id)}
+                onCheckedChange={() => onSelect(video.video_id)}
                 onClick={handle_select}
                 className="bg-background/80 backdrop-blur-sm"
               />
@@ -198,7 +225,7 @@ export const VideoCard = memo(function VideoCard({
           {/* 썸네일 이미지 */}
           {!image_error ? (
             <Image
-              src={video.thumbnail}
+              src={video.thumbnail_url}
               alt={video.title}
               fill={true}
               className="object-cover"
@@ -233,15 +260,15 @@ export const VideoCard = memo(function VideoCard({
           </div>
 
           {/* 통계 정보 */}
-          {(video.like_count > 0 || video.comment_count > 0) && (
+          {((video.like_count && video.like_count > 0) || (video.comment_count && video.comment_count > 0)) && (
             <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1 border-t">
-              {video.like_count > 0 && (
+              {video.like_count && video.like_count > 0 && (
                 <div className="flex items-center gap-1">
                   <ThumbsUp className="h-3 w-3" />
                   <span>{format_view_count(video.like_count)}</span>
                 </div>
               )}
-              {video.comment_count > 0 && (
+              {video.comment_count && video.comment_count > 0 && (
                 <div className="flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />
                   <span>{format_view_count(video.comment_count)}</span>
@@ -272,7 +299,7 @@ export const VideoCard = memo(function VideoCard({
               <div className="flex items-center">
                 <Checkbox
                   checked={isSelected}
-                  onCheckedChange={() => onSelect(video.id)}
+                  onCheckedChange={() => onSelect(video.video_id)}
                   onClick={handle_select}
                 />
               </div>
@@ -282,7 +309,7 @@ export const VideoCard = memo(function VideoCard({
             <div className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md bg-muted">
               {!image_error ? (
                 <Image
-                  src={video.thumbnail}
+                  src={video.thumbnail_url}
                   alt={video.title}
                   fill={true}
                   className="object-cover"
@@ -310,7 +337,7 @@ export const VideoCard = memo(function VideoCard({
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span>{format_view_count(video.view_count)} 조회수</span>
                 <span>{format_date(video.published_at)}</span>
-                {video.like_count > 0 && <span>좋아요 {format_view_count(video.like_count)}</span>}
+                {video.like_count && video.like_count > 0 && <span>좋아요 {format_view_count(video.like_count)}</span>}
               </div>
 
               {/* 설명 미리보기 */}
@@ -381,7 +408,7 @@ export const VideoCard = memo(function VideoCard({
       {onSelect && (
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onSelect(video.id)}
+          onCheckedChange={() => onSelect(video.video_id)}
           onClick={handle_select}
         />
       )}
@@ -390,7 +417,7 @@ export const VideoCard = memo(function VideoCard({
       <div className="relative w-20 aspect-video flex-shrink-0 overflow-hidden rounded bg-muted">
         {!image_error ? (
           <Image
-            src={video.thumbnail}
+            src={video.thumbnail_url}
             alt={video.title}
             fill={true}
             className="object-cover"

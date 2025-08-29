@@ -106,8 +106,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: log.id,
         channelId: log.channel_id,
         action: log.action,
-        adminId: log.admin_id,
-        notes: log.notes,
+        adminId: log.user_id, // Use user_id as admin_id
+        notes: '', // Default empty notes since field doesn't exist
         createdAt: log.created_at,
         channelTitle: channel?.title || 'Unknown Channel'
       };

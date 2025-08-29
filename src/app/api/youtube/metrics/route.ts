@@ -464,10 +464,10 @@ function calculate_aggregate_stats(
     };
   }
 
-  const total_views = videos.reduce((sum, v) => sum + Number(v.statistics?.view_count || 0), 0);
-  const total_likes = videos.reduce((sum, v) => sum + Number(v.statistics?.like_count || 0), 0);
+  const total_views = videos.reduce((sum, v) => sum + Number(v.view_count || 0), 0);
+  const total_likes = videos.reduce((sum, v) => sum + Number(v.like_count || 0), 0);
   const total_comments = videos.reduce(
-    (sum, v) => sum + Number(v.statistics?.comment_count || 0),
+    (sum, v) => sum + Number(v.comment_count || 0),
     0
   );
 
@@ -508,9 +508,9 @@ async function save_metrics_snapshot(
 
     const snapshots = videos.map((video) => ({
       video_id: video.id,
-      view_count: Number(video.statistics?.view_count) || 0,
-      like_count: Number(video.statistics?.like_count) || 0,
-      comment_count: Number(video.statistics?.comment_count) || 0,
+      view_count: Number(video.view_count) || 0,
+      like_count: Number(video.like_count) || 0,
+      comment_count: Number(video.comment_count) || 0,
       engagement_rate: Number(video.metrics?.engagementRate) || 0,
       viral_score: Number(video.metrics?.viralScore) || 0,
       date: new Date().toISOString(),

@@ -12,7 +12,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
-import { mapOutlierDetectionResult } from '@/lib/utils/type-mappers';
+import { mapOutlierDetectionResult, mapPredictionModel } from '@/lib/utils/type-mappers';
 import { analyzeTrends, extractEntities, generateNLPReport } from '@/lib/youtube/analysis/nlp';
 import { detectOutliers, generateOutlierReport } from '@/lib/youtube/analysis/outlier';
 import {
@@ -21,7 +21,7 @@ import {
   predictVideoPerformance,
 } from '@/lib/youtube/analysis/predictor';
 import { generateTrendReport } from '@/lib/youtube/analysis/trends';
-import type { BatchAnalysisResult, YouTubeLensVideo } from '@/types';
+import type { BatchAnalysisResult, YouTubeVideo } from '@/types';
 
 // Type for video stats from database (without extended VideoStats fields)
 type DatabaseVideoStats = {
@@ -97,26 +97,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'No videos found' }, { status: 404 });
     }
 
-    // Convert database records to YouTubeLensVideo type
-    const videos: YouTubeLensVideo[] = dbVideos.map((v) => ({
-      id: v.id,
-      video_id: v.id,
-      title: v.title,
-      description: v.description,
-      channel_id: v.channel_id,
-      published_at: v.published_at || v.created_at || new Date().toISOString(),
-      durationSeconds: v.duration ? Number(v.duration) : null,
-      isShort: v.duration ? Number(v.duration) <= 60 : false,
-      thumbnails: v.thumbnail_url ? { default: { url: v.thumbnail_url, width: 120, height: 90 } } : null,
-      tags: v.tags || [],
-      category_id: v.category_id,
-      languageCode: v.default_language || null,
-      regionCode: null,
-      firstSeenAt: v.created_at || new Date().toISOString(),
-      lastUpdatedAt: v.updated_at || v.created_at || new Date().toISOString(),
-      created_at: v.created_at || new Date().toISOString(),
-      deleted_at: null
-    }));
+    // Use videos directly as they are from the database
+    const videos: YouTubeVideo[] = dbVideos;
 
     // Fetch stats for videos
     const fetched_video_ids = videos.map((v) => v.id);
@@ -142,7 +124,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const videos_with_stats = videos.map((video) => ({
       ...video,
       stats: stats_by_video.get(video.id) || [],
-    })) as Array<YouTubeLensVideo & { stats: DatabaseVideoStats[] }>;
+    })) as Array<YouTubeVideo & { stats: DatabaseVideoStats[] }>;
 
     let result: Record<string, unknown> = {};
 
@@ -231,10 +213,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const batch_result: BatchAnalysisResult = {
           outliers: batch_outliers.map(mapOutlierDetectionResult).filter((o) => o.isOutlier),
           trends: batch_trends,
-          predictions: batch_predictions,
+          predictions: batch_predictions.map(mapPredictionModel),
           processingTimeMs: Date.now() - start_time,
           totalVideosAnalyzed: videos.length,
-          timestamp: new Date().toISOString(),
         };
 
         result = {
@@ -369,29 +350,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             .single();
 
           if (dbVideo) {
-            // Convert database record to YouTubeLensVideo type
-            const v = dbVideo;
-            const video: YouTubeLensVideo = {
-              id: v.id,
-              video_id: v.id,
-              title: v.title,
-              description: v.description,
-              channel_id: v.channel_id,
-              published_at: v.published_at || v.created_at || new Date().toISOString(),
-              durationSeconds: v.duration ? Number(v.duration) : null,
-              isShort: v.duration ? Number(v.duration) <= 60 : false,
-              thumbnails: v.thumbnail_url ? { default: { url: v.thumbnail_url, width: 120, height: 90 } } : null,
-              tags: v.tags || [],
-              category_id: v.category_id,
-              languageCode: v.default_language || null,
-              regionCode: null,
-              firstSeenAt: v.created_at || new Date().toISOString(),
-              lastUpdatedAt: v.updated_at || v.created_at || new Date().toISOString(),
-              created_at: v.created_at || new Date().toISOString(),
-              deleted_at: null
-            };
+            // Use database video directly
+            const video: YouTubeVideo = dbVideo as YouTubeVideo;
             
-            const prediction = await predictVideoPerformance(video, (v.video_stats || []) as unknown as Parameters<typeof predictVideoPerformance>[1]);
+            const prediction = await predictVideoPerformance(video, (dbVideo.video_stats || []) as unknown as Parameters<typeof predictVideoPerformance>[1]);
 
             result = {
               type: 'predictions',

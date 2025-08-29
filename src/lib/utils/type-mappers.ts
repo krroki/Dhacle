@@ -6,15 +6,14 @@
 import type {
   AlertCondition,
   Collection,
-  Course,
-  Lesson,
   OutlierDetectionResult,
+  PredictionModel,
+  PredictionResult,
   SourceFolder,
   TrendAnalysis,
   Video,
   VideoMetrics,
-  YouTubeLensVideoStats as VideoStats,
-  YouTubeVideo,
+  YouTubeVideoStats as VideoStats,
 } from '@/types';
 
 // Database row types - using flexible types since tables may not exist yet
@@ -22,86 +21,11 @@ type DBVideo = Partial<Video> & Record<string, unknown>;
 type DBVideoStats = Partial<VideoStats> & Record<string, unknown>;
 type DBSourceFolder = Partial<SourceFolder> & Record<string, unknown>;
 type DBCollection = Partial<Collection> & Record<string, unknown>;
-type DBCourse = Partial<Course> & Record<string, unknown>;
-type DBLesson = Partial<Lesson> & Record<string, unknown>;
 type DBTrendAnalysis = Partial<TrendAnalysis> & Record<string, unknown>;
 type DBOutlierDetectionResult = Partial<OutlierDetectionResult> & Record<string, unknown>;
 type DBVideoMetrics = Partial<VideoMetrics> & Record<string, unknown>;
 
-/**
- * Maps database Course data (snake_case) to frontend Course type (camelCase)
- */
-export function mapCourse(dbCourse: DBCourse | Course | Record<string, unknown>): Course {
-  if (!dbCourse) {
-    return dbCourse as Course;
-  }
 
-  const obj = dbCourse as Record<string, unknown>;
-  const course = dbCourse as Course;
-
-  return {
-    // All DB fields from Tables<'courses'>
-    id: (obj.id as string) || course.id || '',
-    title: (obj.title as string) || course.title || '',
-    subtitle: course.subtitle || '',
-    description: (obj.description as string) || course.description || undefined,
-    instructor_name: (obj.instructor_name as string) ?? course.instructor_name ?? 'Unknown',
-    instructor_id: (obj.instructor_id as string) || course.instructor_id || undefined,
-    thumbnail_url: (obj.thumbnail_url as string) || course.thumbnail_url || undefined,
-    price: Number(obj.price ?? course.price) || 0,
-    is_free: obj.price === 0 || (obj.is_free as boolean) || course.is_free || false,
-    average_rating: Number(obj.average_rating ?? course.average_rating) || 0,
-    created_at: (obj.created_at as string) || course.created_at || new Date().toISOString(),
-    updated_at:
-      (obj.updated_at as string) ||
-      course.updated_at ||
-      (obj.created_at as string) ||
-      course.created_at ||
-      new Date().toISOString(),
-    category: (obj.category as string) || course.category || undefined,
-    level: (obj.level as string) || course.level || undefined,
-    requirements: Array.isArray(obj.requirements)
-      ? (obj.requirements as string[])
-      : course.requirements || undefined,
-
-    // Frontend enhancement fields
-    isPremium: Boolean((obj.price && Number(obj.price) > 0) || course.isPremium || false),
-    total_duration: obj.duration_weeks
-      ? Number(obj.duration_weeks) * 7 * 60
-      : course.total_duration || 0,
-    student_count: Number(obj.total_students ?? course.student_count) || 0,
-    reviewCount: course.reviewCount || 0,
-    status: (obj.status || course.status || 'active') as 'upcoming' | 'active' | 'completed',
-    launchDate: (obj.created_at as string) || course.launchDate || new Date().toISOString(),
-
-    // Additional optional fields
-    contentBlocks: obj.curriculum || course.contentBlocks || undefined,
-    whatYouLearn: obj.what_youll_learn || course.whatYouLearn || undefined,
-  } as Course;
-}
-
-/**
- * Maps database Lesson data (snake_case) to frontend Lesson type (camelCase)
- */
-export function mapLesson(dbLesson: DBLesson | Lesson | Record<string, unknown>): Lesson {
-  if (!dbLesson) {
-    return dbLesson as Lesson;
-  }
-
-  const obj = dbLesson as Record<string, unknown>;
-  const lesson = dbLesson as Lesson;
-
-  return {
-    ...dbLesson,
-    // Map snake_case to camelCase
-    video_url: obj.video_url ?? lesson.video_url,
-    is_free: obj.is_free ?? lesson.is_free ?? false,
-    order_index: obj.order_index ?? lesson.order_index ?? 0,
-    // Ensure proper field names
-    course_id: obj.course_id || lesson.course_id || '',
-    duration: Number(lesson.duration) || 0,
-  } as Lesson;
-}
 
 /**
  * Maps database VideoStats data (snake_case) to frontend VideoStats type (camelCase)
@@ -117,25 +41,25 @@ export function mapVideoStats(dbStats: DBVideoStats | VideoStats): VideoStats {
   return {
     ...dbStats,
     id: stats.id || obj.id || '',
-    // Map snake_case to camelCase
-    viralScore: obj.viral_score ?? stats.viralScore,
-    engagementRate: obj.engagement_rate ?? stats.engagementRate,
-    viewsPerHour: obj.views_per_hour ?? stats.viewsPerHour,
-    // Keep snake_case fields that are defined as snake_case in the type
+    // Keep snake_case fields that are defined as snake_case in the VideoStats type
+    viral_score: obj.viral_score ?? stats.viral_score ?? 0,
+    engagement_rate: obj.engagement_rate ?? stats.engagement_rate ?? 0,
+    views_per_hour: obj.views_per_hour ?? stats.views_per_hour ?? 0,
     view_count: obj.view_count ?? stats.view_count ?? 0,
     like_count: obj.like_count ?? stats.like_count ?? 0,
     comment_count: obj.comment_count ?? stats.comment_count ?? 0,
     video_id: (obj.video_id ?? stats.video_id) || '',
-    viewDelta: stats.viewDelta ?? 0,
-    likeDelta: stats.likeDelta ?? 0,
-    commentDelta: stats.commentDelta ?? 0,
-    snapshotAt: stats.snapshotAt || (obj.snapshot_at as string) || '',
+    view_delta: obj.view_delta ?? stats.view_delta ?? 0,
+    like_delta: obj.like_delta ?? stats.like_delta ?? 0,
+    comment_delta: obj.comment_delta ?? stats.comment_delta ?? 0,
+    date: (obj.date ?? stats.date) || new Date().toISOString().split('T')[0],
     created_at: (obj.created_at ?? stats.created_at) || '',
   } as VideoStats;
 }
 
 /**
- * Maps database Video data (snake_case) to frontend Video type (camelCase)
+ * Maps database Video data (snake_case) to frontend Video type (snake_case)
+ * Note: Video type is now directly using database schema (snake_case)
  */
 export function mapVideo(dbVideo: DBVideo | Video): Video {
   if (!dbVideo) {
@@ -147,17 +71,27 @@ export function mapVideo(dbVideo: DBVideo | Video): Video {
 
   return {
     ...dbVideo,
-    id: video.id || obj.id || '',
-    // Map snake_case to camelCase
-    isShort: obj.is_short ?? video.isShort ?? false,
-    durationSeconds: obj.duration_seconds ?? video.durationSeconds,
-    // Keep fields that are already in the correct format
-    video_id: (obj.video_id ?? video.video_id) || '',
-    channel_id: (obj.channel_id ?? video.channel_id) || '',
-    published_at: (obj.published_at ?? video.published_at) || '',
-    firstSeenAt: video.firstSeenAt || (obj.first_seen_at as string) || '',
-    lastUpdatedAt: video.lastUpdatedAt || (obj.last_updated_at as string) || '',
-    created_at: (obj.created_at ?? video.created_at) || '',
+    id: (video.id || obj.id || '') as string,
+    channel_id: (obj.channel_id ?? video.channel_id) as string,
+    title: (obj.title ?? video.title) as string,
+    description: (obj.description ?? video.description) as string | null,
+    published_at: (obj.published_at ?? video.published_at) as string | null,
+    duration: (obj.duration ?? video.duration) as string | null,
+    view_count: (obj.view_count ?? video.view_count) as number | null,
+    like_count: (obj.like_count ?? video.like_count) as number | null,
+    comment_count: (obj.comment_count ?? video.comment_count) as number | null,
+    thumbnail_url: (obj.thumbnail_url ?? video.thumbnail_url) as string | null,
+    category_id: (obj.category_id ?? video.category_id) as string | null,
+    tags: (obj.tags ?? video.tags) as string[] | null,
+    created_at: (obj.created_at ?? video.created_at) as string | null,
+    updated_at: (obj.updated_at ?? video.updated_at) as string | null,
+    // Optional fields with defaults
+    default_language: (obj.default_language ?? video.default_language) as string | null,
+    default_audio_language: (obj.default_audio_language ?? video.default_audio_language) as string | null,
+    privacy_status: (obj.privacy_status ?? video.privacy_status) as string | null,
+    live_broadcast_content: (obj.live_broadcast_content ?? video.live_broadcast_content) as string | null,
+    is_live: (obj.is_live ?? video.is_live) as boolean | null,
+    made_for_kids: (obj.made_for_kids ?? video.made_for_kids) as boolean | null,
   } as Video;
 }
 
@@ -205,19 +139,25 @@ export function mapTrendAnalysis(dbTrend: DBTrendAnalysis | TrendAnalysis): Tren
   const trend = dbTrend as TrendAnalysis;
 
   return {
-    keyword: trend.keyword || obj.keyword || '',
-    frequency: trend.frequency || obj.frequency || 0,
-    growthRate: obj.growth_rate ?? trend.growthRate ?? 0,
-    firstSeen: trend.firstSeen || obj.firstSeen || '',
-    lastSeen: trend.lastSeen || obj.lastSeen || '',
-    relatedVideos: trend.relatedVideos || obj.relatedVideos || [],
-    sentiment: trend.sentiment || obj.sentiment || 'neutral',
-    confidence: trend.confidence || obj.confidence || 0,
+    // 필수 필드들
+    keyword: (trend.keyword || obj.keyword || '') as string,
+    trend: (trend.trend || obj.trend || 'STABLE') as 'RISING' | 'STABLE' | 'DECLINING',
+    changePercent: Number(obj.change_percent ?? trend.changePercent) || 0,
+    searchVolume: Number(obj.search_volume ?? trend.searchVolume) || 0,
+    competition: (trend.competition || obj.competition || 'LOW') as 'LOW' | 'MEDIUM' | 'HIGH',
+    relatedTerms: (trend.relatedTerms || obj.related_terms || obj.relatedTerms || []) as string[],
+    timeframe: (trend.timeframe || obj.timeframe || 'recent') as string,
+    
+    // 선택적 필드들
+    growthRate: Number(obj.growth_rate ?? trend.growthRate) || undefined,
+    frequency: Number(trend.frequency || obj.frequency) || undefined,
+    sentiment: (trend.sentiment || obj.sentiment || undefined) as 'positive' | 'negative' | 'neutral' | undefined,
   } as TrendAnalysis;
 }
 
 /**
- * Maps database SourceFolder data (snake_case) to frontend SourceFolder type (camelCase)
+ * Maps database SourceFolder data (snake_case) to frontend SourceFolder type (snake_case)
+ * Note: SourceFolder now uses direct database schema (snake_case)
  */
 export function mapSourceFolder(dbFolder: DBSourceFolder | SourceFolder): SourceFolder {
   if (!dbFolder) {
@@ -228,20 +168,16 @@ export function mapSourceFolder(dbFolder: DBSourceFolder | SourceFolder): Source
   const folder = dbFolder as SourceFolder;
 
   return {
-    ...dbFolder,
-    id: folder.id || (obj.id as string) || '',
-    // Map snake_case to camelCase
-    folderChannels: obj.folder_channels ?? folder.folderChannels ?? [],
-    // Keep other fields in their correct format
-    user_id: folder.user_id || (obj.user_id as string) || '',
-    autoMonitor: folder.autoMonitor ?? false,
-    monitorFrequencyHours: folder.monitorFrequencyHours ?? 24,
-    channelCount: folder.channelCount ?? 0,
-    isMonitoringEnabled: folder.isMonitoringEnabled ?? false,
-    checkIntervalHours: folder.checkIntervalHours ?? 24,
-    lastCheckedAt: folder.lastCheckedAt || (obj.last_checked_at as string) || null,
-    created_at: folder.created_at || (obj.created_at as string) || '',
-    updated_at: folder.updated_at || (obj.updated_at as string) || '',
+    id: (folder.id || obj.id || '') as string,
+    name: (folder.name || obj.name || '') as string,
+    description: (folder.description || obj.description) as string | null,
+    user_id: (folder.user_id || obj.user_id || '') as string,
+    channel_count: (folder.channel_count ?? obj.channel_count) as number | null,
+    is_active: (folder.is_active ?? obj.is_active) as boolean | null,
+    color: (folder.color || obj.color) as string | null,
+    icon: (folder.icon || obj.icon) as string | null,
+    created_at: (folder.created_at || obj.created_at) as string | null,
+    updated_at: (folder.updated_at || obj.updated_at) as string | null,
   } as SourceFolder;
 }
 
@@ -270,7 +206,7 @@ export function mapCollection(dbCollection: DBCollection | Collection): Collecti
 }
 
 /**
- * Maps database OutlierDetectionResult data (snake_case) to frontend type (camelCase)
+ * Maps database OutlierDetectionResult data to frontend OutlierResult type
  */
 export function mapOutlierDetectionResult(
   dbResult: DBOutlierDetectionResult | OutlierDetectionResult
@@ -283,26 +219,16 @@ export function mapOutlierDetectionResult(
   const result = dbResult as OutlierDetectionResult;
 
   return {
-    video_id: result.video_id || (obj.video_id as string) || '',
-    zScore: result.zScore || (obj.zScore as number) || 0,
-    madScore: result.madScore || (obj.madScore as number) || 0,
-    combinedScore: result.combinedScore || (obj.combinedScore as number) || 0,
-    isOutlier: obj.is_outlier ?? result.isOutlier ?? false,
-    outlierType: result.outlierType || (obj.outlierType as 'positive' | 'negative' | null) || null,
-    metrics: result.metrics ||
-      (obj.metrics as OutlierDetectionResult['metrics']) || {
-        view_count: 0,
-        like_count: 0,
-        comment_count: 0,
-        vph: 0,
-      },
-    percentile: result.percentile || (obj.percentile as number) || 0,
-    timestamp: result.timestamp || (obj.timestamp as string) || '',
+    videoId: (result.videoId || obj.video_id || obj.videoId || '') as string,
+    isOutlier: Boolean(obj.is_outlier ?? result.isOutlier ?? false),
+    confidence: Number(result.confidence || obj.confidence || 0),
+    reason: (result.reason || obj.reason || 'No reason provided') as string,
   } as OutlierDetectionResult;
 }
 
 /**
- * Maps database VideoMetrics data (snake_case) to frontend VideoMetrics type (camelCase)
+ * Maps database VideoMetrics data (snake_case) to frontend VideoMetrics type (snake_case)
+ * Note: VideoMetrics uses database schema (snake_case)
  */
 export function mapVideoMetrics(dbMetrics: DBVideoMetrics | VideoMetrics): VideoMetrics {
   if (!dbMetrics) {
@@ -313,11 +239,19 @@ export function mapVideoMetrics(dbMetrics: DBVideoMetrics | VideoMetrics): Video
   const metrics = dbMetrics as VideoMetrics;
 
   return {
-    vph: metrics.vph || (obj.vph as number) || 0,
-    engagementRate: obj.engagement_rate ?? metrics.engagementRate ?? 0,
-    viralScore: metrics.viralScore || (obj.viralScore as number) || 0,
-    growthRate: metrics.growthRate || (obj.growthRate as number) || 0,
-    velocity: metrics.velocity || (obj.velocity as number) || 0,
+    id: (metrics.id || obj.id || '') as string,
+    video_id: (metrics.video_id || obj.video_id || '') as string,
+    view_count: (metrics.view_count ?? obj.view_count) as number | null,
+    like_count: (metrics.like_count ?? obj.like_count) as number | null,
+    comment_count: (metrics.comment_count ?? obj.comment_count) as number | null,
+    engagement_rate: (obj.engagement_rate ?? metrics.engagement_rate) as number | null,
+    views_per_hour: (obj.views_per_hour ?? metrics.views_per_hour) as number | null,
+    viral_score: (obj.viral_score ?? metrics.viral_score) as number | null,
+    view_delta: (obj.view_delta ?? metrics.view_delta) as number | null,
+    like_delta: (obj.like_delta ?? metrics.like_delta) as number | null,
+    comment_delta: (obj.comment_delta ?? metrics.comment_delta) as number | null,
+    date: (metrics.date || obj.date || new Date().toISOString().split('T')[0]) as string,
+    created_at: (metrics.created_at || obj.created_at) as string | null,
   } as VideoMetrics;
 }
 
@@ -348,64 +282,21 @@ export function safeAccess<T>(
 }
 
 /**
- * Maps Video type to YouTubeVideo type for API compatibility
+ * Maps PredictionModel to PredictionResult for BatchAnalysisResult
  */
-export function mapVideoToYouTubeVideo(
-  video: (DBVideo & { stats?: DBVideoStats }) | (Video & { stats?: VideoStats })
-): YouTubeVideo {
-  if (!video) {
-    return video;
-  }
-
-  const obj = video as Record<string, unknown>;
-  const vid = video as Video;
-
-  const thumbnails = vid.thumbnails || obj.thumbnails || {};
-  let parsedThumbnails = thumbnails;
-
-  // Handle string thumbnails (JSON)
-  if (typeof thumbnails === 'string') {
-    try {
-      parsedThumbnails = JSON.parse(thumbnails);
-    } catch (error) {
-      console.error('Type mapping error:', error);
-      parsedThumbnails = {};
-    }
+export function mapPredictionModel(prediction: PredictionModel): PredictionResult {
+  if (!prediction) {
+    return prediction as PredictionResult;
   }
 
   return {
-    id: vid.video_id || (obj.video_id as string) || vid.id || (obj.id as string) || '',
-    snippet: {
-      title: vid.title || (obj.title as string) || '',
-      description: vid.description || (obj.description as string) || '',
-      channel_id: vid.channel_id || (obj.channel_id as string) || '',
-      channel_title: (obj.channel_title as string) || '',
-      published_at: vid.published_at || (obj.published_at as string) || '',
-      thumbnails: parsedThumbnails,
-      tags: vid.tags || (obj.tags as string[]) || [],
-      category_id: (obj.category_id as string) || 'unknown',
-      liveBroadcastContent: 'none' as const,
-      defaultLanguage: (obj.default_language as string) || undefined,
-      localized: undefined,
-    },
-    statistics: {
-      view_count: (video.stats?.view_count || 0).toString(),
-      like_count: (video.stats?.like_count || 0).toString(),
-      comment_count: (video.stats?.comment_count || 0).toString(),
-      favoriteCount: '0',
-    },
-    contentDetails: {
-      duration: vid.durationSeconds ? `PT${vid.durationSeconds}S` : 'PT60S',
-      dimension: '2d',
-      definition: 'hd',
-      caption: 'false',
-      licensedContent: false,
-      projection: 'rectangular',
-    },
-    metrics: {
-      viewsPerHour: video.stats?.viewsPerHour || 0,
-      engagementRate: video.stats?.engagementRate || 0,
-      viralScore: video.stats?.viralScore || 0,
-    },
-  };
+    videoId: prediction.video_id || '',
+    predictedViews: prediction.predictedViews || 0,
+    confidence: prediction.confidence || prediction.viralProbability || 0,
+    factors: prediction.factors || [
+      `Growth: ${prediction.growthTrajectory}`,
+      `Viral probability: ${(prediction.viralProbability * 100).toFixed(1)}%`,
+    ],
+  } as PredictionResult;
 }
+

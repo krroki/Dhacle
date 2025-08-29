@@ -1,5 +1,5 @@
 // OAuth removed - using API Key system
-import type { FlattenedYouTubeVideo, YouTubeChannel, YouTubeSearchFilters } from '@/types';
+import type { FlattenedYouTubeVideo, YouTubeChannelInfo, YouTubeSearchFilters } from '@/types';
 import { CacheManager, cacheManager } from './cache';
 import { JobPriority, JobType, queueManager } from './queue-manager';
 
@@ -286,21 +286,26 @@ export class YouTubeAPIClient {
       const content_details = video_item.contentDetails as Record<string, unknown> | undefined;
       const status = video_item.status as Record<string, unknown> | undefined;
 
+      const thumbnail_url = String(
+        ((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)
+          ?.url ||
+          ((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)
+            ?.url ||
+          ''
+      );
+      const video_id = String(video_item.id || '');
+
       return {
-        id: String(video_item.id || ''),
+        id: video_id,
+        video_id: video_id, // FlattenedYouTubeVideo 타입에 필요한 필드
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
-        thumbnail: String(
-          ((snippet?.thumbnails as Record<string, unknown>)?.high as Record<string, unknown>)
-            ?.url ||
-            ((snippet?.thumbnails as Record<string, unknown>)?.default as Record<string, unknown>)
-              ?.url ||
-            ''
-        ),
+        thumbnail: thumbnail_url,
+        thumbnail_url: thumbnail_url, // FlattenedYouTubeVideo 타입에 필요한 필드
         channel_id: String(snippet?.channelId || ''),
         channel_title: String(snippet?.channelTitle || ''),
         published_at: String(snippet?.publishedAt || ''),
-        duration: this.parseDuration(String(content_details?.duration || '')),
+        duration: String(this.parseDuration(String(content_details?.duration || ''))),
         view_count: Number.parseInt(String(statistics?.viewCount || '0'), 10),
         like_count: Number.parseInt(String(statistics?.likeCount || '0'), 10),
         comment_count: Number.parseInt(String(statistics?.commentCount || '0'), 10),
@@ -340,7 +345,7 @@ export class YouTubeAPIClient {
   /**
    * 채널 정보 가져오기
    */
-  async getChannel(channel_id: string): Promise<YouTubeChannel | null> {
+  async getChannel(channel_id: string): Promise<YouTubeChannelInfo | null> {
     const response = await this.makeRequest<{
       items?: unknown[];
     }>(
@@ -369,8 +374,6 @@ export class YouTubeAPIClient {
       snippet: {
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
-        customUrl: String(snippet?.customUrl || ''),
-        published_at: String(snippet?.publishedAt || ''),
         thumbnails: {
           high: {
             url: String(
@@ -379,6 +382,14 @@ export class YouTubeAPIClient {
             ),
             width: 800,
             height: 800,
+          },
+          medium: {
+            url: String(
+              ((snippet?.thumbnails as Record<string, unknown>)?.medium as Record<string, unknown>)
+                ?.url || ''
+            ),
+            width: 240,
+            height: 240,
           },
           default: {
             url: String(
@@ -389,11 +400,10 @@ export class YouTubeAPIClient {
             height: 88,
           },
         },
-        country: String(snippet?.country || ''),
       },
       statistics: {
-        view_count: String(statistics?.viewCount || '0'),
-        subscriber_count: String(statistics?.subscriberCount || '0'),
+        viewCount: String(statistics?.viewCount || '0'),
+        subscriberCount: String(statistics?.subscriberCount || '0'),
         hiddenSubscriberCount: Boolean(statistics?.hiddenSubscriberCount),
         videoCount: String(statistics?.videoCount || '0'),
       },

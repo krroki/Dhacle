@@ -42,7 +42,8 @@ export default function CollectionBoard() {
       const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
 
       console.log('[CollectionBoard] API Response:', data);
-      set_collections((data.collections || []).map(mapCollection));
+      const mapped_collections = (data.collections || []).map((col) => mapCollection(col as any)) as Collection[];
+      set_collections(mapped_collections);
     } catch (error) {
       // Handle 401 errors - distinguish between auth and API key issues
       if (error && typeof error === 'object' && 'status' in error) {
@@ -131,7 +132,7 @@ export default function CollectionBoard() {
 
     try {
       const data = await apiPut<{ collection: Collection }>('/api/youtube/collections', {
-        id: editing_collection.id,
+        id: editing_collection!.id,
         name: form_data.name,
         description: form_data.description,
         is_public: form_data.is_public,
@@ -141,7 +142,7 @@ export default function CollectionBoard() {
       toast.success('컬렉션이 업데이트되었습니다');
       set_collections(
         collections.map((c) =>
-          c.id === editing_collection.id ? mapCollection(data.collection) : c
+          c.id === editing_collection!.id ? mapCollection(data.collection) : c
         )
       );
       set_editing_collection(null);
@@ -175,7 +176,7 @@ export default function CollectionBoard() {
     set_form_data({
       name: collection.name,
       description: collection.description || '',
-      is_public: collection.is_public,
+      is_public: collection.is_public ?? false,
       tags: collection.tags?.join(', ') || '',
     });
   };
@@ -292,7 +293,7 @@ export default function CollectionBoard() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {collections.map((collection) => (
+          {collections.map((collection: Collection) => (
             <Card key={collection.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -326,10 +327,10 @@ export default function CollectionBoard() {
               <CardContent>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-muted-foreground">
-                    {collection.itemCount} 개의 동영상
+                    {collection.itemCount ?? 0} 개의 동영상
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(collection.created_at).toLocaleDateString()}
+                    {collection.created_at ? new Date(collection.created_at).toLocaleDateString() : '날짜 없음'}
                   </span>
                 </div>
                 {collection.tags && collection.tags.length > 0 && (

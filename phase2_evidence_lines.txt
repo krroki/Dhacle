@@ -1,7 +1,0 @@
-   57 .claude/agents/api-route-agent.md
-   56 .claude/agents/component-agent.md
-   45 .claude/agents/database-agent.md
-  172 .claude/agents/pm-dhacle.md
-   48 .claude/agents/security-agent.md
-   43 .claude/agents/type-agent.md
-  421 total

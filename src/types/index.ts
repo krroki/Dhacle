@@ -1,11 +1,11 @@
 /**
- * 중앙 타입 정의 파일
+ * 중앙 타입 정의 파일 - YouTube 크리에이터 도구 사이트
  *
  * Single Source of Truth: Supabase 자동 생성 타입 기반
  * 통일된 네이밍: snake_case (DB = Frontend)
  *
  * 사용법:
- * import { User, Course, CommunityPost } from '@/types'
+ * import { User, UserApiKey, YouTubeVideo } from '@/types'
  */
 import type { Database, Tables, TablesInsert, TablesUpdate } from './database.generated';
 
@@ -19,1081 +19,341 @@ export type { Tables, TablesInsert, TablesUpdate } from './database.generated';
 export type DBTables = Database['public']['Tables'];
 export type DBViews = Database['public']['Views'];
 
-// DB 테이블 타입 (snake_case)
+// DB 테이블 타입 (snake_case) - YouTube 크리에이터 도구 관련만
 export type DBUser = Tables<'users'>;
-export type DBCommunityPost = Tables<'community_posts'>;
-export type DBCommunityComment = Tables<'community_comments'>;
-export type DBCommunityLike = Tables<'community_likes'>;
-export type DBRevenueProof = Tables<'revenue_proofs'>;
 export type DBUserApiKey = Tables<'user_api_keys'>;
 export type DBProfile = Tables<'profiles'>; // View
+export type DBAnalyticsLog = Tables<'analytics_logs'>;
+export type DBApiUsage = Tables<'api_usage'>;
+export type DBNotification = Tables<'notifications'>;
+
+// YouTube 관련 테이블
+export type DBYouTubeChannel = Tables<'yl_channels'>;
+export type DBYouTubeVideo = Tables<'videos'>;
+export type DBYouTubeStats = Tables<'video_stats'>;
+export type DBChannelSubscription = Tables<'channel_subscriptions'>;
+export type DBWebhookEvent = Tables<'webhook_events'>;
+export type DBYouTubeFavorite = Tables<'youtube_favorites'>;
+export type DBCollection = Tables<'collections'>;
+export type DBCollectionItem = Tables<'collection_items'>;
+export type DBSourceFolder = Tables<'source_folders'>;
 
 // DB Insert 타입 (snake_case)
 export type DBUserInsert = TablesInsert<'users'>;
-export type DBCommunityPostInsert = TablesInsert<'community_posts'>;
-export type DBCommunityCommentInsert = TablesInsert<'community_comments'>;
-export type DBCommunityLikeInsert = TablesInsert<'community_likes'>;
-export type DBRevenueProofInsert = TablesInsert<'revenue_proofs'>;
 export type DBUserApiKeyInsert = TablesInsert<'user_api_keys'>;
+export type DBAnalyticsLogInsert = TablesInsert<'analytics_logs'>;
+export type DBApiUsageInsert = TablesInsert<'api_usage'>;
+export type DBNotificationInsert = TablesInsert<'notifications'>;
+
+// YouTube 관련 Insert 타입
+export type DBYouTubeChannelInsert = TablesInsert<'yl_channels'>;
+export type DBYouTubeVideoInsert = TablesInsert<'videos'>;
+export type DBYouTubeStatsInsert = TablesInsert<'video_stats'>;
+export type DBChannelSubscriptionInsert = TablesInsert<'channel_subscriptions'>;
+export type DBWebhookEventInsert = TablesInsert<'webhook_events'>;
+export type DBYouTubeFavoriteInsert = TablesInsert<'youtube_favorites'>;
+export type DBCollectionInsert = TablesInsert<'collections'>;
+export type DBCollectionItemInsert = TablesInsert<'collection_items'>;
 
 // DB Update 타입 (snake_case)
 export type DBUserUpdate = TablesUpdate<'users'>;
-export type DBCommunityPostUpdate = TablesUpdate<'community_posts'>;
-export type DBCommunityCommentUpdate = TablesUpdate<'community_comments'>;
-export type DBCommunityLikeUpdate = TablesUpdate<'community_likes'>;
-export type DBRevenueProofUpdate = TablesUpdate<'revenue_proofs'>;
 export type DBUserApiKeyUpdate = TablesUpdate<'user_api_keys'>;
+export type DBAnalyticsLogUpdate = TablesUpdate<'analytics_logs'>;
+export type DBApiUsageUpdate = TablesUpdate<'api_usage'>;
+export type DBNotificationUpdate = TablesUpdate<'notifications'>;
+
+// YouTube 관련 Update 타입
+export type DBYouTubeChannelUpdate = TablesUpdate<'yl_channels'>;
+export type DBYouTubeVideoUpdate = TablesUpdate<'videos'>;
+export type DBYouTubeStatsUpdate = TablesUpdate<'video_stats'>;
+export type DBChannelSubscriptionUpdate = TablesUpdate<'channel_subscriptions'>;
+export type DBWebhookEventUpdate = TablesUpdate<'webhook_events'>;
+export type DBYouTubeFavoriteUpdate = TablesUpdate<'youtube_favorites'>;
+export type DBCollectionUpdate = TablesUpdate<'collections'>;
+export type DBCollectionItemUpdate = TablesUpdate<'collection_items'>;
 
 // ============= Frontend 타입 (snake_case 직접 사용) =============
 
 // 메인 엔티티 타입 (snake_case)
 export type User = DBUser;
-export type CommunityPost = DBCommunityPost;
-export type CommunityComment = DBCommunityComment;
-export type CommunityLike = DBCommunityLike;
-export type RevenueProof = DBRevenueProof;
 export type UserApiKey = DBUserApiKey;
 export type Profile = DBProfile;
+export type AnalyticsLog = DBAnalyticsLog;
+export type ApiUsage = DBApiUsage;
+export type Notification = DBNotification;
+
+// YouTube 관련 타입
+export type YouTubeChannel = DBYouTubeChannel;
+export type YouTubeVideo = DBYouTubeVideo;
+export type Video = DBYouTubeVideo; // Alias for YouTubeVideo
+export type YouTubeStats = DBYouTubeStats;
+export type YouTubeVideoStats = DBYouTubeStats;  // 별칭 추가
+export type ChannelSubscription = DBChannelSubscription;
+export type WebhookEvent = DBWebhookEvent;
+export type YouTubeFavorite = DBYouTubeFavorite;
+// Frontend Collection type with mapped fields
+export type Collection = Omit<DBCollection, 'item_count'> & {
+  itemCount: number;
+};
+export type CollectionItem = DBCollectionItem;
+export type YouTubeCollection = DBCollection; // Alias for Collection
+export type SourceFolder = DBSourceFolder;
 
 // Insert 타입 (snake_case)
 export type UserInsert = DBUserInsert;
-export type CommunityPostInsert = DBCommunityPostInsert;
-export type CommunityCommentInsert = DBCommunityCommentInsert;
-export type CommunityLikeInsert = DBCommunityLikeInsert;
-export type RevenueProofInsert = DBRevenueProofInsert;
 export type UserApiKeyInsert = DBUserApiKeyInsert;
+export type AnalyticsLogInsert = DBAnalyticsLogInsert;
+export type ApiUsageInsert = DBApiUsageInsert;
+export type NotificationInsert = DBNotificationInsert;
+
+// YouTube Insert 타입
+export type YouTubeChannelInsert = DBYouTubeChannelInsert;
+export type YouTubeVideoInsert = DBYouTubeVideoInsert;
+export type YouTubeStatsInsert = DBYouTubeStatsInsert;
+export type ChannelSubscriptionInsert = DBChannelSubscriptionInsert;
+export type WebhookEventInsert = DBWebhookEventInsert;
+export type YouTubeFavoriteInsert = DBYouTubeFavoriteInsert;
+export type CollectionInsert = DBCollectionInsert;
+export type CollectionItemInsert = DBCollectionItemInsert;
+export type YouTubeCollectionInsert = DBCollectionInsert; // Alias
 
 // Update 타입 (snake_case)
 export type UserUpdate = DBUserUpdate;
-export type CommunityPostUpdate = DBCommunityPostUpdate;
-export type CommunityCommentUpdate = DBCommunityCommentUpdate;
-export type CommunityLikeUpdate = DBCommunityLikeUpdate;
-export type RevenueProofUpdate = DBRevenueProofUpdate;
 export type UserApiKeyUpdate = DBUserApiKeyUpdate;
+export type AnalyticsLogUpdate = DBAnalyticsLogUpdate;
+export type ApiUsageUpdate = DBApiUsageUpdate;
+export type NotificationUpdate = DBNotificationUpdate;
 
-// ============= 호환성 타입 (기존 코드용) =============
+// YouTube Update 타입
+export type YouTubeChannelUpdate = DBYouTubeChannelUpdate;
+export type YouTubeVideoUpdate = DBYouTubeVideoUpdate;
+export type YouTubeStatsUpdate = DBYouTubeStatsUpdate;
+export type ChannelSubscriptionUpdate = DBChannelSubscriptionUpdate;
+export type WebhookEventUpdate = DBWebhookEventUpdate;
+export type YouTubeFavoriteUpdate = DBYouTubeFavoriteUpdate;
+export type CollectionUpdate = DBCollectionUpdate;
+export type CollectionItemUpdate = DBCollectionItemUpdate;
+export type YouTubeCollectionUpdate = DBCollectionUpdate; // Alias
 
-// ============= Extended Course Types (DB + Frontend) =============
+// ============= YouTube Creator Tools 전용 타입 =============
 
-// Course 타입 정의 (course.ts 통합)
-export interface Course {
-  id: string;
-  title: string;
-  subtitle?: string | null;
-  description?: string | null;
-  instructor_id?: string | null;
-  instructor_name: string;
-  instructor?: InstructorProfile;
-  thumbnail_url?: string | null;
-  price: number;
-  discount_price?: number | null;
-  is_free: boolean;
-  isPremium: boolean;
-  contentBlocks?: ContentBlock[] | string;
-  total_duration: number;
-  student_count: number;
-  average_rating: number;
-  reviewCount: number;
-  previewVideoUrl?: string;
-  requirements?: string[];
-  whatYouLearn?: string[];
-  targetAudience?: string[];
-  objectives?: string[];
-  category?: string;
-  level?: 'beginner' | 'intermediate' | 'advanced';
-  difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  language?: string;
-  tags?: string[];
-  previewEnabled?: boolean;
-  status: 'upcoming' | 'active' | 'completed';
-  launchDate: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Lesson 타입 정의 (course.ts 통합)
-export interface Lesson {
-  id: string;
-  course_id: string;
-  title: string;
-  description?: string;
-  video_url?: string;
-  thumbnail_url?: string;
-  duration: number;
-  order_index: number;
-  is_free: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-// CourseProgress 타입 정의 (course.ts 통합)
-export interface CourseProgress {
-  id: string;
-  user_id: string;
-  course_id: string;
-  lesson_id?: string | null;
-  progress: number;
-  completed: boolean;
-  completed_at?: string | null;
-  last_watched_at?: string | null;
-  watchCount?: number;
-  notes?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// 나머지 Course 관련 타입들 (course.ts 통합)
-export interface Purchase {
-  id: string;
-  user_id: string;
-  course_id: string;
-  stripePaymentIntentId?: string;
-  stripeCustomerId?: string;
-  amount: number;
-  currency: string;
-  couponId?: string;
-  discountAmount: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
-  refundedAt?: string;
-  refundReason?: string;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Coupon {
-  id: string;
-  code: string;
-  description?: string;
-  type: 'percentage' | 'fixed_amount';
-  value: number;
-  minPurchaseAmount?: number;
-  course_id?: string;
-  usageLimit?: number;
-  usageCount: number;
-  validFrom: string;
-  validUntil?: string;
-  is_active: boolean;
-}
-
-export interface CourseBadge {
-  id: string;
-  course_id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-  type: 'completion' | 'perfect' | 'early_bird' | 'special' | 'milestone';
-  completionCriteria: {
-    type: string;
-    value: number;
+// YouTube API 응답 타입
+export interface YouTubeSearchResponse {
+  kind: string;
+  etag: string;
+  nextPageToken?: string;
+  prevPageToken?: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
   };
-  points: number;
-  is_active: boolean;
+  items: YouTubeVideoItem[];
 }
 
-export interface UserCertificate {
-  id: string;
-  user_id: string;
-  course_id: string;
-  certificate_number: string;
-  issued_at: string;
-  completion_date: string;
-  grade?: string;
-  score?: number;
-  is_public: boolean;
-  certificate_url?: string;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CourseReview {
-  id: string;
-  course_id: string;
-  user_id: string;
-  rating: number;
-  title?: string;
-  content?: string;
-  isVerifiedPurchase: boolean;
-  helpfulCount: number;
-  created_at: string;
-  updated_at: string;
-  user?: {
-    id: string;
-    username?: string;
-    avatar_url?: string;
+export interface YouTubeVideoItem {
+  kind: string;
+  etag: string;
+  id: {
+    kind: string;
+    videoId: string;
   };
-}
-
-export interface InstructorProfile {
-  id: string;
-  user_id: string;
-  display_name: string;
-  bio?: string;
-  avatar_url?: string;
-  specialty?: string;
-  youtubeChannelUrl?: string;
-  instagramUrl?: string;
-  totalStudents: number;
-  average_rating: number;
-  is_verified: boolean;
-}
-
-export interface ContentBlock {
-  type: 'text' | 'image' | 'video' | 'code' | 'quote' | 'list';
-  content: unknown;
-  order: number;
-}
-
-export interface Enrollment {
-  id: string;
-  user_id: string;
-  course_id: string;
-  payment_id?: string;
-  payment_status: string;
-  paymentAmount?: number;
-  enrolledAt: string;
-  completed_at?: string;
-  certificateIssued: boolean;
-  certificateIssuedAt?: string;
-  certificateUrl?: string;
-  is_active: boolean;
-}
-
-// API Response Types
-export interface CourseListResponse {
-  courses: Course[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export interface CourseDetailResponse {
-  course: Course;
-  lessons: Lesson[];
-  is_enrolled: boolean;
-  is_purchased: boolean;
-  progress?: CourseProgress[];
-}
-
-// Form Types
-export interface CreateCourseInput {
-  title: string;
-  subtitle?: string;
-  description: string;
-  instructor_name: string;
-  price: number;
-  is_free: boolean;
-  requirements: string[];
-  whatYouLearn: string[];
-  targetAudience: string[];
-}
-
-export interface CreateLessonInput {
-  course_id: string;
-  title: string;
-  description?: string;
-  video_url?: string;
-  duration: number;
-  order_index: number;
-  is_free: boolean;
-}
-
-// Filter Types
-export interface CourseFilters {
-  instructor?: string;
-  priceRange?: [number, number];
-  is_free?: boolean;
-  rating?: number;
-  duration?: 'short' | 'medium' | 'long';
-  status?: 'upcoming' | 'active' | 'completed';
-  search?: string;
-}
-
-// Payment Types
-export interface PaymentIntentInput {
-  course_id: string;
-  couponCode?: string;
-}
-
-export interface PaymentIntentResponse {
-  clientSecret: string;
-  amount: number;
-  discountAmount: number;
-}
-
-// ============= YouTube Types (youtube.ts 통합) =============
-
-// YouTube 비디오 정보 (원본 API 응답 형태)
-export interface YouTubeVideo {
-  id: string;
   snippet: {
-    published_at: string;
-    channel_id: string;
+    publishedAt: string;
+    channelId: string;
     title: string;
     description: string;
     thumbnails: {
-      default?: YouTubeThumbnail;
-      medium?: YouTubeThumbnail;
-      high?: YouTubeThumbnail;
-      standard?: YouTubeThumbnail;
-      maxres?: YouTubeThumbnail;
+      default: YouTubeThumbnail;
+      medium: YouTubeThumbnail;
+      high: YouTubeThumbnail;
     };
-    channel_title: string;
-    tags?: string[];
-    category_id: string;
-    liveBroadcastContent: 'none' | 'live' | 'upcoming';
-    defaultLanguage?: string;
-    localized?: {
-      title: string;
-      description: string;
-    };
+    channelTitle: string;
+    liveBroadcastContent: string;
+    publishTime: string;
   };
   statistics?: {
-    view_count: string;
-    like_count?: string;
-    dislikeCount?: string;
-    favoriteCount?: string;
-    comment_count?: string;
-  };
-  contentDetails?: {
-    duration: string;
-    dimension: string;
-    definition: string;
-    caption: string;
-    licensedContent: boolean;
-    projection: string;
-  };
-  status?: {
-    uploadStatus: string;
-    privacyStatus: string;
-    license: string;
-    embeddable: boolean;
-    publicStatsViewable: boolean;
-    madeForKids: boolean;
-  };
-  metrics?: {
-    view_count?: number;
-    like_count?: number;
-    comment_count?: number;
-    viewsPerHour?: number;
-    engagementRate?: number;
-    viralScore?: number;
-  };
-}
-
-// 평면화된 비디오 정보 (UI 컴포넌트에서 사용)
-export interface FlattenedYouTubeVideo {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  channel_id: string;
-  channel_title: string;
-  published_at: string;
-  duration: number; // 초 단위
-  view_count: number;
-  like_count: number;
-  comment_count: number;
-  tags: string[];
-  category_id: string;
-  defaultLanguage: string;
-  defaultAudioLanguage: string;
-  statistics: {
-    view_count: string;
-    like_count: string;
-    dislikeCount: string;
+    viewCount: string;
+    likeCount: string;
     favoriteCount: string;
-    comment_count: string;
-  };
-  contentDetails: {
-    duration: string;
-    dimension: string;
-    definition: string;
-    caption: string;
-    licensedContent: boolean;
-    projection: string;
-  };
-  status: {
-    uploadStatus: string;
-    privacyStatus: string;
-    license: string;
-    embeddable: boolean;
-    publicStatsViewable: boolean;
-    madeForKids: boolean;
+    commentCount: string;
   };
 }
 
-// YouTube 썸네일
 export interface YouTubeThumbnail {
   url: string;
   width: number;
   height: number;
 }
 
-// YouTube 채널 정보
-export interface YouTubeChannel {
+export interface YouTubeChannelInfo {
   id: string;
   snippet: {
     title: string;
     description: string;
-    customUrl?: string;
-    published_at: string;
     thumbnails: {
-      default?: YouTubeThumbnail;
-      medium?: YouTubeThumbnail;
-      high?: YouTubeThumbnail;
+      default: YouTubeThumbnail;
+      medium: YouTubeThumbnail;
+      high: YouTubeThumbnail;
     };
-    defaultLanguage?: string;
-    localized?: {
-      title: string;
-      description: string;
-    };
-    country?: string;
   };
-  statistics?: {
-    view_count: string;
-    subscriber_count: string;
+  statistics: {
+    viewCount: string;
+    subscriberCount: string;
     hiddenSubscriberCount: boolean;
     videoCount: string;
   };
 }
 
-// YouTube 검색 결과
-export interface YouTubeSearchResult {
-  kind: string;
-  etag: string;
-  id: {
-    kind: string;
-    video_id?: string;
-    channel_id?: string;
-    playlist_id?: string;
-  };
-  snippet: YouTubeVideo['snippet'];
+// YouTube Lens 분석 데이터 타입
+export interface ChannelAnalytics {
+  channelId: string;
+  title: string;
+  subscriberCount: number;
+  viewCount: number;
+  videoCount: number;
+  averageViews: number;
+  engagementRate: number;
+  uploadFrequency: number;
+  topPerformingVideos: YouTubeVideoItem[];
+  recentGrowth: GrowthMetric[];
 }
 
-// YouTube API 응답 형식
-export interface YouTubeApiResponse<T> {
-  kind: string;
-  etag: string;
-  nextPageToken?: string;
-  prevPageToken?: string;
-  regionCode?: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: T[];
+export interface GrowthMetric {
+  date: string;
+  subscribers: number;
+  views: number;
+  videos: number;
 }
 
-// 검색 필터
-export interface YouTubeSearchFilters {
-  query: string;
-  channel_id?: string;
-  order?: 'date' | 'rating' | 'relevance' | 'title' | 'videoCount' | 'view_count';
-  publishedAfter?: string;
-  publishedBefore?: string;
-  videoDuration?: 'short' | 'medium' | 'long' | 'all';
-  videoDefinition?: 'all' | 'high' | 'standard';
-  videoType?: 'all' | 'episode' | 'movie';
-  videoEmbeddable?: 'all' | 'true';
-  maxResults?: number;
-  pageToken?: string;
-  regionCode?: string;
-  relevanceLanguage?: string;
-  safeSearch?: 'moderate' | 'none' | 'strict';
+export interface KeywordTrend {
+  keyword: string;
+  searchVolume: number;
+  competition: 'LOW' | 'MEDIUM' | 'HIGH';
+  trend: 'RISING' | 'STABLE' | 'DECLINING';
+  relatedKeywords: string[];
 }
 
-// 즐겨찾기 데이터
-export interface YouTubeFavorite {
-  id: string;
-  user_id: string;
+// Tool Status 타입
+export type ToolStatus = 'live' | 'beta' | 'coming-soon' | 'planning';
+
+// YouTube Lens 전용 분석 타입들
+
+// VideoWithStats 타입 (PopularShortsList에서 사용)
+export interface VideoWithStats {
+  id: string; // id 속성 추가 (컴포넌트 호환성)
   video_id: string;
-  videoData: FlattenedYouTubeVideo;
-  tags: string[];
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// YouTube 폴더
-export interface YouTubeFolder {
-  id: string;
-  user_id: string;
-  name: string;
-  description?: string;
-  video_count?: number;
-  created_at: string;
-  updated_at: string;
-}
-
-// 검색 히스토리
-export interface YouTubeSearchHistory {
-  id: string;
-  user_id: string;
-  query: string;
-  filters?: YouTubeSearchFilters;
-  resultsCount: number;
-  created_at: string;
-}
-
-// API 사용량
-export interface ApiUsage {
-  id: string;
-  user_id: string;
-  operation: 'search' | 'videos' | 'channels' | 'playlists';
-  units: number;
-  timestamp: string;
-  apiType: 'youtube';
-}
-
-// API 할당량 상태
-export interface QuotaStatus {
-  used: number;
-  limit: number;
-  remaining: number;
-  percentage: number;
-  resetTime: Date;
-  warning: boolean;
-  critical: boolean;
-  searchCount?: number;
-  videoCount?: number;
-}
-
-// OAuth 토큰 정보
-export interface OAuthToken {
-  access_token: string;
-  refresh_token?: string;
-  expiresIn: number;
-  tokenType: string;
-  scope: string;
-  expires_at?: number;
-}
-
-// 비디오 카드 props
-export interface VideoCardProps {
-  video: FlattenedYouTubeVideo;
-  isSelected?: boolean;
-  onSelect?: (video_id: string) => void;
-  onFavorite?: (video: FlattenedYouTubeVideo) => void;
-  isFavorited?: boolean;
-}
-
-// 검색바 props
-export interface SearchBarProps {
-  onSearch: (query: string, filters?: YouTubeSearchFilters) => void;
-  isLoading?: boolean;
-  suggestions?: string[];
-  defaultValue?: string;
-}
-
-// 비디오 그리드 props
-export interface VideoGridProps {
-  videos: FlattenedYouTubeVideo[];
-  isLoading?: boolean;
-  hasMore?: boolean;
-  onLoadMore?: () => void;
-  selectedVideos?: Set<string>;
-  onVideoSelect?: (video_id: string) => void;
-  favoriteVideos?: Set<string>;
-  onVideoFavorite?: (video: FlattenedYouTubeVideo) => void;
-}
-
-// API 에러 응답
-export interface ApiError {
-  error: {
-    code: number;
-    message: string;
-    errors?: Array<{
-      message: string;
-      domain: string;
-      reason: string;
-    }>;
-  };
-}
-
-// VideoStats 타입 정의 - video_stats 테이블과 매칭
-export interface VideoStats extends Tables<'video_stats'> {
-  // 추가 필드
-  subscriber_count?: number;
-  published_at: string;
+  title: string;
+  description: string;
   channel_id: string;
-  duration: number;
+  channel_title: string;
+  published_at: string;
+  view_count: number;
+  like_count?: number;
+  comment_count?: number;
+  duration: string;
+  thumbnail_url: string;
   tags?: string[];
-  updated_at: string;
-  snapshotAt?: string;
-  viewsPerHour?: number;
-}
-
-// Single video stat type alias (for compatibility)
-export type VideoStat = VideoStats;
-
-// RevenueProof 타입 확장 - 옵셔널 필드 추가
-export interface ExtendedRevenueProof extends Tables<'revenue_proofs'> {
-  // 옵셔널 필드로 변경
-  thumbnail_url?: string;
-  blurDataUrl?: string;
-}
-
-// RevenueProof with User (API response)
-export interface RevenueProofWithUser extends Tables<'revenue_proofs'> {
-  user?: {
-    id: string;
-    username: string;
-    avatar_url: string | null;
-  };
-  // 관계 데이터
-  comments?: ProofComment[];
-}
-
-// Course 관련 타입은 위에서 직접 정의됨 (course.ts 통합 완료)
-
-// Community 타입 별칭 (기존 코드 호환)
-export type Community = CommunityPost;
-export type Comment = CommunityComment;
-
-// ============= Revenue Proof Types (revenue-proof.ts 통합) =============
-
-// ProofComment 타입 (DB 기반 + Relations)
-export interface ProofComment {
-  id: string;
-  proof_id: string;
-  user_id: string;
-  content: string;
-  created_at: string;
-
-  // Relations
-  user?: {
-    id: string;
-    username: string;
-    avatar_url?: string;
-  };
-}
-
-// ProofLike 타입
-export interface ProofLike {
-  id?: string;
-  user_id: string;
-  proof_id: string;
-  created_at: string;
-}
-
-// ProofReport 타입
-export interface ProofReport {
-  id: string;
-  proof_id: string;
-  reporterId: string;
-  reason: 'fake' | 'spam' | 'inappropriate' | 'copyright' | 'other';
-  details?: string;
-  created_at: string;
-}
-
-// UserBadge 타입
-export interface UserBadge {
-  id: string;
-  user_id: string;
-  badgeType: string;
-  badgeData?: Record<string, unknown>;
-  earnedAt: string;
-}
-
-// MonthlyRanking 타입
-export interface MonthlyRanking {
-  id: string;
-  month: string;
-  user_id: string;
-  total_amount: number;
-  rank: number;
-  created_at: string;
-
-  // Relations
-  user?: {
-    id: string;
-    username: string;
-    avatar_url?: string;
-  };
-}
-// ============= YouTube Lens Types (youtube-lens.ts 통합) =============
-
-// YouTube Lens 비디오 타입 (Video와 구분하기 위해 다른 이름 사용)
-export interface YouTubeLensVideo {
-  id: string;
-  video_id: string;
-  title: string;
-  description: string | null;
-  channel_id: string;
-  published_at: string;
-  durationSeconds: number | null;
-  isShort: boolean;
-  thumbnails: {
-    default?: { url: string; width: number; height: number };
-    medium?: { url: string; width: number; height: number };
-    high?: { url: string; width: number; height: number };
-    standard?: { url: string; width: number; height: number };
-    maxres?: { url: string; width: number; height: number };
-  } | null;
-  tags: string[] | null;
-  category_id: string | null;
-  languageCode: string | null;
-  regionCode: string | null;
-  firstSeenAt: string;
-  lastUpdatedAt: string;
-  created_at: string;
-  deleted_at: string | null;
-}
-
-// YouTube Lens 비디오 통계 (VideoStats와 구분)
-export interface YouTubeLensVideoStats {
-  id: string;
-  video_id: string;
-  view_count: number;
-  like_count: number;
-  comment_count: number;
-  viewsPerHour: number | null;
-  engagementRate: number | null;
-  viralScore: number | null;
-  viewDelta: number;
-  likeDelta: number;
-  commentDelta: number;
-  snapshotAt: string;
-  created_at: string;
-}
-
-// Channel 타입
-export interface Channel {
-  id: string;
-  channel_id: string;
-  title: string;
-  description: string | null;
-  customUrl: string | null;
-  subscriber_count: number;
-  video_count: number;
-  view_count: number;
-  country: string | null;
-  published_at: string | null;
-  thumbnails: {
-    default?: { url: string; width: number; height: number };
-    medium?: { url: string; width: number; height: number };
-    high?: { url: string; width: number; height: number };
-  } | null;
-  isMonitored: boolean;
-  monitorFrequencyHours: number;
-  lastCheckedAt: string | null;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
-
-// 폴더 관련 타입
-export interface SourceFolder {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  color: string | null;
-  icon: string | null;
-  autoMonitor: boolean;
-  monitorFrequencyHours: number;
-  channelCount: number;
-  isMonitoringEnabled: boolean;
-  checkIntervalHours: number;
-  lastCheckedAt: string | null;
-  folderChannels?: FolderChannel[];
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
-
-export interface FolderChannel {
-  id: string;
-  folder_id: string;
-  channel_id: string;
-  customFrequencyHours: number | null;
-  notes: string | null;
-  addedAt: string;
-}
-
-// Alert 관련 타입
-export type AlertRuleType = 'threshold' | 'trend' | 'anomaly';
-export type AlertMetric = 'views' | 'vph' | 'engagement' | 'viralScore';
-export type AlertCondition = 'greater_than' | 'less_than' | 'change_percent';
-export type AlertScope = 'video' | 'channel' | 'folder';
-export type AlertSeverity = 'info' | 'warning' | 'critical';
-
-export interface AlertRule {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  ruleType: AlertRuleType;
-  metric: AlertMetric;
-  metricType?: 'view_count' | 'vph' | 'engagementRate' | 'viralScore' | 'growthRate';
-  condition: AlertCondition;
-  comparisonOperator?: '>' | '>=' | '<' | '<=' | '=' | '!=';
-  thresholdValue: number;
-  scope: AlertScope;
-  scopeId: string | null;
-  is_active: boolean;
-  cooldownHours: number;
-  notifyEmail: boolean;
-  notifyApp: boolean;
-  created_at: string;
-  updated_at: string;
-  lastTriggeredAt: string | null;
-  triggerCount: number;
-}
-
-export interface Alert {
-  id: string;
-  rule_id: string;
-  user_id: string;
-  video_id?: string;
-  channel_id?: string;
-  alertType: string;
-  title: string;
-  message: string;
-  severity: AlertSeverity;
-  metricValue?: number;
-  triggeredAt?: string;
-  contextData: Record<string, unknown> | null;
-  is_read: boolean;
-  readAt: string | null;
-  isArchived: boolean;
-  created_at: string;
-}
-
-// Collection 관련 타입
-export interface Collection {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  is_public: boolean;
-  coverImage: string | null;
-  tags: string[] | null;
-  itemCount: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
-
-export interface CollectionItem {
-  id: string;
-  collection_id: string;
-  video_id: string;
-  notes: string | null;
-  tags: string[] | null;
-  position: number;
-  addedAt: string;
-  addedBy: string | null;
-}
-
-// 검색 관련 타입
-export type SearchType = 'keyword' | 'popular' | 'channel' | 'trending';
-
-export interface SavedSearch {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  searchParams: {
-    query?: string;
-    regionCode?: string;
-    category_id?: string;
-    order?: string;
-    publishedAfter?: string;
-    publishedBefore?: string;
-    videoDuration?: string;
-    maxResults?: number;
-    channel_id?: string;
-    [key: string]: string | number | boolean | undefined;
-  };
-  searchType: SearchType;
-  autoRun: boolean;
-  runFrequencyHours: number;
-  lastRunAt: string | null;
-  created_at: string;
-  updated_at: string;
-  useCount: number;
-}
-
-// 구독 관련 타입
-export type PlanType = 'free' | 'pro' | 'team';
-export type SubscriptionStatus = 'active' | 'cancelled' | 'expired';
-export type TeamRole = 'owner' | 'admin' | 'member';
-export type BillingCycle = 'monthly' | 'yearly';
-
-export interface Subscription {
-  id: string;
-  user_id: string;
-  planType: PlanType;
-  status: SubscriptionStatus;
-  apiQuotaDaily: number;
-  maxMonitors: number;
-  maxAlerts: number;
-  maxCollections: number;
-  maxSavedSearches: number;
-  teamId: string | null;
-  teamRole: TeamRole | null;
-  billingCycle: BillingCycle | null;
-  currentPeriodStart: string | null;
-  currentPeriodEnd: string | null;
-  created_at: string;
-  updated_at: string;
-  cancelledAt: string | null;
-}
-
-// 복합 타입들
-export interface VideoWithStats extends YouTubeLensVideo {
-  stats?: YouTubeLensVideoStats;
-  channel?: Channel;
-}
-
-export interface ChannelWithVideos extends Channel {
-  recentVideos?: YouTubeLensVideo[];
-  latestStats?: {
-    totalViews: number;
-    totalVideos: number;
-    avgViewsPerVideo: number;
-  };
-}
-
-export interface FolderWithChannels extends SourceFolder {
-  channels?: Channel[];
-  channel_count?: number | null;
-  folder_channels?: Array<{
-    channel_id: string;
-    [key: string]: unknown;
-  }>;
-}
-
-export interface CollectionWithItems extends Collection {
-  items?: (CollectionItem & { video?: YouTubeLensVideo })[];
-}
-
-export interface AlertWithRule extends Alert {
-  rule?: AlertRule;
-}
-
-// Request/Query Types
-export interface SearchVideosParams {
-  query?: string;
-  regionCode?: string;
+  // 추가 속성들 (lib에서 사용)
+  durationSeconds?: number;
+  thumbnails?: { url: string; width?: number; height?: number }[];
   category_id?: string;
-  order?: 'date' | 'rating' | 'relevance' | 'title' | 'view_count';
-  publishedAfter?: string;
-  publishedBefore?: string;
-  videoDuration?: 'short' | 'medium' | 'long';
-  maxResults?: number;
-  pageToken?: string;
-  channel_id?: string;
+  languageCode?: string;
+  // 통계 정보
+  stats: {
+    viewCount: number;
+    likeCount?: number;
+    commentCount?: number;
+    engagement?: number;
+    trendScore?: number;
+    viewsPerHour?: number;
+    engagementRate?: number;
+    viralScore?: number;
+    viewDelta?: number;
+    likeDelta?: number;
+    commentDelta?: number;
+    view_count?: number;
+    like_count?: number;
+    comment_count?: number;
+  };
 }
 
+// PopularShortsParams 타입
 export interface PopularShortsParams {
-  regionCode?: string;
+  timeframe?: '1h' | '6h' | '24h' | '7d' | '30d';
+  category?: string;
   category_id?: string;
-  period?: '1h' | '6h' | '24h' | '7d' | '30d' | '1d';
+  region?: string;
+  maxResults?: number;
+  order?: 'trending' | 'views' | 'recent' | 'engagement';
+  // 추가 속성들 (lib에서 사용)
+  regionCode?: string;
+  period?: string;
   minViews?: number;
   minVPH?: number;
   limit?: number;
-  maxResults?: number;
 }
 
-export interface MonitoringConfig {
-  folderId?: string;
-  channelIds?: string[];
-  frequency?: number;
-  metrics?: AlertMetric[];
-  thresholds?: {
-    metric: AlertMetric;
-    value: number;
-    condition: AlertCondition;
-  }[];
-}
-
-// Metrics Types
-export interface VideoMetrics {
-  vph: number;
-  engagementRate: number;
-  viralScore: number;
-  growthRate: number;
-  velocity: number;
-}
-
-export interface ChannelMetrics {
-  avgViews: number;
-  avgEngagement: number;
-  uploadFrequency: number;
-  subscriberGrowth: number;
-  performanceScore: number;
-}
-
-// UI State Types
-export interface YouTubeLensState {
-  searchQuery: string;
-  searchParams: SearchVideosParams;
-  searchResults: YouTubeLensVideo[];
-  isSearching: boolean;
-  searchError: string | null;
-  popularShorts: VideoWithStats[];
-  isLoadingPopular: boolean;
-  popularError: string | null;
-  monitoredChannels: Channel[];
-  folders: SourceFolder[];
-  activeFolder: string | null;
-  alerts: Alert[];
-  unreadAlertCount: number;
-  alertRules: AlertRule[];
-  collections: Collection[];
-  activeCollection: string | null;
-  subscription: Subscription | null;
-  apiUsage: {
-    used: number;
-    limit: number;
-    resetAt: string;
-  };
-}
-
-// Error Types
-export interface YouTubeLensError {
-  code: string;
-  message: string;
-  details?: unknown;
-  timestamp: string;
-}
-
-// 아직 정의되지 않은 타입들 (나중에 추가 예정)
-export interface TrendAnalysis {
-  keyword: string;
-  frequency: number;
-  growthRate: number;
-  firstSeen: string;
-  lastSeen: string;
-  relatedVideos: string[];
-  sentiment: 'positive' | 'negative' | 'neutral';
-  confidence: number;
-}
-
+// YouTubeLensVideoStats 타입 별칭
+export type YouTubeLensVideoStats = YouTubeVideoStats;
 export interface EntityExtraction {
+  videoId: string;
   entities: {
-    keywords: string[];
-    topics: string[];
-    brands: string[];
-    people: string[];
-    locations: string[];
+    keywords?: string[];
+    topics?: string[];
+    brands?: string[];
+    people?: string[];
+    locations?: string[];
     languages?: string[];
   };
-  language: string;
   confidence: number;
-  processedAt: string;
+  extractedAt: string;
+  // 추가 속성 (컴포넌트에서 사용)
+  language?: string;
 }
 
-export interface BatchAnalysisResult {
-  [key: string]: unknown;
+export interface FlattenedYouTubeVideo {
+  id: string; // id 속성 추가 (컴포넌트 호환성)
+  video_id: string; // 기존 DB 필드 유지
+  title: string;
+  description: string;
+  channel_id: string;
+  channel_title: string;
+  published_at: string;
+  view_count: number;
+  like_count?: number;
+  comment_count?: number;
+  duration: string;
+  thumbnail_url: string;
+  tags?: string[];
 }
 
-export interface OutlierDetectionResult {
-  [key: string]: unknown;
+
+export interface TrendAnalysis {
+  keyword: string;
+  trend: 'RISING' | 'STABLE' | 'DECLINING';
+  changePercent: number;
+  searchVolume: number;
+  competition: 'LOW' | 'MEDIUM' | 'HIGH';
+  relatedTerms: string[];
+  timeframe: string;
+  // 추가 속성들 (컴포넌트에서 사용)
+  growthRate?: number;
+  frequency?: number;
+  sentiment?: 'positive' | 'negative' | 'neutral';
+}
+
+export interface OutlierResult {
+  videoId: string;
+  isOutlier: boolean;
+  confidence: number;
+  reason: string;
+}
+
+export interface PredictionResult {
+  videoId: string;
+  predictedViews: number;
+  confidence: number;
+  factors: string[];
 }
 
 export interface PredictionModel {
@@ -1108,125 +368,333 @@ export interface PredictionModel {
   growthTrajectory: 'exponential' | 'linear' | 'logarithmic' | 'plateau' | 'declining';
   predictionDate: string;
   modelVersion: string;
+  confidence?: number;
+  accuracy?: number;
+  factors?: string[];
 }
 
-export interface AnalyticsConfig {
-  [key: string]: unknown;
+export interface BatchAnalysisResult {
+  outliers: OutlierResult[];
+  trends: TrendAnalysis[];
+  predictions: PredictionResult[];
+  processingTimeMs: number;
+  totalVideosAnalyzed: number;
 }
 
-// YouTube Lens 타입들과 기존 타입들 호환을 위한 별칭
-export type Video = YouTubeLensVideo; // 기존 코드 호환성
+export interface QuotaStatus {
+  used: number;
+  limit: number;
+  remaining: number;
+  resetTime: string;
+  percentage: number;
+  warning: boolean;
+  critical: boolean;
+  searchCount: number;
+  videoCount: number;
+}
 
-// ============= Enum 타입 =============
+// OAuth 토큰 타입
+export interface OAuthToken {
+  access_token: string;
+  refresh_token?: string;
+  token_type: string;
+  expires_in: number;
+  scope: string;
+  created_at: number;
+}
 
-export const UserRole = {
-  USER: 'user',
-  INSTRUCTOR: 'instructor',
-  ADMIN: 'admin',
-} as const;
+// YouTube 검색 필터 타입
+export interface YouTubeSearchFilters {
+  query?: string;
+  order: 'relevance' | 'date' | 'rating' | 'viewCount' | 'title';
+  publishedAfter?: string;
+  publishedBefore?: string;
+  duration?: 'all' | 'short' | 'medium' | 'long';
+  definition?: 'all' | 'standard' | 'high';
+  dimension?: 'all' | '2d' | '3d';
+  license?: 'all' | 'creativeCommon' | 'youtube';
+  maxResults: number;
+  videoDuration?: 'all' | 'short' | 'medium' | 'long';
+  videoDefinition?: 'all' | 'standard' | 'high';
+  videoEmbeddable?: 'all' | 'true';
+  channel_id?: string;
+  relevanceLanguage?: string;
+  regionCode?: string;
+  safeSearch?: 'none' | 'moderate' | 'strict';
+  pageToken?: string;
+}
 
-export const CourseDifficulty = {
-  BEGINNER: 'beginner',
-  INTERMEDIATE: 'intermediate',
-  ADVANCED: 'advanced',
-} as const;
 
-export const CourseCategory = {
-  SHORTS: 'shorts',
-  MARKETING: 'marketing',
-  EDITING: 'editing',
-  MONETIZATION: 'monetization',
-  ANALYTICS: 'analytics',
-} as const;
+// Revenue Calculator 타입
+export interface RevenueEstimate {
+  dailyViews: number;
+  cpm: number;
+  dailyEarnings: number;
+  monthlyEarnings: number;
+  yearlyEarnings: number;
+  currency: string;
+}
 
-export const CommunityCategory = {
-  NOTICE: 'notice',
-  FREE: 'free',
-  SUCCESS: 'success',
-  QNA: 'qna',
-  TIPS: 'tips',
-  RESOURCES: 'resources',
-} as const;
+export interface RevenueCalculatorInput {
+  dailyViews: number;
+  cpm?: number;
+  niche: string;
+  geography: string;
+  audienceType: 'general' | 'targeted';
+}
 
-export const Platform = {
-  YOUTUBE: 'youtube',
-  BLOG: 'blog',
-  TIKTOK: 'tiktok',
-  INSTAGRAM: 'instagram',
-  OTHER: 'other',
-} as const;
-
-// ============= 유틸리티 타입 =============
+// ============= 공통 유틸리티 타입 =============
 
 // API 응답 타입
-export type ApiResponse<T> = {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
-  success: boolean;
-};
+  message?: string;
+  success?: boolean;
+}
 
-// API 에러 타입
-export interface ApiError {
+// 페이지네이션 응답 타입
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+// 에러 타입
+export interface AppError {
   code: string;
   message: string;
   details?: unknown;
 }
 
+// 폼 상태 타입
+export interface FormState {
+  isSubmitting: boolean;
+  errors: Record<string, string>;
+  touched: Record<string, boolean>;
+}
+
+// 정렬 옵션
+export type SortOrder = 'asc' | 'desc';
+export type SortField = string;
+
+export interface SortOption {
+  field: SortField;
+  order: SortOrder;
+}
+
+// 필터 타입
+export interface FilterOption {
+  key: string;
+  value: string | number | boolean;
+  operator?: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'in';
+}
+
+// 날짜 범위 타입
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+// ============= React Hook Form 타입 =============
+
+// 로그인 폼
+export interface LoginFormData {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
+// 회원가입 폼
+export interface SignupFormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  firstName?: string;
+  lastName?: string;
+  terms: boolean;
+}
+
+// 프로필 업데이트 폼
+export interface ProfileUpdateFormData {
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+  website?: string;
+}
+
+// API 키 생성 폼
+export interface ApiKeyCreateFormData {
+  service_name: 'youtube';
+  api_key: string;
+  name?: string;
+}
+
+// YouTube 검색 폼
+export interface YouTubeSearchFormData {
+  query: string;
+  maxResults?: number;
+  order?: 'relevance' | 'date' | 'rating' | 'viewCount' | 'title';
+}
+
+// ============= 타입 가드 함수들 =============
+
+export function isUser(obj: unknown): obj is User {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'email' in obj
+  );
+}
+
+export function isYouTubeVideo(obj: unknown): obj is YouTubeVideo {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'video_id' in obj &&
+    'title' in obj
+  );
+}
+
+export function isAppError(obj: unknown): obj is AppError {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'code' in obj &&
+    'message' in obj
+  );
+}
+
+// ============= 케이스 변환 유틸리티 함수 =============
+
+/**
+ * snake_case를 camelCase로 변환
+ */
+export function snakeToCamelCase<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(snakeToCamelCase) as T;
+  }
+  
+  if (typeof obj === 'object') {
+    const converted: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      converted[camelKey] = snakeToCamelCase(value);
+    }
+    return converted as T;
+  }
+  
+  return obj;
+}
+
+/**
+ * camelCase를 snake_case로 변환
+ */
+export function camelToSnakeCase<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(camelToSnakeCase) as T;
+  }
+  
+  if (typeof obj === 'object') {
+    const converted: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      converted[snakeKey] = camelToSnakeCase(value);
+    }
+    return converted as T;
+  }
+  
+  return obj;
+}
+
+// ============= 추가 타입 정의 (누락된 exports) =============
+
 // 필터 파라미터 타입
 export interface FilterParams {
-  search?: string;
-  status?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  [key: string]: string | undefined;
+  [key: string]: string | number | boolean | undefined | null;
 }
 
-// 폼 상태 타입
-export interface FormState<T = unknown> {
-  data: T;
-  errors: Record<string, string>;
-  isSubmitting: boolean;
-  isValid: boolean;
-}
-
-// 페이지네이션 파라미터
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
-}
-
-// 페이지네이션 타입
-export type PaginatedResponse<T> = {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-};
-
-// Notification 타입
-export interface Notification {
+// YouTube Folder 타입  
+export interface YouTubeFolder {
   id: string;
-  userId: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'achievement';
-  isRead: boolean;
-  metadata?: Record<string, unknown>;
-  actionUrl?: string;
-  createdAt: Date | string;
-  readAt?: Date | string | null;
+  name: string;
+  description?: string;
+  user_id: string;
+  channel_count?: number;
+  is_active?: boolean;
+  color?: string;
+  icon?: string;
+  created_at: string;
+  updated_at: string;
+  // 모니터링 관련 추가 속성
+  isMonitoringEnabled?: boolean;
+  folderChannels?: Array<{ channel_id: string; channels?: unknown; }>;
 }
 
-// ============= Re-export 변환 유틸리티 =============
-export {
-  batchCamelToSnake,
-  batchSnakeToCamel,
-  camelToSnakeCase,
-  partialCamelToSnake,
-  partialSnakeToCamel,
-  safeGet,
-  snakeToCamelCase,
-} from '@/lib/utils/db-types';
+// Alert 조건 타입 (문자열 리터럴)
+export type AlertCondition = 'greater_than' | 'less_than' | 'change_percent';
+
+// Alert Rule 인터페이스
+export interface AlertRule {
+  id: string;
+  type: 'views' | 'likes' | 'comments' | 'subscribers';
+  condition: AlertCondition;
+  value: number;
+  enabled: boolean;
+}
+
+// Course 타입 (교육 컨텐츠)
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  instructor: string;
+  duration: number;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  category: string;
+  price: number;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Lesson 타입 (교육 컨텐츠)
+export interface Lesson {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string;
+  order: number;
+  video_url?: string;
+  duration: number;
+  is_free: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Outlier Detection 결과 타입 (별칭 추가)
+export type OutlierDetectionResult = OutlierResult;
+
+// Video Metrics 타입
+export interface VideoMetrics {
+  video_id: string;
+  view_count: number | null;
+  like_count: number | null;
+  comment_count: number | null;
+  engagement_rate: number | null;
+  views_per_hour: number | null;
+  viral_score: number | null;
+  view_delta: number | null;
+  like_delta: number | null;
+  comment_delta: number | null;
+  date: string;
+  created_at: string | null;
+  id: string;
+}

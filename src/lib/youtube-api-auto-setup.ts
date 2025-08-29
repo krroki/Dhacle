@@ -4,7 +4,6 @@
  */
 
 import { apiGet, apiPost } from '@/lib/api-client';
-import { env } from '@/env';
 
 export async function autoSetupYouTubeApiKey() {
   // 개발 환경 체크 (클라이언트에서 접근 가능한 process.env 사용)
