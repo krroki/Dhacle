@@ -80,7 +80,7 @@ npx playwright test e2e/auth.spec.ts
 
 ---
 
-## 🔥 반복되는 17가지 치명적 실수 (2025-08-28 업데이트)
+## 🔥 반복되는 20가지 치명적 실수 (2025-08-29 업데이트)
 
 ### 0. 테이블 없이 기능 구현 시작 🔴🔴🔴 (NEW)
 **❌ 실제 사례**: 기능 구현 중 테이블이 없어서 TODO 주석 처리
@@ -348,7 +348,28 @@ npm run e2e:fast    # 초고속 검증 (1-2분)
 
 ### 14. 테스트 도구 설치만 하고 제대로 사용 안 함 (2025-08-27 강화)
 
-### 19. 서브에이전트 이름 혼동 (Task 도구) 🆕 (2025-08-28 추가)
+### 15. YouTube API camelCase/snake_case 불일치 🔴 (2025-08-29 추가)
+**❌ 실제 사례**: YouTube API는 camelCase로 응답하는데 snake_case로 접근 시도
+```typescript
+// ❌ 잘못된 코드 - YouTube API는 camelCase 사용!
+const channelId = snippet?.channel_id;     // undefined!
+const viewCount = statistics?.view_count;  // undefined!
+
+// ✅ 올바른 코드 - camelCase로 접근
+const channelId = snippet?.channelId;      // 정상 작동
+const viewCount = statistics?.viewCount;   // 정상 작동
+```
+
+**🛡️ 예방책**:
+| API 구분 | 필드명 형식 | 예시 |
+|---------|-----------|------|
+| **YouTube Data API v3** | camelCase | channelId, publishedAt, viewCount |
+| **내부 프로젝트 API** | snake_case | channel_id, published_at, view_count |
+| **변환 위치** | API 클라이언트 | camelCase 받아서 snake_case로 변환 |
+
+**📍 해결**: api-client.ts에서 YouTube API 응답을 camelCase로 받고, 내부용으로 snake_case 변환
+
+### 19. 서브에이전트 이름 혼동 (Task 도구) (2025-08-28 추가)
 **❌ 실제 사례**: SuperClaude 페르소나와 Task 도구의 서브에이전트를 혼동
 ```typescript
 // ❌ 잘못된 사용 - 'analyzer'는 서브에이전트가 아니라 페르소나
@@ -610,6 +631,33 @@ npm run test:coverage:full     # 전체 커버리지
 - E2E Workflow 중심으로 테스트 작성
 - 4개 도구 모두 활용 (Playwright + Vitest + Testing Library + MSW)
 - `npm run test:all`로 통합 테스트 실행
+
+### 20. YouTube API camelCase/snake_case 속성 혼동 🆕 (2025-08-29 추가)
+**❌ 실제 사례**: YouTube API는 camelCase 사용, DB는 snake_case - 혼동으로 TypeScript 빌드 실패
+```typescript
+// ❌ 잘못된 코드 - YouTube API 응답의 실제 필드명 확인 필요
+// src/lib/youtube/api-client.ts line 240
+videos_map.get(item.id.video_id)  // ❌ ERROR: Property 'video_id' does not exist
+
+// ✅ 올바른 코드 - YouTube API는 camelCase 사용!
+videos_map.get(item.id.videoId)   // ✅ YouTube API 실제 필드명
+
+// 더 많은 예시들:
+// ❌ channel_id → ✅ channelId
+// ❌ channel_title → ✅ channelTitle  
+// ❌ published_at → ✅ publishedAt
+// ❌ view_count → ✅ viewCount
+// ❌ like_count → ✅ likeCount
+// ❌ comment_count → ✅ commentCount
+// ❌ subscriber_count → ✅ subscriberCount
+// ❌ video_id → ✅ videoId (playlistItems)
+```
+**🛡️ 예방책**:
+- YouTube API 응답은 항상 camelCase
+- DB 저장 시 snake_case로 변환
+- 프론트엔드 전달 시 다시 camelCase로
+- 실제 API 응답 console.log로 확인 필수
+**📍 해결**: api-client.ts 전체 수정 완료 (2025-08-29)
 
 ---
 

@@ -52,6 +52,8 @@ const nextConfig: NextConfig = {
     // SVG 최적화 허용 (Dicebear 아바타용)
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
+    // 로컬 이미지 최적화 비활성화 (개발 환경 이슈 해결)
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 }
 

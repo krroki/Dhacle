@@ -221,13 +221,13 @@ export class YouTubeAPIClient {
     }
 
     const response = await this.makeRequest<{
-      items: { id: { video_id: string } }[];
+      items: { id: { videoId: string } }[];
       nextPageToken?: string;
       pageInfo?: { totalResults: number };
     }>('search', params, YouTubeAPIClient.QUOTA_COSTS.search);
 
     // 검색 결과를 YouTubeVideo 형식으로 변환
-    const video_ids = response.items.map((item) => item.id.video_id).join(',');
+    const video_ids = response.items.map((item) => item.id.videoId).join(',');
 
     // 비디오 상세 정보 가져오기 (통계, 재생시간 등)
     if (video_ids) {
@@ -237,7 +237,7 @@ export class YouTubeAPIClient {
       const videos_map = new Map(videos_response.items.map((video) => [video.id, video]));
 
       const items = response.items
-        .map((item) => videos_map.get(item.id.video_id))
+        .map((item) => videos_map.get(item.id.videoId))
         .filter(Boolean) as FlattenedYouTubeVideo[];
 
       return {
@@ -297,23 +297,23 @@ export class YouTubeAPIClient {
               ?.url ||
             ''
         ),
-        channel_id: String(snippet?.channel_id || ''),
-        channel_title: String(snippet?.channel_title || ''),
-        published_at: String(snippet?.published_at || ''),
+        channel_id: String(snippet?.channelId || ''),
+        channel_title: String(snippet?.channelTitle || ''),
+        published_at: String(snippet?.publishedAt || ''),
         duration: this.parseDuration(String(content_details?.duration || '')),
-        view_count: Number.parseInt(String(statistics?.view_count || '0'), 10),
-        like_count: Number.parseInt(String(statistics?.like_count || '0'), 10),
-        comment_count: Number.parseInt(String(statistics?.comment_count || '0'), 10),
+        view_count: Number.parseInt(String(statistics?.viewCount || '0'), 10),
+        like_count: Number.parseInt(String(statistics?.likeCount || '0'), 10),
+        comment_count: Number.parseInt(String(statistics?.commentCount || '0'), 10),
         tags: Array.isArray(snippet?.tags) ? (snippet.tags as string[]) : [],
         category_id: String(snippet?.category_id || ''),
         defaultLanguage: String(snippet?.defaultLanguage || ''),
         defaultAudioLanguage: String(snippet?.defaultAudioLanguage || ''),
         statistics: {
-          view_count: String(statistics?.view_count || '0'),
-          like_count: String(statistics?.like_count || '0'),
+          view_count: String(statistics?.viewCount || '0'),
+          like_count: String(statistics?.likeCount || '0'),
           dislikeCount: String(statistics?.dislikeCount || '0'),
           favoriteCount: String(statistics?.favoriteCount || '0'),
-          comment_count: String(statistics?.comment_count || '0'),
+          comment_count: String(statistics?.commentCount || '0'),
         },
         contentDetails: {
           duration: String(content_details?.duration || ''),
@@ -370,7 +370,7 @@ export class YouTubeAPIClient {
         title: String(snippet?.title || ''),
         description: String(snippet?.description || ''),
         customUrl: String(snippet?.customUrl || ''),
-        published_at: String(snippet?.published_at || ''),
+        published_at: String(snippet?.publishedAt || ''),
         thumbnails: {
           high: {
             url: String(
@@ -392,8 +392,8 @@ export class YouTubeAPIClient {
         country: String(snippet?.country || ''),
       },
       statistics: {
-        view_count: String(statistics?.view_count || '0'),
-        subscriber_count: String(statistics?.subscriber_count || '0'),
+        view_count: String(statistics?.viewCount || '0'),
+        subscriber_count: String(statistics?.subscriberCount || '0'),
         hiddenSubscriberCount: Boolean(statistics?.hiddenSubscriberCount),
         videoCount: String(statistics?.videoCount || '0'),
       },
@@ -435,7 +435,7 @@ export class YouTubeAPIClient {
         const playlist_item = item as Record<string, unknown>;
         const snippet = playlist_item.snippet as Record<string, unknown> | undefined;
         const resource_id = snippet?.resourceId as Record<string, unknown> | undefined;
-        return String(resource_id?.video_id || '');
+        return String(resource_id?.videoId || '');
       })
       .filter(Boolean)
       .join(',');

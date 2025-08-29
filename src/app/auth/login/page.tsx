@@ -72,41 +72,37 @@ export default function LoginPage() {
                 <button
                   onClick={async () => {
                     try {
-                      const { apiPost } = await import('@/lib/api-client');
-                      const result = await apiPost<{ 
-                        success: boolean; 
-                        user?: unknown; 
-                        message?: string;
-                        redirect?: string;
-                      }>('/api/auth/test-login', {
-                        email: 'test@dhacle.com',
-                        password: 'test1234'
+                      const response = await fetch('/api/auth/test-login', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
                       });
                       
+                      const result = await response.json();
+                      
                       if (result.success) {
-                        const redirectTo = result.redirect || '/mypage/profile';
-                        console.log('✅ 테스트 로그인 성공, 리다이렉트:', redirectTo);
+                        const redirectTo = result.redirect || '/tools/youtube-lens';
+                        console.log('✅ 테스트 로그인 성공');
+                        console.log('👤 사용자:', result.user?.email);
+                        console.log('🔄 리다이렉트:', redirectTo);
                         
-                        // 잠시 대기 후 리다이렉트 (쿠키 설정 반영 대기)
+                        // Supabase 세션이 설정되도록 약간 대기 후 리다이렉트
                         setTimeout(() => {
                           window.location.href = redirectTo;
-                        }, 500);
+                        }, 1000);
                       } else {
-                        alert('테스트 로그인 실패');
+                        console.error('테스트 로그인 실패:', result.error);
+                        alert(`테스트 로그인 실패: ${result.error || '알 수 없는 오류'}`);
                       }
                     } catch (error) {
                       console.error('Test login error:', error);
-                      
-                      // 에러가 발생해도 개발 모드에서는 강제 진행
-                      console.log('⚠️ 에러 발생, 강제 리다이렉트');
-                      setTimeout(() => {
-                        window.location.href = '/mypage/profile';
-                      }, 1000);
+                      alert('테스트 로그인 중 오류가 발생했습니다.');
                     }
                   }}
                   className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                 >
-                  🧪 테스트 로그인 (localhost 전용)
+                  🧪 개발자 테스트 로그인 (localhost 전용)
                 </button>
               )}
 

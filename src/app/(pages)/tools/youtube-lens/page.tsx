@@ -276,7 +276,7 @@ function YouTubeLensContent() {
     }
   }, [user, auth_loading, router]);
 
-  // API Key 상태 업데이트
+  // API Key 상태 업데이트 및 자동 설정
   useEffect(() => {
     if (api_key_status) {
       set_has_api_key(api_key_status.hasApiKey);
@@ -285,6 +285,28 @@ function YouTubeLensContent() {
       }
     }
   }, [api_key_status, setQuotaStatus]);
+
+  // 개발 환경에서 YouTube API Key 자동 설정
+  useEffect(() => {
+    const autoSetupApiKey = async () => {
+      if (!user || has_api_key) return;
+      
+      // 개발 환경에서만 자동 설정
+      if (typeof window !== 'undefined' && 
+          window.location.hostname === 'localhost') {
+        const { autoSetupYouTubeApiKey } = await import('@/lib/youtube-api-auto-setup');
+        const result = await autoSetupYouTubeApiKey();
+        
+        if (result.success) {
+          console.log('🎯 YouTube API Key 자동 설정 완료');
+          // API Key 상태 새로고침
+          await refetch_api_key_status();
+        }
+      }
+    };
+
+    autoSetupApiKey();
+  }, [user, has_api_key, refetch_api_key_status]);
 
   // 즐겨찾기 데이터 로드
   useEffect(() => {

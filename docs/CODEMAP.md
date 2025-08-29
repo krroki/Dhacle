@@ -134,21 +134,23 @@ node scripts/type-suggester.js <파일>  # 타입 제안 도구 (Wave 3)
 # 사용법: import { User, CommunityPost } from '@/types';
 ```
 
-### 🔥 자주 수정하는 파일 Top 10
+### 🔥 자주 수정하는 파일 Top 15
 
 1. `src/types/index.ts` - 중앙 타입 정의 (Single Source of Truth) ⭐⭐⭐⭐⭐
 2. `src/lib/api-client.ts` - 클라이언트 API 래퍼 + snake_case 변환 ⭐⭐⭐⭐⭐
 3. `src/env.ts` - 환경변수 타입 안전성 설정 🆕 2025-08-23 ⭐⭐⭐⭐⭐
 4. `src/lib/utils/case-converter.ts` - React 보호 변환 유틸리티 ⭐⭐⭐⭐⭐
-5. **🆕 `src/lib/youtube-lens/shorts-detector.ts`** - YouTube Shorts 자동 판별 라이브러리 (2025-08-28) ⭐⭐⭐⭐
-6. **🆕 `src/lib/youtube-lens/keyword-analyzer.ts`** - 키워드 트렌드 분석 라이브러리 (2025-08-28) ⭐⭐⭐⭐
-7. **🆕 `src/lib/youtube-lens/format-number-ko.ts`** - 한국어 숫자 포맷터 라이브러리 (2025-08-28) ⭐⭐⭐
-8. `src/components/ErrorBoundary.tsx` - 에러 바운더리 컴포넌트 🆕 2025-08-23 ⭐⭐⭐⭐
-9. `src/app/layout.tsx` - 루트 레이아웃 (ErrorBoundary 적용) ⭐⭐⭐⭐
-10. `next.config.ts` - Next.js 설정 (이미지 최적화) ⭐⭐⭐⭐
-11. `src/app/auth/callback/route.ts` - 인증 콜백
-12. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens (키워드 트렌드 탭 추가)
-13. **🆕 `src/app/api/youtube-lens/keywords/trends/route.ts`** - 키워드 트렌드 API (2025-08-28)
+5. **🆕 `src/lib/youtube-api-auto-setup.ts`** - YouTube API 자동 설정 (2025-08-29) ⭐⭐⭐⭐⭐
+6. **🆕 `src/app/api/auth/test-login/route.ts`** - 개발자 테스트 로그인 (2025-08-29) ⭐⭐⭐⭐⭐
+7. **🆕 `src/lib/youtube-lens/shorts-detector.ts`** - YouTube Shorts 자동 판별 라이브러리 (2025-08-28) ⭐⭐⭐⭐
+8. **🆕 `src/lib/youtube-lens/keyword-analyzer.ts`** - 키워드 트렌드 분석 라이브러리 (2025-08-28) ⭐⭐⭐⭐
+9. **🆕 `src/lib/youtube-lens/format-number-ko.ts`** - 한국어 숫자 포맷터 라이브러리 (2025-08-28) ⭐⭐⭐
+10. `src/components/ErrorBoundary.tsx` - 에러 바운더리 컴포넌트 🆕 2025-08-23 ⭐⭐⭐⭐
+11. `src/app/layout.tsx` - 루트 레이아웃 (ErrorBoundary 적용) ⭐⭐⭐⭐
+12. `next.config.ts` - Next.js 설정 (이미지 최적화) ⭐⭐⭐⭐
+13. `src/app/auth/callback/route.ts` - 인증 콜백
+14. `src/app/(pages)/tools/youtube-lens/page.tsx` - YouTube Lens (키워드 트렌드 탭 추가)
+15. **🆕 `src/app/api/youtube-lens/keywords/trends/route.ts`** - 키워드 트렌드 API (2025-08-28)
 
 ---
 
@@ -599,6 +601,11 @@ Build & Deploy:
 ---
 
 ## 🔗 API 엔드포인트
+
+### 인증 관리 (2025-08-29 업데이트)
+
+- `POST /api/auth/test-login` - 개발자 테스트 로그인 (localhost 전용) 🆕
+- `POST /api/auth/logout` - 로그아웃
 
 ### 사용자 관리
 
