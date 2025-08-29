@@ -33,7 +33,7 @@ export const env = createEnv({
     REDIS_URL: z.string().url().optional(),
     REDIS_HOST: z.string().optional(),
     REDIS_PORT: z.string().optional(),
-    REDIS_TTL: z.coerce.number().default(3600),
+    REDIS_TTL: z.string().optional().default("3600"),
     
     // 이메일 (선택)
     SMTP_HOST: z.string().optional(),
@@ -49,6 +49,11 @@ export const env = createEnv({
     
     // Node 환경
     NODE_ENV: z.enum(["development", "test", "production"]),
+    
+    // E2E Test Configuration (개발 환경 전용)
+    TEST_ADMIN_EMAIL: z.string().email().optional(),
+    TEST_ADMIN_PASSWORD: z.string().min(1).optional(),
+    TEST_ADMIN_USER_ID: z.string().optional(),
     
     // Vercel
     VERCEL: z.string().optional(),
@@ -115,6 +120,9 @@ export const env = createEnv({
     VERCEL_REGION: process.env.VERCEL_REGION,
     VERCEL_URL: process.env.VERCEL_URL,
     NEXT_RUNTIME: process.env.NEXT_RUNTIME,
+    TEST_ADMIN_EMAIL: process.env.TEST_ADMIN_EMAIL,
+    TEST_ADMIN_PASSWORD: process.env.TEST_ADMIN_PASSWORD,
+    TEST_ADMIN_USER_ID: process.env.TEST_ADMIN_USER_ID,
     
     // Client
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

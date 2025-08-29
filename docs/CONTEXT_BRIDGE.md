@@ -19,13 +19,14 @@
 **"2주간 에러 디버깅" = 임시방편 코드의 결과**
 
 ### ✅ 능동적 해결 프로세스
-| 상황 | ❌ 수동적 회피 (금지) | ✅ 능동적 해결 (필수) |
-|------|---------------------|-------------------|
-| **테이블 누락** | 주석 처리하고 "해결 완료" | 1. SQL 작성<br>2. 실행<br>3. 타입 생성<br>4. 구현 완료 |
-| **타입 오류** | any 타입으로 회피 | 1. 정확한 타입 정의<br>2. src/types/index.ts 추가<br>3. import 수정 |
-| **API 실패** | null/빈 배열 반환 | 1. 실제 로직 구현<br>2. 에러 처리 추가<br>3. 테스트 확인 |
-| **기능 미구현** | TODO 남기고 넘어감 | 1. 즉시 구현<br>2. 테스트<br>3. 검증 |
-| **any 타입 발견** | 무시하고 진행 | 1. Context7 TypeScript ESLint 기준 적용<br>2. 위험도별 분류 (Critical/High/Medium/Low)<br>3. 컨텍스트별 적절한 처리<br>4. 실질적 위험만 수정 |
+| 상황 | ❌ 수동적 회피 (금지) | ✅ 능동적 해결 (필수) | 🤖 자동 Agent |
+|------|---------------------|-------------------|-------------|
+| **새 기능 구현** | 코드부터 작성 | 1. 테이블 설계<br>2. SQL 작성 및 실행<br>3. 타입 생성<br>4. 코드 구현 | Database Agent |
+| **테이블 필요** | TODO 주석 | 1. 즉시 SQL 작성<br>2. `node scripts/supabase-sql-executor.js --method pg --file <SQL>`<br>3. `npm run types:generate`<br>4. 구현 진행 | Database Agent |
+| **타입 오류** | any 타입으로 회피 | 1. 정확한 타입 정의<br>2. src/types/index.ts 추가<br>3. import 수정 | Type Agent |
+| **API 실패** | null/빈 배열 반환 | 1. 실제 로직 구현<br>2. 에러 처리 추가<br>3. 테스트 확인 | API Route Agent |
+| **기능 미구현** | TODO 남기고 넘어감 | 1. 즉시 구현<br>2. 테스트<br>3. 검증 | PM Dhacle |
+| **any 타입 발견** | 무시하고 진행 | 1. Context7 TypeScript ESLint 기준 적용<br>2. 위험도별 분류 (Critical/High/Medium/Low)<br>3. 컨텍스트별 적절한 처리<br>4. 실질적 위험만 수정 | Type Agent |
 
 ### 🚨 즉시 중단 신호 (STOP Signals)
 다음 상황 발견 시 **즉시 작업 중단**하고 해결:
@@ -79,7 +80,23 @@ npx playwright test e2e/auth.spec.ts
 
 ---
 
-## 🔥 반복되는 16가지 치명적 실수 (2025-08-27 업데이트)
+## 🔥 반복되는 17가지 치명적 실수 (2025-08-28 업데이트)
+
+### 0. 테이블 없이 기능 구현 시작 🔴🔴🔴 (NEW)
+**❌ 실제 사례**: 기능 구현 중 테이블이 없어서 TODO 주석 처리
+```typescript
+// ❌ 치명적 실수 - 테이블 없이 코드부터 작성
+const { data } = await supabase.from('comments').select(); // 에러!
+// TODO: 나중에 테이블 생성 <- 절대 금지!
+
+// ✅ 올바른 순서
+// 1. 기능 기획 시 테이블 먼저 설계
+// 2. SQL 작성 및 즉시 실행
+// 3. 타입 생성
+// 4. 이제 코드 구현 시작
+```
+**🛡️ 예방책**: 새 기능 = 테이블 먼저 생성이 철칙
+**📍 해결**: Database Agent가 테이블 없는 코드 작성 시도 즉시 차단
 
 ### 1. @supabase/auth-helpers-nextjs 패키지 사용 🔴
 **❌ 실제 사례**: 44개 파일에서 deprecated 패키지 사용

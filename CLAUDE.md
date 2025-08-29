@@ -41,9 +41,123 @@
 
 ---
 
+## 🏗️ 새 기능 구현 = 테이블 먼저 생성 (필수 워크플로우)
+
+### ⚡ 기능 구현 정석 프로세스
+**"기능 구현하려면 테이블부터 만들고 시작해라"**
+
+#### 1️⃣ 기능 기획 → 즉시 테이블 설계
+```yaml
+예시: "댓글 기능 추가"
+  1. 필요 테이블: comments, comment_likes  
+  2. 관계 정의: users ← comments → posts
+  3. RLS 정책: 작성자만 수정/삭제
+```
+
+#### 2️⃣ 테이블 SQL 작성 및 실행 (한 번에!)
+```bash
+# 테이블 생성 SQL 작성과 동시에 실행
+cat > migrations/$(date +%Y%m%d)_create_comments.sql << 'EOF'
+-- 댓글 테이블
+CREATE TABLE IF NOT EXISTS comments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS 필수 (생략하면 Database Agent가 차단!)
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+-- RLS 정책
+CREATE POLICY "Anyone can read comments" ON comments
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can create own comments" ON comments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own comments" ON comments
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own comments" ON comments
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- 인덱스 (조회 성능)
+CREATE INDEX idx_comments_post_id ON comments(post_id);
+CREATE INDEX idx_comments_user_id ON comments(user_id);
+CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
+EOF
+
+# 즉시 실행 (테이블 없으면 어차피 코드 못짬)
+node scripts/supabase-sql-executor.js --method pg --file migrations/$(ls -t migrations/*.sql | head -1)
+
+# 타입 생성 (TypeScript 타입 자동 생성)
+npm run types:generate
+
+# 검증
+node scripts/verify-with-service-role.js
+```
+
+#### 3️⃣ 이제 API/UI 구현 시작
+```typescript
+// ✅ 이제 테이블이 있으니 안전하게 구현
+import { Database } from '@/types/database.generated';
+
+type Comment = Database['public']['Tables']['comments']['Row'];
+
+// API 구현
+export async function POST(req: Request) {
+  const { content, post_id } = await req.json();
+  
+  // 테이블이 이미 있으니 에러 없음!
+  const { data, error } = await supabase
+    .from('comments')
+    .insert({ content, post_id, user_id });
+}
+```
+
+### 🚨 테이블 없이 기능 구현 시도 = 즉시 차단
+```typescript
+// ❌ Database Agent가 차단하는 패턴
+await supabase.from('new_table').select(); // 테이블 없음 → STOP!
+
+// ❌ 임시방편 금지
+// TODO: 나중에 테이블 생성 → 절대 금지!
+const data = []; // 임시 데이터 → 차단!
+
+// ✅ 올바른 순서
+// 1. 테이블 SQL 작성
+// 2. 즉시 실행
+// 3. 타입 생성
+// 4. 구현 시작
+```
+
+### 📁 관련 폴더별 CLAUDE.md 워크플로우
+| 단계 | 작업 | 참조 문서 | 자동 Agent |
+|-----|------|----------|-----------|
+| 1. 테이블 설계 | SQL 작성 | `/supabase/migrations/CLAUDE.md` | Database Agent |
+| 2. SQL 실행 | 명령 실행 | `/scripts/CLAUDE.md` | Script Agent |
+| 3. 타입 생성 | types:generate | `/src/types/CLAUDE.md` | Type Agent |
+| 4. API 구현 | Route 생성 | `/src/app/api/CLAUDE.md` | API Route Agent |
+| 5. UI 구현 | Component | `/src/components/CLAUDE.md` | Component Agent |
+
+---
+
 ## 🤖 Active Agents (Direct Tool Integration)
 
 **⚡ CRITICAL: 모든 Edit, Write, MultiEdit 작업 시 해당 전문 서브에이전트의 품질 기준을 즉시 적용하세요.**
+
+### 🎯 서브에이전트 자동 활성화 매트릭스
+| 작업 유형 | 활성화되는 Agent | 자동 수행 작업 | 폴더별 CLAUDE.md |
+|----------|-----------------|--------------|------------------|
+| **새 기능 기획** | Database Agent | 테이블 SQL 템플릿 생성 | `/supabase/migrations/CLAUDE.md` |
+| **테이블 생성** | Database Agent | RLS 정책 강제, 타입 생성 안내 | `/supabase/migrations/CLAUDE.md` |
+| **any 타입 발견** | Type Agent | 즉시 제거, @/types 이동 | `/src/types/CLAUDE.md` |
+| **API 생성** | API Route Agent | 세션 체크 추가, snake_case | `/src/app/api/CLAUDE.md` |
+| **컴포넌트 생성** | Component Agent | shadcn/ui 확인 | `/src/components/CLAUDE.md` |
+| **React Query** | Query Agent | api-client 패턴 | `/src/hooks/CLAUDE.md` |
 
 **🛑 MANDATORY WORKFLOW:**
 1. **컴포넌트 파일** (src/components/**) → shadcn/ui 우선, any 타입 차단, Server Component 기본

@@ -4,6 +4,35 @@
 
 ---
 
+## 🚨 테이블 누락 에러 즉시 해결 (Quick Access)
+
+### 에러: "relation 'table_name' does not exist"
+```bash
+# 복사해서 즉시 실행 (table_name을 실제 이름으로 변경)
+node scripts/supabase-sql-executor.js --method pg --sql "
+CREATE TABLE IF NOT EXISTS table_name (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
+CREATE POLICY 'Users own records' ON table_name FOR ALL USING (auth.uid() = user_id);
+"
+
+# 또는 파일로 실행
+node scripts/supabase-sql-executor.js --method pg --file migrations/create_table.sql
+
+# 실행 후 타입 생성
+npm run types:generate
+```
+
+### Database Agent 자동 활성화
+- SQL 파일 수정 시 자동으로 RLS 검사
+- 타입 생성 누락 시 경고
+- 검증 스크립트 자동 실행 안내
+
+---
+
 ## 🛑 스크립트 3단계 필수 규칙
 
 ### 1️⃣ STOP - 즉시 중단 신호

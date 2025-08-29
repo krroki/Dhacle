@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { env } from '@/env';
 import { authRateLimiter, getClientIp } from '@/lib/security/rate-limiter';
 
@@ -23,12 +23,10 @@ export async function POST(_request: NextRequest) {
   }
   
   try {
-    // Supabase 클라이언트는 생성하지만 개발 환경에서는 사용하지 않음
-    // const supabase = await createSupabaseRouteHandlerClient();
-    
-    // 테스트용 고정 사용자 정보
-    const testEmail = 'test-user@dhacle.com';
-    const testUserId = '00000000-0000-0000-0000-000000000001'; // 고정 UUID
+    // 환경변수에서 테스트 관리자 정보 가져오기
+    const testEmail = env.TEST_ADMIN_EMAIL || 'test-admin@dhacle.com';
+    const testPassword = env.TEST_ADMIN_PASSWORD || 'test-admin-password-2025';
+    const testUserId = env.TEST_ADMIN_USER_ID || '11111111-1111-1111-1111-111111111111';
     
     // 실제 인증 세션 생성 시도
     console.log('🔐 테스트 로그인: 실제 세션 생성 시도');
@@ -51,21 +49,23 @@ export async function POST(_request: NextRequest) {
       redirect: '/mypage/profile'
     });
     
-    // 개발 환경에서 인증 상태를 시뮬레이션하는 쿠키들 설정
+    // localhost 전용 쿠키 설정 (dhacle.com으로 세션 넘어가지 않도록)
+    const cookieOptions = {
+      httpOnly: true,
+      secure: false, // localhost는 https가 아니므로 false
+      sameSite: 'lax' as const,
+      path: '/',
+      // domain 생략 - 현재 도메인(localhost)에서만 유효
+    };
+    
     response.cookies.set('sb-access-token', `test-access-token-${Date.now()}`, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
+      ...cookieOptions,
       maxAge: 60 * 60 * 24, // 1일
-      path: '/'
     });
     
     response.cookies.set('sb-refresh-token', `test-refresh-token-${Date.now()}`, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
+      ...cookieOptions,
       maxAge: 60 * 60 * 24 * 30, // 30일
-      path: '/'
     });
     
     // Supabase 표준 쿠키 이름들도 설정
@@ -82,7 +82,8 @@ export async function POST(_request: NextRequest) {
       path: '/'
     });
     
-    console.log('✅ 테스트 로그인: 세션 쿠키 생성 완료');
+    console.log('✅ 테스트 로그인: localhost 세션 생성 완료');
+    console.log('📍 테스트 계정:', testEmail);
     
     return response;
     

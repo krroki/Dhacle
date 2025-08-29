@@ -29,34 +29,49 @@ setup('실제 카카오 OAuth 인증 세션 생성', async ({ page }) => {
   const loginUrl = isProduction ? `${PRODUCTION_URL}/auth/login` : '/auth/login'
   await page.goto(loginUrl, { waitUntil: 'networkidle', timeout: 30000 })
 
-  // 개발 환경에서 테스트 로그인 버튼 확인
+  // 개발 환경에서 테스트 로그인 페이지 확인
   if (!isProduction) {
-    const testLoginBtn = page.locator('button:has-text("🧪 테스트 로그인 (localhost 전용)")')
+    console.log('🧪 개발 환경 - 테스트 로그인 페이지 사용');
     
-    if (await testLoginBtn.isVisible({ timeout: 5000 })) {
-      console.log('🧪 개발 환경 테스트 로그인 사용')
+    try {
+      // 테스트 로그인 페이지로 이동
+      await page.goto('/auth/test-login', { waitUntil: 'networkidle' });
       
-      try {
-        // API 응답 대기
-        const responsePromise = page.waitForResponse(response => 
-          response.url().includes('/api/auth/test-login') && response.status() === 200
-        )
+      // 페이지가 존재하는지 확인
+      const isTestLoginPage = await page.locator('h1:has-text("🧪 테스트 로그인")').isVisible({ timeout: 3000 });
+      
+      if (isTestLoginPage) {
+        console.log('✅ 테스트 로그인 페이지 발견');
         
-        await testLoginBtn.click()
-        await responsePromise
-        console.log('✅ 테스트 로그인 API 호출 완료')
+        // 테스트 로그인 버튼 클릭
+        const testLoginBtn = page.locator('button:has-text("🧪 테스트 로그인")');
+        await testLoginBtn.click();
         
-        // 프로필 페이지로 이동
-        await page.goto('/mypage/profile')
-        await page.waitForLoadState('networkidle')
+        // 로그인 성공 메시지 대기
+        await page.waitForSelector('text=✅', { timeout: 5000 });
+        console.log('✅ 테스트 로그인 API 호출 완료');
         
-        // 세션 저장
-        await page.context().storageState({ path: authFile })
-        console.log('✅ 테스트 로그인 세션 저장 완료')
-        return
-      } catch (error) {
-        console.log('⚠️ 테스트 로그인 실패, 카카오 로그인 시도')
+        // 세션 생성 대기
+        await page.waitForTimeout(2000);
+        
+        // YouTube Lens 페이지로 이동하여 인증 확인
+        await page.goto('/tools/youtube-lens', { waitUntil: 'networkidle' });
+        
+        // 로그인 페이지로 리다이렉트되지 않았는지 확인
+        const currentUrl = page.url();
+        if (!currentUrl.includes('/auth/login')) {
+          console.log('✅ YouTube Lens 페이지 접근 성공 - 인증 확인');
+          
+          // 세션 저장
+          await page.context().storageState({ path: authFile });
+          console.log('💾 테스트 로그인 세션 저장 완료:', authFile);
+          return;
+        } else {
+          console.log('⚠️ 인증 실패 - 카카오 로그인으로 전환');
+        }
       }
+    } catch (error) {
+      console.log('⚠️ 테스트 로그인 페이지 없음 - 카카오 로그인 시도');
     }
   }
 
