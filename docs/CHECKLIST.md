@@ -2,7 +2,7 @@
 
 _목적: 세션별/작업별 품질 검증 가이드_
 _핵심 질문: "지금 무엇을 확인해야 하나?"_
-_업데이트: 2025-08-28 - 서브에이전트 시스템 활성화 및 Task 도구 사용 가이드 추가_
+_업데이트: 2025-08-29 - YouTube Lens E2E 테스트 4대 에러 검증 체크리스트 추가_
 
 > **체크리스트 사용 원칙**:
 > - ✅ 실행 가능한 명령어 중심
@@ -51,6 +51,11 @@ test -f .claude/hooks/config.json && echo "✅ Hook 활성화" || echo "❌ Hook
 # 6. snake_case/camelCase 일관성 체크 (2025-08-22 추가)
 grep -r "use_[a-z]" src/ --include="*.tsx" | wc -l # → 0이어야 함 (React Hook 위반)
 node scripts/verify-case-consistency.js # → Pass: 일관성 확인
+
+# 6.5. YouTube API camelCase 체크 (2025-08-29 추가) 🆕
+grep -r "snippet\?\.\(channel_id\|channel_title\|published_at\)" src/lib/youtube/ | wc -l # → 0이어야 함
+grep -r "statistics\?\.\(view_count\|like_count\|comment_count\)" src/lib/youtube/ | wc -l # → 0이어야 함
+test -f scripts/verify-youtube-api-fix.js && node scripts/verify-youtube-api-fix.js # → Pass: YouTube API 정상
 
 # 7. E2E 테스트 환경 체크 (2025-08-27 최적화 완료) 🧪
 test -f TEST_GUIDE.md && echo "✅ 테스트 통합 가이드 존재" || echo "❌ 가이드 없음"
@@ -718,6 +723,67 @@ npx playwright test --list | head -5
 - [ ] **모든 테스트 파일 ./e2e/ 폴더에 위치**
 - [ ] **Playwright가 모든 테스트 인식**
 - [ ] **임시 설정 파일 정리** (playwright.temp.config.ts)
+
+---
+
+## ⚡ E2E 테스트 환경별 설정 검증 (2025-08-29 추가) 🆕
+
+### YouTube Lens E2E 테스트 4대 에러 검증 명령어
+```bash
+# 1️⃣ Admin API 403 Forbidden 검증
+grep -A10 "getAdminEmails" src/app/api/youtube-lens/admin/channels/route.ts
+grep -A10 "getAdminEmails" src/app/api/youtube-lens/admin/channel-stats/route.ts  
+grep "TEST_ADMIN_EMAIL" src/env.ts
+# → 환경별 관리자 이메일 동적 설정 확인
+
+# 2️⃣ Rate Limiting 429 검증  
+grep -A5 "NODE_ENV.*production" src/app/api/auth/test-login/route.ts
+grep "Rate limiting completely bypassed" src/app/api/auth/test-login/route.ts
+# → 개발 환경 Rate Limiting 우회 확인
+
+# 3️⃣ WebKit 브라우저 인증 검증
+grep -A10 "browserName.*webkit" e2e/youtube-lens-practical.spec.ts
+grep -A10 "browserName.*webkit" e2e/youtube-lens-dynamic.spec.ts
+grep "actionTimeout.*30.*1000" playwright.config.ts
+# → WebKit 전용 타임아웃 설정 확인
+
+# 4️⃣ 페이지 제목 로딩 타이밍 검증
+grep -A5 "waitForFunction" e2e/youtube-lens-practical.spec.ts
+grep -A5 "waitForFunction" e2e/youtube-lens-dynamic.spec.ts  
+grep "YouTube.*title" e2e/youtube-lens-*.spec.ts
+# → 비동기 제목 로딩 대기 패턴 확인
+```
+
+### 환경별 설정 체크리스트
+- [ ] **개발/테스트 환경**: 테스트 관리자 이메일 추가
+- [ ] **개발/테스트 환경**: Rate Limiting 완전 비활성화
+- [ ] **WebKit 브라우저**: 5초 대기 + 쿠키 검증
+- [ ] **모든 브라우저**: waitForFunction 제목 로딩 대기
+- [ ] **프로덕션 환경**: 환경변수만 사용, Rate Limiting 활성화
+
+### E2E 테스트 실행 검증
+```bash
+# 브라우저별 테스트 실행
+npx playwright test --project=chromium e2e/youtube-lens-practical.spec.ts
+npx playwright test --project=webkit e2e/youtube-lens-practical.spec.ts
+npx playwright test --project=firefox e2e/youtube-lens-practical.spec.ts
+
+# 테스트 로그인 API 상태 확인
+curl -X POST http://localhost:3000/api/auth/test-login -H "Content-Type: application/json"
+# → 개발 환경에서 200 OK 응답 확인
+
+# Admin API 접근 테스트 (테스트 계정으로)
+curl -X GET "http://localhost:3000/api/youtube-lens/admin/channels" \
+  -H "Cookie: sb-access-token=test_token"
+# → 403에서 200으로 변경 확인
+```
+
+### 환경 설정 매트릭스 검증
+| 환경 | 관리자 인증 검증 | Rate Limiting 검증 | WebKit 타임아웃 검증 | 제목 대기 검증 |
+|------|-----------------|-------------------|---------------------|----------------|
+| **개발** | ✅ TEST_ADMIN_EMAIL 포함 | ✅ 완전 우회 | ✅ 5초 대기 | ✅ waitForFunction |
+| **테스트** | ✅ TEST_ADMIN_EMAIL 포함 | ✅ 완전 우회 | ✅ 5초 대기 | ✅ waitForFunction |
+| **프로덕션** | ✅ 환경변수만 | ✅ 완전 활성화 | ✅ 기본값 | ✅ waitForFunction |
 
 ---
 

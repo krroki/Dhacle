@@ -18,13 +18,49 @@ interface LogContext {
 class Logger {
   private isDevelopment = typeof window === 'undefined' && process.env.NODE_ENV === 'development';
   
+  /**
+   * Safely serialize objects for logging, handling circular references and Error objects
+   */
+  private safeStringify(obj: unknown): string {
+    try {
+      return JSON.stringify(obj, (_key, value) => {
+        // Handle Error objects specially
+        if (value instanceof Error) {
+          return {
+            name: value.name,
+            message: value.message,
+            stack: value.stack,
+            ...Object.getOwnPropertyNames(value).reduce((acc, prop) => {
+              acc[prop] = (value as unknown as Record<string, unknown>)[prop];
+              return acc;
+            }, {} as Record<string, unknown>)
+          };
+        }
+        
+        // Handle circular references
+        if (typeof value === 'object' && value !== null) {
+          if (value.constructor && value.constructor.name === 'Object') {
+            return value;
+          }
+          // For other objects, convert to string representation
+          return Object.prototype.toString.call(value);
+        }
+        
+        return value;
+      }, 2);
+    } catch (error) {
+      // Fallback if JSON.stringify fails
+      return `[Serialization Error: ${String(error)}] Original: ${String(obj)}`;
+    }
+  }
+  
   private formatMessage(
     level: LogLevel,
     message: string,
     context?: LogContext
   ): string {
     const timestamp = new Date().toISOString();
-    const contextStr = context ? JSON.stringify(context) : '';
+    const contextStr = context ? this.safeStringify(context) : '';
     return `[${timestamp}] [${level.toUpperCase()}] ${message} ${contextStr}`;
   }
   
@@ -95,13 +131,20 @@ class Logger {
   /**
    * Log API response details
    */
-  logApiResponse(method: string, url: string, status: number, duration?: number) {
+  logApiResponse(method: string, url: string, status: number, duration?: number, errorData?: unknown) {
     const level = status >= 400 ? 'error' : 'debug';
     const message = status >= 400 ? 'API Request failed' : 'API Request successful';
     
+    const metadata: Record<string, unknown> = { status, duration };
+    
+    // Include error details if available
+    if (errorData && status >= 400) {
+      metadata.errorData = errorData;
+    }
+    
     this[level](message, {
       operation: `${method} ${url}`,
-      metadata: { status, duration }
+      metadata
     });
   }
   

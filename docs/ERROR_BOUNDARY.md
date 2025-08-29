@@ -301,6 +301,117 @@ class ErrorBoundary extends React.Component {
 
 ---
 
+## ⚡ E2E 테스트 환경 설정 에러 해결 패턴 (2025-08-29 추가) 🆕
+
+### YouTube Lens E2E 테스트 4대 분류 에러 완전 해결
+사용자 제보로 발견된 4가지 주요 E2E 테스트 에러 분류와 체계적 해결 방법:
+
+#### 1️⃣ Critical: Admin API 403 Forbidden 에러
+**문제**: 개발/테스트 환경에서 관리자 API 접근 권한 거부
+```typescript
+// ❌ 문제 상황: 하드코딩된 프로덕션 관리자만 허용
+const adminEmails = ['glemfkcl@naver.com'];
+// 테스트 이메일로 접근 시 403 Forbidden
+
+// ✅ 해결: 환경별 동적 관리자 이메일 설정
+const getAdminEmails = (): string[] => {
+  const adminEmails: string[] = [];
+  
+  // 프로덕션 관리자 이메일 (환경변수)
+  if (env.ADMIN_EMAILS) {
+    adminEmails.push(...env.ADMIN_EMAILS.split(',').map(email => email.trim()));
+  }
+  
+  // 개발/테스트 환경에서는 테스트 관리자 추가
+  if (env.NODE_ENV !== 'production' && env.TEST_ADMIN_EMAIL) {
+    adminEmails.push(env.TEST_ADMIN_EMAIL);
+  }
+  
+  return adminEmails;
+};
+```
+
+#### 2️⃣ Critical: Rate Limiting 429 에러
+**문제**: 개발 환경에서도 Rate Limiter가 활성화되어 테스트 방해
+```typescript
+// ❌ 문제 상황: 모든 환경에서 Rate Limiting 활성화
+const rate_limit = authRateLimiter.check(client_ip);
+if (!rate_limit.allowed) {
+  return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+}
+
+// ✅ 해결: 개발/테스트 환경 완전 우회
+if (env.NODE_ENV === 'production') {
+  const rate_limit = authRateLimiter.check(client_ip);
+  if (!rate_limit.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+} else {
+  console.log('🟢 Rate limiting completely bypassed for development/test');
+}
+```
+
+#### 3️⃣ High Priority: WebKit 브라우저 인증 실패
+**문제**: Safari/WebKit에서 쿠키 처리 시간차로 인한 인증 실패
+```typescript
+// ❌ 문제 상황: 모든 브라우저에 동일한 타임아웃
+await page.waitForTimeout(2000); // Chrome/Firefox용 짧은 시간
+
+// ✅ 해결: WebKit 브라우저별 최적화
+if (browserName === 'webkit') {
+  console.log('🍎 WebKit 감지: 추가 인증 대기 시간 적용')
+  await page.waitForTimeout(5000); // WebKit 전용 긴 대기
+  
+  // WebKit 전용 쿠키 검증
+  const cookies = await page.context().cookies();
+  const hasAuthCookie = cookies.some(c => c.name.startsWith('sb-'));
+  if (!hasAuthCookie) {
+    console.log('⚠️ WebKit 인증 쿠키 미설정, 재시도 중...');
+    await page.waitForTimeout(2000); // 추가 대기
+  }
+} else {
+  await page.waitForTimeout(2000); // 다른 브라우저는 기본값
+}
+```
+
+#### 4️⃣ High Priority: 페이지 제목 로딩 타이밍 이슈
+**문제**: 비동기 페이지 제목 로딩 완료 대기 부족
+```typescript
+// ❌ 문제 상황: 제목 로딩 완료 전에 테스트 진행
+const pageTitle = await page.locator('h1').first().textContent();
+// 빈 제목 또는 로딩 중인 제목으로 테스트 실패
+
+// ✅ 해결: waitForFunction 기반 안정적 대기
+try {
+  await page.waitForFunction(() => 
+    document.title.includes('YouTube') || 
+    document.querySelector('h1')?.textContent?.includes('YouTube'),
+    { timeout: 10000 }
+  );
+  console.log('✅ YouTube 제목 로딩 완료');
+} catch (e) {
+  console.log('⚠️ YouTube 제목 로딩 타임아웃, 현재 상태로 진행');
+}
+```
+
+#### 환경별 설정 매트릭스
+| 환경 | 관리자 인증 | Rate Limiting | WebKit 타임아웃 | 제목 대기 |
+|------|------------|---------------|-----------------|-----------|
+| **개발** | 테스트 이메일 추가 | 완전 비활성화 | 5초 대기 | waitForFunction |
+| **테스트** | 테스트 이메일 추가 | 완전 비활성화 | 5초 대기 | waitForFunction |
+| **프로덕션** | 환경변수만 | 완전 활성화 | 기본값 | waitForFunction |
+
+#### 적용 완료 파일
+- ✅ `src/env.ts` - ADMIN_EMAILS 환경변수 추가
+- ✅ `src/app/api/youtube-lens/admin/channels/route.ts` - 환경별 관리자 이메일
+- ✅ `src/app/api/youtube-lens/admin/channel-stats/route.ts` - 환경별 관리자 이메일
+- ✅ `src/app/api/auth/test-login/route.ts` - 개발 환경 Rate Limiting 우회
+- ✅ `playwright.config.ts` - WebKit 전용 타임아웃 설정
+- ✅ `e2e/youtube-lens-practical.spec.ts` - 브라우저별 최적화
+- ✅ `e2e/youtube-lens-dynamic.spec.ts` - 동적 포트 + 브라우저 최적화
+
+---
+
 ## 🧪 E2E 테스트 런타임 에러 감지 전략 (2025-08-27 추가)
 
 ### 문제: 테스트가 런타임 에러를 무시하고 계속 진행

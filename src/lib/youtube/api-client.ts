@@ -305,7 +305,7 @@ export class YouTubeAPIClient {
         like_count: Number.parseInt(String(statistics?.likeCount || '0'), 10),
         comment_count: Number.parseInt(String(statistics?.commentCount || '0'), 10),
         tags: Array.isArray(snippet?.tags) ? (snippet.tags as string[]) : [],
-        category_id: String(snippet?.category_id || ''),
+        category_id: String(snippet?.categoryId || ''),
         defaultLanguage: String(snippet?.defaultLanguage || ''),
         defaultAudioLanguage: String(snippet?.defaultAudioLanguage || ''),
         statistics: {

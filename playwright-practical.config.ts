@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './e2e',
-  testMatch: ['**/youtube-lens-practical.spec.ts', '**/youtube-lens-dynamic.spec.ts'],
+  testMatch: ['**/youtube-lens-comprehensive.spec.ts'],
   
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

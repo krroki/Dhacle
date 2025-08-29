@@ -3,6 +3,14 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   
+  // 디버깅: 브라우저 콘솔 에러를 터미널에 표시 (Context7 권장)
+  experimental: {
+    browserDebugInfoInTerminal: true,
+  },
+  
+  // Standalone 배포 (Context7 권장 - webpack 이슈 해결)
+  output: 'standalone',
+  
   // 서버 외부 패키지 설정
   serverExternalPackages: ['@supabase/supabase-js'],
   

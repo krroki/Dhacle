@@ -46,6 +46,7 @@ export const env = createEnv({
     
     // Admin
     ADMIN_USER_IDS: z.string().optional(),
+    ADMIN_EMAILS: z.string().optional(), // Comma-separated list of admin emails
     
     // Node 환경
     NODE_ENV: z.enum(["development", "test", "production"]),
@@ -114,6 +115,7 @@ export const env = createEnv({
     SMTP_PASS: process.env.SMTP_PASS,
     SENTRY_DSN: process.env.SENTRY_DSN,
     ADMIN_USER_IDS: process.env.ADMIN_USER_IDS,
+    ADMIN_EMAILS: process.env.ADMIN_EMAILS,
     NODE_ENV: process.env.NODE_ENV,
     VERCEL: process.env.VERCEL,
     VERCEL_ENV: process.env.VERCEL_ENV,

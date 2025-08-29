@@ -163,8 +163,14 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
         data = text;
       }
 
-      // 응답 로깅
-      logger.logApiResponse(init.method || 'GET', apiUrl.pathname, response.status, duration);
+      // 응답 로깅 (에러인 경우 응답 데이터 포함)
+      logger.logApiResponse(
+        init.method || 'GET', 
+        apiUrl.pathname, 
+        response.status, 
+        duration,
+        !response.ok ? data : undefined
+      );
 
       // 에러 처리
       if (!response.ok) {
@@ -255,7 +261,9 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
           operation: apiUrl.pathname,
           metadata: {
             status: response.status,
-            error: data
+            errorData: data,
+            url: apiUrl.toString(),
+            method: init.method || 'GET'
           }
         });
 

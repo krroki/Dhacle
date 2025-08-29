@@ -18,6 +18,15 @@
 | 함수 미구현 | TODO, 빈 함수 | 완전히 구현하거나 삭제 |
 | 에러 발생 | try-catch로 숨기기 | 근본 원인 해결 |
 | any 타입 | 그대로 두기 | 즉시 제거 (biome 에러) |
+| **getSession() 사용** | **세션 체크에 getSession()** | **getUser() 사용 (토큰 검증)** |
+| **env 직접 접근** | **process.env.VARIABLE** | **env.ts 타입 안전 사용** |
+| **DB 타입 직접 import** | **database.generated 직접** | **@/types에서만 import** |
+| **직접 fetch 사용** | **fetch(), axios 직접** | **api-client.ts 함수만 사용** |
+| **HTML 직접 사용** | **<button>, <div> 태그** | **shadcn/ui 컴포넌트 우선** |
+| **RLS 없는 테이블** | **테이블만 생성** | **RLS 정책 즉시 추가** |
+| **Client 컴포넌트 남발** | **'use client' 기본** | **Server Component 우선** |
+| **검증 스크립트 미실행** | **코드만 작성하고 완료** | **verify:parallel 실행 필수** |
+| **임시 데이터 반환** | **[], null, "TODO"** | **실제 로직 구현 또는 삭제** |
 
 ### 🔥 핵심 원칙
 1. **임시방편 발견 = 즉시 중단**
@@ -145,19 +154,137 @@ const data = []; // 임시 데이터 → 차단!
 
 ---
 
+## 🚨 프로젝트 필수 패턴 (How-to Guide)
+
+**"상황별 필수 실행 패턴 - 예외 없이 준수"**
+
+### 🔐 API Route 작성 시
+```typescript
+// 1. 반드시 이 패턴으로 시작
+import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
+import { NextResponse } from 'next/server';
+
+export async function GET(): Promise<NextResponse> {
+  const supabase = await createSupabaseRouteHandlerClient();
+  
+  // 2. 세션 체크 필수 (getUser만 사용!)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+  }
+  
+  // 3. 비즈니스 로직...
+}
+```
+
+### 🧩 컴포넌트 작성 시
+```typescript
+// 1. shadcn/ui 먼저 확인
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+
+// 2. Server Component가 기본 ('use client' 최소화)
+export default function ServerComponent({ data }: Props) {
+  return (
+    <Card>
+      <CardContent>
+        <Button>shadcn/ui 사용</Button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### 🔷 타입 정의 시
+```typescript
+// 1. 모든 타입은 @/types에서만
+import { User, Post } from '@/types';  // ✅ 올바름
+
+// ❌ 절대 금지
+// import { Database } from '@/types/database.generated';
+// const data: any = {};
+
+// 2. 함수 반환 타입 명시 필수
+export function processUser(user: User): ProcessedUser {
+  // ...
+}
+```
+
+### 🌐 환경변수 사용 시
+```typescript
+// 1. env.ts를 통해서만 접근
+import { env } from '@/env';
+
+// ✅ 올바름
+const apiKey = env.YOUTUBE_API_KEY;
+const dbUrl = env.DATABASE_URL;
+
+// ❌ 절대 금지
+// const apiKey = process.env.YOUTUBE_API_KEY;
+```
+
+### 📡 API 호출 시
+```typescript
+// 1. api-client.ts 함수만 사용
+import { apiGet, apiPost } from '@/lib/api-client';
+
+// ✅ 올바름
+const users = await apiGet<User[]>('/api/users');
+const newPost = await apiPost<Post>('/api/posts', data);
+
+// ❌ 절대 금지
+// const response = await fetch('/api/users');
+```
+
+### 🗄️ 테이블 생성 시
+```sql
+-- 1. 테이블 생성
+CREATE TABLE IF NOT EXISTS new_table (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. RLS 활성화 (절대 생략 금지!)
+ALTER TABLE new_table ENABLE ROW LEVEL SECURITY;
+
+-- 3. RLS 정책 (최소 1개 이상 필수)
+CREATE POLICY "Users own records" ON new_table
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+### ✅ 작업 완료 시
+```bash
+# 1. 코드 작성 후 반드시 실행
+npm run verify:parallel
+
+# 2. 타입 체크
+npm run types:check
+
+# 3. 빌드 테스트  
+npm run build
+
+# 모든 단계 통과 후에만 작업 완료 선언!
+```
+
+---
+
 ## 🤖 Active Agents (Direct Tool Integration)
 
 **⚡ CRITICAL: 모든 Edit, Write, MultiEdit 작업 시 해당 전문 서브에이전트의 품질 기준을 즉시 적용하세요.**
 
-### 🎯 서브에이전트 자동 활성화 매트릭스
-| 작업 유형 | 활성화되는 Agent | 자동 수행 작업 | 폴더별 CLAUDE.md |
-|----------|-----------------|--------------|------------------|
-| **새 기능 기획** | Database Agent | 테이블 SQL 템플릿 생성 | `/supabase/migrations/CLAUDE.md` |
-| **테이블 생성** | Database Agent | RLS 정책 강제, 타입 생성 안내 | `/supabase/migrations/CLAUDE.md` |
-| **any 타입 발견** | Type Agent | 즉시 제거, @/types 이동 | `/src/types/CLAUDE.md` |
-| **API 생성** | API Route Agent | 세션 체크 추가, snake_case | `/src/app/api/CLAUDE.md` |
-| **컴포넌트 생성** | Component Agent | shadcn/ui 확인 | `/src/components/CLAUDE.md` |
-| **React Query** | Query Agent | api-client 패턴 | `/src/hooks/CLAUDE.md` |
+### 🎯 서브에이전트 즉시 차단 매트릭스
+| 작업 유형 | Agent | 🚫 즉시 차단하는 패턴 | ✅ 강제 적용 패턴 |
+|----------|-------|---------------------|------------------|
+| **API 작성** | API Route Agent | `getSession()`, `process.env`, `fetch()` | `getUser()`, `env.ts`, `api-client` |
+| **컴포넌트** | Component Agent | `<button>`, `<div>`, `'use client'` 남발 | `shadcn/ui`, Server Component |
+| **타입 정의** | Type Agent | `any`, `database.generated` 직접 | `@/types` 중앙화, 구체적 타입 |
+| **테이블 생성** | Database Agent | RLS 없는 테이블 | `ALTER TABLE ... ENABLE RLS` |
+| **환경변수** | Library Agent | `process.env.VAR` | `env.ts` 타입 안전 |
+| **보안** | Security Agent | `innerHTML`, 하드코딩 키 | `DOMPurify`, `env.ts` |
+| **React Query** | Query Agent | 직접 `fetch()`, `any` 타입 | `api-client`, 타입 파라미터 |
+| **스크립트** | Script Agent | `fix-*.js` 생성 | `verify-*.js`만 허용 |
+| **페이지** | Page Agent | Client 기본값 | Server Component 우선 |
 
 **🛑 MANDATORY WORKFLOW:**
 1. **컴포넌트 파일** (src/components/**) → shadcn/ui 우선, any 타입 차단, Server Component 기본
@@ -320,6 +447,20 @@ Direct tool 작업 시 항상 활성화: 모든 도구 사용 시
 ---
 
 ## ⚡ 긴급 대응 가이드
+
+### 🔥 YouTube Lens 500 에러 발생 시 (2025-08-29 완전 해결)
+**즉시 확인**: `YOUTUBE_LENS_500_ERROR_RESOLUTION_GUIDE.md` 참조
+```bash
+# 1. 빌드 성공 확인 (10초)  
+npm run build
+
+# 2. 개발 서버 정상 시작 (2.5초)
+npm run dev
+
+# 3. next.config.ts 설정 확인
+grep "output.*standalone" next.config.ts  # 있어야 정상
+```
+**핵심**: webpack layout.js 문제는 Next.js standalone 모드로 완전 해결됨
 
 ### Vercel 빌드 실패 시
 1. Vercel Dashboard에서 빌드 커밋 확인

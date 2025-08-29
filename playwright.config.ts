@@ -84,6 +84,20 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Safari'],
         storageState: 'playwright/.auth/user.json',
+        
+        /* WebKit/Safari 특수 설정 - Context7 패턴: 브라우저별 최적화 */
+        // WebKit는 쿠키/세션 처리가 더 까다로워 긴 타임아웃 필요
+        actionTimeout: 30 * 1000, // Chrome 10s → WebKit 30s  
+        navigationTimeout: 35 * 1000, // Chrome 15s → WebKit 35s
+        
+        // WebKit 전용 컨텍스트 옵션
+        contextOptions: {
+          // WebKit 세션 쿠키 처리 최적화
+          ignoreHTTPSErrors: true,
+          acceptDownloads: true,
+          // WebKit 전용: 쿠키 저장 강화
+          storageState: undefined, // 초기에는 undefined로 시작
+        },
       },
       dependencies: ['setup'],
     },

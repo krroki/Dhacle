@@ -7,16 +7,24 @@ import { useEffect, useState } from 'react';
 import { RevenueProofCard } from '@/components/features/revenue-proof/RevenueProofCard';
 import { Button } from '@/components/ui/button';
 import { getRevenueProofs } from '@/lib/api/revenue-proof';
+import { useCurrentUser } from '@/hooks/useAuth';
 import type { RevenueProof } from '@/types';
 import { SectionTitle } from '../shared/SectionTitle';
 
 export function RevenueGalleryNew() {
   const [items, set_items] = useState<RevenueProof[]>([]);
   const [is_loading, set_is_loading] = useState(true);
+  const user = useCurrentUser();
 
   useEffect(() => {
     const load_data = async () => {
       try {
+        // 로그인한 사용자만 API 호출
+        if (!user) {
+          set_items([]);
+          return;
+        }
+
         const result = await getRevenueProofs({
           limit: 12, // 더 많은 데이터 로드
           page: 1,
@@ -29,7 +37,7 @@ export function RevenueGalleryNew() {
           set_items([]);
         }
       } catch (error) {
-      console.error('Component error:', error);
+        console.error('Revenue gallery error:', error);
         // 오류 발생 시 빈 배열로 설정
         set_items([]);
       } finally {
@@ -38,7 +46,7 @@ export function RevenueGalleryNew() {
     };
 
     load_data();
-  }, []);
+  }, [user]); // user를 의존성으로 추가
 
   // 데이터가 있을 때 무한 스크롤을 위해 복제
   const duplicated_items = items.length > 0 ? [...items, ...items] : [];
@@ -76,16 +84,35 @@ export function RevenueGalleryNew() {
           <div className="text-center py-12">
             <div className="mx-auto max-w-md">
               <TrendingUp className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">첫 수익 인증을 기다리고 있어요!</h3>
-              <p className="text-muted-foreground mb-6">
-                크리에이터들의 실제 수익 인증이 곧 시작됩니다
-              </p>
-              <Link href="/revenue-proof/create">
-                <Button size="lg">
-                  첫 인증하러 가기
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              {!user ? (
+                // 로그인하지 않은 사용자
+                <>
+                  <h3 className="text-lg font-semibold mb-2">로그인 후 수익 인증을 확인하세요!</h3>
+                  <p className="text-muted-foreground mb-6">
+                    크리에이터들의 실제 수익 인증을 확인하려면 로그인이 필요합니다
+                  </p>
+                  <Link href="/auth/login">
+                    <Button size="lg">
+                      로그인하기
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                // 로그인한 사용자인데 데이터가 없는 경우
+                <>
+                  <h3 className="text-lg font-semibold mb-2">첫 수익 인증을 기다리고 있어요!</h3>
+                  <p className="text-muted-foreground mb-6">
+                    크리에이터들의 실제 수익 인증이 곧 시작됩니다
+                  </p>
+                  <Link href="/revenue-proof/create">
+                    <Button size="lg">
+                      첫 인증하러 가기
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

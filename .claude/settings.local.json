@@ -100,7 +100,8 @@
       "Read(C:\\Users\\정영록\\.claude/**)",
       "Bash(kill:*)",
       "Bash(pkill:*)",
-      "mcp__playwright-stealth__playwright_get_visible_html"
+      "mcp__playwright-stealth__playwright_get_visible_html",
+      "mcp__desktop-commander__start_process"
     ],
     "deny": [],
     "ask": [],

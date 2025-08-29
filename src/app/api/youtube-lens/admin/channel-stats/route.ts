@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { type NextRequest, NextResponse } from 'next/server';
+import { env } from '@/env';
 
 // GET: 채널 통계 조회 (관리자 전용)
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -20,10 +21,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const supabase = await createSupabaseRouteHandlerClient();
 
-  // 관리자 권한 체크
-  const admin_emails = ['glemfkcl@naver.com'];
-  if (!admin_emails.includes(user.email || '')) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  // 관리자 권한 체크 - Context7 패턴: 환경변수 + 테스트 환경 대응
+  const getAdminEmails = (): string[] => {
+    const adminEmails: string[] = [];
+    
+    // 프로덕션 관리자 이메일 (환경변수에서)
+    if (env.ADMIN_EMAILS) {
+      adminEmails.push(...env.ADMIN_EMAILS.split(',').map((email: string) => email.trim()));
+    }
+    
+    // 기본 프로덕션 관리자 (fallback)
+    if (adminEmails.length === 0) {
+      adminEmails.push('glemfkcl@naver.com');
+    }
+    
+    // 개발/테스트 환경에서는 테스트 관리자 이메일 추가
+    if (env.NODE_ENV !== 'production' && env.TEST_ADMIN_EMAIL) {
+      adminEmails.push(env.TEST_ADMIN_EMAIL);
+    }
+    
+    return adminEmails;
+  };
+
+  const adminEmails = getAdminEmails();
+  if (!adminEmails.includes(user.email || '')) {
+    return NextResponse.json({ 
+      error: 'Admin access required',
+      debug: env.NODE_ENV !== 'production' ? { userEmail: user.email, adminEmails } : undefined
+    }, { status: 403 });
   }
 
   try {
@@ -81,8 +106,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: log.id,
         channelId: log.channel_id,
         action: log.action,
-        adminId: log.user_id,
-        notes: log.details ? JSON.stringify(log.details) : null,
+        adminId: log.admin_id,
+        notes: log.notes,
         createdAt: log.created_at,
         channelTitle: channel?.title || 'Unknown Channel'
       };

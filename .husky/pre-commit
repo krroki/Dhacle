@@ -27,7 +27,7 @@ if [ -n "$STAGED_TS_FILES" ]; then
 fi
 
 # 2단계: 타입 시스템 검증
-echo "📋 Step 2/6: 타입 시스템 검증..."
+echo "📋 Step 2/7: 타입 시스템 검증..."
 node scripts/type-validator.js || {
   echo "❌ 타입 시스템 검증 실패!"
   echo ""
@@ -36,7 +36,7 @@ node scripts/type-validator.js || {
 }
 
 # 3단계: 임시 처리 감지 (STOP & ACT 원칙)
-echo "📋 Step 3/6: 임시 처리 패턴 감지..."
+echo "📋 Step 3/7: 임시 처리 패턴 감지..."
 if [ -f "scripts/detect-temporary-fixes.js" ]; then
   node scripts/detect-temporary-fixes.js || {
     echo "❌ 임시 처리 패턴 발견!"
@@ -57,7 +57,7 @@ else
 fi
 
 # 4단계: 빠른 핵심 검증
-echo "📋 Step 4/6: 핵심 검증 실행 중..."
+echo "📋 Step 4/7: 핵심 검증 실행 중..."
 npm run verify:quick || {
   echo "❌ 핵심 검증 실패! 다음 문제를 수정하세요:"
   echo "  - API 인증 일치성 문제"
@@ -70,7 +70,7 @@ npm run verify:quick || {
 }
 
 # 5단계: TypeScript 컴파일 체크 (staged 파일만)
-echo "📋 Step 5/6: TypeScript 컴파일 검증..."
+echo "📋 Step 5/7: TypeScript 컴파일 검증..."
 
 if [ -n "$STAGED_TS_FILES" ]; then
   echo "  검증 대상: $(echo $STAGED_TS_FILES | wc -w)개 파일"
@@ -89,7 +89,7 @@ if [ -n "$STAGED_TS_FILES" ]; then
 fi
 
 # 6단계: API Route 보안 검증 (staged API 파일만)
-echo "📋 Step 6/6: API Route 보안 검증..."
+echo "📋 Step 6/7: API Route 보안 검증..."
 STAGED_API_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'src/app/api/.*route\.(ts|tsx)$' || true)
 
 if [ -n "$STAGED_API_FILES" ]; then
@@ -106,6 +106,26 @@ if [ -n "$STAGED_API_FILES" ]; then
     echo "      { status: 401 }"
     echo "    );"
     echo "  }"
+    exit 1
+  }
+fi
+
+# 7단계: YouTube API 패턴 검증 (YouTube 관련 파일만)
+echo "📋 Step 7/7: YouTube API 패턴 검증..."
+STAGED_YOUTUBE_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(youtube|YouTube).*\.(ts|tsx)$' || true)
+
+if [ -n "$STAGED_YOUTUBE_FILES" ]; then
+  echo "  YouTube 관련 파일 변경 감지 - API 패턴 검증 실행"
+  node scripts/verify-youtube-api.js || {
+    echo "❌ YouTube API 패턴 검증 실패!"
+    echo ""
+    echo "💡 확인된 문제:"
+    echo "  - YouTube API 응답 필드는 camelCase 사용 (channelId, viewCount 등)"
+    echo "  - DB 저장 시에만 snake_case로 변환"
+    echo "  - API Key는 env.ts에서 import"
+    echo "  - process.env 직접 접근 금지"
+    echo ""
+    echo "📖 자세한 내용은 위 메시지 참조"
     exit 1
   }
 fi
