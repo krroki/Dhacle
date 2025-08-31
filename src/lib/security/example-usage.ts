@@ -6,20 +6,20 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { sanitizeBasicHTML, sanitizeObject, sanitizeRichHTML } from './sanitizer';
+import { sanitizeBasicHTML, sanitizeObject } from './sanitizer';
 import type { Database } from '@/types';
 // Wave 3 보안 모듈 임포트
 import {
-  createPostSchema,
+  addFavoriteSchema,
   createValidationErrorResponse,
   validateRequestBody,
 } from './validation-schemas';
 
 /**
- * 예제 1: 커뮤니티 게시글 작성 API
+ * 예제 1: YouTube 즐겨찾기 추가 API
  * Zod 검증 + XSS 방지 적용
  */
-export async function POST_CreatePost(request: NextRequest) {
+export async function POST_AddFavorite(request: NextRequest) {
   // 1. 세션 검사 (Wave 1)
   const supabase = await createSupabaseRouteHandlerClient();
   const {
@@ -31,7 +31,7 @@ export async function POST_CreatePost(request: NextRequest) {
   }
 
   // 2. Zod 입력 검증 (Wave 3)
-  const validation = await validateRequestBody(request, createPostSchema);
+  const validation = await validateRequestBody(request, addFavoriteSchema);
 
   if (!validation.success) {
     return createValidationErrorResponse(validation.error);
@@ -41,13 +41,12 @@ export async function POST_CreatePost(request: NextRequest) {
   const sanitized_data = {
     ...validation.data,
     title: sanitizeBasicHTML(validation.data.title),
-    content: sanitizeRichHTML(validation.data.content),
-    tags: validation.data.tags?.map((tag) => sanitizeBasicHTML(tag)),
+    channel_title: validation.data.channel_title ? sanitizeBasicHTML(validation.data.channel_title) : undefined,
   };
 
   // 4. 데이터베이스 저장
   const { data, error } = await supabase
-    .from('community_posts')
+    .from('youtube_favorites')
     .insert({
       ...sanitized_data,
       user_id: user.id,
@@ -57,7 +56,7 @@ export async function POST_CreatePost(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: '게시글 작성에 실패했습니다.' }, { status: 500 });
+    return NextResponse.json({ error: '즐겨찾기 추가에 실패했습니다.' }, { status: 500 });
   }
 
   return NextResponse.json(data);

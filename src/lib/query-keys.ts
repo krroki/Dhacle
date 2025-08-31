@@ -30,27 +30,8 @@ export const queryKeys = {
     profile: (id?: string) => ['user', 'profile', id] as const,
     settings: () => ['user', 'settings'] as const,
     apiKeys: () => ['user', 'api-keys'] as const,
-    achievements: () => ['user', 'achievements'] as const,
   },
   
-  // Community module
-  community: {
-    all: ['community'] as const,
-    posts: (filters?: FilterParams) => ['community', 'posts', filters] as const,
-    post: (id: string) => ['community', 'post', id] as const,
-    comments: (postId: string) => ['community', 'comments', postId] as const,
-    categories: () => ['community', 'categories'] as const,
-  },
-  
-  // Revenue Proof module
-  revenueProof: {
-    all: ['revenue-proof'] as const,
-    lists: () => ['revenue-proof', 'list'] as const,
-    list: (filters?: FilterParams) => ['revenue-proof', 'list', filters] as const,
-    details: () => ['revenue-proof', 'detail'] as const,
-    detail: (id: string) => ['revenue-proof', 'detail', id] as const,
-    comments: (id: string) => ['revenue-proof', 'comments', id] as const,
-  },
   
   // Notifications module
   notifications: {
@@ -60,23 +41,6 @@ export const queryKeys = {
     preferences: () => ['notifications', 'preferences'] as const,
   },
   
-  // Course module
-  courses: {
-    all: ['courses'] as const,
-    list: (filters?: FilterParams) => ['courses', 'list', filters] as const,
-    detail: (id: string) => ['courses', 'detail', id] as const,
-    progress: (courseId: string) => ['courses', 'progress', courseId] as const,
-    enrolled: () => ['courses', 'enrolled'] as const,
-  },
-  
-  // Certificates module
-  certificates: {
-    all: ['certificates'] as const,
-    list: () => ['certificates', 'list'] as const,
-    detail: (id: string) => ['certificates', 'detail', id] as const,
-    byCourse: (courseId: string) => ['certificates', 'by-course', courseId] as const,
-    public: (id: string) => ['certificates', 'public', id] as const,
-  },
   
   // Admin module
   admin: {
@@ -146,25 +110,3 @@ export async function prefetchQueries<T = unknown>(
   );
 }
 
-/**
- * Helper to invalidate related queries after a mutation
- * Usage: invalidateRelated(queryClient, 'youtube', ['search', 'popular'])
- */
-
-export function invalidateRelated(
-  queryClient: QueryClient,
-  module: keyof typeof queryKeys,
-  subKeys: string[]
-) {
-  const moduleKeys = queryKeys[module];
-  if (typeof moduleKeys === 'object') {
-    subKeys.forEach((subKey) => {
-      if (subKey in moduleKeys) {
-        const keyFunction = moduleKeys[subKey as keyof typeof moduleKeys] as ((...args: unknown[]) => readonly unknown[]) | undefined;
-        if (typeof keyFunction === 'function') {
-          queryClient.invalidateQueries({ queryKey: keyFunction() });
-        }
-      }
-    });
-  }
-}

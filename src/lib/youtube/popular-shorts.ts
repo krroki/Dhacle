@@ -313,33 +313,9 @@ async function enrich_with_metrics(
       thumbnail_url: video.snippet.thumbnails?.medium?.url || video.snippet.thumbnails?.high?.url || '',
       tags: video.snippet.tags || [],
       durationSeconds: parse_duration(video.contentDetails?.duration || ''),
-      isShort: true,
       category_id: video.snippet.categoryId || undefined,
       languageCode: video.snippet.defaultLanguage || undefined,
-      regionCode: null,
-      firstSeenAt: now.toISOString(),
-      lastUpdatedAt: now.toISOString(),
-      created_at: now.toISOString(),
-      deleted_at: null,
-      channel: video.snippet.channelTitle ? {
-        id: video.snippet.channelId || '',
-        channel_id: video.snippet.channelId || '',
-        title: video.snippet.channelTitle,
-        description: null,
-        customUrl: null,
-        subscriber_count: 0,
-        video_count: 0,
-        view_count: 0,
-        country: null,
-        published_at: null,
-        thumbnails: null,
-        isMonitored: false,
-        monitorFrequencyHours: 24,
-        lastCheckedAt: null,
-        created_at: now.toISOString(),
-        updated_at: now.toISOString(),
-        deleted_at: null
-      } : undefined,
+      // created_at: now.toISOString(),
       stats: {
         viewCount: view_count,
         likeCount: like_count,
@@ -553,12 +529,11 @@ export async function getCachedPopularShorts(
         typeof item.duration === 'number'
           ? item.duration
           : Number.parseInt(String(item.duration || 0)),
-      isShort: true,
       published_at: item.published_at || new Date().toISOString(),
       publishedAt: item.published_at || new Date().toISOString(), 
       title: item.title || '',
       viewCount: item.view_count || 0,
-      channel_title: (item as any).channel_title || item.channel_id || '', // Safe access with fallback
+      channel_title: (item as Record<string, unknown>).channel_title as string || item.channel_id || '', // Safe access with fallback
       tags: item.tags || [],
       stats:
         item.videoStats && Array.isArray(item.videoStats) && item.videoStats.length > 0

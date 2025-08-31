@@ -116,3 +116,7 @@ storybook-static
 # Old migration folder (moved to supabase/migrations)
 /src/lib/supabase/migrations/
 e2e/archive/
+
+# jscpd reports
+jscpd-report/
+*.jscpd.json.cache

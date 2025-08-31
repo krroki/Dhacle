@@ -42,7 +42,7 @@ export default function CollectionBoard() {
       const data = await apiGet<{ collections?: Collection[] }>('/api/youtube/collections');
 
       console.log('[CollectionBoard] API Response:', data);
-      const mapped_collections = (data.collections || []).map((col) => mapCollection(col as any)) as Collection[];
+      const mapped_collections = (data.collections || []).map((col) => mapCollection(col)) as Collection[];
       set_collections(mapped_collections);
     } catch (error) {
       // Handle 401 errors - distinguish between auth and API key issues

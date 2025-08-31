@@ -638,46 +638,8 @@ export interface YouTubeFolder {
   folderChannels?: Array<{ channel_id: string; channels?: unknown; }>;
 }
 
-// Alert 조건 타입 (문자열 리터럴)
-export type AlertCondition = 'greater_than' | 'less_than' | 'change_percent';
+// Alert 조건 타입 (문자열 리터럴) - moved to monitoring section above
 
-// Alert Rule 인터페이스
-export interface AlertRule {
-  id: string;
-  type: 'views' | 'likes' | 'comments' | 'subscribers';
-  condition: AlertCondition;
-  value: number;
-  enabled: boolean;
-}
-
-// Course 타입 (교육 컨텐츠)
-export interface Course {
-  id: string;
-  title: string;
-  description: string;
-  instructor: string;
-  duration: number;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  category: string;
-  price: number;
-  currency: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Lesson 타입 (교육 컨텐츠)
-export interface Lesson {
-  id: string;
-  course_id: string;
-  title: string;
-  description: string;
-  order: number;
-  video_url?: string;
-  duration: number;
-  is_free: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 // Outlier Detection 결과 타입 (별칭 추가)
 export type OutlierDetectionResult = OutlierResult;
@@ -697,4 +659,69 @@ export interface VideoMetrics {
   date: string;
   created_at: string | null;
   id: string;
+}
+
+// ============= Alert System Types (Monitoring) =============
+
+// Alert types for YouTube monitoring system
+export type AlertRuleType = 'threshold' | 'trending' | 'viral' | 'engagement' | 'growth';
+export type AlertMetric = 'view_count' | 'vph' | 'engagementRate' | 'viralScore' | 'growthRate' | 'like_count' | 'comment_count' | 'subscriber_count';
+export type AlertSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type AlertScope = 'video' | 'channel' | 'folder' | 'global';
+export type AlertCondition = 'greater_than' | 'less_than' | 'change_percent';
+
+// Complete Alert interface
+export interface Alert {
+  id: string;
+  rule_id: string;
+  user_id: string;
+  video_id?: string;
+  channel_id?: string;
+  alertType: AlertRuleType;
+  title: string;
+  message: string;
+  severity: AlertSeverity;
+  metricValue?: number;
+  triggeredAt: string;
+  contextData?: {
+    video_title?: string;
+    channel_title?: string;
+    [key: string]: unknown;
+  };
+  is_read: boolean;
+  readAt?: string | null;
+  isArchived: boolean;
+  created_at: string;
+}
+
+// Alert Rule interface  
+export interface AlertRule {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  ruleType: AlertRuleType;
+  metric: AlertMetric;
+  metricType: AlertMetric; // alias for metric
+  condition: AlertCondition;
+  comparisonOperator: '>' | '>=' | '<' | '<=' | '=' | '!=';
+  thresholdValue: number;
+  scope: AlertScope;
+  scopeId?: string;
+  is_active: boolean;
+  cooldownHours: number;
+  lastTriggeredAt?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Source Folder Update type for monitoring
+export interface SourceFolderUpdate {
+  name?: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  isMonitoringEnabled?: boolean;
+  channelCount?: number;
+  [key: string]: unknown;
 }

@@ -10,15 +10,17 @@
  */
 
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import type { 
-  Alert, 
-  AlertRule, 
-  AlertRuleType,
-  AlertMetric,
+import type {
+  Alert,
   AlertCondition,
+  AlertMetric,
+  AlertRule,
+  AlertRuleType,
   AlertScope,
-  SourceFolder, 
-  YouTubeVideo 
+  AlertSeverity,
+  SourceFolder,
+  SourceFolderUpdate,
+  YouTubeVideo,
 } from '@/types';
 import { snakeToCamelCase } from '@/types';
 import { calculateMetrics } from './metrics';
@@ -43,9 +45,9 @@ export class ChannelFolderManager {
       color: folder.color,
       icon: folder.icon,
       is_active: true,
-      channel_count: 0
+      channel_count: 0,
     };
-    
+
     const { data, error } = await supabase
       .from('source_folders')
       .insert(dbFolder)
@@ -55,7 +57,7 @@ export class ChannelFolderManager {
     if (error) {
       throw error;
     }
-    
+
     // Convert snake_case to camelCase and add missing fields
     return {
       ...snakeToCamelCase(data),
@@ -66,8 +68,8 @@ export class ChannelFolderManager {
       checkIntervalHours: 24,
       lastCheckedAt: null,
       folderChannels: [],
-      deleted_at: null
-    } satisfies SourceFolder;
+      deleted_at: null,
+    } as SourceFolder;
   }
 
   /**
@@ -105,25 +107,30 @@ export class ChannelFolderManager {
     if (error) {
       throw error;
     }
-    
+
     // Convert each folder from snake_case to camelCase and add missing fields
-    return (data || []).map(folder => ({
-      ...snakeToCamelCase(folder),
-      autoMonitor: false,
-      monitorFrequencyHours: 24,
-      channelCount: folder.channel_count ?? 0,
-      isMonitoringEnabled: folder.is_active ?? false,
-      checkIntervalHours: 24,
-      lastCheckedAt: null,
-      folderChannels: folder.folder_channels?.map((fc: Record<string, unknown>) => snakeToCamelCase(fc)) || [],
-      deleted_at: null
-    } as unknown as SourceFolder));
+    return (data || []).map(
+      (folder) =>
+        ({
+          ...snakeToCamelCase(folder),
+          autoMonitor: false,
+          monitorFrequencyHours: 24,
+          channelCount: folder.channel_count ?? 0,
+          isMonitoringEnabled: folder.is_active ?? false,
+          checkIntervalHours: 24,
+          lastCheckedAt: null,
+          folderChannels:
+            folder.folder_channels?.map((fc: Record<string, unknown>) => snakeToCamelCase(fc)) ||
+            [],
+          deleted_at: null,
+        }) as unknown as SourceFolder
+    );
   }
 
   /**
    * Update folder settings
    */
-  async updateFolder(folder_id: string, updates: Partial<SourceFolder>): Promise<SourceFolder> {
+  async updateFolder(folder_id: string, updates: SourceFolderUpdate): Promise<SourceFolder> {
     // Convert updates to snake_case for DB
     const dbUpdates = {
       ...(updates.name && { name: updates.name }),
@@ -131,9 +138,9 @@ export class ChannelFolderManager {
       ...(updates.color !== undefined && { color: updates.color }),
       ...(updates.icon !== undefined && { icon: updates.icon }),
       ...(updates.isMonitoringEnabled !== undefined && { is_active: updates.isMonitoringEnabled }),
-      ...(updates.channelCount !== undefined && { channel_count: updates.channelCount })
+      ...(updates.channelCount !== undefined && { channel_count: updates.channelCount }),
     };
-    
+
     const { data, error } = await supabase
       .from('source_folders')
       .update(dbUpdates)
@@ -144,7 +151,7 @@ export class ChannelFolderManager {
     if (error) {
       throw error;
     }
-    
+
     // Convert response back to camelCase and add missing fields
     return {
       ...snakeToCamelCase(data),
@@ -155,8 +162,8 @@ export class ChannelFolderManager {
       checkIntervalHours: 24,
       lastCheckedAt: null,
       folderChannels: [],
-      deleted_at: null
-    } satisfies SourceFolder;
+      deleted_at: null,
+    } as SourceFolder;
   }
 
   /**
@@ -191,39 +198,35 @@ export class AlertRuleEngine {
       target_type: rule.scope,
       target_id: rule.scopeId,
       is_active: rule.is_active,
-      cooldown_minutes: rule.cooldownHours * 60
+      cooldown_minutes: rule.cooldownHours * 60,
     };
-    
-    const { data, error } = await supabase
-      .from('alert_rules')
-      .insert(dbRule)
-      .select()
-      .single();
+
+    const { data, error } = await supabase.from('alert_rules').insert(dbRule).select().single();
 
     if (error) {
       throw error;
     }
-    
+
     // Convert DB response to AlertRule type
     return {
       id: data.id,
       user_id: data.user_id,
       name: data.name,
-      description: data.description,
+      description: data.description ?? undefined,
       ruleType: data.rule_type as AlertRuleType,
       metric: data.metric as AlertMetric,
       metricType: data.metric as AlertMetric,
       condition: data.condition as AlertCondition,
       comparisonOperator: '>',
-      thresholdValue: data.threshold_value ?? 0,
+      thresholdValue: Number(data.threshold_value ?? 0),
       scope: data.target_type as AlertScope,
-      scopeId: data.target_id,
+      scopeId: data.target_id ?? undefined,
       is_active: data.is_active ?? false,
       cooldownHours: Math.floor((data.cooldown_minutes ?? 0) / 60),
-      lastTriggeredAt: data.last_triggered_at,
+      lastTriggeredAt: data.last_triggered_at ?? undefined,
       created_at: data.created_at || new Date().toISOString(),
-      updated_at: data.updated_at || new Date().toISOString()
-    } satisfies AlertRule;
+      updated_at: data.updated_at || new Date().toISOString(),
+    };
   }
 
   /**
@@ -240,33 +243,49 @@ export class AlertRuleEngine {
     if (error) {
       throw error;
     }
-    
+
     // Convert DB response to AlertRule type
-    return (data || []).map(rule => ({
+    return (data || []).map((rule) => ({
       id: rule.id,
       user_id: rule.user_id,
       name: rule.name,
-      description: rule.description,
+      description: rule.description ?? undefined,
       ruleType: rule.rule_type as AlertRuleType,
       metric: rule.metric as AlertMetric,
       metricType: rule.metric as AlertMetric,
       condition: rule.condition as AlertCondition,
       comparisonOperator: '>',
-      thresholdValue: rule.threshold_value ?? 0,
+      thresholdValue: Number(rule.threshold_value ?? 0),
       scope: rule.target_type as AlertScope,
-      scopeId: rule.target_id,
+      scopeId: rule.target_id ?? undefined,
       is_active: rule.is_active ?? false,
       cooldownHours: Math.floor((rule.cooldown_minutes ?? 0) / 60),
-      lastTriggeredAt: rule.last_triggered_at,
+      lastTriggeredAt: rule.last_triggered_at ?? undefined,
       created_at: rule.created_at || new Date().toISOString(),
-      updated_at: rule.updated_at || new Date().toISOString()
-    } satisfies AlertRule));
+      updated_at: rule.updated_at || new Date().toISOString(),
+    }));
   }
 
   /**
    * Check if a video triggers any alert rules
    */
-  async checkVideoAgainstRules(video: YouTubeVideo, rules: AlertRule[]): Promise<Alert[]> {
+  async checkVideoAgainstRules(
+    video: YouTubeVideo & {
+      metrics?: {
+        viewsPerHour?: number;
+        engagementRate?: number;
+        viralScore?: number;
+      };
+      statistics?: {
+        view_count?: string | number;
+      };
+      snippet?: {
+        channel_id?: string;
+        title?: string;
+      };
+    },
+    rules: AlertRule[]
+  ): Promise<Alert[]> {
     const alerts: Alert[] = [];
     // Calculate metrics for the video (modifies video in-place)
     calculateMetrics([video]);
@@ -280,7 +299,7 @@ export class AlertRuleEngine {
           actual_value =
             typeof video.statistics?.view_count === 'number'
               ? video.statistics.view_count
-              : Number.parseInt(String(video.statistics?.view_count || 0));
+              : Number.parseInt(String(video.statistics?.view_count || 0), 10);
           triggered = this.compareValue(
             actual_value,
             rule.comparisonOperator || '>',
@@ -337,21 +356,23 @@ export class AlertRuleEngine {
       }
 
       if (triggered) {
+        const channelId = video.snippet?.channel_id || '';
+        const videoTitle = video.snippet?.title || 'Unknown video';
+
         alerts.push({
           id: crypto.randomUUID(),
           rule_id: rule.id,
           user_id: rule.user_id,
           video_id: video.id,
-          channel_id: video.snippet.channel_id,
+          channel_id: channelId,
           alertType: rule.ruleType,
           title: `${rule.name} Alert`,
-          message: `Alert: ${video.snippet.title} - ${rule.metricType} is ${actual_value} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
-          severity: 'warning' as const,
+          message: `Alert: ${videoTitle} - ${rule.metricType} is ${actual_value} (${rule.comparisonOperator || '>'} ${rule.thresholdValue})`,
+          severity: 'high' as AlertSeverity,
           metricValue: actual_value,
           triggeredAt: new Date().toISOString(),
-          contextData: { video_title: video.snippet.title },
+          contextData: { video_title: videoTitle },
           is_read: false,
-          readAt: null,
           isArchived: false,
           created_at: new Date().toISOString(),
         });
@@ -400,7 +421,14 @@ export class AlertRuleEngine {
 
     const [recent, previous] = data;
 
-    if (!recent || !previous || !recent.view_count || !previous.view_count || !recent.created_at || !previous.created_at) {
+    if (
+      !recent ||
+      !previous ||
+      !recent.view_count ||
+      !previous.view_count ||
+      !recent.created_at ||
+      !previous.created_at
+    ) {
       return null;
     }
 
@@ -424,7 +452,7 @@ export class AlertRuleEngine {
     }
 
     // Map Alert type to database schema
-    const alertsForDb = alerts.map(alert => ({
+    const alertsForDb = alerts.map((alert) => ({
       rule_id: alert.rule_id,
       user_id: alert.user_id,
       entity_id: alert.video_id || alert.channel_id || null,
@@ -438,7 +466,7 @@ export class AlertRuleEngine {
       triggered_value: alert.metricValue || null,
       threshold_value: null,
       is_read: alert.is_read || false,
-      created_at: alert.created_at || new Date().toISOString()
+      created_at: alert.created_at || new Date().toISOString(),
     }));
 
     const { error } = await supabase.from('alerts').insert(alertsForDb);
@@ -492,69 +520,65 @@ export class MonitoringScheduler {
    * Run a single monitoring check
    */
   private async runMonitoringCheck(user_id: string): Promise<void> {
-    try {
-      console.log(`Running monitoring check for user ${user_id}`);
+    console.log(`Running monitoring check for user ${user_id}`);
 
-      // Get user's folders and rules
-      const [folders, rules] = await Promise.all([
-        this.folderManager.getUserFolders(user_id),
-        this.ruleEngine.getUserRules(user_id),
-      ]);
+    // Get user's folders and rules
+    const [folders, rules] = await Promise.all([
+      this.folderManager.getUserFolders(user_id),
+      this.ruleEngine.getUserRules(user_id),
+    ]);
 
-      if (rules.length === 0) {
-        console.log('No active alert rules found');
-        return;
-      }
-
-      // Collect all channel IDs from folders
-      const channel_ids = new Set<string>();
-      for (const folder of folders) {
-        // Type-safe access to monitoring properties
-        const folderWithMonitoring = folder as { 
-          isMonitoringEnabled?: boolean; 
-          folderChannels?: Array<{ channel_id: string; channels?: unknown }>;
-          is_active?: boolean;
-        };
-        
-        const isMonitoringEnabled = folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
-        const folderChannels = folderWithMonitoring.folderChannels ?? [];
-        
-        if (isMonitoringEnabled && folderChannels.length > 0) {
-          folderChannels.forEach((fc) => {
-            if (fc.channel_id) {
-              channel_ids.add(fc.channel_id);
-            }
-          });
-        }
-      }
-
-      if (channel_ids.size === 0) {
-        console.log('No channels to monitor');
-        return;
-      }
-
-      // Fetch recent videos from channels
-      const videos = await this.fetchChannelVideos(Array.from(channel_ids));
-
-      // Check each video against rules
-      const all_alerts: Alert[] = [];
-      for (const video of videos) {
-        const alerts = await this.ruleEngine.checkVideoAgainstRules(video, rules);
-        all_alerts.push(...alerts);
-      }
-
-      // Save alerts
-      if (all_alerts.length > 0) {
-        await this.ruleEngine.saveAlerts(all_alerts);
-        console.log(`Generated ${all_alerts.length} alerts`);
-      }
-
-      // Update last check timestamp
-      await this.updateLastCheckTime(user_id);
-    } catch (error) {
-      console.error('Failed to monitor channels:', error);
-      throw error; // Re-throw for caller to handle
+    if (rules.length === 0) {
+      console.log('No active alert rules found');
+      return;
     }
+
+    // Collect all channel IDs from folders
+    const channel_ids = new Set<string>();
+    for (const folder of folders) {
+      // Type-safe access to monitoring properties
+      const folderWithMonitoring = folder as {
+        isMonitoringEnabled?: boolean;
+        folderChannels?: Array<{ channel_id: string; channels?: unknown }>;
+        is_active?: boolean;
+      };
+
+      const isMonitoringEnabled =
+        folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
+      const folderChannels = folderWithMonitoring.folderChannels ?? [];
+
+      if (isMonitoringEnabled && folderChannels.length > 0) {
+        folderChannels.forEach((fc) => {
+          if (fc.channel_id) {
+            channel_ids.add(fc.channel_id);
+          }
+        });
+      }
+    }
+
+    if (channel_ids.size === 0) {
+      console.log('No channels to monitor');
+      return;
+    }
+
+    // Fetch recent videos from channels
+    const videos = await this.fetchChannelVideos(Array.from(channel_ids));
+
+    // Check each video against rules
+    const all_alerts: Alert[] = [];
+    for (const video of videos) {
+      const alerts = await this.ruleEngine.checkVideoAgainstRules(video, rules);
+      all_alerts.push(...alerts);
+    }
+
+    // Save alerts
+    if (all_alerts.length > 0) {
+      await this.ruleEngine.saveAlerts(all_alerts);
+      console.log(`Generated ${all_alerts.length} alerts`);
+    }
+
+    // Update last check timestamp
+    await this.updateLastCheckTime(user_id);
   }
 
   /**
@@ -579,6 +603,7 @@ export class MonitoringScheduler {
       .eq('id', user_id);
 
     if (error) {
+      // Log error but don't throw as this is not critical
     }
   }
 }
@@ -642,10 +667,11 @@ export const monitoringUtils = {
         folderChannels?: Array<{ channel_id: string; channels?: unknown }>;
         is_active?: boolean;
       };
-      
-      const isMonitoringEnabled = folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
+
+      const isMonitoringEnabled =
+        folderWithMonitoring.isMonitoringEnabled ?? folderWithMonitoring.is_active ?? false;
       const folderChannels = folderWithMonitoring.folderChannels ?? [];
-      
+
       if (isMonitoringEnabled && folderChannels.length > 0) {
         return count + folderChannels.length;
       }

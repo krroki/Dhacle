@@ -130,57 +130,6 @@ export const addChannelSchema = z.object({
   subcategory: z.string().max(100).optional(),
 });
 
-// ============================================
-// 수익 인증 관련 스키마
-// ============================================
-
-// 수익 인증 생성
-export const createRevenueProofSchema = z.object({
-  title: z.string().min(5, '제목은 5자 이상이어야 합니다.').max(200),
-  description: z.string().min(10, '설명은 10자 이상이어야 합니다.').max(2000),
-  amount: z.number().positive('금액은 양수여야 합니다.').max(1000000000),
-  currency: z.enum(['KRW', 'USD', 'EUR', 'JPY']).default('KRW'),
-  proofDate: dateSchema,
-  imageUrl: urlSchema.optional(),
-  is_public: z.boolean().default(true),
-});
-
-// 댓글 작성
-export const createCommentSchema = z.object({
-  content: z.string().min(1, '댓글을 입력해주세요.').max(500),
-  parent_id: uuidSchema.optional(),
-});
-
-// ============================================
-// 커뮤니티 관련 스키마
-// ============================================
-
-// 게시글 작성
-export const createPostSchema = z.object({
-  title: z.string().min(5, '제목은 5자 이상이어야 합니다.').max(200),
-  content: z.string().min(10, '내용은 10자 이상이어야 합니다.').max(10000),
-  category: z.enum(['general', 'question', 'tip', 'showcase', 'feedback']),
-  tags: z.array(z.string().max(50)).max(5).optional(),
-  is_public: z.boolean().default(true),
-});
-
-// ============================================
-// 결제 관련 스키마
-// ============================================
-
-// 결제 요청
-export const createPaymentSchema = z.object({
-  course_id: uuidSchema,
-  amount: z.number().positive().int(),
-  couponCode: z.string().max(50).optional(),
-  payment_method: z.enum(['card', 'transfer', 'virtualAccount', 'mobile']),
-});
-
-// 쿠폰 검증
-export const validateCouponSchema = z.object({
-  code: z.string().min(1, '쿠폰 코드를 입력해주세요.').max(50),
-  course_id: uuidSchema.optional(),
-});
 
 // ============================================
 // 헬퍼 함수

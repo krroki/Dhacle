@@ -1,94 +1,71 @@
-// Health check API to test Supabase connection
+// Comprehensive Health Check API for Dhacle
+// Provides detailed system status monitoring
 
 // Use Node.js runtime for Supabase compatibility
 export const runtime = 'nodejs';
 
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
-import { env } from '@/env';
-export async function GET(): Promise<NextResponse> {
-  console.log('Health check API called');
+import { NextRequest, NextResponse } from 'next/server';
+import { HealthChecker } from '@/lib/health/health-checker';
 
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Test 1: Environment variables
-    const has_url = !!env.NEXT_PUBLIC_SUPABASE_URL;
-    const has_key = !!env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format') || 'detailed'; // detailed, simple, json
+    const fresh = searchParams.get('fresh') === 'true';
+    const checkName = searchParams.get('check');
 
-    console.log('Environment check:', { hasUrl: has_url, hasKey: has_key });
+    const healthChecker = new HealthChecker();
 
-    // Test 2: Create Supabase client
-    let client_created = false;
-    let supabase_error = null;
-
-    try {
-      const supabase = await createSupabaseRouteHandlerClient();
-      client_created = true;
-      console.log('Supabase client created successfully');
-
-      // Test 3: Simple query to check database connection
-      const { data: table_check, error: table_error } = await supabase
-        .from('revenue_proofs')
-        .select('id')
-        .limit(1);
-
-      console.log('Table query result:', {
-        hasData: !!table_check,
-        error: table_error?.message,
-      });
-
-      // Test 4: Check auth session
-      const {
-        data: { user },
-        error: auth_error,
-      } = await supabase.auth.getUser();
-
-      console.log('Auth check:', {
-        hasSession: !!user,
-        error: auth_error?.message,
-      });
-
-      return NextResponse.json({
-        status: 'healthy',
-        environment: {
-          hasUrl: has_url,
-          hasKey: has_key,
-          nodeEnv: env.NODE_ENV,
-        },
-        supabase: {
-          clientCreated: client_created,
-          tableAccess: !table_error,
-          tableError: table_error?.message || null,
-          authWorking: !auth_error,
-          authError: auth_error?.message || null,
-          hasSession: !!user,
-        },
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error: unknown) {
-      supabase_error = error instanceof Error ? error.message : 'Unknown error';
+    // Run specific check if requested
+    if (checkName) {
+      const result = await healthChecker.runCheck(checkName);
+      if (!result) {
+        return NextResponse.json(
+          { 
+            error: 'Health check not found', 
+            available_checks: healthChecker.getAvailableChecks() 
+          },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json(result);
     }
 
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        environment: {
-          hasUrl: has_url,
-          hasKey: has_key,
-          nodeEnv: env.NODE_ENV,
+    // Run all health checks
+    const healthReport = await healthChecker.runAll();
+
+    // Return simple format for container orchestration
+    if (format === 'simple') {
+      const statusCode = healthReport.overall_status === 'healthy' ? 200 : 503;
+      return NextResponse.json(
+        { 
+          status: healthReport.overall_status,
+          message: `${healthReport.summary.healthy}/${healthReport.summary.total} checks passing`
         },
-        supabase: {
-          clientCreated: client_created,
-          error: supabase_error,
-        },
-        timestamp: new Date().toISOString(),
-      },
-      { status: 500 }
-    );
+        { status: statusCode }
+      );
+    }
+
+    // Return detailed format (default)
+    const statusCode = healthReport.overall_status === 'unhealthy' ? 503 : 200;
+    
+    return NextResponse.json(healthReport, { 
+      status: statusCode,
+      headers: {
+        'Cache-Control': fresh ? 'no-cache' : 'public, max-age=60',
+        'X-Health-Status': healthReport.overall_status,
+        'X-Health-Execution-Time': healthReport.execution_time.toString(),
+      }
+    });
+
   } catch (error: unknown) {
+    console.error('Health check system error:', error);
+    
     return NextResponse.json(
       {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        overall_status: 'unhealthy',
+        error: 'Health check system failure',
+        message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 500 }

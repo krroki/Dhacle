@@ -11,9 +11,8 @@ interface DashboardData {
     created_at: string;
   };
   stats: {
-    total_posts: number;
-    total_likes: number;
-    total_comments: number;
+    total_favorites: number;
+    total_collections: number;
     account_age_days: number;
   };
 }
@@ -25,7 +24,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     // 인증 체크 (필수)
     const user = await requireAuth(request);
     if (!user) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
     }
 
     const supabase = await createSupabaseRouteHandlerClient();
@@ -42,15 +44,20 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       console.error('Profile Error:', profileError);
     }
 
-    // 통계 데이터 조회
-    const { data: proofs, count: postsCount } = await supabase
-      .from('revenue_proofs')
-      .select('likes_count, comments_count', { count: 'exact' })
+    // YouTube 크리에이터 도구 통계 데이터 조회
+    const { count: favoritesCount } = await supabase
+      .from('youtube_favorites')
+      .select('*', { count: 'exact' })
       .eq('user_id', user.id);
 
-    // 총 좋아요와 댓글 수 계산
-    const totalLikes = proofs?.reduce((sum, proof) => sum + (proof.likes_count || 0), 0) || 0;
-    const totalComments = proofs?.reduce((sum, proof) => sum + (proof.comments_count || 0), 0) || 0;
+    const { count: collectionsCount } = await supabase
+      .from('collections')
+      .select('*', { count: 'exact' })
+      .eq('user_id', user.id);
+
+    // YouTube 관련 통계 계산
+    const totalFavorites = favoritesCount || 0;
+    const totalCollections = collectionsCount || 0;
 
     // 계정 생성일로부터 경과 일수 계산
     const createdAt = new Date(profile?.created_at || user.created_at);
@@ -68,9 +75,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
         created_at: user.created_at,
       },
       stats: {
-        total_posts: postsCount || 0,
-        total_likes: totalLikes,
-        total_comments: totalComments,
+        total_favorites: totalFavorites,
+        total_collections: totalCollections,
         account_age_days: accountAgeDays,
       },
     };
@@ -85,6 +91,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     );
   } catch (error) {
     console.error('Dashboard API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

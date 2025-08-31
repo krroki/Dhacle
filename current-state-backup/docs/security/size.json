@@ -1,0 +1,286 @@
+{
+  "measured_at": "2025-01-23",
+  "last_updated": "2025-01-23T15:30:00Z",
+  "wave_progress": {
+    "wave_0": {
+      "status": "completed",
+      "completed_tasks": 3,
+      "total_tasks": 3,
+      "progress_percent": 85,
+      "time_spent_hours": 1,
+      "time_estimated_hours": 4,
+      "notes": "RLS SQL ready but needs manual application"
+    },
+    "wave_1": {
+      "status": "pending",
+      "completed_tasks": 0,
+      "total_tasks": 14,
+      "progress_percent": 0
+    },
+    "wave_2": {
+      "status": "pending",
+      "completed_tasks": 0,
+      "total_tasks": 21,
+      "progress_percent": 0
+    }
+  },
+  "project_metrics": {
+    "N_routes": {
+      "value": 37,
+      "description": "Total API route files (app/api/**/route.ts)",
+      "expected": 15,
+      "ratio": 2.47
+    },
+    "N_pages": {
+      "value": 15,
+      "description": "Pages requiring authentication guard",
+      "expected": 10,
+      "ratio": 1.5
+    },
+    "N_tables": {
+      "value": 21,
+      "description": "User data tables requiring RLS",
+      "expected": 6,
+      "ratio": 3.5
+    },
+    "N_fetch_internals": {
+      "value": 24,
+      "description": "Internal API fetch calls",
+      "expected": 40,
+      "ratio": 0.6
+    }
+  },
+  "current_status": {
+    "api_client_usage": {
+      "files_using": 5,
+      "total_fetch_calls": 24,
+      "usage_rate": 0.21,
+      "status": "critical"
+    },
+    "session_checks": {
+      "consistent": true,
+      "error_messages": ["User not authenticated"],
+      "critical_apis_protected": 4,
+      "status": "improved"
+    },
+    "rls_coverage": {
+      "tables_with_rls": 0,
+      "sql_prepared_for_tables": 4,
+      "total_tables": 21,
+      "coverage_rate": 0,
+      "status": "sql_ready"
+    }
+  },
+  "time_estimates": {
+    "wave_0": {
+      "hours_min": 4,
+      "hours_max": 4,
+      "rules": ["CRITICAL-PATCH", "BASIC-RLS"],
+      "priority": "IMMEDIATE"
+    },
+    "wave_1": {
+      "hours_min": 16,
+      "hours_max": 18,
+      "rules": ["AUTH-GUARD-401", "ORIGIN-SAME", "API-WRAP-ONLY", "ERROR-SCHEMA"]
+    },
+    "wave_2": {
+      "hours_min": 26,
+      "hours_max": 30,
+      "rules": ["RLS-ON", "CACHE-NOSTORE", "SECRET-NO-LEAK", "POLICY-TTL-30D"]
+    },
+    "wave_3": {
+      "hours_min": 12,
+      "hours_max": 21,
+      "rules": ["DB-INDEX-NO-NPLUS1", "CORS-MINIMAL", "XSS-SANITIZE", "FOLDER-DETAIL-FLOW", "YT-BACKOFF-429", "LOG-STRUCTURED"]
+    },
+    "total": {
+      "hours_min": 54,
+      "hours_max": 69,
+      "vs_baseline": 2.5
+    }
+  },
+  "critical_apis": {
+    "/api/payment/create-intent": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    },
+    "/api/payment/confirm": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    },
+    "/api/user/api-keys": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    },
+    "/api/revenue-proof": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    },
+    "/api/youtube/collections": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    },
+    "/api/youtube/collections/items": {
+      "has_session_check": true,
+      "error_message": "User not authenticated",
+      "needs_standardization": false,
+      "status": "protected"
+    }
+  },
+  "api_routes": [
+    "/api/user/check-username",
+    "/api/user/profile",
+    "/api/user/generate-nickname",
+    "/api/user/generate-username",
+    "/api/user/init-profile",
+    "/api/user/naver-cafe",
+    "/api/user/api-keys",
+    "/api/revenue-proof",
+    "/api/revenue-proof/[id]",
+    "/api/revenue-proof/[id]/like",
+    "/api/revenue-proof/[id]/comment",
+    "/api/revenue-proof/[id]/report",
+    "/api/revenue-proof/my",
+    "/api/revenue-proof/ranking",
+    "/api/revenue-proof/seed",
+    "/api/youtube/search",
+    "/api/youtube/favorites",
+    "/api/youtube/favorites/[id]",
+    "/api/youtube/validate-key",
+    "/api/youtube/popular",
+    "/api/youtube/metrics",
+    "/api/youtube/collections",
+    "/api/youtube/collections/items",
+    "/api/youtube/subscribe",
+    "/api/youtube/analysis",
+    "/api/youtube/batch",
+    "/api/youtube/webhook",
+    "/api/community/posts",
+    "/api/community/posts/[id]",
+    "/api/payment/create-intent",
+    "/api/payment/confirm",
+    "/api/payment/fail",
+    "/api/coupons/validate",
+    "/api/admin/video/upload",
+    "/api/upload",
+    "/api/health",
+    "/api/debug/env-check"
+  ],
+  "files_needing_refactor": {
+    "direct_fetch_usage": [
+      "lib/api/revenue-proof.ts",
+      "app/admin/courses/videos/page.tsx",
+      "app/(pages)/tools/youtube-lens/page.tsx",
+      "app/(pages)/community/board/page.tsx",
+      "app/(pages)/courses/[id]/components/PurchaseCard.tsx",
+      "app/onboarding/page.tsx",
+      "app/(pages)/revenue-proof/create/page.tsx",
+      "app/(pages)/payment/success/page.tsx",
+      "app/(pages)/payment/fail/page.tsx",
+      "app/(pages)/settings/api-keys/page.tsx",
+      "app/learn/[courseId]/[lessonId]/components/VideoPlayer.tsx",
+      "components/features/tools/youtube-lens/ChannelFolders.tsx",
+      "components/features/tools/youtube-lens/CollectionBoard.tsx",
+      "components/features/tools/youtube-lens/components/EnvironmentChecker.tsx"
+    ],
+    "api_client_already_using": [
+      "components/features/tools/youtube-lens/SubscriptionManager.tsx",
+      "components/features/tools/youtube-lens/ApiKeySetup.tsx",
+      "components/features/tools/youtube-lens/CollectionViewer.tsx",
+      "components/features/tools/youtube-lens/PopularShortsList.tsx",
+      "app/api/youtube/search/route.ts"
+    ]
+  },
+  "quick_wins": {
+    "immediate": [
+      {
+        "task": "Remove hardcoded credentials from auth/callback/route.ts",
+        "time": "30min",
+        "impact": "HIGH",
+        "difficulty": "LOW"
+      },
+      {
+        "task": "Protect 5 critical APIs with session checks",
+        "time": "2h",
+        "impact": "CRITICAL",
+        "difficulty": "MEDIUM"
+      },
+      {
+        "task": "Apply basic RLS to 4 core tables",
+        "time": "1.5h",
+        "impact": "HIGH",
+        "difficulty": "MEDIUM"
+      }
+    ],
+    "short_term": [
+      {
+        "task": "Convert 14 files to use api-client.ts",
+        "time": "3h",
+        "impact": "HIGH",
+        "difficulty": "LOW"
+      },
+      {
+        "task": "Standardize error messages",
+        "time": "1h",
+        "impact": "MEDIUM",
+        "difficulty": "LOW"
+      }
+    ]
+  },
+  "risk_assessment": {
+    "critical_vulnerabilities": {
+      "rls_missing": {
+        "severity": "CRITICAL",
+        "description": "21 tables without RLS policies",
+        "potential_impact": "Complete data exposure",
+        "mitigation": "Apply RLS policies starting with critical tables"
+      },
+      "session_checks_incomplete": {
+        "severity": "CRITICAL",
+        "description": "Only partial API routes have session checks",
+        "potential_impact": "Authentication bypass possible",
+        "mitigation": "Implement session checks on all 37 routes"
+      },
+      "inconsistent_error_messages": {
+        "severity": "HIGH",
+        "description": "3 different error message formats across APIs",
+        "potential_impact": "Information leakage and inconsistent UX",
+        "mitigation": "Standardize to 'User not authenticated' immediately"
+      },
+      "api_client_underutilized": {
+        "severity": "HIGH",
+        "description": "79% of fetch calls don't use api-client wrapper",
+        "potential_impact": "Missing credentials on API calls",
+        "mitigation": "Migrate all internal API calls to api-client.ts"
+      }
+    },
+    "overall_risk_level": "CRITICAL",
+    "recommended_action": "Execute Wave 0 emergency patch within 4 hours"
+  },
+  "quick_status": {
+    "findings": {
+      "auth_callback_hardcoding": false,
+      "error_message_consistency": true,
+      "rls_coverage": false,
+      "api_client_usage": false,
+      "critical_apis_protected": true
+    },
+    "next_actions": [
+      "Apply RLS SQL in Supabase Dashboard",
+      "Wave 1: Protect remaining 18 APIs",
+      "Convert 14 files to api-client.ts"
+    ],
+    "blockers": ["RLS requires manual Supabase Dashboard action"],
+    "notes": "Wave 0 completed in 1 hour (75% time reduction)"
+  }
+}

@@ -4,6 +4,19 @@ import { useEffect, useRef, useState } from 'react';
 import { YoutubeLensPubSub, type ChannelUpdatePayload } from '@/lib/pubsub/youtube-lens-pubsub';
 import { createClient } from '@/lib/supabase/client';
 
+// ApprovalLog 타입 정의
+interface ApprovalLog {
+  id: string;
+  user_id: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reason?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 /**
  * React Hook for YouTube Lens channel subscription
  * @param channelId - YouTube channel ID to monitor (null for all channels)
@@ -64,7 +77,7 @@ export function useYoutubeLensSubscription(channelId: string | null) {
  * @param userId - User ID to monitor (admin only)
  */
 export function useApprovalLogsSubscription(userId?: string) {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<ApprovalLog[]>([]);
   const supabase = createClient();
   
   useEffect(() => {
@@ -83,7 +96,9 @@ export function useApprovalLogsSubscription(userId?: string) {
         },
         (payload) => {
           console.log('📝 Approval log update:', payload);
-          setLogs(prev => [...prev, payload]);
+          if (payload.new && payload.eventType === 'INSERT') {
+            setLogs(prev => [...prev, payload.new as ApprovalLog]);
+          }
         }
       )
       .subscribe((status) => {

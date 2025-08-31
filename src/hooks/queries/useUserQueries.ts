@@ -160,17 +160,6 @@ export function useDeleteApiKey() {
   });
 }
 
-/**
- * 사용자 업적 쿼리 훅
- */
-export function useUserAchievements() {
-  return useQuery({
-    queryKey: queryKeys.user.achievements(),
-    queryFn: () => apiGet('/api/user/achievements'),
-    staleTime: 30 * 60 * 1000, // 30분
-    gcTime: 60 * 60 * 1000, // 1시간
-  });
-}
 
 /**
  * 사용자명 중복 확인 쿼리 훅

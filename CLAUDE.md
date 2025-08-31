@@ -1,512 +1,280 @@
-# 📋 Claude AI 작업 네비게이터
+# 🎯 디하클 프로젝트 AI 작업 총괄 가이드
 
-*디하클(Dhacle) 프로젝트 AI 작업 지침 - 작업 위치별 상세 가이드 제공*
+*Diátaxis 4분할 문서 체계와 16개 전문 서브에이전트 시스템*
+
+**🗣️ 언어 정책**: 사용자와의 모든 대화는 **한국어로만** 진행  
+**역할**: 전체 가이드라인 + 서브에이전트 조정  
+**프로젝트**: 디하클(Dhacle) - YouTube 크리에이터 도구 플랫폼  
+**아키텍처**: Next.js 15 + Supabase + TypeScript  
+**현재 상태**: Recovery Phase - 품질 개선 중 (검증 50% 성공)
 
 ---
 
-## 🛑 STOP & ACT 규칙 (임시방편 = 프로젝트 파괴)
+## 🚀 30초 즉시 시작 (새 AI 세션 전용)
 
-### ⚠️ 절대 규칙 - 위반 시 작업 즉시 중단
-**"대충 처리 = 2주간 에러 디버깅"**
-
-#### 🔴 즉시 중단 신호
-| 발견 시 | ❌ 절대 금지 | ✅ 유일한 해결책 |
-|----------|--------------|--------------|
-| 테이블 누락 | 주석 처리, TODO | CREATE TABLE SQL 작성 → 즉시 실행 |
-| 타입 없음 | any, unknown 대충 사용 | 정확한 타입 확인 후 정의 |
-| API 미구현 | 빈 배열/null 반환 | 완전한 구현 후에만 진행 |
-| 함수 미구현 | TODO, 빈 함수 | 완전히 구현하거나 삭제 |
-| 에러 발생 | try-catch로 숨기기 | 근본 원인 해결 |
-| any 타입 | 그대로 두기 | 즉시 제거 (biome 에러) |
-| **getSession() 사용** | **세션 체크에 getSession()** | **getUser() 사용 (토큰 검증)** |
-| **env 직접 접근** | **process.env.VARIABLE** | **env.ts 타입 안전 사용** |
-| **DB 타입 직접 import** | **database.generated 직접** | **@/types에서만 import** |
-| **직접 fetch 사용** | **fetch(), axios 직접** | **api-client.ts 함수만 사용** |
-| **HTML 직접 사용** | **<button>, <div> 태그** | **shadcn/ui 컴포넌트 우선** |
-| **RLS 없는 테이블** | **테이블만 생성** | **RLS 정책 즉시 추가** |
-| **Client 컴포넌트 남발** | **'use client' 기본** | **Server Component 우선** |
-| **검증 스크립트 미실행** | **코드만 작성하고 완료** | **verify:parallel 실행 필수** |
-| **임시 데이터 반환** | **[], null, "TODO"** | **실제 로직 구현 또는 삭제** |
-
-### 🔥 핵심 원칙
-1. **임시방편 발견 = 즉시 중단**
-2. **하나 수정 시 주변 코드 확인 필수**
-3. **실제 작동 확인 없이 작업 완료 금지**
-4. **검증 실패 시 다음 작업 진행 금지**
-
-### 🚫 코드 자동 변환 스크립트 절대 금지
-**❌ 절대 금지: 코드를 일괄 변경하는 자동 스크립트 생성**
-- 2025년 1월, 38개 자동 스크립트로 인한 "에러 지옥" 경험
-- 검증 스크립트(verify-*.js)만 허용, 수정은 수동으로
-
-### ⚡ 3단계 필수 프로세스
+### ⚡ 30초 온보딩 시스템
 ```bash
-1. STOP - 문제 발견 시 즉시 중단
-2. FIX - 완전한 해결 (임시방편 금지)
-3. VERIFY - 실제 작동 확인
-   npm run verify:parallel
-   npm run types:check
+# 1단계: AI 컨텍스트 자동 로딩 (2-3초)
+npm run context:load
+
+# 2단계: 생성된 워밍업 파일 확인 (1-2초)
+cat ai-context-warmup.md
+
+# 3단계: 빠른 시작 가이드로 이동 (1초)
+# 👉 docs/tutorial/01-quick-start.md 읽기
+```
+
+**🎯 목표**: 새 AI가 프로젝트를 완전히 이해하는데 30초 달성  
+**📊 현재 성과**: 10분 → 30초 (95% 시간 단축)
+
+---
+
+## 📚 새로운 문서 체계: Diátaxis 4분할
+
+### 🗺️ 문서 내비게이션 (상황별 접근)
+
+#### 🆕 새 AI 세션 시작 시
+```
+1. 📖 tutorial/01-quick-start.md    # 30초 프로젝트 파악
+2. 📊 reference/project-status.md   # 현재 상태 확인  
+3. 💡 explanation/mistake-patterns.md # 실수 방지
+```
+
+#### 🔧 구체적 작업 수행 시
+```
+1. 해당 영역 CLAUDE.md 확인          # 전문 서브에이전트 지침
+2. how-to/ 관련 가이드 확인          # 단계별 구현 방법
+3. reference/ 관련 문서 확인         # 필요한 데이터 조회
+```
+
+#### 🔍 문제 해결 필요 시  
+```
+1. explanation/mistake-patterns.md   # 유사 패턴 확인
+2. how-to/ 해결 가이드              # 구체적 해결 방법
+3. reference/ 관련 상태             # 현재 상태 파악
+```
+
+### 📁 Diátaxis 4분할 구조 상세
+```
+docs/
+├── 📖 tutorial/        # 학습 지향 (Learning-oriented)
+│   ├── 01-quick-start.md      # 30초 프로젝트 파악 ⭐⭐⭐⭐⭐
+│   ├── 02-first-task.md       # 첫 작업 실습
+│   └── 03-common-patterns.md  # 핵심 코딩 패턴
+│
+├── 🔧 how-to/          # 문제 해결 지향 (Problem-oriented)  
+│   ├── 01-authentication-patterns.md # 인증 패턴
+│   ├── 02-snake-case-conversion.md   # snake_case 변환
+│   ├── 03-type-imports.md            # 타입 시스템
+│   ├── 04-supabase-integration.md    # DB 연동
+│   └── [기능별 하위 폴더들]
+│
+├── 📊 reference/       # 정보 지향 (Information-oriented)
+│   ├── project-status.md        # 프로젝트 현황 ⭐⭐⭐⭐⭐
+│   ├── project-structure.md     # 프로젝트 구조
+│   ├── database-schema.md       # DB 스키마 전체
+│   ├── api-endpoints.md         # API 엔드포인트 목록
+│   └── [기타 레퍼런스들]
+│
+└── 💡 explanation/     # 이해 지향 (Understanding-oriented)
+    └── mistake-patterns.md      # 22가지 실수 패턴 ⭐⭐⭐⭐⭐
 ```
 
 ---
 
-## 🏗️ 새 기능 구현 = 테이블 먼저 생성 (필수 워크플로우)
+## 🛑 프로젝트 전체 3단계 필수 규칙
 
-### ⚡ 기능 구현 정석 프로세스
-**"기능 구현하려면 테이블부터 만들고 시작해라"**
+### 1️⃣ STOP - 즉시 중단 신호
+- **any 타입 발견 → 중단** (biome 에러 발생)
+- **TODO 주석 발견 → 중단** (임시방편 금지)  
+- **임시 데이터 반환 → 중단** ([], null, "임시" 금지)
+- **테이블 없이 기능 구현 시도 → 중단**
 
-#### 1️⃣ 기능 기획 → 즉시 테이블 설계
-```yaml
-예시: "댓글 기능 추가"
-  1. 필요 테이블: comments, comment_likes  
-  2. 관계 정의: users ← comments → posts
-  3. RLS 정책: 작성자만 수정/삭제
+### 2️⃣ MUST - 필수 행동
+```typescript
+// 프로젝트 전체 필수 패턴
+import { env } from '@/env';                    // 환경변수 타입 안전 접근
+import type { User } from '@/types';           // 중앙화된 타입만 사용
+import { apiGet } from '@/lib/api-client';     // API 호출 표준화
 ```
 
-#### 2️⃣ 테이블 SQL 작성 및 실행 (한 번에!)
+### 3️⃣ CHECK - 검증 필수
 ```bash
-# 테이블 생성 SQL 작성과 동시에 실행
-cat > migrations/$(date +%Y%m%d)_create_comments.sql << 'EOF'
--- 댓글 테이블
-CREATE TABLE IF NOT EXISTS comments (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+# 모든 작업 후 필수 실행
+npm run verify:parallel  # 전체 검증 (531ms)
+npm run types:check      # TypeScript 검증
+```
 
--- RLS 필수 (생략하면 Database Agent가 차단!)
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+---
 
--- RLS 정책
-CREATE POLICY "Anyone can read comments" ON comments
-  FOR SELECT USING (true);
+## 🤖 16개 서브에이전트 시스템
 
-CREATE POLICY "Users can create own comments" ON comments
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+### 조정자 (2개)
+```
+CLAUDE.md                      # 프로젝트 총괄 가이드 (이 파일)
+docs/CLAUDE.md                 # 문서 작업 가이드
+```
 
-CREATE POLICY "Users can update own comments" ON comments
-  FOR UPDATE USING (auth.uid() = user_id);
+### 11개 전문 서브에이전트 (자동 활성화)
+| 서브에이전트 | 자동 활성화 조건 | 전문 지침 위치 |
+|-------------|----------------|-------------|
+| **API Route Agent** | `src/app/api/**` | [src/app/api/CLAUDE.md](src/app/api/CLAUDE.md) |
+| **Component Agent** | `src/components/**` | [src/components/CLAUDE.md](src/components/CLAUDE.md) |
+| **Type Agent** | `*.ts, *.tsx` | [src/types/CLAUDE.md](src/types/CLAUDE.md) |
+| **Security Agent** | security, auth 관련 | [src/lib/security/CLAUDE.md](src/lib/security/CLAUDE.md) |
+| **Database Agent** | SQL, migration 파일 | [supabase/migrations/CLAUDE.md](supabase/migrations/CLAUDE.md) |
+| **Query Agent** | `src/hooks/**` | [src/hooks/CLAUDE.md](src/hooks/CLAUDE.md) |
+| **Test Agent** | 테스트 파일 | [tests/CLAUDE.md](tests/CLAUDE.md) |
+| **Page Agent** | `src/app/(pages)**` | [src/app/(pages)/CLAUDE.md](src/app/(pages)/CLAUDE.md) |
+| **Lib Agent** | `src/lib/**` | [src/lib/CLAUDE.md](src/lib/CLAUDE.md) |
+| **Script Agent** | `scripts/**` | [scripts/CLAUDE.md](scripts/CLAUDE.md) |
+| **Doc Agent** | `docs/**, *.md` | [docs/CLAUDE.md](docs/CLAUDE.md) |
 
-CREATE POLICY "Users can delete own comments" ON comments
-  FOR DELETE USING (auth.uid() = user_id);
+### 추가 전문 에이전트 (3개)
+- **Frontend Developer**: 프론트엔드 전문 개발 (UI 최적화, 반응형)
+- **General Purpose**: 복잡한 분석과 다단계 작업 (Task 도구용)
+- **PM Dhacle**: 프로젝트 매니저 총괄 조정자 (모든 작업 조정)
 
--- 인덱스 (조회 성능)
-CREATE INDEX idx_comments_post_id ON comments(post_id);
-CREATE INDEX idx_comments_user_id ON comments(user_id);
-CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
-EOF
+---
 
-# 즉시 실행 (테이블 없으면 어차피 코드 못짬)
-node scripts/supabase-sql-executor.js --method pg --file migrations/$(ls -t migrations/*.sql | head -1)
+## 📊 현재 프로젝트 상태 (즉시 참조)
 
-# 타입 생성 (TypeScript 타입 자동 생성)
+### 🎯 기본 정보
+- **전체 자산**: 136개
+- **컴포넌트**: 96개  
+- **API Routes**: 40개
+- **현재 상태**: Recovery Phase - 품질 개선 중
+- **검증 성공률**: 50% (3/6 모듈)
+
+### ⚠️ 현재 주요 이슈
+1. **API 오류**: 18개 (인증 패턴 혼재)
+2. **타입 오류**: 2개 (monitoring.ts any 타입)
+3. **보안 경고**: 58개 (RLS 커버리지 0%)
+
+**📋 상세 현황**: [reference/project-status.md](docs/reference/project-status.md) 참조
+
+---
+
+## 🚨 치명적 실수 방지 (즉시 확인)
+
+### 🔴 가장 위험한 5가지 패턴
+1. **테이블 없이 기능 구현 시작** 🔴🔴🔴
+2. **any 타입 남발** 🔴🔴
+3. **profiles vs users 테이블 혼란** 🔴🔴  
+4. **임시방편 코드 작성** 🔴
+5. **서버/클라이언트 컨텍스트 혼용** 🔴
+
+**📋 전체 22가지 패턴**: [explanation/mistake-patterns.md](docs/explanation/mistake-patterns.md) 참조
+
+---
+
+## 🔧 2세션 워크플로우 시스템 🆕
+
+### 📋 Planning AI 세션 (30-45분)
+```
+목적: 완벽한 지시서 작성
+1. context-loader.js 실행으로 온보딩
+2. 사용자 요청 분석 및 명확화  
+3. 적절한 SuperClaude 명령어 선택
+4. 필요한 컨텍스트 정보 수집
+5. 완전한 지시서 작성 (Implementation AI용)
+```
+
+### ⚙️ Implementation AI 세션 (60-90분)
+```
+목적: 구현 전용 최적화
+1. Planning AI의 지시서 완전 이해
+2. context-loader.js로 실시간 상태 확인
+3. 지시서의 SuperClaude 명령어 정확히 실행
+4. 단계별 검증 및 품질 확인
+5. 작업 완료 후 해당 문서 업데이트
+```
+
+**📋 상세 가이드**: 
+- [workflows/planning-session-guide.md](workflows/planning-session-guide.md)
+- [workflows/implementation-session-guide.md](workflows/implementation-session-guide.md)
+
+---
+
+## ⚡ 자동화 시스템 활용
+
+### 🤖 핵심 자동화 도구
+```bash
+# AI 컨텍스트 생성 (30초 온보딩)
+npm run context:load
+
+# 자산 현황 스캔 (프로젝트 상태 파악)  
+npm run scan:assets
+
+# 병렬 검증 (전체 품질 확인)
+npm run verify:parallel
+
+# 타입 생성 (DB 스키마 변경 시)
 npm run types:generate
-
-# 검증
-node scripts/verify-with-service-role.js
 ```
 
-#### 3️⃣ 이제 API/UI 구현 시작
-```typescript
-// ✅ 이제 테이블이 있으니 안전하게 구현
-import { Database } from '@/types/database.generated';
-
-type Comment = Database['public']['Tables']['comments']['Row'];
-
-// API 구현
-export async function POST(req: Request) {
-  const { content, post_id } = await req.json();
-  
-  // 테이블이 이미 있으니 에러 없음!
-  const { data, error } = await supabase
-    .from('comments')
-    .insert({ content, post_id, user_id });
-}
-```
-
-### 🚨 테이블 없이 기능 구현 시도 = 즉시 차단
-```typescript
-// ❌ Database Agent가 차단하는 패턴
-await supabase.from('new_table').select(); // 테이블 없음 → STOP!
-
-// ❌ 임시방편 금지
-// TODO: 나중에 테이블 생성 → 절대 금지!
-const data = []; // 임시 데이터 → 차단!
-
-// ✅ 올바른 순서
-// 1. 테이블 SQL 작성
-// 2. 즉시 실행
-// 3. 타입 생성
-// 4. 구현 시작
-```
-
-### 📁 관련 폴더별 CLAUDE.md 워크플로우
-| 단계 | 작업 | 참조 문서 | 자동 Agent |
-|-----|------|----------|-----------|
-| 1. 테이블 설계 | SQL 작성 | `/supabase/migrations/CLAUDE.md` | Database Agent |
-| 2. SQL 실행 | 명령 실행 | `/scripts/CLAUDE.md` | Script Agent |
-| 3. 타입 생성 | types:generate | `/src/types/CLAUDE.md` | Type Agent |
-| 4. API 구현 | Route 생성 | `/src/app/api/CLAUDE.md` | API Route Agent |
-| 5. UI 구현 | Component | `/src/components/CLAUDE.md` | Component Agent |
+### 📊 성과 지표
+- **AI 온보딩 시간**: 10분 → 30초 (95% 단축)
+- **작업 성공률**: 60% → 95% (목표)
+- **문서 정합성**: 40% → 95% 달성
+- **검증 속도**: 55.6% 향상 (병렬 처리)
 
 ---
 
-## 🚨 프로젝트 필수 패턴 (How-to Guide)
+## 🎯 작업 시작 체크리스트
 
-**"상황별 필수 실행 패턴 - 예외 없이 준수"**
+### ✅ 새 세션 시작 시
+- [ ] `npm run context:load` 실행 (30초 온보딩)
+- [ ] `tutorial/01-quick-start.md` 읽기
+- [ ] `reference/project-status.md` 현재 상태 확인
+- [ ] `explanation/mistake-patterns.md` 실수 방지 확인
 
-### 🔐 API Route 작성 시
-```typescript
-// 1. 반드시 이 패턴으로 시작
-import { createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
-import { NextResponse } from 'next/server';
-
-export async function GET(): Promise<NextResponse> {
-  const supabase = await createSupabaseRouteHandlerClient();
-  
-  // 2. 세션 체크 필수 (getUser만 사용!)
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-  }
-  
-  // 3. 비즈니스 로직...
-}
-```
-
-### 🧩 컴포넌트 작성 시
-```typescript
-// 1. shadcn/ui 먼저 확인
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-
-// 2. Server Component가 기본 ('use client' 최소화)
-export default function ServerComponent({ data }: Props) {
-  return (
-    <Card>
-      <CardContent>
-        <Button>shadcn/ui 사용</Button>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-### 🔷 타입 정의 시
-```typescript
-// 1. 모든 타입은 @/types에서만
-import { User, Post } from '@/types';  // ✅ 올바름
-
-// ❌ 절대 금지
-// import { Database } from '@/types/database.generated';
-// const data: any = {};
-
-// 2. 함수 반환 타입 명시 필수
-export function processUser(user: User): ProcessedUser {
-  // ...
-}
-```
-
-### 🌐 환경변수 사용 시
-```typescript
-// 1. env.ts를 통해서만 접근
-import { env } from '@/env';
-
-// ✅ 올바름
-const apiKey = env.YOUTUBE_API_KEY;
-const dbUrl = env.DATABASE_URL;
-
-// ❌ 절대 금지
-// const apiKey = process.env.YOUTUBE_API_KEY;
-```
-
-### 📡 API 호출 시
-```typescript
-// 1. api-client.ts 함수만 사용
-import { apiGet, apiPost } from '@/lib/api-client';
-
-// ✅ 올바름
-const users = await apiGet<User[]>('/api/users');
-const newPost = await apiPost<Post>('/api/posts', data);
-
-// ❌ 절대 금지
-// const response = await fetch('/api/users');
-```
-
-### 🗄️ 테이블 생성 시
-```sql
--- 1. 테이블 생성
-CREATE TABLE IF NOT EXISTS new_table (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2. RLS 활성화 (절대 생략 금지!)
-ALTER TABLE new_table ENABLE ROW LEVEL SECURITY;
-
--- 3. RLS 정책 (최소 1개 이상 필수)
-CREATE POLICY "Users own records" ON new_table
-  FOR ALL USING (auth.uid() = user_id);
-```
+### ✅ 구체적 작업 시  
+- [ ] 작업 영역 해당 CLAUDE.md 확인
+- [ ] how-to/ 관련 가이드 확인
+- [ ] reference/ 필요 데이터 조회
+- [ ] 작업 완료 후 `npm run verify:parallel` 실행
 
 ### ✅ 작업 완료 시
+- [ ] 해당 reference/ 문서 업데이트
+- [ ] `npm run verify:parallel` 통과 확인
+- [ ] `npm run types:check` 통과 확인
+
+---
+
+## 🔗 빠른 참조 링크
+
+### 📚 필수 문서 (상황별)
+| 상황 | 문서 | 목적 |
+|------|------|------|
+| **새 세션 시작** | [tutorial/01-quick-start.md](docs/tutorial/01-quick-start.md) | 30초 프로젝트 파악 |
+| **현재 상태 확인** | [reference/project-status.md](docs/reference/project-status.md) | 실시간 프로젝트 현황 |
+| **실수 방지** | [explanation/mistake-patterns.md](docs/explanation/mistake-patterns.md) | 22가지 실수 패턴 |
+| **프로젝트 구조** | [reference/project-structure.md](docs/reference/project-structure.md) | 파일 위치 참조 |
+| **API 작업** | [src/app/api/CLAUDE.md](src/app/api/CLAUDE.md) | API Route Agent |
+| **컴포넌트 작업** | [src/components/CLAUDE.md](src/components/CLAUDE.md) | Component Agent |
+
+### 🛠️ 자주 사용하는 명령어
 ```bash
-# 1. 코드 작성 후 반드시 실행
-npm run verify:parallel
+# 개발 서버 시작
+npm run dev                    # 개발 서버 (2.5초 시작)
 
-# 2. 타입 체크
-npm run types:check
+# 검증 및 테스트  
+npm run verify:parallel        # 전체 검증 (531ms)
+npm run types:check           # TypeScript 검사
+npm run e2e:ui                # E2E 테스트 (7개 통과)
 
-# 3. 빌드 테스트  
-npm run build
-
-# 모든 단계 통과 후에만 작업 완료 선언!
+# 자동화 도구
+npm run context:load          # AI 컨텍스트 생성
+npm run scan:assets           # 자산 현황 스캔
+npm run types:generate        # DB 타입 생성
 ```
 
 ---
 
-## 🤖 Active Agents (Direct Tool Integration)
+**🎯 작업 시작**: 
+1. 해당 영역의 전문 서브에이전트 CLAUDE.md를 먼저 확인하세요!
+2. 새 AI라면 `tutorial/01-quick-start.md`부터 시작하세요!
+3. 문제가 있다면 `explanation/mistake-patterns.md`에서 유사 패턴을 찾아보세요!
 
-**⚡ CRITICAL: 모든 Edit, Write, MultiEdit 작업 시 해당 전문 서브에이전트의 품질 기준을 즉시 적용하세요.**
-
-### 🎯 서브에이전트 즉시 차단 매트릭스
-| 작업 유형 | Agent | 🚫 즉시 차단하는 패턴 | ✅ 강제 적용 패턴 |
-|----------|-------|---------------------|------------------|
-| **API 작성** | API Route Agent | `getSession()`, `process.env`, `fetch()` | `getUser()`, `env.ts`, `api-client` |
-| **컴포넌트** | Component Agent | `<button>`, `<div>`, `'use client'` 남발 | `shadcn/ui`, Server Component |
-| **타입 정의** | Type Agent | `any`, `database.generated` 직접 | `@/types` 중앙화, 구체적 타입 |
-| **테이블 생성** | Database Agent | RLS 없는 테이블 | `ALTER TABLE ... ENABLE RLS` |
-| **환경변수** | Library Agent | `process.env.VAR` | `env.ts` 타입 안전 |
-| **보안** | Security Agent | `innerHTML`, 하드코딩 키 | `DOMPurify`, `env.ts` |
-| **React Query** | Query Agent | 직접 `fetch()`, `any` 타입 | `api-client`, 타입 파라미터 |
-| **스크립트** | Script Agent | `fix-*.js` 생성 | `verify-*.js`만 허용 |
-| **페이지** | Page Agent | Client 기본값 | Server Component 우선 |
-
-**🛑 MANDATORY WORKFLOW:**
-1. **컴포넌트 파일** (src/components/**) → shadcn/ui 우선, any 타입 차단, Server Component 기본
-2. **API 파일** (src/app/api/**) → 인증 검사 필수, snake_case 변환, Supabase 패턴
-3. **타입 파일** (*.ts, *.tsx) → any 타입 즉시 제거, @/types 중앙화
-4. **보안 관련** (auth, security) → RLS 정책, env.ts 사용, XSS 방지
-5. **데이터베이스** (SQL, migration) → RLS 필수, 타입 생성, 검증 실행
-6. **React Query** (src/hooks/**) → 15개 훅 패턴, api-client 강제
-7. **페이지** (src/app/(pages)**) → Server Component, force-dynamic
-8. **라이브러리** (src/lib/**) → env.ts, api-client, utils 패턴
-9. **테스트** (e2e/, *.test.ts) → 런타임 에러 감지, 80% 커버리지
-10. **스크립트** (scripts/**) → verify-*.js만 허용, fix-*.js 금지
-11. **문서** (docs/, *.md) → 14개 체계, CONTEXT_BRIDGE.md 우선
-12. **모든 작업** → Quality Gates, 임시방편 금지, 검증 필수
-
-### API Route Agent
-Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (src/app/api/**)
-- **인증 패턴**: 모든 API Route에 세션 검사 강제 실행
-- **타입 안전성**: any 타입 즉시 차단 및 수정
-- **snake_case 변환**: DB 경계에서 자동 변환 적용
-- **Supabase 통합**: 프로젝트 표준 패턴 강제 준수
-
-### Component Agent  
-Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (src/components/**)
-- **shadcn/ui 우선**: 기존 컴포넌트 확인 후 사용 강제
-- **Server Component 기본**: 'use client' 최소화
-- **Tailwind CSS**: styled-components 등 대체 스타일링 차단
-- **프로젝트 패턴**: 기존 컴포넌트 일관성 유지
-
-### Type Agent
-Direct tool 작업 시 자동 활성화: Edit, Write, MultiEdit (*.ts, *.tsx)
-- **any 타입 절대 차단**: 발견 즉시 수정 또는 작업 중단
-- **@/types 중앙화**: database.generated 직접 import 금지
-- **타입 생성**: DB 변경 시 자동 타입 업데이트 실행
-- **biome 규칙**: TypeScript strict 모드 강제 준수
-
-### Security Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (security, auth 관련)
-- **RLS 정책**: 새 테이블 생성 시 즉시 RLS 정책 생성
-- **환경변수**: process.env 직접 접근 차단, env.ts 사용 강제
-- **XSS 방지**: innerHTML 직접 사용 차단, DOMPurify 강제
-- **Wave 보안**: 0-3 Wave 보안 기준 자동 적용
-
-### Database Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (migration, SQL 파일)
-- **RLS 필수**: 테이블 생성과 동시에 RLS 정책 적용
-- **타입 생성**: SQL 변경 후 자동으로 npm run types:generate 실행
-- **검증**: 모든 DB 변경 후 verify-with-service-role.js 실행
-- **22개 테이블**: 기존 테이블과 일관성 유지
-
-### Query Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (src/hooks/**)
-- **React Query 패턴**: 15개 구현된 훅 패턴 준수
-- **api-client.ts**: 직접 fetch 차단, api-client 함수만 허용
-- **캐싱 전략**: 적절한 staleTime, gcTime 설정 강제
-- **타입 안전성**: useQuery, useMutation 타입 파라미터 필수
-
-### Test Agent  
-Direct tool 작업 시 자동 활성화: Edit, Write (테스트 파일)
-- **런타임 에러 감지**: global-setup.ts 패턴 적용
-- **E2E 자동화**: Playwright 설정 최적화
-- **80% 커버리지**: 핵심 기능 테스트 강제 적용
-- **자동 아카이브**: 임시 테스트 파일 자동 정리
-
-### Page Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (src/app/(pages)/**)
-- **Server Component**: 기본값으로 강제 적용
-- **force-dynamic**: 환경변수 사용 시 자동 추가
-- **App Router**: Next.js 13+ 패턴 강제 준수
-- **라우팅**: 프로젝트 라우팅 구조 일관성 유지
-
-### Library Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (src/lib/**)
-- **env.ts**: 환경변수 타입 안전 접근 강제
-- **api-client.ts**: 내부 API 호출 표준화
-- **utils.ts**: cn() 등 유틸리티 함수 일관성
-- **Supabase**: 프로젝트 클라이언트 패턴 준수
-
-### Script Agent
-Direct tool 작업 시 자동 활성화: Edit, Write (scripts/**)
-- **검증만 허용**: verify-*.js만 생성 허용
-- **자동 수정 금지**: fix-*.js 생성 시 즉시 차단
-- **SQL 실행**: supabase-sql-executor.js 패턴 준수
-- **38개 스크립트 교훈**: 2025년 1월 에러 지옥 방지
-
-### Documentation Agent  
-Direct tool 작업 시 자동 활성화: Edit, Write (docs/**, *.md)
-- **14개 문서 체계**: 기존 문서 구조 유지
-- **CONTEXT_BRIDGE.md**: 반복 실수 패턴 업데이트
-- **중복 방지**: 문서 간 내용 중복 차단
-- **최신 정보**: 최신 7개 변경사항만 유지
-
-### PM Dhacle (Total Coordinator)
-Direct tool 작업 시 항상 활성화: 모든 도구 사용 시
-- **Quality Gates**: 모든 작업 후 검증 스크립트 실행 강제
-- **컨텍스트 관리**: 11개 전문 에이전트 조정
-- **작업 흐름**: API → Type → Component → Test 순서 강제
-- **에러 제로**: 임시방편 코드 발견 시 즉시 작업 중단
-
----
-
-## 📁 폴더별 상세 지침 맵
-
-**작업 위치에 따라 해당 폴더의 CLAUDE.md를 우선 확인하세요.**
-
-| 작업 영역 | 파일 위치 | 주요 내용 | 핵심 규칙 |
-|----------|----------|----------|----------|
-| **API Routes** | [/src/app/api/CLAUDE.md](src/app/api/CLAUDE.md) | API 패턴, 인증, 에러 처리 | 모든 Route 세션 검사 필수 |
-| **페이지** | [/src/app/(pages)/CLAUDE.md](src/app/(pages)/CLAUDE.md) | Server Component, 라우팅 | Server Component 우선 |
-| **컴포넌트** | [/src/components/CLAUDE.md](src/components/CLAUDE.md) | shadcn/ui, Tailwind CSS | shadcn/ui 우선 사용 |
-| **타입 시스템** | [/src/types/CLAUDE.md](src/types/CLAUDE.md) | TypeScript, 타입 관리 | @/types에서만 import |
-| **React Query** | [/src/hooks/CLAUDE.md](src/hooks/CLAUDE.md) | 쿼리 훅, 캐싱 전략 | 15개 구현된 훅 활용 |
-| **Supabase** | [/src/lib/supabase/CLAUDE.md](src/lib/supabase/CLAUDE.md) | 클라이언트 패턴, RLS | 프로젝트 표준 패턴 준수 |
-| **라이브러리** | [/src/lib/CLAUDE.md](src/lib/CLAUDE.md) | 환경변수, API 클라이언트 | env.ts 타입 안전 사용 |
-| **보안** | [/src/lib/security/CLAUDE.md](src/lib/security/CLAUDE.md) | RLS, 검증, XSS 방지 | Wave 0-3 완료 상태 |
-| **스크립트** | [/scripts/CLAUDE.md](scripts/CLAUDE.md) | 검증, SQL 실행 | 자동 수정 스크립트 금지 |
-| **문서** | [/docs/CLAUDE.md](docs/CLAUDE.md) | 14개 핵심 문서 체계 | CONTEXT_BRIDGE.md 최우선 |
-| **테스트** | [/tests/CLAUDE.md](tests/CLAUDE.md) | Vitest, MSW, Playwright | 80% 커버리지 목표 |
-
----
-
-## 🔗 15개 핵심 문서 체계
-
-> **필독 순서대로 확인**:
-> 1. 🔥 `/docs/CONTEXT_BRIDGE.md` - **최우선!** 반복 실수 패턴 + 예방책
-> 2. 📊 `/docs/PROJECT.md` - 프로젝트 현황 (Phase 1-4 완료)
-> 3. 🗺️ `/docs/CODEMAP.md` - 프로젝트 구조
-> 4. ✅ `/docs/CHECKLIST.md` - 작업 검증 (12개 검증 스크립트)
-> 5. 📖 `/docs/DOCUMENT_GUIDE.md` - 문서 작성 가이드
-> 6. 🎯 `/docs/INSTRUCTION_TEMPLATE_E2E.md` - **최종 E2E 지시 템플릿 **
-> 7. 🔄 `/docs/FLOWMAP.md` - 사용자 플로우
-> 8. 🔌 `/docs/WIREFRAME.md` - UI-API 연결
-> 9. 🧩 `/docs/COMPONENT_INVENTORY.md` - 컴포넌트 목록
-> 10. 📍 `/docs/ROUTE_SPEC.md` - 라우트 구조
-> 11. 💾 `/docs/STATE_FLOW.md` - 상태 관리 (React Query + Zustand)
-> 12. 📦 `/docs/DATA_MODEL.md` - 데이터 모델
-> 13. 🚨 `/docs/ERROR_BOUNDARY.md` - HTTP 에러 처리
-> 14. 🎭 `/docs/PLAYWRIGHT_USAGE.md` - **E2E 테스트 가이드** (2025-08-27 추가)
-
-
----
-
-## 🚀 빠른 시작 가이드
-
-### 1️⃣ 작업 시작 전
-- [ ] 작업 위치 확인 → 해당 폴더 CLAUDE.md 읽기
-- [ ] `/docs/CONTEXT_BRIDGE.md` 확인 (반복 실수 방지)
-- [ ] 기존 파일 Read로 먼저 읽기
-
-### 2️⃣ 코드 작성 시
-- [ ] 폴더별 CLAUDE.md 패턴 준수
-- [ ] any 타입 절대 금지
-- [ ] 임시방편 코드 작성 금지
-
-### 3️⃣ 작업 완료 후
-- [ ] `npm run verify:parallel` 실행
-- [ ] 타입 체크 통과 확인
-- [ ] 빌드 성공 확인
-
----
-
-## ⚡ 긴급 대응 가이드
-
-### 🔥 YouTube Lens 500 에러 발생 시 (2025-08-29 완전 해결)
-**즉시 확인**: `YOUTUBE_LENS_500_ERROR_RESOLUTION_GUIDE.md` 참조
-```bash
-# 1. 빌드 성공 확인 (10초)  
-npm run build
-
-# 2. 개발 서버 정상 시작 (2.5초)
-npm run dev
-
-# 3. next.config.ts 설정 확인
-grep "output.*standalone" next.config.ts  # 있어야 정상
-```
-**핵심**: webpack layout.js 문제는 Next.js standalone 모드로 완전 해결됨
-
-### Vercel 빌드 실패 시
-1. Vercel Dashboard에서 빌드 커밋 확인
-2. 로컬과 동일한지 확인: `git log --oneline -1`
-3. DB 테이블 오류: `node scripts/verify-with-service-role.js`
-4. TypeScript 오류: 각 파일 수동 수정 (자동 스크립트 금지!)
-
-### 보안 현황
-- Wave 0-3: 완료 ✅
-- RLS 정책: 21개 테이블 SQL 작성 완료
-- Rate Limiting, Zod, XSS 방지: 구현 완료
-
-### 🤖 서브에이전트 시스템 (2025-08-28 활성화)
-- **16개 전문 에이전트**: pm-dhacle + 15개 전문 에이전트 구축 완료
-- **자동 활성화**: Edit/Write/MultiEdit 시 파일 패턴 매칭으로 자동 활성화
-- **즉시 차단**: any 타입, 임시방편 코드, TODO 주석, 빈 함수
-- **품질 향상**: 반복 실수 40-50% → 5% 이하 목표
-- **Task 도구 사용 시 주의**: `analyzer`가 아닌 `general-purpose` 사용 (CONTEXT_BRIDGE.md #19 참조)
-
----
-
-## 📋 검증 명령어
-
-```bash
-# 병렬 검증 (가장 빠름)
-npm run verify:parallel
-
-# 타입 시스템
-npm run types:check
-
-# 보안 테스트
-npm run security:test
-
-# SQL 실행 (필요시)
-node scripts/supabase-sql-executor.js --method pg --file <SQL파일>
-```
-
----
-
-## 💬 커뮤니케이션
-
-- 작업 전 의도 설명
-- 중요 변경사항 사전 협의
-- 에러 발생 시 즉시 보고
-- 한국어로 명확한 소통
-
----
-
-*각 폴더별 상세 지침은 해당 CLAUDE.md 파일을 참조하세요.*
+**📈 목표**: 30초 온보딩, 95% 작업 성공률 달성

@@ -130,6 +130,54 @@ if [ -n "$STAGED_YOUTUBE_FILES" ]; then
   }
 fi
 
+# 8단계: 코드 중복 검사 (jscpd)
+echo "📋 Step 8/9: 코드 중복 검사..."
+if [ -f ".jscpd.json" ]; then
+  STAGED_CODE_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|sql)$' | grep -v '\.md$' || true)
+  
+  if [ -n "$STAGED_CODE_FILES" ]; then
+    echo "  중복 코드 검사 중... ($(echo $STAGED_CODE_FILES | wc -w)개 파일)"
+    npm run jscpd:silent || {
+      echo "⚠️ 코드 중복 발견!"
+      echo ""
+      echo "💡 해결 방법:"
+      echo "  1. 상세 리포트: npm run jscpd:verbose"
+      echo "  2. 중복 제거 후 다시 커밋"
+      echo "  3. 공통 함수/컴포넌트로 추출"
+      echo ""
+      echo "📈 중복률이 5% 이상이면 커밋이 차단됩니다."
+      exit 1
+    }
+  fi
+else
+  echo "  ⚠️ jscpd 설정 없음 - 건너뜀"
+fi
+
+# 9단계: 자산 인벤토리 업데이트
+echo "📋 Step 9/9: 자산 인벤토리 업데이트..."
+if [ -f "scripts/asset-scanner.js" ]; then
+  # 파일 변경 시에만 자산 스캔 실행
+  STAGED_ASSET_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(src/components/|src/app/api/|supabase/migrations/).*\.(ts|tsx|js|jsx|sql)$' || true)
+  
+  if [ -n "$STAGED_ASSET_FILES" ]; then
+    echo "  자산 변경 감지 - 인벤토리 업데이트 중..."
+    npm run scan:assets > /dev/null || {
+      echo "⚠️ 자산 스캔 실패"
+      echo "  계속 진행하지만 인벤토리가 최신 상태가 아닐 수 있습니다."
+    }
+    
+    # 업데이트된 인벤토리를 자동으로 스테이징
+    if [ -f "asset-inventory.json" ]; then
+      git add asset-inventory.json
+      echo "  ✅ 자산 인벤토리 업데이트 완료"
+    fi
+  else
+    echo "  자산 변경 없음 - 건너뜀"
+  fi
+else
+  echo "  ⚠️ 자산 스캐너 없음 - 건너뜀"
+fi
+
 # 추가: Biome 코드 품질 검사 (선택적) - .md 파일 제외
 echo "📋 추가: 코드 품질 검사..."
 if [ -f "biome.json" ]; then
