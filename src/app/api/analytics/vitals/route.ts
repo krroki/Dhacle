@@ -16,9 +16,27 @@ interface VitalsData {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Vitals collection should work for all users (authenticated or not)
-    // for performance monitoring purposes
+    const supabase = await createSupabaseRouteHandlerClient();
+    
+    // 🔒 Authentication check (MANDATORY) 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
     const data: VitalsData = await request.json();
+    
+    // Log authenticated user vitals
+    console.log(`Core Web Vitals (authenticated):`, {
+      metric: data.metric,
+      value: data.value,
+      rating: data.rating,
+      url: data.url,
+      userId: user.id
+    });
     
     // 개발 환경에서는 로그만 남기고 반환
     if (env.NODE_ENV === 'development') {
@@ -27,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     
     // Supabase에 저장 (performance_metrics 테이블)
-    const supabase = await createSupabaseRouteHandlerClient();
+    // 위에서 생성한 supabase 인스턴스를 재사용
     
     try {
       const { error } = await supabase
@@ -39,6 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           page_url: data.url,
           user_agent: data.userAgent,
           navigation_type: data.navigationType,
+          user_id: user?.id || null, // Include user_id if authenticated
           created_at: data.timestamp,
         });
       

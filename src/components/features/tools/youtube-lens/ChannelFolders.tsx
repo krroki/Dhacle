@@ -68,8 +68,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
   const [form_data, set_form_data] = useState({
     name: '',
     description: '',
-    checkIntervalHours: 1,
-    isMonitoringEnabled: true,
+    channel_count: 1,
+    is_active: true,
   });
 
   // Fetch folders
@@ -186,10 +186,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
   // Toggle monitoring
   const handle_toggle_monitoring = async (folder_id: string, enabled: boolean) => {
     try {
-      await apiPatch(`/api/youtube/folders/${folder_id}`, { isMonitoringEnabled: enabled });
+      await apiPatch(`/api/youtube/folders/${folder_id}`, { is_active: enabled });
 
       set_folders(
-        folders.map((f) => (f.id === folder_id ? { ...f, isMonitoringEnabled: enabled } : f))
+        folders.map((f) => (f.id === folder_id ? { ...f, is_active: enabled } : f))
       );
     } catch (error) {
       set_error(error instanceof Error ? error.message : 'Failed to update monitoring');
@@ -201,8 +201,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
     set_form_data({
       name: '',
       description: '',
-      checkIntervalHours: 1,
-      isMonitoringEnabled: true,
+      channel_count: 1,
+      is_active: true,
     });
     set_selected_folder(null);
   };
@@ -216,20 +216,20 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
 
   // Get monitoring status
   const get_monitoring_status = (folder: SourceFolder) => {
-    if (!folder.isMonitoringEnabled) {
+    if (!folder.is_active) {
       return 'disabled';
     }
-    if (!folder.lastCheckedAt) {
+    if (!folder.updated_at) {
       return 'never';
     }
 
-    const last_check = new Date(folder.lastCheckedAt);
+    const last_check = new Date(folder.updated_at);
     const hours_since = (Date.now() - last_check.getTime()) / (1000 * 60 * 60);
 
-    if (hours_since < folder.checkIntervalHours) {
+    if (hours_since < (folder.channel_count || 1)) {
       return 'active';
     }
-    if (hours_since < folder.checkIntervalHours * 2) {
+    if (hours_since < (folder.channel_count || 1) * 2) {
       return 'pending';
     }
     return 'overdue';
@@ -321,11 +321,11 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       type="number"
                       min="1"
                       max="24"
-                      value={form_data.checkIntervalHours}
+                      value={form_data.channel_count}
                       onChange={(e) =>
                         set_form_data({
                           ...form_data,
-                          checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
+                          channel_count: Number.parseInt(e.target.value, 10) || 1,
                         })
                       }
                     />
@@ -333,11 +333,11 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="monitoring"
-                      checked={form_data.isMonitoringEnabled}
+                      checked={form_data.is_active}
                       onCheckedChange={(checked) =>
                         set_form_data({
                           ...form_data,
-                          isMonitoringEnabled: checked,
+                          is_active: checked,
                         })
                       }
                     />
@@ -380,7 +380,7 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered_folders.map((folder) => {
           const status = get_monitoring_status(folder);
-          const channel_count = folder.folderChannels?.length || 0;
+          const channel_count = folder.channel_count || 0;
 
           return (
             <Card
@@ -413,8 +413,8 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                           set_form_data({
                             name: folder.name,
                             description: folder.description || '',
-                            checkIntervalHours: folder.checkIntervalHours,
-                            isMonitoringEnabled: folder.isMonitoringEnabled,
+                            channel_count: folder.channel_count || 0,
+                            is_active: folder.is_active ?? false,
                           });
                           set_is_edit_dialog_open(true);
                         }}
@@ -425,10 +425,10 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          handle_toggle_monitoring(folder.id, !folder.isMonitoringEnabled);
+                          handle_toggle_monitoring(folder.id, !folder.is_active);
                         }}
                       >
-                        {folder.isMonitoringEnabled ? (
+                        {folder.is_active ? (
                           <>
                             <BellOff className="w-4 h-4 mr-2" />
                             모니터링 비활성화
@@ -476,14 +476,14 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                   {/* Check interval */}
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">확인 주기</span>
-                    <span>{folder.checkIntervalHours}h</span>
+                    <span>{folder.channel_count}h</span>
                   </div>
 
                   {/* Last checked */}
-                  {folder.lastCheckedAt && (
+                  {folder.updated_at && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">마지막 확인</span>
-                      <span>{new Date(folder.lastCheckedAt).toLocaleString()}</span>
+                      <span>{new Date(folder.updated_at).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -557,11 +557,11 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
                 type="number"
                 min="1"
                 max="24"
-                value={form_data.checkIntervalHours}
+                value={form_data.channel_count}
                 onChange={(e) =>
                   set_form_data({
                     ...form_data,
-                    checkIntervalHours: Number.parseInt(e.target.value, 10) || 1,
+                    channel_count: Number.parseInt(e.target.value, 10) || 1,
                   })
                 }
               />
@@ -569,11 +569,11 @@ export default function ChannelFolders({ onFolderSelect }: ChannelFoldersProps) 
             <div className="flex items-center space-x-2">
               <Switch
                 id="edit-monitoring"
-                checked={form_data.isMonitoringEnabled}
+                checked={form_data.is_active}
                 onCheckedChange={(checked) =>
                   set_form_data({
                     ...form_data,
-                    isMonitoringEnabled: checked,
+                    is_active: checked,
                   })
                 }
               />

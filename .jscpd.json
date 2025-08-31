@@ -1,0 +1,25 @@
+{
+  "threshold": 5,
+  "reporters": ["console", "json"],
+  "output": "./jscpd-report",
+  "pattern": [
+    "src/**/*.{ts,tsx,js,jsx}",
+    "supabase/**/*.sql",
+    "scripts/**/*.js"
+  ],
+  "ignore": [
+    "node_modules/**",
+    ".next/**",
+    "dist/**",
+    "coverage/**",
+    "jscpd-report/**",
+    "**/*.test.{ts,tsx,js,jsx}",
+    "**/*.spec.{ts,tsx,js,jsx}"
+  ],
+  "minLines": 3,
+  "minTokens": 50,
+  "exitCode": 1,
+  "format": "typescript,javascript,sql",
+  "verbose": false,
+  "cache": true
+}

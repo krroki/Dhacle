@@ -5,7 +5,7 @@
  * Analyzes trends, patterns, and viral trajectories in YouTube content
  */
 
-import type { YouTubeLensVideo as Video, VideoStats } from '@/types';
+import type { YouTubeVideo as Video, YouTubeVideoStats as VideoStats } from '@/types';
 
 /**
  * Time series data point
@@ -194,7 +194,7 @@ export function analyzePatterns(
 
   // Check for daily patterns (24-hour cycle)
   const hourly_data = stats.map((s) => ({
-    hour: new Date(s.snapshotAt || 0).getHours(),
+    hour: new Date(s.created_at || 0).getHours(),
     value: s[metric] || 0,
   }));
 
@@ -226,7 +226,7 @@ export function analyzePatterns(
 
   // Detect trend pattern
   const time_series: TimeSeriesPoint[] = stats.map((s) => ({
-    timestamp: new Date(s.snapshotAt || 0),
+    timestamp: new Date(s.created_at || 0),
     value: s[metric] || 0,
   }));
 
@@ -290,7 +290,7 @@ export function findViralMoments(
     }
 
     const time_diff =
-      (new Date(curr.snapshotAt || 0).getTime() - new Date(prev.snapshotAt || 0).getTime()) /
+      (new Date(curr.created_at || 0).getTime() - new Date(prev.created_at || 0).getTime()) /
       (1000 * 60 * 60); // hours
 
     if (time_diff === 0) {
@@ -308,7 +308,7 @@ export function findViralMoments(
           return sum;
         }
         const td =
-          (new Date(s.snapshotAt || 0).getTime() - new Date(p.snapshotAt || 0).getTime()) /
+          (new Date(s.created_at || 0).getTime() - new Date(p.created_at || 0).getTime()) /
           (1000 * 60 * 60);
         return sum + (td > 0 ? ((s.view_count || 0) - (p.view_count || 0)) / td : 0);
       }, 0) /
@@ -329,8 +329,8 @@ export function findViralMoments(
 
         const next_growth =
           ((current_stat.view_count || 0) - (prev_stat.view_count || 0)) /
-          ((new Date(current_stat.snapshotAt || 0).getTime() -
-            new Date(prev_stat.snapshotAt || 0).getTime()) /
+          ((new Date(current_stat.created_at || 0).getTime() -
+            new Date(prev_stat.created_at || 0).getTime()) /
             (1000 * 60 * 60));
 
         if (next_growth < avg_growth * threshold) {
@@ -338,14 +338,14 @@ export function findViralMoments(
         }
 
         duration +=
-          (new Date(current_stat.snapshotAt || 0).getTime() -
-            new Date(prev_stat.snapshotAt || 0).getTime()) /
+          (new Date(current_stat.created_at || 0).getTime() -
+            new Date(prev_stat.created_at || 0).getTime()) /
           (1000 * 60 * 60);
         j++;
       }
 
       viral_moments.push({
-        timestamp: curr.snapshotAt || '',
+        timestamp: curr.created_at || '',
         growthRate: view_growth,
         metrics: {
           views: curr.view_count || 0,
@@ -394,7 +394,7 @@ export function compareToBenchmark(
   const view_ratio = (video_stats.view_count || 0) / category_benchmarks.avgViews;
   const like_ratio = (video_stats.like_count || 0) / category_benchmarks.avgLikes;
   const comment_ratio = (video_stats.comment_count || 0) / category_benchmarks.avgComments;
-  const vph_ratio = (video_stats.viewsPerHour || 0) / category_benchmarks.avgVph;
+  const vph_ratio = (video_stats.views_per_hour || 0) / category_benchmarks.avgVph;
 
   // Calculate percentiles
   function get_percentile(
@@ -477,11 +477,11 @@ export function generateTrendReport(
   videos.forEach((video) => {
     if (video.stats) {
       video.stats.forEach((stat) => {
-        if (new Date(stat.snapshotAt || 0) >= window_start) {
+        if (new Date(stat.created_at || 0) >= window_start) {
           all_stats.push({
-            timestamp: new Date(stat.snapshotAt || 0),
+            timestamp: new Date(stat.created_at || 0),
             value: stat.view_count || 0,
-            video_id: video.video_id,
+            video_id: video.id,
           });
         }
       });
@@ -498,7 +498,7 @@ export function generateTrendReport(
   const viral_videos = videos
     .filter((v) => v.stats && v.stats.length > 0)
     .map((video) => ({
-      video_id: video.video_id,
+      video_id: video.id,
       viralMoments: findViralMoments(video.stats!),
     }))
     .filter((v) => v.viralMoments.length > 0);
@@ -527,17 +527,17 @@ export function generateTrendReport(
       const stats = video.stats;
       if (!stats) {
         return {
-          video_id: video.video_id,
+          video_id: video.id,
           slope: 0,
         };
       }
       const time_series: TimeSeriesPoint[] = stats.map((s) => ({
-        timestamp: new Date(s.snapshotAt || 0),
+        timestamp: new Date(s.created_at || 0),
         value: s.view_count || 0,
       }));
       const trend = detectTrend(time_series);
       return {
-        video_id: video.video_id,
+        video_id: video.id,
         slope: trend.slope,
       };
     });

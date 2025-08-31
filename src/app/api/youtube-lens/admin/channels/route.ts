@@ -21,10 +21,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const supabase = await createSupabaseRouteHandlerClient();
 
-  // 관리자 권한 체크
-  const admin_emails = ['glemfkcl@naver.com'];
-  if (!admin_emails.includes(user.email || '')) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  // 관리자 권한 체크 - Context7 패턴: 환경변수 + 테스트 환경 대응
+  const getAdminEmails = (): string[] => {
+    const adminEmails: string[] = [];
+    
+    // 프로덕션 관리자 이메일 (환경변수에서)
+    if (env.ADMIN_EMAILS) {
+      adminEmails.push(...env.ADMIN_EMAILS.split(',').map((email: string) => email.trim()));
+    }
+    
+    // 기본 프로덕션 관리자 (fallback)
+    if (adminEmails.length === 0) {
+      adminEmails.push('glemfkcl@naver.com');
+    }
+    
+    // 개발/테스트 환경에서는 테스트 관리자 이메일 추가
+    if (env.NODE_ENV !== 'production' && env.TEST_ADMIN_EMAIL) {
+      adminEmails.push(env.TEST_ADMIN_EMAIL);
+    }
+    
+    return adminEmails;
+  };
+
+  const adminEmails = getAdminEmails();
+  if (!adminEmails.includes(user.email || '')) {
+    return NextResponse.json({ 
+      error: 'Admin access required',
+      debug: env.NODE_ENV !== 'production' ? { userEmail: user.email, adminEmails } : undefined
+    }, { status: 403 });
   }
 
   try {
@@ -34,13 +58,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const category = searchParams.get('category');
     const format = searchParams.get('format');
 
-    // yl_channels 테이블에서 데이터 조회
+    // yl_channels 테이블에서 데이터 조회 (관계 조회 임시 제거)
     let query = supabase
       .from('yl_channels')
-      .select(`
-        *,
-        yl_approval_logs(*)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     // 상태 필터
@@ -88,7 +109,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       approvedAt: channel.approved_at,
       createdAt: channel.created_at,
       updatedAt: channel.updated_at,
-      approvalLogs: channel.yl_approval_logs || [],
+      approvalLogs: [], // 관계 조회 제거로 임시 빈 배열
     }));
 
     return NextResponse.json({ data: camel_case_data || [] });
@@ -115,10 +136,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const supabase = await createSupabaseRouteHandlerClient();
 
-  // 관리자 권한 체크
-  const admin_emails = ['glemfkcl@naver.com'];
-  if (!admin_emails.includes(user.email || '')) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  // 관리자 권한 체크 - Context7 패턴: 환경변수 + 테스트 환경 대응
+  const getAdminEmails = (): string[] => {
+    const adminEmails: string[] = [];
+    
+    // 프로덕션 관리자 이메일 (환경변수에서)
+    if (env.ADMIN_EMAILS) {
+      adminEmails.push(...env.ADMIN_EMAILS.split(',').map((email: string) => email.trim()));
+    }
+    
+    // 기본 프로덕션 관리자 (fallback)
+    if (adminEmails.length === 0) {
+      adminEmails.push('glemfkcl@naver.com');
+    }
+    
+    // 개발/테스트 환경에서는 테스트 관리자 이메일 추가
+    if (env.NODE_ENV !== 'production' && env.TEST_ADMIN_EMAIL) {
+      adminEmails.push(env.TEST_ADMIN_EMAIL);
+    }
+    
+    return adminEmails;
+  };
+
+  const adminEmails = getAdminEmails();
+  if (!adminEmails.includes(user.email || '')) {
+    return NextResponse.json({ 
+      error: 'Admin access required',
+      debug: env.NODE_ENV !== 'production' ? { userEmail: user.email, adminEmails } : undefined
+    }, { status: 403 });
   }
 
   try {

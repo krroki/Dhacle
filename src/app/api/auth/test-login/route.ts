@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServiceRoleClient, createSupabaseRouteHandlerClient } from '@/lib/supabase/server-client';
 import { env } from '@/env';
-import { authRateLimiter, getClientIp } from '@/lib/security/rate-limiter';
+import { getClientIp } from '@/lib/security/rate-limiter';
 
 export async function POST(request: NextRequest) {
   // 개발 환경에서만 작동
@@ -11,14 +11,13 @@ export async function POST(request: NextRequest) {
   
   console.log('🔐 테스트 로그인 API 호출 - 개발 모드');
   
-  // Rate limiting 체크는 하되, 실제로는 제한하지 않음 (개발용)
+  // Context7 패턴: 개발/테스트 환경에서는 rate limiting 완전 우회
   const client_ip = getClientIp(request);
-  const rate_limit = authRateLimiter.check(client_ip);
+  console.log(`📍 클라이언트 IP: ${client_ip} (개발 모드 - Rate limiting 완전 비활성화)`);
   
-  if (!rate_limit.allowed) {
-    console.log('⚠️ Rate limit 초과, but 개발 모드에서 무시');
-    authRateLimiter.reset(client_ip); // 즉시 리셋
-  }
+  // 개발/테스트 환경: rate limiter 호출 자체를 생략 (Context7 권장 패턴)
+  // 이미 위에서 development 체크했으므로 여기서는 rate limiting을 완전히 생략
+  console.log('🟢 Rate limiting completely bypassed for development/test');
   
   try {
     // 환경변수에서 테스트 계정 정보 가져오기

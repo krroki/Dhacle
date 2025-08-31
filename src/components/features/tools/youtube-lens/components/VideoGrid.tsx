@@ -70,8 +70,8 @@ const GridCell = memo(function GridCell({
       <VideoCard
         video={video}
         viewMode="grid"
-        isSelected={data.selectedVideos.has(video.id)}
-        isFavorite={data.favoriteVideos.has(video.id)}
+        isSelected={data.selectedVideos.has(video.video_id)}
+        isFavorite={data.favoriteVideos.has(video.video_id)}
         onSelect={data.onToggleSelect}
         onToggleFavorite={data.onToggleFavorite}
         onPlay={data.onPlay}
@@ -192,7 +192,7 @@ export function VideoGrid({
       case 'views':
         return b.view_count - a.view_count;
       case 'likes':
-        return b.like_count - a.like_count;
+        return (b.like_count ?? 0) - (a.like_count ?? 0);
       default:
         return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
     }

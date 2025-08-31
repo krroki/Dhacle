@@ -1,0 +1,2 @@
+timestamp,date,total_assets,components_count,api_routes_count,tables_count,modern_react_score,security_score,rls_coverage,asset_scan_time,context_load_time,verify_time,jscpd_duplicates,build_time,memory_usage,disk_usage,git_commits_today,quality_score_overall,performance_score,errors_count,warnings_count
+2025-08-30T08:02:53.626Z,2025-08-30,118,80,38,0,20,18,0,46,30000,5000,5.2,15000,512,85,2,19.3,72,0,122025-08-30T09:33:14.529Z,2025-08-30,124,84,40,0,20,18,0,116,55,1217,15000,0,5,75,0,12.67,99.23,5,2

@@ -103,8 +103,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     videos_with_metrics.sort((a, b) => {
       const stats_a = a.stats ? mapVideoStats(a.stats) : null;
       const stats_b = b.stats ? mapVideoStats(b.stats) : null;
-      const score_a = stats_a?.viralScore || 0;
-      const score_b = stats_b?.viralScore || 0;
+      const score_a = stats_a?.viral_score || 0;
+      const score_b = stats_b?.viral_score || 0;
       return score_b - score_a;
     });
 
@@ -202,8 +202,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     videos_with_metrics = videos_with_metrics.filter((video) => {
       const stats = video.stats ? mapVideoStats(video.stats) : null;
       const views = stats?.view_count || 0;
-      const engagement = stats?.engagementRate || 0;
-      const vph = stats?.viewsPerHour || 0;
+      const engagement = stats?.engagement_rate || 0;
+      const vph = stats?.views_per_hour || 0;
 
       if (views < filter_options.minViews || views > filter_options.maxViews) {
         return false;
@@ -228,8 +228,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     videos_with_metrics.sort((a, b) => {
       const stats_a = a.stats ? mapVideoStats(a.stats) : null;
       const stats_b = b.stats ? mapVideoStats(b.stats) : null;
-      const score_a = stats_a?.viralScore || 0;
-      const score_b = stats_b?.viralScore || 0;
+      const score_a = stats_a?.viral_score || 0;
+      const score_b = stats_b?.viral_score || 0;
       return score_b - score_a;
     });
 

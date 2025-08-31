@@ -44,7 +44,7 @@ interface YouTubeLensState {
   selectAllVideos: () => void;
   clearSelectedVideos: () => void;
 
-  addFavorite: (video: FlattenedYouTubeVideo, tags?: string[], notes?: string) => void;
+  addFavorite: (video: FlattenedYouTubeVideo) => void;
   removeFavorite: (video_id: string) => void;
   updateFavorite: (video_id: string, updates: Partial<YouTubeFavorite>) => void;
   loadFavorites: (favorites: YouTubeFavorite[]) => void;
@@ -133,20 +133,22 @@ export const useYouTubeLensStore = create<YouTubeLensState>()(
         clearSelectedVideos: () => set({ selectedVideos: new Set() }),
 
         // 즐겨찾기 관련 액션
-        addFavorite: (video, tags = [], notes = '') =>
+        addFavorite: (video) =>
           set((state) => {
             const new_favorites = new Map(state.favoriteVideos);
             const favorite: YouTubeFavorite = {
               id: crypto.randomUUID(),
               user_id: '', // 실제 구현시 auth에서 가져옴
-              video_id: video.id,
-              videoData: video,
-              tags,
-              notes: notes || undefined,
+              video_id: video.video_id,
+              video_title: video.title,
+              video_description: video.description,
+              video_thumbnail: video.thumbnail_url,
+              channel_id: video.channel_id,
+              channel_title: video.channel_title,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             };
-            new_favorites.set(video.id, favorite);
+            new_favorites.set(video.video_id, favorite);
             return { favoriteVideos: new_favorites };
           }),
 

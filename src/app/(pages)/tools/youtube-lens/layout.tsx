@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function YouTubeLensLayout({ children }: { children: React.ReactNode }) {
   const [query_client] = useState(
@@ -19,13 +19,20 @@ export default function YouTubeLensLayout({ children }: { children: React.ReactN
       })
   );
 
-  // Client-safe environment check
-  const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  // Hydration-safe devtools rendering
+  const [showDevtools, setShowDevtools] = useState(false);
+
+  useEffect(() => {
+    // 클라이언트에서만 실행, hydration mismatch 방지
+    if (process.env.NODE_ENV === 'development' && window.location.hostname === 'localhost') {
+      setShowDevtools(true);
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={query_client}>
       {children}
-      {isDevelopment && <ReactQueryDevtools initialIsOpen={false} />}
+      {showDevtools && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

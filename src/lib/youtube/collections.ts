@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@/lib/supabase/browser-client';
-import type { Collection, CollectionItem, Video, YouTubeLensVideo } from '@/types';
+import type { Collection, CollectionItem, Video, DBCollection } from '@/types';
 // import { snakeToCamelCase } from '@/types';
 
 /**
@@ -50,21 +50,22 @@ export class CollectionManager {
       }
 
       // Convert snake_case to camelCase
-      const convertedCollection: Collection = {
+      const convertedCollection = {
         id: collection.id,
         user_id: collection.user_id,
         name: collection.name,
         description: collection.description,
         is_public: collection.is_public ?? false,
         tags: collection.tags,
-        coverImage: collection.cover_image_url,
+        cover_image_url: collection.cover_image_url,
         itemCount: collection.item_count ?? 0,
+        metadata: collection.metadata || {},
+        type: collection.type || 'user',
         created_at: collection.created_at || new Date().toISOString(),
-        updated_at: collection.updated_at || new Date().toISOString(),
-        deleted_at: null
+        updated_at: collection.updated_at || new Date().toISOString()
       };
 
-      return { data: convertedCollection, error: null };
+      return { data: convertedCollection as Collection, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -94,18 +95,19 @@ export class CollectionManager {
       }
 
       // Convert snake_case to camelCase
-      const convertedCollections = (collections || []).map(col => ({
+      const convertedCollections = (collections || []).map((col: DBCollection) => ({
         id: col.id,
         user_id: col.user_id,
         name: col.name,
         description: col.description,
         is_public: col.is_public ?? false,
         tags: col.tags,
-        coverImage: col.cover_image_url,
+        cover_image_url: col.cover_image_url,
         itemCount: col.item_count ?? 0,
+        metadata: col.metadata || {},
+        type: col.type || 'user',
         created_at: col.created_at || new Date().toISOString(),
-        updated_at: col.updated_at || new Date().toISOString(),
-        deleted_at: null
+        updated_at: col.updated_at || new Date().toISOString()
       } as Collection));
 
       return { data: convertedCollections, error: null };
@@ -141,21 +143,22 @@ export class CollectionManager {
       }
 
       // Convert snake_case to camelCase
-      const convertedCollection: Collection = {
+      const convertedCollection = {
         id: collection.id,
         user_id: collection.user_id,
         name: collection.name,
         description: collection.description,
         is_public: collection.is_public ?? false,
         tags: collection.tags,
-        coverImage: collection.cover_image_url,
+        cover_image_url: collection.cover_image_url,
         itemCount: collection.item_count ?? 0,
+        metadata: collection.metadata || {},
+        type: collection.type || 'user',
         created_at: collection.created_at || new Date().toISOString(),
-        updated_at: collection.updated_at || new Date().toISOString(),
-        deleted_at: null
+        updated_at: collection.updated_at || new Date().toISOString()
       };
 
-      return { data: convertedCollection, error: null };
+      return { data: convertedCollection as Collection, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -236,18 +239,17 @@ export class CollectionManager {
         .eq('id', collection_id);
 
       // Convert response to CollectionItem type
-      const convertedItem: CollectionItem = {
+      const convertedItem = {
         id: item.id,
         collection_id: item.collection_id,
         video_id: item.video_id,
         notes: item.notes,
-        tags: [],
         position: item.position ?? 0,
-        addedBy: item.added_by,
-        addedAt: item.created_at || new Date().toISOString()
+        added_by: item.added_by,
+        created_at: item.created_at || new Date().toISOString()
       };
 
-      return { data: convertedItem, error: null };
+      return { data: convertedItem as CollectionItem, error: null };
     } catch (error) {
       return { data: null, error: error as Error };
     }
@@ -348,12 +350,10 @@ export class CollectionManager {
         collection_id: item.collection_id,
         video_id: item.video_id,
         notes: item.notes,
-        tags: [],
         position: item.position ?? 0,
-        addedBy: item.added_by,
-        addedAt: item.created_at || new Date().toISOString(),
-        video: item.videos as YouTubeLensVideo
-      })) || [];
+        added_by: item.added_by,
+        created_at: item.created_at || new Date().toISOString(),
+        video: item.videos as Video       })) || [];
 
       return { data: transformedItems, error: null };
     } catch (error) {
@@ -409,11 +409,12 @@ export class CollectionManager {
         name: collection.name,
         description: collection.description,
         user_id: collection.user_id,
-        coverImage: collection.cover_image_url, // camelCase in type
+        cover_image_url: collection.cover_image_url, // camelCase in type
         is_public: collection.is_public ?? false,
-        itemCount: collection.item_count ?? 0, // camelCase in type
+        itemCount: collection.item_count ?? 0,
+        metadata: collection.metadata || {},
+        type: collection.type || 'user', // camelCase in type
         tags: collection.tags || [],
-        deleted_at: null,
         created_at: collection.created_at || new Date().toISOString(),
         updated_at: collection.updated_at || new Date().toISOString()
       };

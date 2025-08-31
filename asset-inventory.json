@@ -1,0 +1,1053 @@
+{
+  "summary": {
+    "total": 136,
+    "generated": "2025-08-30T19:51:06.073Z",
+    "breakdown": {
+      "components": 96,
+      "apiRoutes": 40,
+      "tables": 0
+    },
+    "qualityIndicators": {
+      "modernReactScore": 30,
+      "securityScore": 23,
+      "rlsCoverage": 0
+    },
+    "scanTime": 40
+  },
+  "components": [
+    {
+      "name": "WebVitals",
+      "path": "src\\components\\WebVitals.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 69
+    },
+    {
+      "name": "ErrorBoundary",
+      "path": "src\\components\\ErrorBoundary.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 271
+    },
+    {
+      "name": "use-toast",
+      "path": "src\\components\\ui\\use-toast.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 189
+    },
+    {
+      "name": "tooltip",
+      "path": "src\\components\\ui\\tooltip.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 31
+    },
+    {
+      "name": "toaster",
+      "path": "src\\components\\ui\\toaster.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 32
+    },
+    {
+      "name": "toast",
+      "path": "src\\components\\ui\\toast.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 125
+    },
+    {
+      "name": "tiptap-editor",
+      "path": "src\\components\\ui\\tiptap-editor.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 189
+    },
+    {
+      "name": "textarea",
+      "path": "src\\components\\ui\\textarea.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 22
+    },
+    {
+      "name": "tabs",
+      "path": "src\\components\\ui\\tabs.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 56
+    },
+    {
+      "name": "table",
+      "path": "src\\components\\ui\\table.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 92
+    },
+    {
+      "name": "switch",
+      "path": "src\\components\\ui\\switch.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 30
+    },
+    {
+      "name": "sonner",
+      "path": "src\\components\\ui\\sonner.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 30
+    },
+    {
+      "name": "slider",
+      "path": "src\\components\\ui\\slider.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 26
+    },
+    {
+      "name": "skeleton",
+      "path": "src\\components\\ui\\skeleton.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 8
+    },
+    {
+      "name": "separator",
+      "path": "src\\components\\ui\\separator.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 27
+    },
+    {
+      "name": "select",
+      "path": "src\\components\\ui\\select.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 154
+    },
+    {
+      "name": "scroll-area",
+      "path": "src\\components\\ui\\scroll-area.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 47
+    },
+    {
+      "name": "radio-group",
+      "path": "src\\components\\ui\\radio-group.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 39
+    },
+    {
+      "name": "progress",
+      "path": "src\\components\\ui\\progress.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 26
+    },
+    {
+      "name": "popover",
+      "path": "src\\components\\ui\\popover.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 32
+    },
+    {
+      "name": "navigation-menu",
+      "path": "src\\components\\ui\\navigation-menu.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 121
+    },
+    {
+      "name": "label",
+      "path": "src\\components\\ui\\label.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 22
+    },
+    {
+      "name": "input",
+      "path": "src\\components\\ui\\input.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 23
+    },
+    {
+      "name": "error-display",
+      "path": "src\\components\\ui\\error-display.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 309
+    },
+    {
+      "name": "dropdown-menu",
+      "path": "src\\components\\ui\\dropdown-menu.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 188
+    },
+    {
+      "name": "dialog",
+      "path": "src\\components\\ui\\dialog.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 105
+    },
+    {
+      "name": "checkbox",
+      "path": "src\\components\\ui\\checkbox.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 29
+    },
+    {
+      "name": "carousel",
+      "path": "src\\components\\ui\\carousel.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 242
+    },
+    {
+      "name": "card",
+      "path": "src\\components\\ui\\card.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 57
+    },
+    {
+      "name": "button",
+      "path": "src\\components\\ui\\button.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 50
+    },
+    {
+      "name": "badge",
+      "path": "src\\components\\ui\\badge.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 34
+    },
+    {
+      "name": "avatar",
+      "path": "src\\components\\ui\\avatar.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 48
+    },
+    {
+      "name": "alert",
+      "path": "src\\components\\ui\\alert.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 50
+    },
+    {
+      "name": "alert-dialog",
+      "path": "src\\components\\ui\\alert-dialog.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 117
+    },
+    {
+      "name": "accordion",
+      "path": "src\\components\\ui\\accordion.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 55
+    },
+    {
+      "name": "Providers",
+      "path": "src\\components\\providers\\Providers.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 96
+    },
+    {
+      "name": "ErrorNotificationProvider",
+      "path": "src\\components\\providers\\ErrorNotificationProvider.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 250
+    },
+    {
+      "name": "index",
+      "path": "src\\components\\lazy\\index.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 120
+    },
+    {
+      "name": "TopBanner",
+      "path": "src\\components\\layout\\TopBanner.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 43
+    },
+    {
+      "name": "Sidebar",
+      "path": "src\\components\\layout\\Sidebar.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 259
+    },
+    {
+      "name": "ScrollToTop",
+      "path": "src\\components\\layout\\ScrollToTop.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 41
+    },
+    {
+      "name": "RootLayoutClient",
+      "path": "src\\components\\layout\\RootLayoutClient.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 38
+    },
+    {
+      "name": "ProgressBar",
+      "path": "src\\components\\layout\\ProgressBar.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 45
+    },
+    {
+      "name": "NotificationDropdown",
+      "path": "src\\components\\layout\\NotificationDropdown.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 259
+    },
+    {
+      "name": "MobileNav",
+      "path": "src\\components\\layout\\MobileNav.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 50
+    },
+    {
+      "name": "HeaderLayout",
+      "path": "src\\components\\layout\\HeaderLayout.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 121
+    },
+    {
+      "name": "Header",
+      "path": "src\\components\\layout\\Header.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 508
+    },
+    {
+      "name": "FooterLayout",
+      "path": "src\\components\\layout\\FooterLayout.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 192
+    },
+    {
+      "name": "FooterClient",
+      "path": "src\\components\\layout\\FooterClient.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 73
+    },
+    {
+      "name": "Footer",
+      "path": "src\\components\\layout\\Footer.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 13
+    },
+    {
+      "name": "ErrorStatusIndicator",
+      "path": "src\\components\\error\\ErrorStatusIndicator.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 256
+    },
+    {
+      "name": "ErrorRecoveryDialog",
+      "path": "src\\components\\error\\ErrorRecoveryDialog.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 353
+    },
+    {
+      "name": "AnimatedSection",
+      "path": "src\\components\\features\\AnimatedSection.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 94
+    },
+    {
+      "name": "StatusBadge",
+      "path": "src\\components\\common\\StatusBadge.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 62
+    },
+    {
+      "name": "StatsSummary",
+      "path": "src\\components\\common\\StatsSummary.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 96
+    },
+    {
+      "name": "ScreenReaderOnly",
+      "path": "src\\components\\common\\ScreenReaderOnly.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 81
+    },
+    {
+      "name": "OptimizedImage",
+      "path": "src\\components\\common\\OptimizedImage.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 112
+    },
+    {
+      "name": "MetricCard",
+      "path": "src\\components\\common\\MetricCard.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 92
+    },
+    {
+      "name": "LoadingSpinner",
+      "path": "src\\components\\common\\LoadingSpinner.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 58
+    },
+    {
+      "name": "InfoBanner",
+      "path": "src\\components\\common\\InfoBanner.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 75
+    },
+    {
+      "name": "FocusTrap",
+      "path": "src\\components\\common\\FocusTrap.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 139
+    },
+    {
+      "name": "FeatureCard",
+      "path": "src\\components\\common\\FeatureCard.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 66
+    },
+    {
+      "name": "EmptyState",
+      "path": "src\\components\\common\\EmptyState.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 44
+    },
+    {
+      "name": "DynamicComponents",
+      "path": "src\\components\\common\\DynamicComponents.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 81
+    },
+    {
+      "name": "DataTable",
+      "path": "src\\components\\common\\DataTable.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 104
+    },
+    {
+      "name": "ContentWrapper",
+      "path": "src\\components\\common\\ContentWrapper.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 45
+    },
+    {
+      "name": "AccessibleButton",
+      "path": "src\\components\\common\\AccessibleButton.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 94
+    },
+    {
+      "name": "KakaoLoginButton",
+      "path": "src\\components\\features\\auth\\KakaoLoginButton.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 66
+    },
+    {
+      "name": "TrendChart",
+      "path": "src\\components\\features\\tools\\youtube-lens\\TrendChart.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 310
+    },
+    {
+      "name": "SubscriptionManager",
+      "path": "src\\components\\features\\tools\\youtube-lens\\SubscriptionManager.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 293
+    },
+    {
+      "name": "PopularShortsList",
+      "path": "src\\components\\features\\tools\\youtube-lens\\PopularShortsList.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 516
+    },
+    {
+      "name": "MetricsDashboard",
+      "path": "src\\components\\features\\tools\\youtube-lens\\MetricsDashboard.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 561
+    },
+    {
+      "name": "KeywordTrends",
+      "path": "src\\components\\features\\tools\\youtube-lens\\KeywordTrends.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 296
+    },
+    {
+      "name": "EntityRadar",
+      "path": "src\\components\\features\\tools\\youtube-lens\\EntityRadar.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 331
+    },
+    {
+      "name": "DeltaDashboard",
+      "path": "src\\components\\features\\tools\\youtube-lens\\DeltaDashboard.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 312
+    },
+    {
+      "name": "CollectionViewer",
+      "path": "src\\components\\features\\tools\\youtube-lens\\CollectionViewer.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 313
+    },
+    {
+      "name": "CollectionBoard",
+      "path": "src\\components\\features\\tools\\youtube-lens\\CollectionBoard.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 418
+    },
+    {
+      "name": "ChannelFolders",
+      "path": "src\\components\\features\\tools\\youtube-lens\\ChannelFolders.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 594
+    },
+    {
+      "name": "ApiKeySetup",
+      "path": "src\\components\\features\\tools\\youtube-lens\\ApiKeySetup.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 183
+    },
+    {
+      "name": "AlertRules",
+      "path": "src\\components\\features\\tools\\youtube-lens\\AlertRules.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 389
+    },
+    {
+      "name": "SectionTitle",
+      "path": "src\\components\\features\\home\\shared\\SectionTitle.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 24
+    },
+    {
+      "name": "LoadingSkeletons",
+      "path": "src\\components\\features\\home\\shared\\LoadingSkeletons.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 112
+    },
+    {
+      "name": "YouTubeEmbed",
+      "path": "src\\components\\features\\home\\HeroCarousel\\YouTubeEmbed.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 49
+    },
+    {
+      "name": "index",
+      "path": "src\\components\\features\\home\\HeroCarousel\\index.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 308
+    },
+    {
+      "name": "HeroSlide",
+      "path": "src\\components\\features\\home\\HeroCarousel\\HeroSlide.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 51
+    },
+    {
+      "name": "index",
+      "path": "src\\components\\features\\home\\FeaturedToolsSection\\index.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 110
+    },
+    {
+      "name": "index",
+      "path": "src\\components\\features\\home\\FAQSection\\index.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 71
+    },
+    {
+      "name": "index",
+      "path": "src\\components\\features\\home\\AllToolsGrid\\index.tsx",
+      "type": "server",
+      "framework": "custom",
+      "lines": 245
+    },
+    {
+      "name": "ChannelApprovalConsole",
+      "path": "src\\components\\features\\tools\\youtube-lens\\admin\\ChannelApprovalConsole.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 554
+    },
+    {
+      "name": "YouTubeLensErrorBoundary",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\YouTubeLensErrorBoundary.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 261
+    },
+    {
+      "name": "VideoGrid",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\VideoGrid.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 511
+    },
+    {
+      "name": "VideoCard",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\VideoCard.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 469
+    },
+    {
+      "name": "SetupGuide",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\SetupGuide.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 267
+    },
+    {
+      "name": "SearchBar",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\SearchBar.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 369
+    },
+    {
+      "name": "QuotaStatus",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\QuotaStatus.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 323
+    },
+    {
+      "name": "EnvironmentChecker",
+      "path": "src\\components\\features\\tools\\youtube-lens\\components\\EnvironmentChecker.tsx",
+      "type": "client",
+      "framework": "custom",
+      "lines": 285
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "src\\app\\api\\upload\\route.ts",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 169
+    },
+    {
+      "path": "src\\app\\api\\notifications\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "hasAuth": true,
+      "lines": 269
+    },
+    {
+      "path": "src\\app\\api\\health\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 75
+    },
+    {
+      "path": "src\\app\\api\\errors\\route.ts",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "hasAuth": true,
+      "lines": 126
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\trending-summary\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 108
+    },
+    {
+      "path": "src\\app\\api\\user\\profile\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "hasAuth": false,
+      "lines": 261
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\categories\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 86
+    },
+    {
+      "path": "src\\app\\api\\user\\naver-cafe\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 239
+    },
+    {
+      "path": "src\\app\\api\\user\\init-profile\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 198
+    },
+    {
+      "path": "src\\app\\api\\user\\generate-nickname\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 156
+    },
+    {
+      "path": "src\\app\\api\\user\\dashboard\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 101
+    },
+    {
+      "path": "src\\app\\api\\user\\generate-username\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 93
+    },
+    {
+      "path": "src\\app\\api\\user\\check-username\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 65
+    },
+    {
+      "path": "src\\app\\api\\user\\api-keys\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 238
+    },
+    {
+      "path": "src\\app\\api\\youtube\\webhook\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 174
+    },
+    {
+      "path": "src\\app\\api\\youtube\\validate-key\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": true,
+      "lines": 105
+    },
+    {
+      "path": "src\\app\\api\\youtube\\subscribe\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 218
+    },
+    {
+      "path": "src\\app\\api\\youtube\\popular\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 296
+    },
+    {
+      "path": "src\\app\\api\\youtube\\search\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 222
+    },
+    {
+      "path": "src\\app\\api\\youtube\\folders\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 320
+    },
+    {
+      "path": "src\\app\\api\\youtube\\metrics\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 525
+    },
+    {
+      "path": "src\\app\\api\\youtube\\favorites\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 207
+    },
+    {
+      "path": "src\\app\\api\\youtube\\batch\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "hasAuth": true,
+      "lines": 257
+    },
+    {
+      "path": "src\\app\\api\\errors\\monitoring\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": true,
+      "lines": 198
+    },
+    {
+      "path": "src\\app\\api\\youtube\\collections\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "hasAuth": true,
+      "lines": 155
+    },
+    {
+      "path": "src\\app\\api\\youtube\\analysis\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 380
+    },
+    {
+      "path": "src\\app\\api\\debug\\env-check\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 103
+    },
+    {
+      "path": "src\\app\\api\\analytics\\vitals\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": true,
+      "lines": 86
+    },
+    {
+      "path": "src\\app\\api\\auth\\test-login\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 174
+    },
+    {
+      "path": "src\\app\\api\\account\\delete\\route.ts",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 255
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\admin\\channels\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 238
+    },
+    {
+      "path": "src\\app\\api\\admin\\verify-naver\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 213
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\admin\\channel-stats\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 134
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\keywords\\trends\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": true,
+      "lines": 94
+    },
+    {
+      "path": "src\\app\\api\\user\\api-keys\\auto-setup\\route.ts",
+      "methods": [
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 113
+    },
+    {
+      "path": "src\\app\\api\\youtube\\favorites\\[id]\\route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 103
+    },
+    {
+      "path": "src\\app\\api\\youtube\\collections\\items\\route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "hasAuth": true,
+      "lines": 177
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\admin\\channels\\[channelId]\\route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "hasAuth": false,
+      "lines": 136
+    },
+    {
+      "path": "src\\app\\api\\admin\\video\\upload\\route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hasAuth": false,
+      "lines": 253
+    },
+    {
+      "path": "src\\app\\api\\youtube-lens\\admin\\approval-logs\\[channelId]\\route.ts",
+      "methods": [
+        "GET"
+      ],
+      "hasAuth": false,
+      "lines": 70
+    }
+  ],
+  "tables": []
+}

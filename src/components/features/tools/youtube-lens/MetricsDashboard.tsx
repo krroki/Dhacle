@@ -164,11 +164,11 @@ export function MetricsDashboard({
 
     const total_views = metrics.reduce((sum, m) => sum + (m.view_count || 0), 0);
     const total_likes = metrics.reduce((sum, m) => sum + (m.like_count || 0), 0);
-    const avg_vph = metrics.reduce((sum, m) => sum + (m.viewsPerHour || 0), 0) / metrics.length;
+    const avg_vph = metrics.reduce((sum, m) => sum + (m.views_per_hour || 0), 0) / metrics.length;
     const avg_engagement =
-      metrics.reduce((sum, m) => sum + (m.engagementRate || 0), 0) / metrics.length;
-    const viral_videos = metrics.filter((m) => (m.viralScore || 0) > 70).length;
-    const top_performers = metrics.filter((m) => (m.viewsPerHour || 0) > 1000).length;
+      metrics.reduce((sum, m) => sum + (m.engagement_rate || 0), 0) / metrics.length;
+    const viral_videos = metrics.filter((m) => (m.viral_score || 0) > 70).length;
+    const top_performers = metrics.filter((m) => (m.views_per_hour || 0) > 1000).length;
 
     // Calculate growth rate from trends data
     const mapped_trends = trends.map(mapTrendAnalysis);
@@ -201,10 +201,10 @@ export function MetricsDashboard({
   // Performance distribution
   const performance_distribution = useMemo(() => {
     const distribution = {
-      excellent: metrics.filter((m) => (m.viralScore || 0) > 80).length,
-      good: metrics.filter((m) => (m.viralScore || 0) > 60 && (m.viralScore || 0) <= 80).length,
-      average: metrics.filter((m) => (m.viralScore || 0) > 40 && (m.viralScore || 0) <= 60).length,
-      poor: metrics.filter((m) => (m.viralScore || 0) <= 40).length,
+      excellent: metrics.filter((m) => (m.viral_score || 0) > 80).length,
+      good: metrics.filter((m) => (m.viral_score || 0) > 60 && (m.viral_score || 0) <= 80).length,
+      average: metrics.filter((m) => (m.viral_score || 0) > 40 && (m.viral_score || 0) <= 60).length,
+      poor: metrics.filter((m) => (m.viral_score || 0) <= 40).length,
     };
     return distribution;
   }, [metrics]);
@@ -493,14 +493,14 @@ export function MetricsDashboard({
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             <Clock className="w-3 h-3 mr-1" />
-                            VPH: {format_number(metric.viewsPerHour || 0)}
+                            VPH: {format_number(metric.views_per_hour || 0)}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-yt-lens-primary">
-                        {metric.viralScore?.toFixed(0)}
+                        {metric.viral_score?.toFixed(0)}
                       </div>
                       <p className="text-xs text-muted-foreground">바이럴 점수</p>
                     </div>

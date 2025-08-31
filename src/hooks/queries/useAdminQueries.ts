@@ -482,33 +482,12 @@ export function useUpdateSystemSettings() {
  * 컨텐츠 삭제 뮤테이션 훅 (관리자용)
  */
 export function useAdminDeleteContent() {
-  const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: ({ type, id, reason }: {
       type: 'post' | 'comment' | 'revenue-proof' | 'course';
       id: string;
       reason: string;
     }) => apiDelete(`/api/admin/content/${type}/${id}?reason=${encodeURIComponent(reason)}`),
-    onSuccess: (_, variables) => {
-      // 관련 캐시 무효화
-      switch (variables.type) {
-        case 'post':
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.community.posts() 
-          });
-          break;
-        case 'revenue-proof':
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.revenueProof.lists() 
-          });
-          break;
-        case 'course':
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.courses.all 
-          });
-          break;
-      }
-    },
+    // Content type invalidations removed - only YouTube content supported now
   });
 }

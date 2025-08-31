@@ -5,14 +5,83 @@
  */
 
 import type {
-  Channel,
-  ChannelMetrics,
   Video,
-  VideoMetrics,
-  YouTubeLensVideoStats as VideoStats,
-  VideoWithStats,
   YouTubeVideo,
 } from '@/types';
+
+// YouTube Data API v3 기반 타입 정의
+interface YouTubeChannelStatistics {
+  viewCount: string; // unsigned long as string
+  subscriberCount: string; // unsigned long as string
+  hiddenSubscriberCount: boolean;
+  videoCount: string; // unsigned long as string
+}
+
+interface YouTubeChannelSnippet {
+  title: string;
+  description: string;
+  customUrl?: string;
+  publishedAt: string; // ISO 8601 datetime
+  thumbnails?: {
+    [key: string]: {
+      url: string;
+      width: number;
+      height: number;
+    }
+  };
+  defaultLanguage?: string;
+  localized?: {
+    title: string;
+    description: string;
+  };
+  country?: string;
+}
+
+interface Channel {
+  kind: "youtube#channel";
+  etag: string;
+  id: string;
+  snippet: YouTubeChannelSnippet;
+  statistics: YouTubeChannelStatistics;
+  // 편의를 위한 숫자 변환 프로퍼티
+  subscriber_count: number;
+  view_count: number;
+  video_count: number;
+}
+
+interface VideoStats {
+  id: string;
+  video_id: string;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  viewsPerHour: number;
+  engagementRate: number;
+  viralScore: number;
+  viewDelta: number;
+  likeDelta: number;
+  commentDelta: number;
+  snapshotAt: string;
+  created_at: string;
+}
+
+interface VideoMetrics {
+  vph: number; // Views Per Hour
+  engagementRate: number; // (likes + comments) / views * 100
+  viralScore: number; // 0-100 viral potential score
+  growthRate: number; // Growth velocity
+  velocity: number; // Rate of change
+}
+
+interface ChannelMetrics {
+  avgViews: number;
+  avgEngagement: number;
+  uploadFrequency: number; // videos per day
+  subscriberGrowth: number;
+  performanceScore: number; // 0-100 overall performance
+}
+
+type VideoWithStats = Video & { stats?: VideoStats };
 
 /**
  * Calculate Views Per Hour (VPH) for a video
@@ -204,7 +273,7 @@ export function calculateChannelMetrics(
   let upload_frequency = 0;
   if (recent_videos.length > 1) {
     const sorted_videos = [...recent_videos].sort(
-      (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
+      (a: Video, b: Video) => new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime()
     );
 
     const first_video = sorted_videos[sorted_videos.length - 1];
@@ -220,8 +289,8 @@ export function calculateChannelMetrics(
       };
     }
 
-    const first_date = new Date(first_video.published_at);
-    const last_date = new Date(last_video.published_at);
+    const first_date = new Date(first_video.published_at || 0);
+    const last_date = new Date(last_video.published_at || 0);
     const days_diff = (last_date.getTime() - first_date.getTime()) / (1000 * 60 * 60 * 24);
 
     upload_frequency = days_diff > 0 ? recent_videos.length / days_diff : 0;
@@ -332,7 +401,7 @@ export async function batchCalculateMetrics(videos: Video[]): Promise<Map<string
     const batch = videos.slice(i, i + batch_size);
     const promises = batch.map((video) =>
       calculateVideoMetrics(video).then((metrics) => ({
-        video_id: video.video_id,
+        video_id: (video as Video).id,
         metrics,
       }))
     );
@@ -462,7 +531,7 @@ export function calculateMetrics(
   videos: YouTubeVideo[],
   options: { subscriber_count?: number } = {}
 ): YouTubeVideo[] {
-  return videos.map((video) => {
+  return videos.map((video: YouTubeVideo) => {
     if (!video.statistics || !video.snippet) {
       return {
         ...video,

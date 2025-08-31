@@ -146,17 +146,6 @@ export default function CollectionViewer({
     return `${Math.floor(diff_days / 365)}년 전`;
   };
 
-  // Duration 포맷팅
-  const format_duration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
 
   if (loading) {
     return (
@@ -198,24 +187,17 @@ export default function CollectionViewer({
           {items.map((item) => (
             <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative aspect-video">
-                {item.video.thumbnails && (
+                {item.video.thumbnail_url && (
                   <Image
-                    src={
-                      typeof item.video.thumbnails === 'string'
-                        ? JSON.parse(item.video.thumbnails)?.high?.url || ''
-                        : (item.video.thumbnails as { high?: { url: string } })?.high?.url || ''
-                    }
+                    src={item.video.thumbnail_url}
                     alt={item.video.title}
                     fill={true}
                     className="object-cover"
                   />
                 )}
-                {item.video.isShort && (
-                  <Badge className="absolute top-2 left-2 bg-red-600">Shorts</Badge>
-                )}
-                {item.video.durationSeconds && (
+                {item.video.duration && (
                   <Badge variant="secondary" className="absolute bottom-2 right-2">
-                    {format_duration(item.video.durationSeconds)}
+                    {item.video.duration || '00:00'}
                   </Badge>
                 )}
               </div>
@@ -226,16 +208,16 @@ export default function CollectionViewer({
               <CardContent className="pb-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>조회수 {format_view_count(0)}</span>
-                  <span>{format_date(item.video.published_at)}</span>
+                  <span>{item.video.published_at ? format_date(item.video.published_at) : '날짜 없음'}</span>
                 </div>
                 {item.notes && (
                   <div className="mt-2 p-2 bg-muted rounded-md">
                     <p className="text-xs">{item.notes}</p>
                   </div>
                 )}
-                {item.tags && item.tags.length > 0 && (
+                {item.video.tags && item.video.tags.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {item.tags.map((tag, idx) => (
+                    {item.video.tags.map((tag, idx) => (
                       <Badge key={idx} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
@@ -258,7 +240,7 @@ export default function CollectionViewer({
                     variant="ghost"
                     size="sm"
                     className="flex-1"
-                    onClick={() => open_in_you_tube(item.video.video_id)}
+                    onClick={() => open_in_you_tube(item.video.id)}
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     YouTube
@@ -287,13 +269,9 @@ export default function CollectionViewer({
           {selected_video && (
             <div className="space-y-4">
               <div className="aspect-video relative">
-                {selected_video.thumbnails && (
+                {selected_video.thumbnail_url && (
                   <Image
-                    src={
-                      typeof selected_video.thumbnails === 'string'
-                        ? JSON.parse(selected_video.thumbnails)?.high?.url || ''
-                        : (selected_video.thumbnails as { high?: { url: string } })?.high?.url || ''
-                    }
+                    src={selected_video.thumbnail_url}
                     alt={selected_video.title}
                     fill={true}
                     className="object-cover rounded-lg"
@@ -304,7 +282,7 @@ export default function CollectionViewer({
                 <p className="text-sm text-muted-foreground">{selected_video.description}</p>
                 <div className="flex items-center gap-4 text-sm">
                   <span>채널: {selected_video.channel_id}</span>
-                  <span>게시일: {new Date(selected_video.published_at).toLocaleDateString()}</span>
+                  <span>게시일: {selected_video.published_at ? new Date(selected_video.published_at).toLocaleDateString() : '날짜 없음'}</span>
                 </div>
                 {selected_video.tags && (
                   <div className="flex flex-wrap gap-1">
@@ -321,7 +299,7 @@ export default function CollectionViewer({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => selected_video && open_in_you_tube(selected_video.video_id)}
+              onClick={() => selected_video && open_in_you_tube(selected_video.id)}
             >
               YouTube에서 보기
             </Button>

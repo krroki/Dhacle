@@ -207,7 +207,7 @@ export default function PopularShortsList({
       ],
       ...filtered_videos.map((video) => [
         video.title,
-        video.channel?.title || video.channel_id || '',
+        video.channel_title || video.channel_id || '',
         video.stats?.view_count || 0,
         video.stats?.like_count || 0,
         video.stats?.comment_count || 0,
@@ -375,9 +375,9 @@ export default function PopularShortsList({
                   <CardContent className="p-4">
                     {/* Thumbnail */}
                     <div className="relative mb-3 w-full h-40">
-                      {video.thumbnails?.medium?.url ? (
+                      {video.thumbnail_url ? (
                         <Image
-                          src={video.thumbnails.medium.url}
+                          src={video.thumbnail_url}
                           alt={video.title}
                           fill={true}
                           className="object-cover rounded-lg"
@@ -405,7 +405,7 @@ export default function PopularShortsList({
 
                     {/* Channel */}
                     <p className="text-xs text-muted-foreground mb-3">
-                      {video.channel?.title || ''}
+                      {video.channel_title || ''}
                     </p>
 
                     {/* Metrics */}

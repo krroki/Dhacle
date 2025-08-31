@@ -24,12 +24,13 @@ function map_db_collection_to_collection(db_collection: DBCollection): Collectio
     name: db_collection.name,
     description: db_collection.description,
     is_public: db_collection.is_public ?? false,
-    coverImage: db_collection.cover_image_url,
+    cover_image_url: db_collection.cover_image_url,
     tags: db_collection.tags,
     itemCount: db_collection.item_count ?? 0,
+    metadata: null, // DBCollection에 metadata 필드가 없음
+    type: 'collection', // 기본 타입 설정
     created_at: db_collection.created_at ?? new Date().toISOString(),
     updated_at: db_collection.updated_at ?? new Date().toISOString(),
-    deleted_at: null,
   };
 }
 

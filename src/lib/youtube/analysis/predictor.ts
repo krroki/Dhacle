@@ -6,7 +6,7 @@
  * Uses time series analysis and statistical methods for viral prediction
  */
 
-import type { PredictionModel, YouTubeLensVideo as Video, VideoStats } from '@/types';
+import type { PredictionModel, YouTubeVideo as Video, YouTubeVideoStats as VideoStats } from '@/types';
 
 /**
  * Growth trajectory types
@@ -67,7 +67,7 @@ function extract_features(
 ): FeatureVector {
   // Sort stats by time
   const sorted_stats = [...stats].sort(
-    (a, b) => new Date(a.snapshotAt || 0).getTime() - new Date(b.snapshotAt || 0).getTime()
+    (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
   );
 
   // Calculate initial velocity (views in first measurement period)
@@ -98,7 +98,7 @@ function extract_features(
   const tag_count = (video.tags || []).length;
 
   // Time features
-  const published_date = new Date(video.published_at);
+  const published_date = new Date(video.published_at || new Date());
   const published_hour = published_date.getHours();
   const is_weekend = published_date.getDay() === 0 || published_date.getDay() === 6;
 
@@ -321,7 +321,7 @@ export async function predictVideoPerformance(
 
   // Get current stats
   const latest_stats = stats.sort(
-    (a, b) => new Date(b.snapshotAt || 0).getTime() - new Date(a.snapshotAt || 0).getTime()
+    (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
   )[0];
 
   const current_views = latest_stats?.view_count || 0;
@@ -336,7 +336,7 @@ export async function predictVideoPerformance(
   const confidence_interval = calculate_confidence_interval(predicted_views, features, trajectory);
 
   return {
-    video_id: video.video_id,
+    video_id: video.id,
     predictedViews: Math.round(predicted_views),
     predictedLikes: Math.round(predicted_likes),
     confidenceInterval: {

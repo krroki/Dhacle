@@ -139,21 +139,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const thumbnail_url = `https://videodelivery.net/${video_info.uid}/thumbnails/thumbnail.jpg`;
 
     // 레슨 정보 업데이트 (lesson_id가 제공된 경우)
+    // Note: lessons 테이블이 미구현 상태이므로 현재는 건너뜀
     if (lesson_id) {
-      const { error: update_error } = await supabase
-        .from('lessons')
-        .update({
-          video_url: hls_url,
-          thumbnail_url: thumbnail_url,
-          cloudflareVideoId: video_info.uid,
-          duration: video_info.duration || 0,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', lesson_id);
+      console.warn(`Lesson update skipped: lessons table not implemented yet. lesson_id: ${lesson_id}`);
+      // 향후 lessons 테이블 구현 시 여기에 업데이트 로직 추가
 
-      if (update_error) {
-        // 업로드는 성공했으므로 에러를 반환하지 않고 경고만 포함
-      }
+      // if (update_error) {
+      //   // 업로드는 성공했으므로 에러를 반환하지 않고 경고만 포함
+      // }
+      
+      // 현재는 lessons 테이블이 없으므로 로그만 남김
+      console.log(`Video uploaded for lesson_id: ${lesson_id}, video_id: ${video_info.uid}`);
     }
 
     return NextResponse.json({

@@ -1,444 +1,225 @@
-# 🔷 TypeScript 타입 관리 시스템
+# 🔷 TypeScript 타입 시스템 지침
 
-*Single Source of Truth 타입 시스템 및 snake_case/camelCase 변환*
+*TypeScript 타입 시스템 전문가 - Type Agent 자동 활성화*
+
+**자동 활성화**: `*.ts, *.tsx` 파일 Edit/Write/MultiEdit 시  
+**전문 분야**: any 타입 즉시 제거, @/types 중앙화, database.generated.ts 보호
 
 ---
 
-## 🚨🚨🚨 최우선 경고: 가짜 타입 = 프로젝트 파괴 🚨🚨🚨
+## 🛑 TypeScript 3단계 필수 규칙
 
-### 💀 2025-08-26 재앙: 가짜 database.generated.ts 사건
+### 1️⃣ STOP - 즉시 중단 신호
+- **any 타입 사용 → 중단** (biome 에러 발생)
+- **database.generated.ts 직접 import → 중단**
+- **가짜 타입 생성 시도 → 중단** (2025-08-26 재앙 방지)
+- **unknown→any 캐스팅 → 중단**
+- **'any' 문자열 값 사용 → 중단**
 
-**문제**: AI가 임시방편으로 가짜 타입 생성
+### 2️⃣ MUST - 필수 행동
 ```typescript
-// ❌ 절대 금지 - "Auto-generated fallback types" 
+// @/types 중앙화 필수 (direct import 금지)
+import { User, Post, YouTubeVideo } from '@/types';
+// import { Database } from '@/types/database.generated'; // ❌ 절대 금지!
+
+// 구체적 타입 정의 필수 (any 대신)
+const processData = (data: User[]): ProcessedUser[] => {
+  // any 대신 구체적 타입 사용
+};
+
+// 타입 가드 사용 (unknown 처리)
+const isValidUser = (obj: unknown): obj is User => {
+  return typeof obj === 'object' && obj !== null && 'id' in obj;
+};
+```
+
+### 3️⃣ CHECK - 검증 필수
+```bash
+# TypeScript 수정 후 즉시 실행
+npm run types:check          # TypeScript 전체 검증
+npx biome check **/*.ts      # any 타입 사용 검사
+npm run types:generate       # DB 변경 시 타입 재생성
+```
+
+## 🚫 TypeScript any 타입 금지
+
+### ❌ 발견된 문제: src/lib/youtube/monitoring.ts:18-24
+```typescript
+// ❌ 절대 금지 - 6개 any 타입 임시 정의 (즉시 수정 필요!)
+type Alert = any;
+type AlertRule = any;
+type AlertRuleType = any;
+type AlertMetric = any;
+type AlertCondition = any;
+type AlertScope = any;
+
+// ✅ 즉시 수정 - 구체적 YouTube 모니터링 타입
+interface Alert {
+  id: string;
+  rule_id: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  triggered_at: string;
+  resolved_at?: string;
+}
+
+interface AlertRule {
+  id: string;
+  name: string;
+  type: AlertRuleType;
+  condition: AlertCondition;
+  threshold: number;
+  enabled: boolean;
+}
+
+type AlertRuleType = 'subscriber_drop' | 'view_count_low' | 'engagement_drop';
+```
+
+### 🛡️ 예방책
+- **Context7 TypeScript**: 공식 ESLint 규칙으로 any 타입 'warn' 처리
+- **biome 즉시 차단**: any 타입 사용 시 빌드 실패
+- **4단계 위험 분류**: Critical/High/Medium/Low로 실질적 위험도 평가
+
+---
+
+## 🚨 TypeScript 필수 패턴
+
+### 패턴 1: @/types 중앙화 (database.generated 직접 금지)
+```typescript
+// ✅ @/types 중앙화 (프로젝트 표준)
+import { User, Post, Collection } from '@/types';
+
+// @/types/index.ts에서 재export
+export type { Database } from './database.generated';
+export type User = Database['public']['Tables']['users']['Row'];
+export type Post = Database['public']['Tables']['posts']['Row'];
+
+// ❌ 절대 금지 - database.generated 직접 import
+// import { Database } from '@/types/database.generated';
+```
+
+### 패턴 2: 타입 안전 에러 처리 (any 금지)
+```typescript
+// ✅ 타입 안전한 에러 처리
+try {
+  const response = await apiCall();
+  return response.data;
+} catch (error) {
+  // any 대신 unknown → instanceof 사용
+  console.error('Error:', error instanceof Error ? error.message : String(error));
+  
+  // 타입 가드로 안전한 처리
+  if (isAPIError(error)) {
+    throw new Error(`API Error: ${error.statusCode}`);
+  }
+  
+  throw new Error('Unknown error occurred');
+}
+
+// 타입 가드 정의
+const isAPIError = (error: unknown): error is APIError => {
+  return typeof error === 'object' && 
+         error !== null && 
+         'statusCode' in error;
+};
+```
+
+### 패턴 3: 실제 DB 타입 생성 (가짜 타입 방지)
+```bash
+# ✅ 유일한 올바른 방법 - Supabase CLI 사용
+npm run types:generate
+
+# 생성 실패 시 수동 실행 (2>&1 필수!)
+npx supabase gen types typescript \
+  --project-id [PROJECT_ID] \
+  > src/types/database.generated.ts 2>&1
+
+# ❌ 절대 금지 - 가짜 타입 추측 생성
+# export interface Database { /* 추측으로 만든 구조 */ }
+```
+
+---
+
+## 📋 TypeScript 검증 명령어
+
+```bash
+# 즉시 검증
+npm run types:check          # TypeScript 전체 오류 확인
+npx biome check **/*.ts      # any 타입 사용 검사
+
+# 상세 검증
+npm run build               # 프로덕션 빌드로 타입 검증
+npm run types:generate      # DB 타입 재생성 (변경 시)
+
+# 실제 타입 확인
+wc -l src/types/database.generated.ts  # 1000줄 이상이어야 정상
+head -5 src/types/database.generated.ts  # Supabase 자동 생성 확인
+```
+
+---
+
+## 🎯 TypeScript 성공 기준
+
+- [ ] **any 타입 0개**: 모든 any 타입 제거 (현재: monitoring.ts 6개 남음)
+- [ ] **@/types 중앙화**: database.generated 직접 import 0개
+- [ ] **실제 DB 타입**: 가짜 타입 없음, Supabase CLI 생성만 허용
+- [ ] **타입 가드 활용**: unknown 처리 시 instanceof/typeof 사용
+- [ ] **빌드 성공**: npm run types:check 통과
+
+---
+
+## ⚠️ TypeScript 주의사항
+
+### 자주 하는 실수
+- **any 타입 남용**: "빠르게"라는 핑계로 타입 시스템 파괴
+- **database.generated 직접 import**: @/types 우회하여 직접 접근
+- **가짜 타입 생성**: 실제 DB 구조와 맞지 않는 추측 타입
+- **unknown 무시**: any 캐스팅으로 타입 검사 우회
+
+### 함정 포인트
+- **'any' 문자열**: option value="any"도 혼동 야기 (value="all" 사용)
+- **외부 라이브러리**: JSON.parse 등 불가피한 any도 타입 가드로 처리
+- **이벤트 핸들러**: React.MouseEvent<HTMLElement> 등 구체적 타입 사용
+- **API 응답**: 외부 API 응답도 interface 정의 후 검증
+
+---
+
+## 💀 2025-08-26 가짜 타입 재앙 교훈
+
+### 문제 사례
+```typescript
+// ❌ 절대 금지 - AI가 추측으로 만든 가짜 타입
 export interface Database {
   public: {
     Tables: {
-      users: { // 추측으로 만든 구조
-        Row: { id: string; email: string }
+      users: { // 실제 DB와 다름!
+        Row: { id: string; email: string } // naver_cafe_nickname 누락!
       }
     }
   }
 }
 ```
 
-**결과**: 
-- TypeScript 컴파일 ✅ → 런타임 실패 ❌
-- VSCode 잘못된 자동완성 → 존재하지 않는 필드 사용
-- 디버깅 지옥 → "타입은 맞는데 왜 undefined?"
-- 데이터 손실 위험 → INSERT/UPDATE 실패
-
-### ✅ 유일한 올바른 방법: Supabase CLI 사용
-
-```bash
-# 1. 항상 실제 DB에서 타입 생성 (2>&1 필수!)
-npm run types:generate
-
-# 생성 실패 시 확인사항:
-# - Supabase 프로젝트 ID 확인
-# - 네트워크 연결 확인
-# - Supabase CLI 설치 여부
-
-# 2. stdout 리다이렉션 시 반드시 2>&1 포함
-npx supabase gen types typescript --project-id [ID] > src/types/database.generated.ts 2>&1
-
-# ❌ 절대 금지 - 에러 무시하는 리다이렉션
-npm run types:generate > database.generated.ts  # 에러 숨김!
-```
-
-### 🎯 TCREI Framework 적용 지침
-
-**Trigger (문제 발생 시그널)**:
-- database.generated.ts가 빈 파일이거나 짧음
-- "Auto-generated fallback types" 주석 발견
-- Tables import 에러 발생
-
-**Context (상황 파악)**:
-```bash
-# 파일 상태 확인
-ls -la src/types/database.generated.ts
-wc -l src/types/database.generated.ts  # 최소 1000줄 이상이어야 정상
-
-# 생성 날짜 확인
-head -5 src/types/database.generated.ts  # Supabase 자동 생성 주석 확인
-```
-
-**Response (대응)**:
-1. 즉시 작업 중단
-2. `npm run types:generate` 실행
-3. 생성된 파일 검증
-4. index.ts import 수정
-
-**Evidence (증거 확보)**:
-```bash
-# 타입 생성 로그 저장
-npm run types:generate 2>&1 | tee types-generation.log
-
-# 생성 완료 검증
-grep -c "export interface Database" src/types/database.generated.ts  # 1개 이상
-```
-
-**Impact (영향 평가)**:
-- 가짜 타입 = 전체 타입 시스템 붕괴
-- 실제 타입 = 안정적인 개발 환경
-
----
-
-## 🛑 타입 정의 3단계 필수 규칙
-
-### 1️⃣ STOP - 즉시 중단 신호
-- **'any' 문자열 값 사용 → 중단**
-- **database.generated.ts 직접 import → 중단**
-- **타입 없이 as any 캐스팅 → 중단**
-- **중복 타입 정의 → 중단**
-
-### 2️⃣ MUST - 필수 행동
-```typescript
-// 모든 타입은 @/types에서만
-import { User, Course } from '@/types';
-
-// 'any' 문자열 제거
-videoDefinition: 'standard' | 'high'  // 'any' 제거
-
-// Union 타입 명확하게
-type Status = 'pending' | 'active' | 'completed';  // 구체적 값만
-```
-
-### 3️⃣ CHECK - 검증 필수
-```bash
-# 수정 후 즉시 실행
-npm run types:check
-npm run types:generate  # DB 타입 재생성
-npx biome check src/types/*.ts
-```
-
-## 🚫 타입 정의 any 금지
-
-### ❌ 발견된 문제: types/index.ts
-```typescript
-// ❌ 절대 금지 - 'any' 문자열 값
-videoDefinition: 'any' | 'standard' | 'high'
-videoType: 'any' | 'video'
-videoEmbeddable: 'any' | 'true'
-
-// ✅ 즉시 수정 - 'any' 제거 또는 다른 이름
-videoDefinition: 'all' | 'standard' | 'high'  // YouTube API가 'any' 지원 시
-videoType: 'all' | 'video'
-videoEmbeddable: 'all' | 'true'
-```
-
----
-
-## 🚨 Single Source of Truth 원칙
-
-### 📊 타입 플로우
-```
-Supabase DB (snake_case)
-     ↓ [npm run types:generate]
-database.generated.ts (자동 생성, 수정 금지)
-     ↓
-src/types/index.ts (변환 레이어, 중앙 관리)
-     ↓
-Frontend Components (camelCase 사용)
-```
-
-**핵심**: DB가 진실의 원천, index.ts가 유일한 타입 소스
-
----
-
-## ✅ 올바른 타입 import
-
-### 반드시 @/types에서만 import
-```typescript
-// ✅ 올바른 import - @/types만 사용
-import { User, Course, YouTubeVideo } from '@/types';
-import { snakeToCamelCase, camelToSnakeCase } from '@/types';
-import type { ApiResponse, PaginatedResponse } from '@/types';
-
-// ❌ 절대 금지 패턴들
-import { Database } from '@/types/database';           // 금지!
-import { Database } from '@/types/database.generated'; // 금지!
-import { Database } from '@/types/database.types';     // 금지!
-import type { Tables } from '@/types/database.generated'; // 금지!
-```
-
-### 파일 체계
-```
-types/
-├── database.generated.ts  # Supabase 자동 생성 (절대 수정 금지!)
-└── index.ts              # 중앙 타입 정의 (Single Source of Truth)
-
-❌ 삭제된 파일들 (중복 방지):
-- course.ts
-- youtube.ts
-- youtube-lens.ts
-- revenue-proof.ts
-- 기타 개별 타입 파일
-```
-
----
-
-## 🔄 케이스 변환 시스템
-
-### API Route에서 (DB → Frontend)
-```typescript
-import { snakeToCamelCase } from '@/types';
-
-// DB에서 snake_case로 가져온 데이터
-const { data } = await supabase
-  .from('youtube_videos')
-  .select('video_id, channel_name, created_at');
-
-// Frontend로 camelCase로 변환해서 전달
-return NextResponse.json(snakeToCamelCase(data));
-// 결과: { videoId, channelName, createdAt }
-```
-
-### Frontend에서 사용
-```typescript
-import { YouTubeVideo } from '@/types';
-import { apiGet } from '@/lib/api-client';
-
-// 이미 camelCase로 변환된 데이터
-const video: YouTubeVideo = await apiGet('/api/youtube/video');
-console.log(video.videoId);     // camelCase
-console.log(video.channelName); // camelCase
-```
-
-### DB 저장 시 (Frontend → DB)
-```typescript
-import { camelToSnakeCase } from '@/types';
-
-// Frontend에서 camelCase 데이터
-const userData = {
-  firstName: 'John',
-  lastName: 'Doe',
-  createdAt: new Date()
-};
-
-// DB에 snake_case로 변환해서 저장
-await supabase
-  .from('users')
-  .insert(camelToSnakeCase(userData));
-// 저장: { first_name, last_name, created_at }
-```
-
----
-
-## 📝 타입 정의 규칙
-
-### 1. 기본 타입 정의
-```typescript
-// User 타입 (camelCase 필드)
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;    // DB: first_name
-  lastName: string;     // DB: last_name
-  createdAt: Date;      // DB: created_at
-  updatedAt: Date;      // DB: updated_at
-}
-```
-
-### 2. Union 타입 활용
-```typescript
-// 상태 타입
-export type Status = 'pending' | 'active' | 'completed' | 'failed';
-
-// 역할 타입
-export type UserRole = 'admin' | 'user' | 'moderator';
-
-// 결제 상태
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
-```
-
-### 3. 제네릭 활용
-```typescript
-// API 응답 타입
-export interface ApiResponse<T> {
-  data: T;
-  error?: string;
-  message?: string;
-}
-
-// 페이지네이션 응답
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
-
-// 사용 예시
-type UserResponse = ApiResponse<User>;
-type PostListResponse = PaginatedResponse<Post>;
-```
-
-### 4. Utility 타입 활용
-```typescript
-// 부분 업데이트
-export type UpdateUser = Partial<User>;
-
-// 필수 필드만
-export type CreateUser = Pick<User, 'email' | 'firstName' | 'lastName'>;
-
-// 특정 필드 제외
-export type PublicUser = Omit<User, 'password' | 'refreshToken'>;
-
-// 읽기 전용
-export type ReadonlyUser = Readonly<User>;
-```
-
-### 5. any 타입 절대 금지
-```typescript
-// ❌ 금지 - any 타입
-const data: any = [];
-function process(input: any): any {}
-
-// ✅ 올바름 - 구체적 타입 또는 unknown
-const data: unknown[] = [];
-function process<T>(input: T): T {}
-
-// unknown 처리 시 타입 가드 사용
-function isUser(obj: unknown): obj is User {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'id' in obj &&
-    'email' in obj
-  );
-}
-```
-
----
-
-## 🔧 타입 생성 명령어
-
-### DB에서 타입 생성
-```bash
-# 프로덕션 DB에서 타입 생성
-npm run types:generate
-
-# 로컬 DB에서 타입 생성  
-npm run types:generate:local
-
-# database.generated.ts 파일이 자동 생성/갱신됨
-```
-
-### 타입 체크
-```bash
-# TypeScript 타입 체크
-npm run types:check
-
-# 타입 오류 상세 확인
-npx tsc --noEmit
-```
-
-### 타입 오류 자동 수정 (신중히 사용)
-```bash
-# AI 기반 타입 수정 제안
-npm run types:auto-fix
-
-# ⚠️ 주의: 자동 수정은 검증 후 사용
-```
-
----
-
-## 🚫 절대 금지사항
-
-1. **any 타입 사용 금지**
-   ```typescript
-   // ❌ 절대 금지
-   const data: any = {};
-   ```
-
-2. **database.generated.ts 직접 import 금지**
-   ```typescript
-   // ❌ 절대 금지
-   import { Database } from '@/types/database.generated';
-   ```
-
-3. **수동으로 DB 타입 작성 금지**
-   ```typescript
-   // ❌ 금지 - DB 타입 임의 작성
-   interface DBUser {
-     user_id: string;
-   }
-   ```
-
-4. **@ts-ignore 사용 금지**
-   ```typescript
-   // ❌ 절대 금지
-   // @ts-ignore
-   ```
-
-5. **unknown 타입 검증 없이 사용 금지**
-   ```typescript
-   // ❌ 금지
-   const value: unknown = getData();
-   console.log(value.property); // 에러!
-   
-   // ✅ 올바름
-   if (typeof value === 'object' && value && 'property' in value) {
-     console.log(value.property);
-   }
-   ```
-
----
-
-## 📋 타입 체크리스트
-
-- [ ] 모든 함수에 반환 타입 명시
-- [ ] API 응답에 타입 정의
-- [ ] unknown 처리 시 타입 가드 사용
-- [ ] Union 타입으로 유연성 확보
-- [ ] 제네릭으로 재사용성 향상
-- [ ] any 타입 0개 확인
-- [ ] @/types에서만 import
-- [ ] camelCase 일관성 유지
-
----
-
-## 🔍 타입 문제 해결
-
-### import 오류
-```typescript
-// 문제: Cannot find module '@/types'
-// 해결: tsconfig.json paths 확인
-{
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-}
-```
-
-### 타입 불일치
-```typescript
-// 문제: Type 'string | null' is not assignable to type 'string'
-// 해결: null 체크 또는 기본값
-const value: string = data?.field ?? '';
-```
-
-### 제네릭 타입 추론
-```typescript
-// 문제: 제네릭 타입이 추론되지 않음
-// 해결: 명시적 타입 지정
-const result = apiGet<User>('/api/user');
-```
+### 결과
+- **컴파일**: ✅ 성공 → **런타임**: ❌ 실패
+- **자동완성**: 잘못된 필드 제안 → **undefined 에러**
+- **디버깅**: "타입은 맞는데 왜 안 되지?" → **시간 낭비**
+
+### 영구 해결책
+1. **Supabase CLI만 사용**: 실제 DB 구조에서 타입 생성
+2. **1000줄 이상 검증**: 정상적인 database.generated.ts 크기
+3. **@/types 중앙화**: 직접 import 차단으로 통제
+4. **Type Agent 자동 차단**: 가짜 타입 생성 시도 즉시 중단
 
 ---
 
 ## 📁 관련 파일
 
-- 타입 생성 설정: `/package.json` (scripts)
-- TypeScript 설정: `/tsconfig.json`
-- 타입 정의: `/src/types/index.ts`
-- 자동 생성: `/src/types/database.generated.ts`
-- 변환 유틸: `/src/lib/utils/case-converter.ts`
+- **중앙 타입**: [/src/types/index.ts](index.ts) - 모든 타입 재export
+- **DB 타입**: [/src/types/database.generated.ts](database.generated.ts) - Supabase 자동 생성
+- **변환 함수**: [/src/types/converters.ts](converters.ts) - snake_case ↔ camelCase
+- **타입 가드**: [/src/types/guards.ts](guards.ts) - 런타임 타입 검증
 
 ---
 
-*타입 작업 시 이 문서를 우선 참조하세요.*
+*TypeScript 작업 시 이 지침을 필수로 준수하세요. Type Agent가 자동으로 활성화되어 any 타입 사용과 가짜 타입 생성을 즉시 차단합니다.*

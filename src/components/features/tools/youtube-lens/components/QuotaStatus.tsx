@@ -48,13 +48,18 @@ function get_progress_color(percentage: number): string {
 }
 
 // 남은 시간 계산
-function format_time_remaining(reset_time?: number): string {
+function format_time_remaining(reset_time?: string | number): string {
   if (!reset_time) {
     return '알 수 없음';
   }
 
   const now = Date.now();
-  const diff = reset_time - now;
+  // resetTime이 string인 경우 Date로 변환 후 타임스탬프 추출
+  const resetTimeMs = typeof reset_time === 'string' 
+    ? new Date(reset_time).getTime() 
+    : reset_time;
+  
+  const diff = resetTimeMs - now;
 
   if (diff <= 0) {
     return '곧 초기화';
@@ -86,7 +91,7 @@ export function QuotaStatus({
     }
 
     const update_time = () => {
-      set_time_remaining(format_time_remaining(quotaStatus.resetTime.getTime()));
+      set_time_remaining(format_time_remaining(quotaStatus.resetTime));
     };
 
     update_time();

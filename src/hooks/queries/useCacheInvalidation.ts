@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys, invalidateModule, invalidateRelated } from '@/lib/query-keys';
+import { queryKeys, invalidateModule } from '@/lib/query-keys';
 import type { FilterParams } from '@/types';
 
 /**
@@ -58,49 +58,6 @@ export function useCacheInvalidation() {
       invalidateModule(queryClient, 'user');
     },
     
-    // Community module invalidations
-    invalidateCommunityPosts: (filters?: FilterParams) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.community.posts(filters) 
-      });
-    },
-    
-    invalidateCommunityPost: (postId: string) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.community.post(postId) 
-      });
-      // Also invalidate comments for this post
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.community.comments(postId) 
-      });
-    },
-    
-    invalidateAllCommunity: () => {
-      invalidateModule(queryClient, 'community');
-    },
-    
-    // Revenue Proof module invalidations
-    invalidateRevenueProofs: (filters?: FilterParams) => {
-      if (filters) {
-        queryClient.invalidateQueries({ 
-          queryKey: queryKeys.revenueProof.list(filters) 
-        });
-      } else {
-        queryClient.invalidateQueries({ 
-          queryKey: queryKeys.revenueProof.lists() 
-        });
-      }
-    },
-    
-    invalidateRevenueProofDetail: (id: string) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.revenueProof.detail(id) 
-      });
-      // Also invalidate comments
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.revenueProof.comments(id) 
-      });
-    },
     
     // Notifications module invalidations
     invalidateNotifications: () => {
@@ -112,18 +69,6 @@ export function useCacheInvalidation() {
       });
     },
     
-    // Course module invalidations
-    invalidateCourses: (filters?: FilterParams) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.courses.list(filters) 
-      });
-    },
-    
-    invalidateCourseProgress: (courseId: string) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.courses.progress(courseId) 
-      });
-    },
     
     // Admin module invalidations
     invalidateAdminStats: () => {
@@ -146,9 +91,6 @@ export function useCacheInvalidation() {
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.youtube.favorites() 
       });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.courses.enrolled() 
-      });
     },
     
     invalidateAfterLogout: () => {
@@ -159,27 +101,8 @@ export function useCacheInvalidation() {
     invalidateAfterProfileUpdate: () => {
       // Invalidate profile and related data
       invalidateModule(queryClient, 'user');
-      // Profile changes might affect displayed names in posts/comments
-      invalidateModule(queryClient, 'community');
     },
     
-    invalidateAfterContentCreation: (type: 'post' | 'proof' | 'comment') => {
-      switch (type) {
-        case 'post':
-          invalidateModule(queryClient, 'community');
-          break;
-        case 'proof':
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.revenueProof.lists() 
-          });
-          break;
-        case 'comment':
-          // Comments affect multiple modules
-          invalidateRelated(queryClient, 'community', ['posts']);
-          invalidateRelated(queryClient, 'revenueProof', ['lists']);
-          break;
-      }
-    },
     
     // Utility methods
     clearAllCache: () => {

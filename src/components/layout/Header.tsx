@@ -2,34 +2,18 @@
 
 import { createBrowserClient } from '@/lib/supabase/browser-client';
 import {
-  BookOpen,
   Calculator,
-  Calendar,
-  Crown,
   Eye,
   FileText,
-  GalleryHorizontalEnd,
-  Gift,
-  Grid,
-  Heart,
-  HelpCircle,
   LogOut,
   Menu,
-  MessageSquare,
   Moon,
   Palette,
-  Play,
-  Rocket,
   Search,
   Settings,
   Shield,
-  Sparkles,
-  Star,
   Sun,
-  TrendingUp,
-  Trophy,
   User,
-  Users,
   Wrench,
   X,
 } from 'lucide-react';
@@ -75,154 +59,45 @@ interface NavItem {
 
 const nav_items: NavItem[] = [
   {
-    label: '강의',
-    href: '/courses',
-    subItems: [
-      {
-        label: '전체 강의',
-        href: '/courses',
-        icon: BookOpen,
-        description: '모든 강의 보기',
-      },
-      {
-        label: '인기 강의',
-        href: '/courses/popular',
-        icon: Trophy,
-        description: '가장 인기있는 강의들',
-      },
-      {
-        label: '신규 강의',
-        href: '/courses/new',
-        icon: Sparkles,
-        description: '최근 추가된 강의',
-      },
-      {
-        label: '카테고리별',
-        href: '/courses/categories',
-        icon: Grid,
-        description: '분야별 강의 찾기',
-      },
-    ],
-  },
-  {
-    label: '무료 강의',
-    href: '/courses/free',
-    badge: 'NEW',
-    subItems: [
-      {
-        label: '이번 주 무료',
-        href: '/courses/free/weekly',
-        icon: Calendar,
-        description: '매주 업데이트되는 무료 강의',
-      },
-      {
-        label: '입문자 추천',
-        href: '/courses/free/beginner',
-        icon: Rocket,
-        description: '초보자를 위한 무료 강의',
-      },
-      {
-        label: '체험판',
-        href: '/courses/free/trial',
-        icon: Play,
-        description: '유료 강의 맛보기',
-      },
-      {
-        label: '이벤트 무료',
-        href: '/courses/free/event',
-        icon: Gift,
-        description: '기간 한정 무료 제공',
-      },
-    ],
-  },
-  {
-    label: '커뮤니티',
-    href: '/community',
-    subItems: [
-      {
-        label: '자유 게시판',
-        href: '/community/board',
-        icon: MessageSquare,
-        description: '자유로운 소통 공간',
-      },
-      {
-        label: 'Q&A',
-        href: '/community/qna',
-        icon: HelpCircle,
-        description: '질문과 답변',
-      },
-      {
-        label: '스터디 모집',
-        href: '/community/study',
-        icon: Users,
-        description: '함께 공부할 사람 찾기',
-      },
-      {
-        label: '성공 사례',
-        href: '/community/success',
-        icon: Star,
-        description: '수강생 성공 스토리',
-      },
-    ],
-  },
-  {
     label: '도구',
     href: '/tools',
     badge: 'HOT',
     subItems: [
       {
-        label: '디하클렌즈',
+        label: 'YouTube Lens',
         href: '/tools/youtube-lens',
         icon: Eye,
-        description: 'YouTube Shorts 영상 탐색 및 분석',
+        description: 'YouTube 채널 분석 및 키워드 트렌드',
       },
       {
         label: '수익 계산기',
         href: '/tools/revenue-calculator',
         icon: Calculator,
-        description: '예상 수익 계산',
+        description: 'YouTube 수익 예측 도구',
       },
       {
-        label: '썸네일 메이커',
+        label: '썸네일 제작기',
         href: '/tools/thumbnail-maker',
         icon: Palette,
-        description: '썸네일 제작 도구',
+        description: 'AI 기반 썸네일 제작',
       },
       {
-        label: '더 많은 도구',
+        label: '모든 도구',
         href: '/tools',
         icon: Wrench,
-        description: '모든 도구 보기',
+        description: '전체 도구 모음',
       },
     ],
   },
   {
-    label: '수익 인증',
-    href: '/revenue-proof',
+    label: 'API',
+    href: '/docs/get-api-key',
     subItems: [
       {
-        label: '수익 인증하기',
-        href: '/revenue-proof/create',
-        icon: TrendingUp,
-        description: '내 수익 인증하기',
-      },
-      {
-        label: '실시간 랭킹',
-        href: '/revenue-proof/ranking',
-        icon: Crown,
-        description: '수익 랭킹 확인',
-      },
-      {
-        label: '인증 갤러리',
-        href: '/revenue-proof',
-        icon: GalleryHorizontalEnd,
-        description: '모든 인증 보기',
-      },
-      {
-        label: '인증 가이드',
-        href: '/revenue-proof/guide',
+        label: 'API 키 발급',
+        href: '/docs/get-api-key',
         icon: FileText,
-        description: '인증 방법 안내',
+        description: 'YouTube API 키 설정하기',
       },
     ],
   },
@@ -235,7 +110,7 @@ export function Header() {
   const [is_scrolled, set_is_scrolled] = useState(false);
   const [last_scroll_y, set_last_scroll_y] = useState(0);
   const [search_query, set_search_query] = useState('');
-  const [user_role, set_user_role] = useState<'user' | 'instructor' | 'admin' | null>(null);
+  const [user_role, set_user_role] = useState<'user' | 'admin' | null>(null);
 
   const {
     isHeaderVisible,
@@ -270,7 +145,7 @@ export function Header() {
           .single();
 
         if (data && !error) {
-          set_user_role(data.role as 'user' | 'instructor' | 'admin');
+          set_user_role(data.role as 'user' | 'admin');
         } else {
           // Default to 'user' role if profile not found
           set_user_role('user');
@@ -499,19 +374,9 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild={true}>
-                    <Link href="/mypage/courses" className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />내 강의
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild={true}>
-                    <Link href="/mypage/achievements" className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4" />
-                      업적
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild={true}>
-                    <Link href="/mypage/wishlist" className="flex items-center gap-2">
-                      <Heart className="h-4 w-4" />찜 목록
+                    <Link href="/settings/api-keys" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      API 키 관리
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

@@ -1,0 +1,73 @@
+{
+  "projectName": "Dhacle - YouTube 크리에이터 도구",
+  "version": "1.0.0",
+  "phase": "완전 복구 완료",
+  "lastUpdated": "2025-08-30T16:00:00Z",
+  
+  "coreRules": {
+    "noAnyTypes": {
+      "pattern": "any 타입 사용 금지",
+      "reason": "biome 설정으로 any 타입 사용 시 빌드 실패",
+      "violation": "IMMEDIATE_BLOCK"
+    },
+    "useEnvTs": {
+      "pattern": "import { env } from '@/env';",
+      "reason": "타입 안전 환경변수 접근",
+      "violation": "BLOCK"
+    },
+    "shadcnUiFirst": {
+      "pattern": "shadcn/ui 컴포넌트 우선 사용",
+      "reason": "디자인 시스템 일관성",
+      "violation": "BLOCK"
+    },
+    "serverComponentDefault": {
+      "pattern": "기본 Server Component",
+      "reason": "성능 최적화",
+      "violation": "BLOCK"
+    }
+  },
+
+  "automationSystems": {
+    "jscpd": { 
+      "enabled": true, 
+      "threshold": 5, 
+      "status": "복구 완료",
+      "configFile": ".jscpd.json"
+    },
+    "assetScanner": { 
+      "enabled": true, 
+      "status": "복구 완료",
+      "scriptPath": "scripts/asset-scanner.js"
+    },
+    "contextLoader": { 
+      "enabled": true, 
+      "status": "복구 완료",
+      "scriptPath": "scripts/context-loader.js"
+    },
+    "husky": { 
+      "enabled": true, 
+      "preCommitSteps": 9,
+      "status": "통합 완료"
+    },
+    "biome": { 
+      "enabled": true, 
+      "anyTypeBlocking": true 
+    }
+  },
+
+  "recoveryInfo": {
+    "recoveryDate": "2025-08-30",
+    "recoveryPhase": "Phase 3 - 완전 복구 완료",
+    "completedPhases": ["Phase 1: jscpd 복구", "Phase 2: 핵심 시스템", "Phase 3: 통합 완료"],
+    "systemStatus": "완전 작동",
+    "nextMaintenance": "정기 품질 체크"
+  },
+
+  "npmScripts": {
+    "scan:assets": "Asset Scanner 실행",
+    "context:load": "AI Context 생성",
+    "context:update": "통합 워크플로우",
+    "jscpd:check": "중복 코드 검사",
+    "full:scan": "전체 품질 검사"
+  }
+}

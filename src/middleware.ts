@@ -28,11 +28,7 @@ const PRIVATE_DATA_ROUTES = [
   '/api/youtube/favorites',
   '/api/youtube/search-history',
   '/api/youtube/collections',
-  '/api/revenue-proof/my',
-  '/api/payment',
   '/api/admin',
-  '/api/community/posts/my',
-  '/api/course/my',
 ];
 
 // 공개 API 경로 (캐싱 허용)

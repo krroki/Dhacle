@@ -94,34 +94,26 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
         throw profileError;
       }
       
-      // Step 6: Remove personal data from other tables
-      // Revenue proofs - anonymize
-      const { error: revenueError } = await serviceClient
-        .from('revenue_proofs')
-        .update({
-          title: '[삭제된 사용자의 수익 인증]',
-          description: '[삭제된 내용]',
-          proof_url: null
-        })
+      // Step 6: Clean up YouTube-related data (YouTube 크리에이터 도구 사이트)
+      // YouTube favorites - remove
+      const { error: favoritesError } = await serviceClient
+        .from('youtube_favorites')
+        .delete()
         .eq('user_id', user.id);
         
-      if (revenueError) {
-        logger.warn('Failed to anonymize revenue proofs: ' + revenueError.message);
+      if (favoritesError) {
+        logger.warn('Failed to delete YouTube favorites: ' + favoritesError.message);
         // Continue with deletion
       }
       
-      // Community posts - anonymize
-      const { error: postsError } = await serviceClient
-        .from('community_posts')
-        .update({
-          title: '[삭제된 게시물]',
-          content: '[삭제된 내용]',
-          image_url: null
-        })
+      // Collections - remove
+      const { error: collectionsError } = await serviceClient
+        .from('collections')
+        .delete()
         .eq('user_id', user.id);
         
-      if (postsError) {
-        logger.warn('Failed to anonymize community posts: ' + postsError.message);
+      if (collectionsError) {
+        logger.warn('Failed to delete collections: ' + collectionsError.message);
         // Continue with deletion
       }
       
@@ -136,13 +128,13 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       }
       
       // Delete from collections (favorites)
-      const { error: collectionsError } = await serviceClient
+      const { error: userCollectionsError } = await serviceClient
         .from('collections')
         .delete()
         .eq('user_id', user.id);
         
-      if (collectionsError) {
-        logger.warn('Failed to delete collections: ' + collectionsError.message);
+      if (userCollectionsError) {
+        logger.warn('Failed to delete user collections: ' + userCollectionsError.message);
       }
       
       // Delete from collection items

@@ -4,11 +4,10 @@
  */
 
 import { apiGet, apiPost } from '@/lib/api-client';
-import { env } from '@/env';
 
 export async function autoSetupYouTubeApiKey() {
-  // 개발 환경 체크
-  if (env.NODE_ENV !== 'development') {
+  // 개발 환경 체크 (클라이언트에서 접근 가능한 process.env 사용)
+  if (process.env.NODE_ENV !== 'development') {
     return { success: false, message: 'Production environment' };
   }
 
@@ -34,14 +33,7 @@ export async function autoSetupYouTubeApiKey() {
       return { success: true, message: 'API Key already active', existing: true };
     }
 
-    // 환경변수에서 YouTube API Key 가져오기
-    const youtubeApiKey = env.YOUTUBE_API_KEY;
-    if (!youtubeApiKey) {
-      console.warn('⚠️ YOUTUBE_API_KEY not found in environment variables');
-      return { success: false, message: 'API Key not configured in env' };
-    }
-
-    // API Route를 통해 API Key 저장
+    // 서버의 auto-setup API 엔드포인트 호출
     const saveResult = await apiPost<{
       success: boolean;
       data?: {
@@ -53,13 +45,8 @@ export async function autoSetupYouTubeApiKey() {
       };
       message?: string;
       error?: string;
-    }>('/api/user/api-keys', {
-      api_key: youtubeApiKey,
-      service_name: 'youtube',
-      metadata: {
-        auto_setup: true,
-        setup_time: new Date().toISOString()
-      }
+    }>('/api/user/api-keys/auto-setup', {
+      service_name: 'youtube'
     });
 
     if (!saveResult.success) {
@@ -82,7 +69,7 @@ export function isDevAutoLoginEnabled(): boolean {
   if (typeof window === 'undefined') return false;
   
   return (
-    env.NODE_ENV === 'development' &&
+    process.env.NODE_ENV === 'development' &&
     (window.location.hostname === 'localhost' || 
      window.location.hostname === '127.0.0.1')
   );
