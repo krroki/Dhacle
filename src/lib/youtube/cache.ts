@@ -1,6 +1,6 @@
-/**
- * YouTube API 캐싱 시스템
- * 2-레벨 캐싱: 메모리(LRU) + Redis
+﻿/**
+ * YouTube API 罹먯떛 ?쒖뒪??
+ * 2-?덈꺼 罹먯떛: 硫붾え由?LRU) + Redis
  */
 
 import crypto from 'node:crypto';
@@ -8,11 +8,11 @@ import Redis from 'ioredis';
 import { LRUCache } from 'lru-cache';
 import { env } from '@/env';
 
-// Redis 클라이언트 (조건부 생성)
+// Redis ?대씪?댁뼵??(議곌굔遺 ?앹꽦)
 let redis: Redis | null = null;
 
-// Redis 연결 시도 (개발 환경에서는 선택적)
-if (env.REDIS_HOST || env.NODE_ENV === 'production') {
+// Redis ?곌껐 ?쒕룄 (媛쒕컻 ?섍꼍?먯꽌???좏깮??
+if (env.REDIS_HOST) {
   try {
     redis = new Redis({
       host: env.REDIS_HOST || 'localhost',
@@ -20,10 +20,10 @@ if (env.REDIS_HOST || env.NODE_ENV === 'production') {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       lazyConnect: true,
-      retryStrategy: () => null, // 재시도 비활성화
+      retryStrategy: () => null, // ?ъ떆??鍮꾪솢?깊솕
     });
 
-    // 에러 핸들러 등록
+    // ?먮윭 ?몃뱾???깅줉
     redis.on('error', (err) => {
       console.error('[Cache] Redis connection failed, using memory cache only:', err.message);
       redis = null;
@@ -37,15 +37,15 @@ if (env.REDIS_HOST || env.NODE_ENV === 'production') {
   console.log('Redis not configured, using memory cache only');
 }
 
-// 캐시 옵션 인터페이스
+// 罹먯떆 ?듭뀡 ?명꽣?섏씠??
 export interface CacheOptions {
   ttl?: number; // Time To Live (ms)
   stale?: number; // Stale while revalidate (ms)
-  namespace?: string; // 캐시 네임스페이스
-  compress?: boolean; // 압축 여부
+  namespace?: string; // 罹먯떆 ?ㅼ엫?ㅽ럹?댁뒪
+  compress?: boolean; // ?뺤텞 ?щ?
 }
 
-// 캐시 통계
+// 罹먯떆 ?듦퀎
 export interface CacheStats {
   hits: number;
   misses: number;
@@ -54,7 +54,7 @@ export interface CacheStats {
   hitRate: number;
 }
 
-// 캐시 항목 인터페이스
+// 罹먯떆 ??ぉ ?명꽣?섏씠??
 interface CacheItem<T> {
   data: T;
   timestamp: number;
@@ -62,7 +62,7 @@ interface CacheItem<T> {
   key: string;
 }
 
-// 캐시 매니저 클래스
+// 罹먯떆 留ㅻ땲? ?대옒??
 export class CacheManager {
   private static instance: CacheManager;
   private memoryCache: LRUCache<string, CacheItem<unknown>>;
@@ -76,19 +76,19 @@ export class CacheManager {
   private redisConnected = false;
 
   private constructor() {
-    // LRU 캐시 설정 (메모리)
+    // LRU 罹먯떆 ?ㅼ젙 (硫붾え由?
     this.memoryCache = new LRUCache<string, CacheItem<unknown>>({
-      max: 500, // 최대 500개 항목
-      maxSize: 50 * 1024 * 1024, // 최대 50MB
+      max: 500, // 理쒕? 500媛???ぉ
+      maxSize: 50 * 1024 * 1024, // 理쒕? 50MB
       sizeCalculation: (value) => {
         return JSON.stringify(value).length;
       },
-      ttl: 5 * 60 * 1000, // 기본 TTL 5분
+      ttl: 5 * 60 * 1000, // 湲곕낯 TTL 5遺?
       updateAgeOnGet: true,
       updateAgeOnHas: true,
     });
 
-    // Redis 연결 확인
+    // Redis ?곌껐 ?뺤씤
     this.connectRedis();
   }
 
@@ -99,7 +99,7 @@ export class CacheManager {
     return CacheManager.instance;
   }
 
-  // Redis 연결
+  // Redis ?곌껐
   private async connectRedis(): Promise<void> {
     if (!redis) {
       this.redisConnected = false;
@@ -114,11 +114,11 @@ export class CacheManager {
       console.error('[Cache] Redis connection failed:', error instanceof Error ? error.message : 'Unknown error');
       console.log('[Cache] Falling back to memory cache only');
       this.redisConnected = false;
-      redis = null; // Redis 비활성화
+      redis = null; // Redis 鍮꾪솢?깊솕
     }
   }
 
-  // 캐시 키 생성
+  // 罹먯떆 ???앹꽦
   generateKey(type: string, params: unknown): string {
     const normalized = this.normalizeParams(params);
     const hash = crypto
@@ -130,7 +130,7 @@ export class CacheManager {
     return `youtube:${type}:${hash}`;
   }
 
-  // 파라미터 정규화
+  // ?뚮씪誘명꽣 ?뺢퇋??
   private normalizeParams(params: unknown): Record<string, unknown> {
     if (!params || typeof params !== 'object' || params === null) {
       return {};
@@ -139,7 +139,7 @@ export class CacheManager {
     // Type assertion after type guard
     const params_obj = params as Record<string, unknown>;
 
-    // 객체 키 정렬
+    // 媛앹껜 ???뺣젹
     const sorted: Record<string, unknown> = {};
     Object.keys(params_obj)
       .sort()
@@ -152,9 +152,9 @@ export class CacheManager {
     return sorted;
   }
 
-  // 캐시 가져오기
+  // 罹먯떆 媛?몄삤湲?
   async get<T>(key: string): Promise<T | null> {
-    // 1. 메모리 캐시 확인
+    // 1. 硫붾え由?罹먯떆 ?뺤씤
     const memory_item = this.memoryCache.get(key);
     if (memory_item) {
       this.stats.hits++;
@@ -163,25 +163,25 @@ export class CacheManager {
       return memory_item.data as T;
     }
 
-    // 2. Redis 캐시 확인 (연결된 경우)
+    // 2. Redis 罹먯떆 ?뺤씤 (?곌껐??寃쎌슦)
     if (this.redisConnected && redis) {
       try {
         const redis_data = await redis.get(key);
         if (redis_data) {
           const item = JSON.parse(redis_data) as CacheItem<T>;
 
-          // TTL 확인
+          // TTL ?뺤씤
           if (Date.now() - item.timestamp < item.ttl) {
             this.stats.hits++;
             this.updateHitRate();
 
-            // 메모리 캐시에도 저장
+            // 硫붾え由?罹먯떆?먮룄 ???
             this.memoryCache.set(key, item as CacheItem<unknown>);
 
             console.log(`Redis cache hit: ${key}`);
             return item.data;
           }
-          // 만료된 항목 삭제
+          // 留뚮즺????ぉ ??젣
           await redis.del(key);
         }
       } catch (error) {
@@ -194,7 +194,7 @@ export class CacheManager {
     return null;
   }
 
-  // 캐시 저장
+  // 罹먯떆 ???
   async set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): Promise<void> {
     const item: CacheItem<T> = {
       data,
@@ -203,10 +203,10 @@ export class CacheManager {
       key,
     };
 
-    // 1. 메모리 캐시 저장
+    // 1. 硫붾え由?罹먯떆 ???
     this.memoryCache.set(key, item as CacheItem<unknown>);
 
-    // 2. Redis 캐시 저장 (연결된 경우)
+    // 2. Redis 罹먯떆 ???(?곌껐??寃쎌슦)
     if (this.redisConnected && redis) {
       try {
         await redis.setex(key, Math.floor(ttl / 1000), JSON.stringify(item));
@@ -219,12 +219,12 @@ export class CacheManager {
     console.log(`Cache set: ${key} (TTL: ${ttl}ms)`);
   }
 
-  // 캐시 삭제
+  // 罹먯떆 ??젣
   async delete(key: string): Promise<void> {
-    // 1. 메모리 캐시 삭제
+    // 1. 硫붾え由?罹먯떆 ??젣
     this.memoryCache.delete(key);
 
-    // 2. Redis 캐시 삭제 (연결된 경우)
+    // 2. Redis 罹먯떆 ??젣 (?곌껐??寃쎌슦)
     if (this.redisConnected && redis) {
       try {
         await redis.del(key);
@@ -237,9 +237,9 @@ export class CacheManager {
     console.log(`Cache deleted: ${key}`);
   }
 
-  // 패턴으로 캐시 삭제
+  // ?⑦꽩?쇰줈 罹먯떆 ??젣
   async deletePattern(pattern: string): Promise<void> {
-    // 메모리 캐시에서 패턴 매칭 삭제
+    // 硫붾え由?罹먯떆?먯꽌 ?⑦꽩 留ㅼ묶 ??젣
     for (const [key] of this.memoryCache.entries()) {
       if (key.includes(pattern)) {
         this.memoryCache.delete(key);
@@ -247,7 +247,7 @@ export class CacheManager {
       }
     }
 
-    // Redis에서 패턴 매칭 삭제
+    // Redis?먯꽌 ?⑦꽩 留ㅼ묶 ??젣
     if (this.redisConnected && redis) {
       try {
         const keys = await redis.keys(`*${pattern}*`);
@@ -263,12 +263,12 @@ export class CacheManager {
     console.log(`Cache pattern deleted: ${pattern}`);
   }
 
-  // 캐시 초기화
+  // 罹먯떆 珥덇린??
   async clear(): Promise<void> {
-    // 메모리 캐시 초기화
+    // 硫붾え由?罹먯떆 珥덇린??
     this.memoryCache.clear();
 
-    // Redis 캐시 초기화 (YouTube 관련만)
+    // Redis 罹먯떆 珥덇린??(YouTube 愿?⑤쭔)
     if (this.redisConnected && redis) {
       try {
         const keys = await redis.keys('youtube:*');
@@ -280,7 +280,7 @@ export class CacheManager {
       }
     }
 
-    // 통계 초기화
+    // ?듦퀎 珥덇린??
     this.stats = {
       hits: 0,
       misses: 0,
@@ -292,7 +292,7 @@ export class CacheManager {
     console.log('Cache cleared');
   }
 
-  // 캐시 워밍업
+  // 罹먯떆 ?뚮컢??
   async warmup(items: Array<{ key: string; data: unknown; ttl?: number }>): Promise<void> {
     console.log(`Warming up cache with ${items.length} items...`);
 
@@ -303,26 +303,26 @@ export class CacheManager {
     console.log('Cache warmup completed');
   }
 
-  // 캐시 통계 조회
+  // 罹먯떆 ?듦퀎 議고쉶
   getStats(): CacheStats {
     return { ...this.stats };
   }
 
-  // 캐시 크기 조회
+  // 罹먯떆 ?ш린 議고쉶
   getSize(): { memory: number; redis?: number | string } {
     const result: { memory: number; redis?: number | string } = {
       memory: this.memoryCache.size,
     };
 
     if (this.redisConnected) {
-      // Redis 크기는 비동기로 조회 필요
+      // Redis ?ш린??鍮꾨룞湲곕줈 議고쉶 ?꾩슂
       result.redis = 'Check async';
     }
 
     return result;
   }
 
-  // 히트율 업데이트
+  // ?덊듃???낅뜲?댄듃
   private updateHitRate(): void {
     const total = this.stats.hits + this.stats.misses;
     if (total > 0) {
@@ -330,22 +330,22 @@ export class CacheManager {
     }
   }
 
-  // TTL 전략
+  // TTL ?꾨왂
   static getTTL(data_type: string): number {
     const ttl_map: Record<string, number> = {
-      search: 5 * 60 * 1000, // 5분
-      video: 10 * 60 * 1000, // 10분
-      channel: 60 * 60 * 1000, // 1시간
-      playlist: 30 * 60 * 1000, // 30분
-      stats: 5 * 60 * 1000, // 5분
-      trending: 15 * 60 * 1000, // 15분
-      popular: 10 * 60 * 1000, // 10분
+      search: 5 * 60 * 1000, // 5遺?
+      video: 10 * 60 * 1000, // 10遺?
+      channel: 60 * 60 * 1000, // 1?쒓컙
+      playlist: 30 * 60 * 1000, // 30遺?
+      stats: 5 * 60 * 1000, // 5遺?
+      trending: 15 * 60 * 1000, // 15遺?
+      popular: 10 * 60 * 1000, // 10遺?
     };
 
     return ttl_map[data_type] || 5 * 60 * 1000;
   }
 
-  // 캐시 가능 여부 확인
+  // 罹먯떆 媛???щ? ?뺤씤
   static isCacheable(response: unknown): boolean {
     // Type guard to check if response is an object
     if (!response || typeof response !== 'object') {
@@ -355,25 +355,25 @@ export class CacheManager {
     // Type assertion after type guard
     const response_obj = response as { error?: unknown; items?: unknown[] };
 
-    // 에러 응답은 캐시하지 않음
+    // ?먮윭 ?묐떟? 罹먯떆?섏? ?딆쓬
     if (response_obj.error) {
       return false;
     }
 
-    // 빈 결과는 짧게 캐시
+    // 鍮?寃곌낵??吏㏐쾶 罹먯떆
     if (
       !response_obj.items ||
       !Array.isArray(response_obj.items) ||
       response_obj.items.length === 0
     ) {
-      return true; // 하지만 TTL을 짧게
+      return true; // ?섏?留?TTL??吏㏐쾶
     }
 
-    // 정상 응답은 캐시
+    // ?뺤긽 ?묐떟? 罹먯떆
     return true;
   }
 
-  // 종료 처리
+  // 醫낅즺 泥섎━
   async shutdown(): Promise<void> {
     if (this.redisConnected && redis) {
       await redis.quit();
@@ -384,7 +384,7 @@ export class CacheManager {
   }
 }
 
-// 캐시 데코레이터 (함수 래핑용)
+// 罹먯떆 ?곗퐫?덉씠??(?⑥닔 ?섑븨??
 export function withCache<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options?: {
@@ -395,21 +395,21 @@ export function withCache<T extends (...args: unknown[]) => Promise<unknown>>(
   const cache = CacheManager.getInstance();
 
   return (async (...args: Parameters<T>) => {
-    // 캐시 키 생성
+    // 罹먯떆 ???앹꽦
     const key = options?.keyGenerator
       ? options.keyGenerator(...args)
       : cache.generateKey(fn.name, args);
 
-    // 캐시 확인
+    // 罹먯떆 ?뺤씤
     const cached = await cache.get(key);
     if (cached) {
       return cached;
     }
 
-    // 함수 실행
+    // ?⑥닔 ?ㅽ뻾
     const result = await fn(...args);
 
-    // 결과 캐싱
+    // 寃곌낵 罹먯떛
     if (CacheManager.isCacheable(result)) {
       const ttl = options?.ttl || CacheManager.getTTL(fn.name);
       await cache.set(key, result, ttl);
@@ -419,5 +419,7 @@ export function withCache<T extends (...args: unknown[]) => Promise<unknown>>(
   }) as T;
 }
 
-// 싱글톤 인스턴스 export
+// ?깃????몄뒪?댁뒪 export
 export const cacheManager = CacheManager.getInstance();
+
+
