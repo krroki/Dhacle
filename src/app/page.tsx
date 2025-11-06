@@ -1,161 +1,28 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
-import { Suspense } from 'react';
-import { FAQSection } from '@/components/features/home/FAQSection';
-import { HeroCarousel } from '@/components/features/home/HeroCarousel';
-import { FeaturedToolsSection } from '@/components/features/home/FeaturedToolsSection';
-import { AllToolsGrid } from '@/components/features/home/AllToolsGrid';
-import {
-  FAQSkeleton,
-  HeroSkeleton,
-  ToolCardSkeleton,
-} from '@/components/features/home/shared/LoadingSkeletons';
 
-// 메타데이터 설정 - YouTube 크리에이터 도구 사이트
 export const metadata: Metadata = {
-  title: '디하클 - YouTube 크리에이터 전용 도구 플랫폼',
-  description:
-    'YouTube 크리에이터를 위한 전문 도구들. YouTube Lens로 채널 분석, 수익 계산기, 썸네일 제작 도구까지 한 번에 해결하세요.',
-  keywords: [
-    'YouTube 크리에이터',
-    'YouTube 도구',
-    '유튜브 분석',
-    'YouTube Lens',
-    '수익 계산기',
-    '썸네일 제작',
-    '채널 관리',
-    '크리에이터 툴',
-  ],
+  title: 'Dhacle - 서비스 일시 중단 안내',
+  description: '현재 Dhacle 프로젝트는 운영하지 않습니다. 새로운 소식이 준비되면 다시 찾아뵙겠습니다.',
   alternates: {
     canonical: 'https://dhacle.com',
-  },
-  openGraph: {
-    title: '디하클 - YouTube 크리에이터 전용 도구 플랫폼',
-    description: 'YouTube 크리에이터를 위한 전문 도구들. YouTube Lens, 수익 계산기, 썸네일 제작까지',
-    url: 'https://dhacle.com',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: '디하클 - YouTube 크리에이터 전용 도구 플랫폼',
-      },
-    ],
-  },
-};
-
-// 구조화된 데이터 (JSON-LD) - YouTube 도구 사이트
-const organization_schema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: '디하클',
-  alternateName: 'Dhacle',
-  url: 'https://dhacle.com',
-  logo: 'https://dhacle.com/icon-512.png',
-  description: 'YouTube 크리에이터를 위한 전문 도구 플랫폼',
-  sameAs: [
-    // 소셜 미디어 링크 추가 시 여기에 입력
-  ],
-  contactPoint: {
-    '@type': 'ContactPoint',
-    contactType: 'customer support',
-    availableLanguage: 'Korean',
-  },
-};
-
-const website_schema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: '디하클',
-  url: 'https://dhacle.com',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://dhacle.com/tools?search={search_term_string}',
-    },
-    'query-input': 'required name=search_term_string',
-  },
-};
-
-const software_application_schema = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: '디하클',
-  applicationCategory: 'BusinessApplication',
-  description: 'YouTube 크리에이터를 위한 종합 도구 플랫폼',
-  url: 'https://dhacle.com',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'KRW',
-    availability: 'https://schema.org/InStock',
   },
 };
 
 export default function HomePage() {
   return (
-    <>
-      {/* 구조화된 데이터 (JSON-LD) */}
-      <Script
-        id="organization-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organization_schema) }}
-      />
-      <Script
-        id="website-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(website_schema) }}
-      />
-      <Script
-        id="software-application-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(software_application_schema) }}
-      />
-
-      <div className="w-full">
-        {/* Hero Carousel Section - 무료특강/공지용 */}
-        <Suspense fallback={<HeroSkeleton />}>
-          <HeroCarousel />
-        </Suspense>
-
-        {/* Featured Tools Section - 주요 도구들 큰 카드 */}
-        <Suspense
-          fallback={
-            <div className="py-12 bg-muted/30">
-              <div className="container-responsive">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <ToolCardSkeleton key={i} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          }
-        >
-          <FeaturedToolsSection />
-        </Suspense>
-
-        {/* All Tools Grid Section - 모든 도구 그리드 */}
-        <Suspense
-          fallback={
-            <div className="py-12 container-responsive">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <ToolCardSkeleton key={i} />
-                ))}
-              </div>
-            </div>
-          }
-        >
-          <AllToolsGrid />
-        </Suspense>
-
-        {/* FAQ Section - 도구 사용법 FAQ */}
-        <Suspense fallback={<FAQSkeleton />}>
-          <FAQSection />
-        </Suspense>
+    <main className="min-h-screen bg-background text-foreground flex items-center justify-center px-6 py-16">
+      <div className="w-full max-w-xl text-center space-y-6 rounded-3xl border border-border/60 bg-card/80 backdrop-blur-md px-10 py-14 shadow-xl">
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">Service Notice</p>
+          <h1 className="text-3xl font-bold sm:text-4xl">현재 사용되고 있지 않은 사이트입니다.</h1>
+        </div>
+        <p className="text-base leading-relaxed text-muted-foreground">
+          현재 이 프로젝트는 운영하지 않는 상태입니다. 새로운 업데이트가 준비되는 대로 공지드리겠습니다.
+        </p>
+        <div className="text-sm text-muted-foreground/80">
+          문의가 필요하시면 기존 연락처 채널을 통해 연락 부탁드립니다.
+        </div>
       </div>
-    </>
+    </main>
   );
 }
